@@ -3,7 +3,8 @@ import type { Config } from "tailwindcss";
 const config: Config = {
     darkMode: ["class"],
     content: [
-    "./src/**/*.{js,ts,jsx,tsx,mdx}",
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx,mdx,vue}",
   ],
   theme: {
   	extend: {
@@ -41,11 +42,29 @@ const config: Config = {
   				DEFAULT: "hsl(var(--card))",
   				foreground: "hsl(var(--card-foreground))",
   			},
+  			// Kawaii palette
+  			salmon: {
+  				50:  "#FFF5F7",
+  				100: "#FFE3E6",
+  				200: "#FFCBD3",
+  				300: "#FFA6B2",
+  				400: "#FF8E9C",
+  				500: "#FF7B89",
+  				600: "#FF5A6E",
+  				700: "#E6455A",
+  				800: "#B8334A",
+  				900: "#8B2538",
+  			},
+  			cream: "#FFF5F7",
+  			navy: "#2C3E50",
   		},
   		borderRadius: {
   			lg: "var(--radius)",
   			md: "calc(var(--radius) - 2px)",
   			sm: "calc(var(--radius) - 4px)",
+  		},
+  		fontFamily: {
+  			sans: ["Nunito", "-apple-system", "BlinkMacSystemFont", "Hiragino Sans", "Yu Gothic", "sans-serif"],
   		},
   	}
   },

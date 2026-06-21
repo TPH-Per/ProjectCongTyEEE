@@ -1,0 +1,74 @@
+<template>
+  <div class="p-4 flex flex-col min-h-full">
+    <div class="mb-6 flex items-center gap-3">
+      <RouterLink to="/staff/floor-plan" class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+      </RouterLink>
+      <div>
+        <h2 class="text-xl font-bold text-gray-900">Bàn: T1-A4</h2>
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+          <p class="text-xs text-red-600 font-bold">Đang dùng bữa</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Order Summary -->
+    <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-200 mb-4">
+      <div class="flex justify-between items-center mb-2">
+        <div class="text-sm font-bold text-gray-800">Gói hiện tại</div>
+        <button class="text-xs text-blue-600 font-bold">Sửa</button>
+      </div>
+      <div class="text-sm font-medium text-gray-600">Premium Buffet 1380k + Drink A</div>
+      <div class="text-xs text-gray-500 mt-1">Khách: 4 (2 Nam, 2 Nữ)</div>
+    </div>
+
+    <!-- In-Dining CRM -->
+    <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-200 mb-4 flex-1">
+      <div class="text-sm font-bold text-gray-800 mb-4 flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-red-500"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+        CRM Tại Bàn (In-Dining)
+      </div>
+      
+      <div class="space-y-5">
+        <div>
+          <label class="text-xs text-gray-500 font-bold block mb-2">Kênh Marketing (Khách biết qua đâu?)</label>
+          <select class="w-full h-12 bg-gray-50 border border-gray-200 rounded-xl px-3 text-sm font-semibold text-gray-900">
+            <option value="" disabled selected>Chọn kênh...</option>
+            <option>Facebook Ads</option>
+            <option>Tiktok Reviewer</option>
+            <option>Người quen giới thiệu</option>
+            <option>Đi ngang qua</option>
+            <option>Google Map</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="text-xs text-gray-500 font-bold block mb-2">Xin phép truyền thông (Photo/Video)</label>
+          <div class="flex items-center gap-4 bg-gray-50 p-3 rounded-xl border border-gray-200">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="radio" name="media" class="text-red-600 accent-red-600 w-4 h-4" />
+              <span class="text-sm font-medium">Đồng ý</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="radio" name="media" class="text-red-600 accent-red-600 w-4 h-4" />
+              <span class="text-sm font-medium">Từ chối</span>
+            </label>
+          </div>
+        </div>
+
+        <div>
+          <label class="text-xs text-gray-500 font-bold block mb-2">Quà tặng giữ chân (Voucher)</label>
+          <label class="flex items-center gap-3 p-3 border border-gray-200 bg-gray-50 rounded-xl cursor-pointer">
+            <input type="checkbox" class="w-5 h-5 text-red-600 accent-red-600" />
+            <span class="text-sm font-bold text-gray-800">Đã tặng Voucher 10% cho lần sau</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <button class="mt-auto w-full bg-gray-900 hover:bg-black text-white font-bold py-4 rounded-2xl shadow-lg transition-colors text-lg">
+      Cập nhật Thông tin
+    </button>
+  </div>
+</template>

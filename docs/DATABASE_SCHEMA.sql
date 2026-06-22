@@ -2,6 +2,7 @@
 -- NGƯU CÁT — Restaurant POS Database Schema
 -- Target: PostgreSQL 15+ (Supabase Pro, $25/mo)
 -- Scope:  POS for NguuCat branches (order · payment · table mgmt · basic reports)
+-- Version: 1.0 (2026-06-22)
 -- =============================================================================
 --
 -- DESIGN CRITERIA (the ONLY rule that matters)
@@ -27,6 +28,12 @@
 -- branches and RLS can scope by branch.  RLS policies use the helper
 -- `public.current_branch_id()` rather than subqueries in every policy.
 --
+-- MONEY
+-- -----
+-- All monetary columns are `numeric(14,2)` — NEVER `float`.  Subtotal/VAT/total
+-- are STORED (not just computed) so reconciliation reports match the receipt.
+-- Every amount > 0 has a CHECK constraint.
+--
 -- HOW TO ADD A NEW FEATURE
 -- ------------------------
 --   * Needs referential integrity?  → new HIGH-consistency table with FKs.
@@ -34,6 +41,7 @@
 --   * Needs an audit/event trail?    → write a row to `audit_events`.
 --   * Needs a notification?          → write a row to `notifications`.
 --   * Needs a per-branch config?     → write a row to `branch_settings`.
+--   * Needs a per-row state on a HIGH table? → JSONB column on that table.
 --
 -- =============================================================================
 
@@ -53,6 +61,9 @@ create type order_status      as enum ('Pending', 'Preparing', 'Served', 'Paid',
 create type invoice_status    as enum ('draft', 'issued', 'paid', 'cancelled', 'refunded');
 create type payment_method    as enum ('cash', 'card', 'transfer', 'voucher', 'other');
 create type shift_status      as enum ('open', 'closed');
+create type package_type      as enum ('buffet', 'set', 'drink', 'other');
+create type revenue_type      as enum ('lunch', 'dinner', 'wine', 'delivery', 'other');
+create type voucher_type      as enum ('percent', 'amount');
 
 -- =============================================================================
 -- 2. Helper functions for RLS
@@ -99,7 +110,7 @@ create table public.branches (
   phone       text,
   timezone    text not null default 'Asia/Ho_Chi_Minh',
   currency    text not null default 'VND',
-  vat_rate    numeric(5,4) not null default 0.10,
+  vat_rate    numeric(5,4) not null default 0.08,   -- VN F&B is 8% (corrected from 0.10)
   is_active   boolean not null default true,
   created_at  timestamptz not null default now(),
   updated_at  timestamptz not null default now()
@@ -147,7 +158,7 @@ create table public.tables (
   pos_y       numeric(10,2) not null default 0,
   status      table_status not null default 'available',
   is_active   boolean not null default true,
-  metadata    jsonb not null default '{}'::jsonb,
+  metadata    jsonb not null default '{}'::jsonb,   -- {qr_token, table_label, notes}
   created_at  timestamptz not null default now(),
   updated_at  timestamptz not null default now(),
   unique (branch_id, code)
@@ -168,6 +179,12 @@ create table public.customers (
   -- JSONB-friendly fields (low consistency but kept inline for query speed)
   tags           jsonb not null default '[]'::jsonb,  -- ['VIP','allergies-seafood']
   preferences    jsonb not null default '{}'::jsonb,  -- {table:'window', lang:'ja'}
+  -- Demographics: captured by staff when opening a table.
+  -- Query examples:
+  --   gender breakdown:    select metadata->>'gender' as g, count(*) from customers group by 1
+  --   age distribution:    select metadata->>'age_bucket' as a, count(*) from customers group by 1
+  --   nationality:         select metadata->>'nationality' as n, count(*) from customers group by 1
+  demographics   jsonb not null default '{}'::jsonb,  -- {gender, age_bucket, nationality}
   metadata       jsonb not null default '{}'::jsonb,
   created_at     timestamptz not null default now(),
   updated_at     timestamptz not null default now()
@@ -191,18 +208,18 @@ create table public.menu_categories (
 create index menu_categories_branch_idx on public.menu_categories (branch_id);
 
 -- 3.7 MENU_ITEMS ---------------------------------------------------------------
+-- PRICE = selling price (used by order_items snapshot).
+-- COST  = raw-material cost for COGS / margin reporting (ManagerCOGSView).
+-- Both are HIGH-consistency numbers because they feed financial reports.
+-- cost is nullable because not every item has a tracked cost.
 create table public.menu_items (
   id           uuid primary key default uuid_generate_v4(),
   branch_id    uuid not null references public.branches(id) on delete cascade,
   category_id  uuid not null references public.menu_categories(id) on delete restrict,
   name         text not null,
   description  text,
-  -- PRICE = selling price (used by order_items snapshot).  COST = raw-material cost
-  -- for COGS / margin reporting (ManagerCOGSView).  Both are HIGH-consistency
-  -- numbers because they feed financial reports.  cost is nullable because not
-  -- every item has a tracked cost (e.g. complimentary water).
   price        numeric(12,2) not null check (price >= 0),
-  cost         numeric(12,2) check (cost is null or cost >= 0),
+  cost         numeric(12,2) check (cost is null or cost >= 0),  -- ADDED P0.1
   unit         text not null default 'Phần',
   image_url    text,
   is_available boolean not null default true,
@@ -210,13 +227,50 @@ create table public.menu_items (
   modifiers    jsonb not null default '[]'::jsonb,  -- [{name, options:[{label,price_delta}]}]
   tags         jsonb not null default '[]'::jsonb,  -- ['spicy','jp-import']
   nutrition    jsonb not null default '{}'::jsonb,  -- {calories, allergens:[]}
-  metadata     jsonb not null default '{}'::jsonb,  -- buffet packages: {package_type, item_limit, duration_minutes}
+  metadata     jsonb not null default '{}'::jsonb,  -- {vip_only, package_filter_hint}
   created_at   timestamptz not null default now(),
   updated_at   timestamptz not null default now()
 );
 create index menu_items_branch_cat_idx on public.menu_items (branch_id, category_id) where is_available;
 create index menu_items_modifiers_gin  on public.menu_items using gin (modifiers);
 create index menu_items_tags_gin       on public.menu_items using gin (tags);
+
+-- 3.7b PACKAGES (Set Biz 1200k, Buffet Wagyu 1380k, Drink A) -------------------
+-- Packages (buffet/set/drink) are first-class entities — NOT just menu_items
+-- because they carry:
+--   * item_limit     (e.g. "3/10 món" per table)
+--   * duration_minutes (buffet time window)
+--   * their own price independent of included items
+-- Items belonging to a package live in `package_items` (M:N).
+create table public.packages (
+  id               uuid primary key default uuid_generate_v4(),
+  branch_id        uuid not null references public.branches(id) on delete cascade,
+  name             text not null,                    -- 'Set Biz 1200k'
+  type             package_type not null,            -- buffet | set | drink | other
+  price            numeric(12,2) not null check (price >= 0),
+  item_limit       int check (item_limit is null or item_limit > 0),
+  duration_minutes int check (duration_minutes is null or duration_minutes > 0),
+  image_url        text,
+  is_active        boolean not null default true,
+  metadata         jsonb not null default '{}'::jsonb, -- {flow_mode:'one_way'|'free', notes}
+  created_at       timestamptz not null default now(),
+  updated_at       timestamptz not null default now()
+);
+create index packages_branch_type_idx on public.packages (branch_id, type) where is_active;
+
+create table public.package_items (
+  package_id   uuid not null references public.packages(id) on delete cascade,
+  menu_item_id uuid not null references public.menu_items(id) on delete restrict,
+  sort_order   int not null default 0,
+  -- Snapshot of the per-item price for accounting; the price in menu_items
+  -- may change but package_items keeps the value at the moment the package
+  -- was created / the item was added.
+  unit_price   numeric(12,2) check (unit_price is null or unit_price >= 0),
+  is_included  boolean not null default true,        -- false = paid add-on
+  created_at   timestamptz not null default now(),
+  primary key (package_id, menu_item_id)
+);
+create index package_items_menu_idx on public.package_items (menu_item_id);
 
 -- 3.8 RESERVATIONS -------------------------------------------------------------
 -- The booking is the entry point to POS flow (you can only order for a seated
@@ -260,47 +314,62 @@ create index reservations_customer_idx      on public.reservations (customer_id)
 -- 3.9 TABLE_ASSIGNMENTS --------------------------------------------------------
 -- Which tables are currently seating which reservation/order.
 -- `released_at IS NULL` = "this table is taken right now".
+-- metadata carries the package + flow mode + staff notes (kept in JSONB
+-- because each seating is one-of-a-kind and not aggregated).
 create table public.table_assignments (
   id             uuid primary key default uuid_generate_v4(),
   branch_id      uuid not null references public.branches(id) on delete cascade,
-  reservation_id uuid not null references public.reservations(id) on delete cascade,
+  reservation_id uuid references public.reservations(id) on delete cascade,  -- nullable for walk-in
   table_id       uuid not null references public.tables(id) on delete restrict,
   assigned_at    timestamptz not null default now(),
   released_at    timestamptz,
   assigned_by    uuid references public.users(id) on delete set null,
+  -- Seating context (LOW consistency, but typed for fast filtering):
+  -- {package_id, package_name_snapshot, party_size, demographics_capture,
+  --  flow_mode:'one_way'|'free', guest_profile:{m,f,children,age_bucket}}
+  -- Tablet order "3/10 món" reads from this row to know the limit + flow.
+  metadata       jsonb not null default '{}'::jsonb,
   unique (reservation_id, table_id)
 );
 create index table_assignments_open_idx        on public.table_assignments (table_id) where released_at is null;
 create index table_assignments_reservation_idx on public.table_assignments (reservation_id);
+create index table_assignments_branch_meta_gin on public.table_assignments using gin (metadata);
 
 -- 3.10 ORDERS ------------------------------------------------------------------
--- One reservation can have many orders (separate courses, split bills).
--- All money math starts here.
+-- One reservation (or one walk-in) can have many orders (separate courses,
+-- split bills).  All money math starts here.
+-- table_id is denormalized for hot-path Tablet queries ("3/10 món this table")
+-- — it is OPTIONAL because orders may exist before seating (e.g. pre-order).
 create table public.orders (
-  id             uuid primary key default uuid_generate_v4(),
-  branch_id      uuid not null references public.branches(id) on delete cascade,
-  reservation_id uuid references public.reservations(id) on delete set null,
-  customer_id    uuid references public.customers(id) on delete set null,
-  order_number   text not null,
-  status         order_status not null default 'Pending',
-  subtotal       numeric(14,2) not null default 0 check (subtotal >= 0),
-  vat_rate       numeric(5,4)  not null default 0.10,
-  vat            numeric(14,2) not null default 0 check (vat >= 0),
-  discount       numeric(14,2) not null default 0 check (discount >= 0),
-  total          numeric(14,2) not null default 0 check (total >= 0),
-  notes          jsonb not null default '{}'::jsonb,
-  created_by     uuid references public.users(id) on delete set null,
-  served_by      uuid references public.users(id) on delete set null,
-  created_at     timestamptz not null default now(),
-  updated_at     timestamptz not null default now(),
+  id              uuid primary key default uuid_generate_v4(),
+  branch_id       uuid not null references public.branches(id) on delete cascade,
+  reservation_id  uuid references public.reservations(id) on delete set null,
+  table_id        uuid references public.tables(id) on delete set null,   -- ADDED P0.5
+  customer_id     uuid references public.customers(id) on delete set null,
+  order_number    text not null,
+  status          order_status not null default 'Pending',
+  -- Money columns (all stored, not just computed)
+  subtotal        numeric(14,2) not null default 0 check (subtotal >= 0),
+  vat_rate        numeric(5,4)  not null default 0.08,                       -- CHANGED P0.2 (was 0.10)
+  vat             numeric(14,2) not null default 0 check (vat >= 0),
+  discount        numeric(14,2) not null default 0 check (discount >= 0),
+  total           numeric(14,2) not null default 0 check (total >= 0),
+  notes           jsonb not null default '{}'::jsonb,
+  created_by      uuid references public.users(id) on delete set null,
+  served_by       uuid references public.users(id) on delete set null,
+  created_at      timestamptz not null default now(),
+  updated_at      timestamptz not null default now(),
   unique (branch_id, order_number)
 );
 create index orders_branch_idx      on public.orders (branch_id, created_at desc);
 create index orders_reservation_idx on public.orders (reservation_id);
+create index orders_table_idx       on public.orders (table_id) where status not in ('Paid','Cancelled');
 create index orders_status_idx      on public.orders (branch_id, status);
 
 -- 3.11 ORDER_ITEMS -------------------------------------------------------------
--- name_snapshot + unit_price freeze the price at order time.
+-- name_snapshot + unit_price freeze the menu item at order time.
+-- unit_cost freezes the COGS-side number at order time too.
+-- modifiers is the actual choice the customer made (each row has different shape).
 create table public.order_items (
   id             uuid primary key default uuid_generate_v4(),
   branch_id      uuid not null references public.branches(id) on delete cascade,
@@ -308,6 +377,7 @@ create table public.order_items (
   menu_item_id   uuid not null references public.menu_items(id) on delete restrict,
   name_snapshot  text not null,
   unit_price     numeric(12,2) not null check (unit_price >= 0),
+  unit_cost      numeric(12,2) check (unit_cost is null or unit_cost >= 0),  -- ADDED P0 (COGS snapshot)
   quantity       numeric(10,2) not null check (quantity > 0),
   line_total     numeric(14,2) not null check (line_total >= 0),
   status         order_status not null default 'Pending',
@@ -324,6 +394,9 @@ create index order_items_modifiers_gin on public.order_items using gin (modifier
 
 -- 3.12 INVOICES ----------------------------------------------------------------
 -- 1:1 with orders.  customer_snapshot for printed receipts.
+-- tax_code + customer_company + customer_address are typed columns for VN
+-- "hóa đơn đỏ" — required by Nghị định 123/2020, must be indexable and
+-- validatable as a 10/13-digit MST.
 create table public.invoices (
   id                uuid primary key default uuid_generate_v4(),
   branch_id         uuid not null references public.branches(id) on delete cascade,
@@ -334,9 +407,13 @@ create table public.invoices (
   vat               numeric(14,2) not null default 0,
   discount          numeric(14,2) not null default 0,
   total             numeric(14,2) not null default 0,
-  customer_snapshot jsonb not null default '{}'::jsonb,  -- {name, phone, tax_code}
+  -- ADDED P0.3 — typed fields for VN red-invoice (must be indexable / validatable)
+  tax_code          text,                                -- MST 10/13 digits
+  customer_company  text,                                -- legal company name on the invoice
+  customer_address  text,
+  customer_snapshot jsonb not null default '{}'::jsonb,  -- {name, phone, email, tax_code, ...}
   notes             jsonb not null default '{}'::jsonb,
-  metadata          jsonb not null default '{}'::jsonb,
+  metadata          jsonb not null default '{}'::jsonb,  -- {serial, template, xml_url, cuc_thue_status}
   issued_at         timestamptz,
   issued_by         uuid references public.users(id) on delete set null,
   created_at        timestamptz not null default now(),
@@ -346,27 +423,72 @@ create table public.invoices (
 create index invoices_branch_idx  on public.invoices (branch_id, created_at desc);
 create index invoices_order_idx   on public.invoices (order_id);
 create index invoices_status_idx  on public.invoices (branch_id, status);
+create index invoices_tax_code_idx on public.invoices (branch_id, tax_code) where tax_code is not null;
 
 -- 3.13 PAYMENTS ----------------------------------------------------------------
 -- Many-to-one with invoices: split payments supported (e.g. half cash, half card).
+-- shift_id: link to the cashier shift envelope — required for ReceptionCloseShift
+-- to sum revenue by shift without a brittle created_at BETWEEN join.
+-- revenue_type: typed column for the "dinner/lunch/wine/delivery" report.
 create table public.payments (
   id               uuid primary key default uuid_generate_v4(),
   branch_id        uuid not null references public.branches(id) on delete cascade,
   invoice_id       uuid not null references public.invoices(id) on delete restrict,
+  shift_id         uuid references public.shifts(id) on delete set null,  -- ADDED P0.4
   method           payment_method not null,
+  revenue_type     revenue_type not null default 'other',                 -- ADDED P0.4
   amount           numeric(14,2) not null check (amount > 0),
   received_amount  numeric(14,2),
   change_amount    numeric(14,2) default 0,
   reference        text,                                -- card last4, transfer ref
-  metadata         jsonb not null default '{}'::jsonb,  -- gateway response, …
+  metadata         jsonb not null default '{}'::jsonb,  -- gateway response, voucher_code, …
   paid_at          timestamptz not null default now(),
   received_by      uuid references public.users(id) on delete set null,
   created_at       timestamptz not null default now()
 );
 create index payments_invoice_idx on public.payments (invoice_id);
 create index payments_branch_idx  on public.payments (branch_id, paid_at desc);
+create index payments_shift_idx   on public.payments (branch_id, shift_id);
+create index payments_revenue_idx on public.payments (branch_id, revenue_type, paid_at desc);
 
--- 3.14 DEPOSITS ----------------------------------------------------------------
+-- 3.14 VOUCHERS ----------------------------------------------------------------
+-- A voucher is a first-class HIGH entity because misuse = lost money:
+-- code is unique per branch, valid_until is enforced, max_uses limits abuse.
+create table public.vouchers (
+  id          uuid primary key default uuid_generate_v4(),
+  branch_id   uuid not null references public.branches(id) on delete cascade,
+  code        text not null,                          -- 'TET2026', printed/scanned
+  type        voucher_type not null,                  -- percent | amount
+  value       numeric(12,2) not null check (value > 0),  -- 10 (% off) or 50000 (VND off)
+  valid_from  date,
+  valid_until date,
+  max_uses    int check (max_uses is null or max_uses > 0),
+  used_count  int not null default 0 check (used_count >= 0),
+  is_active   boolean not null default true,
+  metadata    jsonb not null default '{}'::jsonb,    -- {min_order, applicable_categories, notes}
+  created_by  uuid references public.users(id) on delete set null,
+  created_at  timestamptz not null default now(),
+  updated_at  timestamptz not null default now(),
+  unique (branch_id, code)
+);
+create index vouchers_branch_active_idx on public.vouchers (branch_id) where is_active;
+
+-- 3.15 VOUCHER_REDEMPTIONS -----------------------------------------------------
+-- One row per invoice that used a voucher.  Audit trail of who redeemed what.
+create table public.voucher_redemptions (
+  id           uuid primary key default uuid_generate_v4(),
+  branch_id    uuid not null references public.branches(id) on delete cascade,
+  voucher_id   uuid not null references public.vouchers(id) on delete restrict,
+  invoice_id   uuid not null references public.invoices(id) on delete restrict,
+  discount_amount numeric(14,2) not null check (discount_amount > 0),
+  redeemed_at  timestamptz not null default now(),
+  redeemed_by  uuid references public.users(id) on delete set null,
+  unique (voucher_id, invoice_id)
+);
+create index voucher_redemptions_invoice_idx on public.voucher_redemptions (invoice_id);
+create index voucher_redemptions_branch_idx  on public.voucher_redemptions (branch_id, redeemed_at desc);
+
+-- 3.16 DEPOSITS ----------------------------------------------------------------
 -- Money taken at booking time (VIP reservations).  Not yet an invoice.
 create table public.deposits (
   id             uuid primary key default uuid_generate_v4(),
@@ -383,7 +505,7 @@ create table public.deposits (
 create index deposits_reservation_idx on public.deposits (reservation_id);
 create index deposits_branch_idx      on public.deposits (branch_id, received_at desc);
 
--- 3.15 SHIFTS ------------------------------------------------------------------
+-- 3.17 SHIFTS ------------------------------------------------------------------
 -- Cashier shift envelope: opening cash → closing reconciliation.
 create table public.shifts (
   id              uuid primary key default uuid_generate_v4(),
@@ -396,13 +518,57 @@ create table public.shifts (
   closing_cash    numeric(14,2),
   expected_cash   numeric(14,2),
   cash_difference numeric(14,2),
-  notes           jsonb not null default '{}'::jsonb,
+  notes           jsonb not null default '{}'::jsonb,    -- {handover_notes, incidents, …}
   metadata        jsonb not null default '{}'::jsonb,
   created_at      timestamptz not null default now(),
   updated_at      timestamptz not null default now()
 );
 create index shifts_branch_user_idx on public.shifts (branch_id, user_id, opened_at desc);
 create index shifts_status_idx      on public.shifts (branch_id, status);
+
+-- 3.18 KPI_TARGETS -------------------------------------------------------------
+-- AdminKPIView configures targets per metric per period.  NULL branch_id
+-- means group-wide target; specific branch_id overrides.
+create table public.kpi_targets (
+  id            uuid primary key default uuid_generate_v4(),
+  branch_id     uuid references public.branches(id) on delete cascade,  -- NULL = group
+  metric_key    text not null,                       -- 'revenue' | 'guests' | 'cogs_ratio' | 'reservation_fill' | 'avg_check'
+  target_value  numeric(14,2) not null,
+  period_start  date not null,
+  period_end    date not null,
+  scope         text not null default 'branch' check (scope in ('branch','group')),
+  notes         jsonb not null default '{}'::jsonb,
+  created_by    uuid references public.users(id) on delete set null,
+  created_at    timestamptz not null default now(),
+  updated_at    timestamptz not null default now(),
+  unique (branch_id, metric_key, period_start),
+  check (period_end >= period_start)
+);
+create index kpi_targets_period_idx on public.kpi_targets (period_start, period_end);
+create index kpi_targets_branch_idx  on public.kpi_targets (branch_id, metric_key);
+
+-- 3.19 MARKETING_COSTS ---------------------------------------------------------
+-- Per-channel ad spend ledger.  Combined with revenue (or reservation count)
+-- captured in audit_events.payload, this drives CPA & ROI.
+create table public.marketing_costs (
+  id            uuid primary key default uuid_generate_v4(),
+  branch_id     uuid not null references public.branches(id) on delete cascade,
+  channel       text not null,                       -- 'facebook' | 'tiktok' | 'google' | 'zalo' | 'other'
+  period_start  date not null,
+  period_end    date not null,
+  amount        numeric(14,2) not null check (amount >= 0),
+  notes         text,
+  metadata      jsonb not null default '{}'::jsonb,   -- {campaign_code, vendor, invoice_url}
+  created_by    uuid references public.users(id) on delete set null,
+  created_at    timestamptz not null default now(),
+  updated_at    timestamptz not null default now(),
+  unique (branch_id, channel, period_start),
+  check (period_end >= period_start)
+);
+create index marketing_costs_branch_period_idx
+  on public.marketing_costs (branch_id, period_start, period_end);
+create index marketing_costs_channel_idx
+  on public.marketing_costs (branch_id, channel, period_start desc);
 
 
 -- =============================================================================
@@ -428,13 +594,13 @@ create table public.audit_events (
   id             uuid primary key default uuid_generate_v4(),
   branch_id      uuid not null,
   actor_id       uuid,                                -- plain uuid, no FK
-  action         text not null,                       -- 'reservation.created', 'table.assigned'
-  entity_type    text,                                -- 'reservation'|'order'|'invoice'|'table'|'user'
+  action         text not null,                       -- 'reservation.created', 'table.assigned', 'table.checkout_requested', 'customer.crm_captured'
+  entity_type    text,                                -- 'reservation'|'order'|'invoice'|'table'|'user'|'voucher'
   entity_id      uuid,                                -- plain uuid, no FK
   reservation_id uuid,                                -- context shortcut, no FK
   order_id       uuid,                                -- context shortcut, no FK
   invoice_id     uuid,                                -- context shortcut, no FK
-  payload        jsonb not null default '{}'::jsonb,  -- {from, to, fields_changed, …}
+  payload        jsonb not null default '{}'::jsonb,  -- {from, to, fields_changed, marketing_channel, media_consent, …}
   ip_address     inet,
   user_agent     text,
   created_at     timestamptz not null default now()
@@ -473,7 +639,7 @@ create index notifications_pending_idx      on public.notifications (created_at)
 create table public.branch_settings (
   id          uuid primary key default uuid_generate_v4(),
   branch_id   uuid not null,
-  key         text not null,                          -- 'operating_hours', 'tax_id', 'logo_url'
+  key         text not null,                          -- 'operating_hours', 'tax_id', 'logo_url', 'default_locale', 'report_segments'
   value       jsonb not null,                         -- arbitrary JSON
   value_type  text not null default 'string',         -- 'string'|'number'|'boolean'|'json'|'array'
   description text,
@@ -515,8 +681,10 @@ declare t text;
 begin
   foreach t in array array[
     'branches','users','zones','tables','customers',
-    'menu_categories','menu_items','reservations',
-    'orders','order_items','invoices','shifts','branch_settings'
+    'menu_categories','menu_items','packages',
+    'reservations','orders','order_items','invoices',
+    'vouchers','shifts','kpi_targets','marketing_costs',
+    'branch_settings'
   ] loop
     execute format(
       'drop trigger if exists trg_set_updated_at on public.%I;
@@ -535,27 +703,33 @@ end$$;
 -- -----------------------------------------------------------------------
 
 -- HIGH-consistency tables
-alter table public.branches         enable row level security;
-alter table public.users            enable row level security;
-alter table public.zones            enable row level security;
-alter table public.tables           enable row level security;
-alter table public.customers        enable row level security;
-alter table public.menu_categories  enable row level security;
-alter table public.menu_items       enable row level security;
-alter table public.reservations     enable row level security;
+alter table public.branches          enable row level security;
+alter table public.users             enable row level security;
+alter table public.zones             enable row level security;
+alter table public.tables            enable row level security;
+alter table public.customers         enable row level security;
+alter table public.menu_categories   enable row level security;
+alter table public.menu_items        enable row level security;
+alter table public.packages          enable row level security;
+alter table public.package_items     enable row level security;
+alter table public.reservations      enable row level security;
 alter table public.table_assignments enable row level security;
-alter table public.orders           enable row level security;
-alter table public.order_items      enable row level security;
-alter table public.invoices         enable row level security;
-alter table public.payments         enable row level security;
-alter table public.deposits         enable row level security;
-alter table public.shifts           enable row level security;
+alter table public.orders            enable row level security;
+alter table public.order_items       enable row level security;
+alter table public.invoices          enable row level security;
+alter table public.payments          enable row level security;
+alter table public.vouchers          enable row level security;
+alter table public.voucher_redemptions enable row level security;
+alter table public.deposits          enable row level security;
+alter table public.shifts            enable row level security;
+alter table public.kpi_targets       enable row level security;
+alter table public.marketing_costs   enable row level security;
 
 -- LOW-consistency tables
-alter table public.audit_events     enable row level security;
-alter table public.notifications    enable row level security;
-alter table public.branch_settings  enable row level security;
-alter table public.system_events    enable row level security;
+alter table public.audit_events      enable row level security;
+alter table public.notifications     enable row level security;
+alter table public.branch_settings   enable row level security;
+alter table public.system_events     enable row level security;
 
 -- ----- Example policies (replicate / adjust per role) -------------------------
 
@@ -589,6 +763,32 @@ create policy "branch write tables" on public.tables
   for insert with check (branch_id = public.current_branch_id());
 create policy "branch update tables" on public.tables
   for update using (branch_id = public.current_branch_id()) with check (branch_id = public.current_branch_id());
+
+-- Packages: branch-scoped
+create policy "branch read packages" on public.packages
+  for select using (branch_id = public.current_branch_id());
+create policy "branch write packages" on public.packages
+  for insert with check (branch_id = public.current_branch_id());
+create policy "branch update packages" on public.packages
+  for update using (branch_id = public.current_branch_id()) with check (branch_id = public.current_branch_id());
+
+-- Vouchers: branch-scoped, manager+ only for write
+create policy "branch read vouchers" on public.vouchers
+  for select using (branch_id = public.current_branch_id());
+create policy "manager write vouchers" on public.vouchers
+  for all using (public.has_role(array['admin','manager']::user_role[]) and branch_id = public.current_branch_id());
+
+-- KPI targets: branch-scoped
+create policy "branch read kpi" on public.kpi_targets
+  for select using (branch_id is null or branch_id = public.current_branch_id());
+create policy "admin write kpi" on public.kpi_targets
+  for all using (public.has_role(array['admin','manager']::user_role[]));
+
+-- Marketing costs: branch-scoped, manager+ only
+create policy "branch read marketing" on public.marketing_costs
+  for select using (branch_id = public.current_branch_id());
+create policy "manager write marketing" on public.marketing_costs
+  for all using (public.has_role(array['admin','manager']::user_role[]) and branch_id = public.current_branch_id());
 
 -- LOW tables: branch-scoped read, anyone signed-in can write their branch
 create policy "branch read audit" on public.audit_events

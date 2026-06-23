@@ -1,8 +1,8 @@
 # Phân tích Nghiệp vụ Hệ thống Quản lý Nhà hàng (Restaurant Booking System)
 
 > Dự án: UI Clone & Modernization — Restaurant Booking System (SaaS)
-> Ngày phân tích: 20/06/2026
-> Công nghệ: Next.js 14 (App Router), TypeScript, TailwindCSS, shadcn/ui
+> Ngày cập nhật phân tích: 20/06/2026
+> Công nghệ: Vue 3 (Composition API), Vite, TypeScript, TailwindCSS
 
 ---
 
@@ -47,13 +47,13 @@ Kết thúc / Dọn bàn
 
 ## 2. Chi tiết nghiệp vụ theo từng màn hình
 
-### 2.1. Màn hình Lịch đặt bàn `/` (Timeline View)
+### 2.1. Màn hình Lịch đặt bàn `/` (Timeline View - `TimelineView.vue`)
 
 **Mục đích nghiệp vụ:** Cung cấp cái nhìn trực quan về mật độ đặt bàn theo **khung giờ** và **khu vực** trong ngày.
 
 **Nghiệp vụ chi tiết:**
-- Mỗi cột dọc = 1 khu vực (Zone A, B, VIP, Sân vườn)
-- Mỗi hàng ngang = 1 khung giờ (Morning: 7h-11h, Noon: 11h-14h, Afternoon: 14h-17h, Evening: 17h-22h)
+- Mỗi cột dọc = 1 khung giờ (Morning: 6h-11h, Noon: 11h-14h, Afternoon: 14h-17h, Evening: 17h-22h)
+- Mỗi hàng ngang = 1 khu vực (Zone A, B, VIP, Sân vườn)
 - **Màu sắc thẻ đặt bàn thể hiện trạng thái:**
   - 🔶 Amber (`bg-amber-50`) → Pending (Chờ xử lý)
   - 🔵 Blue (`bg-blue-50`) → Arrived (Đã đến)
@@ -62,70 +62,71 @@ Kết thúc / Dọn bàn
   - 🔴 Rose (`bg-rose-50`) → Cancelled (Đã hủy)
 - Nhân viên có thể **lọc theo khu vực** để xem chi tiết
 - **Thanh tìm kiếm** cho phép tra cứu nhanh theo tên khách, SĐT, mã đặt bàn
-- **Nút "Hôm nay"** để quay về ngày hiện tại
+- **Nút "Hôm nay"** để quay về ngày hiện tại (18/06/2026 trong dữ liệu mẫu)
 
 **Quy tắc nghiệp vụ:**
 - Mỗi đặt bàn chỉ xuất hiện trong đúng khung giờ và khu vực đã chọn
 - Đặt bàn kéo dài qua nhiều khung giờ (VD: 11h-15h) sẽ hiển thị ở khung giờ bắt đầu
 - Số lượng đặt bàn trong 1 ô = số thẻ trong ô đó, giới hạn hiển thị theo chiều cao ô
+- Click vào thẻ đặt bàn sẽ điều hướng người dùng tới trang Chi tiết đặt chỗ `/order/:id`
 
 ---
 
-### 2.2. Màn hình Danh sách `/list` (List View)
+### 2.2. Màn hình Danh sách `/list` (List View - `ListView.vue`)
 
 **Mục đích nghiệp vụ:** Tra cứu và quản lý danh sách đặt bàn dạng bảng, hỗ trợ tìm kiếm và lọc nâng cao.
 
 **Nghiệp vụ chi tiết:**
-- **Bộ lọc theo trạng thái:** Tab chọn lọc nhanh (Tất cả, Chờ, Đã đến, Đang dùng, Hoàn tất, Đã hủy)
-- **Chọn ngày:** Xem đặt bàn của ngày cụ thể
-- **Tìm kiếm:** Tra cứu theo tên khách hàng
+- **Bộ lọc theo trạng thái:** Tab chọn lọc nhanh (Tất cả, Chờ đến, Đã đến, Đang dùng, Hoàn tất, Đã hủy)
+- **Chọn ngày:** Xem đặt bàn của ngày cụ thể thông qua bộ chọn ngày
+- **Tìm kiếm:** Tra cứu theo tên khách hàng, SĐT, mã đặt chỗ
 - **Bảng dữ liệu** hiển thị các cột:
   1. Checkbox (chọn nhiều)
   2. Mã đặt bàn (link → Chi tiết)
-  3. Khách hàng (tên + avatar)
-  4. Số điện thoại
+  3. Khách hàng (tên + avatar + ghi chú nếu có)
+  4. Liên hệ (Số điện thoại)
   5. Giờ đến
-  6. Số người
+  6. Số người (Khách)
   7. Bàn được gán
   8. Loại tiệc
   9. Nguồn khách
   10. Trạng thái (badge màu)
-  11. Thao tác (xem chi tiết, chỉnh sửa, hủy)
-- **Phân trang:** 10, 20, 50 bản ghi/trang
+  11. Thao tác (xem chi tiết / chọn món)
+- **Phân trang:** Phân trang dưới cùng bảng
 
 **Quy tắc nghiệp vụ:**
-- Dữ liệu mặc định là ngày hôm nay
+- Dữ liệu mặc định là ngày 18/06/2026
 - Khi chọn trạng thái "Đã đến", hệ thống gợi ý gán bàn nếu chưa có
-- Có thể xuất danh sách ra file (tính năng tương lai)
+- Có thể xuất danh sách ra file Excel (nút tính năng tương lai)
 
 ---
 
-### 2.3. Màn hình Sơ đồ bàn `/floor-plan` (Floor Plan)
+### 2.3. Màn hình Sơ đồ bàn `/floor-plan` (Floor Plan - `FloorPlanView.vue`)
 
 **Mục đích nghiệp vụ:** Quản lý không gian bàn trực quan, gán khách vào bàn, theo dõi trạng thái từng bàn theo thời gian thực.
 
 **Nghiệp vụ chi tiết:**
 - **Hai chế độ xem:**
-  1. **Theo ngày:** Xem trạng thái bàn trong ngày cụ thể
-  2. **Hiện tại (Realtime):** Xem trạng thái bàn thực tế ngay lúc này
-- **Bảng khu vực (Zone panel):** Bên trái, hiển thị danh sách zone + thống kê số bàn (trống/đã đặt/có khách)
-- **Bản đồ bàn:** Vị trí các bàn được sắp xếp theo tọa độ (x, y) với màu sắc trạng thái:
+  1. **Theo ngày:** Xem trạng thái bàn trong ngày cụ thể (trạng thái động tính toán dựa trên lịch đặt chỗ)
+  2. **Hiện tại (Realtime):** Xem trạng thái bàn thực tế ngay lúc này (được cập nhật liên tục)
+- **Bảng khu vực (Zone panel):** Bên trái, hiển thị danh sách zone + thống kê số bàn (trống/đã đặt/đang ngồi)
+- **Bản đồ bàn:** Vị trí các bàn với màu sắc trạng thái trực quan:
   - 🟢 Xanh lá → Available (Trống, sẵn sàng)
   - 🟡 Vàng → Reserved (Đã đặt, chưa check-in)
-  - 🔴 Hồng → Occupied (Có khách đang dùng)
-- **Popover hover:** Xem nhanh thông tin (mã bàn, sức chứa, tên khách nếu có, giờ đến, số người)
+  - 🔴 Hồng → Occupied (Có khách đang ngồi)
+- **Thông tin trên bàn:** Mã bàn, số lượng chỗ, trạng thái, tên khách đặt, thời gian đến, số lượng khách thực tế.
+- Click vào bàn đang có khách hoặc đã đặt sẽ điều hướng đến trang Chi tiết đặt bàn `/order/:id`.
 
 **Quy tắc nghiệp vụ:**
 - Mỗi bàn có sức chứa tối đa (capacity) – không thể gán vượt quá
-- Bàn "Occupied" không thể được gán cho đặt bàn khác
+- Bàn "Occupied" không thể được gán cho đặt bàn khác trong cùng khung giờ
 - Ưu tiên gán bàn theo khu vực phù hợp với loại khách/tiệc
-- Tọa độ bàn (x, y) dùng để vẽ trên canvas, lưu theo cấu hình
 
 ---
 
-### 2.4. Màn hình Chi tiết đặt bàn `/order/[id]` (Booking Detail)
+### 2.4. Màn hình Chi tiết đặt bàn `/order/:id` (Booking Detail - `OrderDetailView.vue`)
 
-**Mục đích nghiệp vụ:** Xem và thao tác toàn bộ thông tin của một đặt bàn cụ thể.
+**Mục đích nghiệp vụ:** Xem và thao tác toàn bộ thông tin của một đặt bàn cụ thể, quản lý gọi món và thanh toán.
 
 **Nghiệp vụ chi tiết:**
 
@@ -136,50 +137,26 @@ Kết thúc / Dọn bàn
 - Thông tin khách hàng: Tên, SĐT, email, số lần đến, tổng chi tiêu
 
 #### 2.4.2. Tab "TT-Mở rộng" (Thông tin mở rộng)
-- Thông tin thanh toán: Hình thức, trạng thái, số tiền
-- **Tiền cọc** (nếu có): Số tiền, ngày cọc, phương thức, người thu
-- Yêu cầu đặc biệt: Trang trí, bánh sinh nhật, ăn kiêng...
-- Thông tin quản trị: Người tạo, ngày tạo, người cập nhật cuối
+- Thông tin thanh toán: Hình thức, đặt cọc
+- Yêu cầu đặc biệt: Trang trí, bánh sinh nhật, dịp kỷ niệm
+- Thông tin quản trị: Người tạo, ngày tạo, chi nhánh, kênh tiếp nhận
 
 #### 2.4.3. Tab "Người tiếp nhận" (Receiver)
-- **Timeline nhân viên:** Ai tiếp nhận, ai xác nhận, ai phục vụ
-- Lưu vết ca làm việc (lễ tân sáng → quản lý chiều → phục vụ tối)
+- **Nhân viên phụ trách:** Ai tiếp nhận đặt bàn, ai xác nhận đặt bàn, ai phụ trách phục vụ bàn
 
 #### 2.4.4. Tab "Lịch sử thao tác" (Operations History)
-- Timeline chi tiết các hành động trên bản ghi:
-  - "Đặt bàn được tạo bởi Nguyễn Văn A"
-  - "Bàn A03 được gán bởi Trần Thị B"
-  - "Trạng thái chuyển từ 'Chờ' sang 'Đã đến'"
-  - "Khách check-in lúc 11:32"
+- Timeline chi tiết các hành động trên bản ghi để tiện theo dõi: tạo mới, phân bàn, check-in...
 
 #### 2.4.5. Tab "Lịch sử tiêu dùng" (Consumption History)
-- Bảng danh sách món đã gọi: Mã món, tên, số lượng, đơn giá, thành tiền
+- Bảng danh sách món đã gọi: Tên món, số lượng, đơn giá, thành tiền
 - Tổng cộng: Tạm tính → Thuế (VAT 10%) → Tổng thanh toán
-- Trạng thái đơn hàng: Đang phục vụ / Đã thanh toán / Đã hủy
-- **Nút "In hóa đơn"** và "Thanh toán"
+- Trạng thái đơn hàng: Đang chuẩn bị / Đang phục vụ / Đã thanh toán
+- Các nút tương tác: "In hóa đơn", "Đã đến", "Lưu", "Sửa"
 
 **Quy tắc nghiệp vụ:**
 - Không thể chỉnh sửa đặt bàn đã "Hoàn tất" hoặc "Đã hủy"
-- **Nút "Đã đến"** chuyển trạng thái từ Pending → Arrived (hoặc tự động Dining nếu đã gán bàn)
-- **Nút "Thanh toán"** kết thúc đơn hàng, chuyển trạng thái đặt bàn → Completed
-- Chỉ có Quản lý ca mới được hủy đặt bàn đã check-in
-
----
-
-### 2.5. Màn hình Chọn món (Tích hợp trong `/order/[id]`)
-
-**Mục đích nghiệp vụ:** Ghi nhận món ăn/dịch vụ khách đặt, quản lý order theo bàn.
-
-**Nghiệp vụ chi tiết:**
-- Phân loại món theo danh mục: Buffet, Set Lunch, Thức ăn, Thức uống, Khác
-- Thêm/sửa/xóa món trong order
-- Số lượng và ghi chú cho từng món (VD: "Bò tái", "Không hành")
-- Tự động tính tổng tiền và thuế
-
-**Quy tắc nghiệp vụ:**
-- Món đã ghi không thể xóa nếu đã chế biến (cần xác nhận bếp)
-- Giá món có thể thay đổi theo khung giờ (giờ cao điểm/giờ thấp điểm)
-- Hỗ trợ chia hóa đơn (split bill) cho bàn ghép
+- **Nút "Đã đến"** chuyển trạng thái từ Pending → Arrived
+- **Nút "Lưu" & "Sửa"** dùng để cập nhật thông tin đơn hàng và đặt chỗ.
 
 ---
 
@@ -202,32 +179,31 @@ Branch (Chi nhánh)
 
 | Entity | Key Attributes | Ghi chú |
 |--------|---------------|---------|
-| **Branch** | `id`, `name`, `address`, `phone`, `isActive` | Cấu hình đa chi nhánh |
-| **Zone** | `id`, `name`, `branchId`, `displayOrder` | VD: Tầng 1, VIP, Sân vườn |
-| **Table** | `id`, `code`, `zoneId`, `capacity`, `status`, `x`, `y` | Tọa độ cho sơ đồ |
-| **Customer** | `id`, `name`, `phone`, `email`, `visitCount`, `totalSpent` | CRM tích hợp |
-| **Reservation** | `id`, `customerId`, `date`, `time`, `guests`, `status`, `tableCodes`, `notes` | Trung tâm hệ thống |
-| **MenuItem** | `id`, `name`, `category`, `price`, `isAvailable` | Phân loại theo danh mục |
-| **Order** | `id`, `reservationId`, `subTotal`, `vat`, `total`, `status` | Liên kết 1-1 với Reservation |
-| **OrderItem** | `id`, `orderId`, `menuItemId`, `quantity`, `unitPrice`, `note` | Chi tiết từng món |
-| **StaffLog** | `id`, `reservationId`, `action`, `staffName`, `timestamp` | Audit trail |
+| **Branch** | `id`, `name`, `address`, `phone` | Cấu hình đa chi nhánh |
+| **Zone** | `id`, `name`, `branchId`, `color` | Phân loại khu vực |
+| **Table** | `id`, `code`, `zoneId`, `capacity`, `status`, `shape`, `posX`, `posY` | Tọa độ cho sơ đồ |
+| **Customer** | `id`, `name`, `phone`, `email`, `totalVisits`, `totalSpent`, `note` | Quản lý khách hàng |
+| **Reservation** | `id`, `customerId`, `customerName`, `customerPhone`, `date`, `time`, `guests`, `status`, `tables`, `note`, `source`, `type`, `createdAt` | Thông tin lịch đặt |
+| **MenuItem** | `id`, `name`, `category`, `price`, `unit`, `description` | Menu món ăn |
+| **Order** | `id`, `reservationId`, `items`, `subtotal`, `vat`, `total`, `status`, `createdAt` | Hóa đơn gọi món |
+| **OrderItem** | `menuItemId`, `name`, `price`, `quantity` | Món đã gọi trong hóa đơn |
 
 ### 3.2. Enum/Trạng thái
 
 **ReservationStatus:**
 ```
-Pending → Arrived → Dining → Completed
-                          ↘ Cancelled
+Pending (Chờ đến) → Arrived (Đã đến) → Dining (Đang dùng) → Completed (Hoàn tất)
+                                                           ↘ Cancelled (Đã hủy)
 ```
 
 **TableStatus:**
 ```
-Available | Reserved | Occupied | Maintenance
+available (Trống) | reserved (Đã đặt) | occupied (Đang ngồi)
 ```
 
 **OrderStatus:**
 ```
-Pending → Serving → Paid | Cancelled
+Pending (Chờ xử lý) → Preparing (Đang chế biến) → Served (Đã phục vụ) → Paid (Đã thanh toán)
 ```
 
 ---
@@ -244,177 +220,44 @@ Pending → Serving → Paid | Cancelled
 
 ### 4.2. Quy tắc về Check-in / Check-out
 
-1. **"Đã đến" (Arrived):** Chỉ được chuyển khi có ít nhất 1 bàn đã gán. Nếu chưa gán bàn, hệ thống gợi ý mở sơ đồ bàn.
-2. **"Đang dùng" (Dining):** Tự động chuyển từ Arrived sau 15 phút (hoặc khi ghi món đầu tiên).
-3. **"Hoàn tất" (Completed):** Chỉ chuyển sau khi thanh toán. Bàn được giải phóng.
-4. **Quá giờ:** Nếu khách chưa đến sau 30 phút so với giờ hẹn, hệ thống cảnh báo và có thể tự động hủy (cấu hình).
-
-### 4.3. Quy tắc về Phân quyền
-
-| Tính năng | Lễ tân | Quản lý ca | Quản trị |
-|-----------|--------|-------------|----------|
-| Xem lịch đặt bàn | ✅ | ✅ | ✅ |
-| Tạo đặt bàn mới | ✅ | ✅ | ✅ |
-| Chỉnh sửa đặt bàn | ✅ (trừ Completed/Cancelled) | ✅ | ✅ |
-| Hủy đặt bàn | ✅ (chỉ Pending) | ✅ | ✅ |
-| Gán/Xóa bàn | ✅ | ✅ | ✅ |
-| Check-in khách | ✅ | ✅ | ✅ |
-| Ghi món | ✅ | ✅ | ✅ |
-| Thanh toán | ❌ | ✅ | ✅ |
-| Hủy đã check-in | ❌ | ✅ | ✅ |
-| Cấu hình hệ thống | ❌ | ❌ | ✅ |
-| Xem báo cáo | ❌ | ✅ | ✅ |
+1. **"Đã đến" (Arrived):** Chỉ được chuyển khi khách có mặt tại nhà hàng.
+2. **"Đang dùng" (Dining):** Chuyển trạng thái khi khách đã bắt đầu dùng bữa.
+3. **"Hoàn tất" (Completed):** Chỉ chuyển sau khi thanh toán hóa đơn. Các bàn liên kết sẽ tự động giải phóng sang trạng thái `available` (Trống).
+4. **Hủy đặt bàn:** Nếu khách không đến hoặc báo hủy, bản ghi chuyển sang trạng thái `Cancelled`, giải phóng bàn đã gán.
 
 ---
 
-## 5. Luồng Xử lý Chi tiết
-
-### 5.1. Luồng "Tiếp nhận đặt bàn qua điện thoại"
+## 5. Kiến trúc Component Vue 3 (Đã phân tích)
 
 ```
-1. Lễ tân nghe điện thoại
-2. Mở màn hình Lịch hoặc Danh sách
-3. Nhấn "Thêm đặt bàn" (nút TODO)
-4. Form đặt bàn hiện ra:
-   - Nhập: Tên khách, SĐT, ngày giờ, số người, loại tiệc, nguồn khách, ghi chú
-   - Gợi ý: Tìm kiếm khách hàng cũ theo SĐT
-5. Chọn khu vực và gán bàn (hoặc để sau)
-6. Lưu → Trạng thái: Pending
-```
-
-### 5.2. Luồng "Khách đến nhà hàng (Walk-in)"
-
-```
-1. Khách đến trực tiếp
-2. Lễ tân kiểm tra sơ đồ bàn còn trống không
-3. Tạo đặt bàn nhanh:
-   - Nhập: Tên khách, SĐT, số người
-   - Chọn bàn trống từ sơ đồ
-4. Lưu → Trạng thái: Arrived (vì khách đã có mặt)
-5. Chuyển sang màn hình Chọn món nếu khách gọi đồ ngay
-```
-
-### 5.3. Luồng "Phục vụ & Ghi món"
-
-```
-1. Phục vụ mở màn hình Chọn món cho bàn cần phục vụ
-2. Chọn danh mục → Chọn món → Nhập số lượng → Ghi chú (nếu có)
-3. Thêm món vào order
-4. Gửi món đến bếp (in phiếu / WebSocket)
-5. Theo dõi trạng thái: Đã gửi bếp → Đang chế biến → Đã lên món
-6. Khi khách yêu cầu thêm/gọi lại, lặp lại bước 2-4
-```
-
-### 5.4. Luồng "Thanh toán & Kết thúc"
-
-```
-1. Khách yêu cầu thanh toán
-2. Quản lý ca kiểm tra hóa đơn
-3. Xác nhận tổng tiền với khách
-4. Chọn hình thức thanh toán (Tiền mặt/Credit Card/Voucher)
-5. In hóa đơn / Gửi email hóa đơn
-6. Xác nhận thanh toán:
-   - Order → Paid
-   - Reservation → Completed
-   - Table → Available
-7. Dọn bàn
+App.vue (Mount point)
+  └── DashboardLayout (src/layouts/DashboardLayout.vue - Sidebar & Header)
+        ├── Sidebar (Brand, Navigation Links: Lịch, Danh sách, Sơ đồ bàn, Chọn món)
+        ├── Header (Branch Selector, Search Input, Notification, User Profile)
+        └── RouterView
+              ├── TimelineView (src/views/TimelineView.vue - Lịch đặt bàn)
+              ├── ListView (src/views/ListView.vue - Danh sách đặt bàn)
+              ├── FloorPlanView (src/views/FloorPlanView.vue - Sơ đồ bàn canvas)
+              └── OrderDetailView (src/views/OrderDetailView.vue - Chi tiết đặt chỗ & Chọn món)
 ```
 
 ---
 
-## 6. Ràng buộc Kỹ thuật & Gợi ý Triển khai
+## 6. Ràng buộc Kỹ thuật & Gợi ý Triển khai Production
 
-### 6.1. Hiện tại (Mock Data)
-- Tất cả dữ liệu đang được mock cứng trong `src/lib/mock-data.ts`
-- Chưa có kết nối API, chưa có server actions, chưa có database
-- State management chỉ dùng `useState` local
+### 6.1. Hiện tại (Client-side & Mock Data)
+- Sử dụng **Vite** làm bundler và build tool chính.
+- Toàn bộ dữ liệu được mock tĩnh tại [mock-data.ts](file:///e:/Công ty/Task/260/Product/src/lib/mock-data.ts).
+- Quản lý trạng thái thông qua hệ thống Reactive (`ref`, `computed`, `reactive`) của Vue 3.
 
 ### 6.2. Kiến trúc Đề xuất cho Production
 
 ```
-Client (Next.js) 
+Client (Vue 3 + Vite) 
     │
-    ├── Zustand: UI state (sidebar, active tab, filters)
-    ├── TanStack Query: Server state (reservations, tables)
-    │     └── REST API / GraphQL → Backend (Node.js / .NET / PHP)
-    ├── React Hook Form + Zod: Form validation
-    └── WebSocket: Real-time updates (table status, new bookings)
+    ├── Pinia: Quản lý trạng thái UI toàn cục (sidebar, ca làm việc, chi nhánh)
+    ├── TanStack Query (Vue Query): Quản lý trạng thái server (lịch đặt bàn, trạng thái bàn)
+    │     └── REST API / GraphQL → Backend Node.js / .NET
+    ├── Zod: Validate dữ liệu đầu vào của các form đặt bàn/chọn món
+    └── WebSocket: Đồng bộ hóa trạng thái bàn thời gian thực (Real-time table mapping)
 ```
-
-### 6.3. Backlog Cải tiến
-
-| Mức độ | Tính năng | Mô tả |
-|--------|-----------|-------|
-| 🔴 Cao | API Integration | Thay thế mock data bằng API calls |
-| 🔴 Cao | Real-time | WebSocket cho cập nhật trạng thái bàn theo thời gian thực |
-| 🔴 Cao | Form tạo đặt bàn | Modal/form để thêm/sửa đặt bàn |
-| 🟡 Trung | Authentication | Đăng nhập, phân quyền |
-| 🟡 Trung | Drag & Drop Floor | Kéo thả khách vào bàn trên sơ đồ |
-| 🟡 Trung | Responsive Mobile | Giao diện tối ưu cho tablet |
-| 🟢 Thấp | Báo cáo/Thống kê | Doanh thu, mật độ khách, món bán chạy |
-| 🟢 Thấp | Dark Mode | Hỗ trợ giao diện tối |
-| 🟢 Thấp | In ấn | In phiếu đặt bàn, hóa đơn |
-| 🟢 Thấp | Đa ngôn ngữ | Hỗ trợ tiếng Việt/Tiếng Anh |
-
----
-
-## 7. Sơ đồ Kiến trúc Component (Đã phân tích)
-
-```
-RootLayout (app/layout.tsx)
-  └── DashboardLayout (app/(dashboard)/layout.tsx)
-        ├── Sidebar
-        │     ├── Brand Logo + Tên nhà hàng
-        │     ├── Nav: Lịch, Danh sách, Sơ đồ bàn, Chọn món, Cấu hình
-        │     └── User Profile
-        ├── Header
-        │     ├── Branch Selector (dropdown)
-        │     ├── Search Bar
-        │     ├── Notification Bell
-        │     └── User Avatar
-        └── Main Content
-              ├── Page: Timeline (Lịch đặt bàn)     → /
-              ├── Page: List (Danh sách)             → /list
-              ├── Page: FloorPlan (Sơ đồ bàn)        → /floor-plan
-              └── Page: OrderDetail (Chi tiết đặt)   → /order/[id]
-                    ├── TabInfo
-                    ├── TabExpanded
-                    ├── TabReceiver
-                    ├── TabOperations
-                    └── TabConsumption
-```
-
----
-
-## 8. Các điểm cần làm rõ thêm
-
-1. **Cơ chế "Khóa giờ"**: Có giới hạn giờ nhận đặt bàn không? Có auto-release bàn nếu khách không đến không?
-2. **Xử lý hủy bàn**: Nếu khách hủy trong vòng 2h có tính phí không? Hệ thống có gửi thông báo không?
-3. **Đặt bàn online**: Tích hợp với kênh nào (website, Facebook, GrabFood...)?
-4. **Báo cáo**: Cần những chỉ số KPI nào? (Doanh thu/ngày, tỷ lệ hủy, bàn quay vòng...)
-5. **Phần cứng**: Có kết nối máy in hóa đơn, máy POS, thiết bị bếp không?
-6. **Phân quyền chi tiết**: Có cần vai trò "Thu ngân" riêng không? nhân viên bếp có quyền gì?
-7. **Multiple branches**: Có cần chuyển đổi nhanh giữa các chi nhánh không? Dữ liệu có tách biệt không?
-
----
-
-## 9. Kết luận
-
-Dự án là một **hệ thống quản lý nhà hàng toàn diện** với 4 màn hình chính đã được xây dựng UI (Timeline, List, FloorPlan, Order Detail). Các màn hình này bao phủ được **luồng nghiệp vụ cốt lõi**: theo dõi đặt bàn, tra cứu, điều phối bàn, và chi tiết đặt bàn.
-
-**Điểm mạnh:**
-- Kiến trúc component sạch, tách biệt rõ ràng
-- Màu sắc trạng thái trực quan
-- Mock data đầy đủ cho 16+ kịch bản
-- Giao diện chuyên nghiệp theo chuẩn SaaS
-
-**Cần phát triển tiếp:**
-- Form tạo/sửa đặt bàn
-- Xác thực người dùng
-- Real-time sync giữa các thiết bị
-- API backend & database
-- Module báo cáo
-
----
-
-*Tài liệu này được tạo dựa trên phân tích mã nguồn dự án UI Clone (Next.js 14 + TailwindCSS + shadcn/ui).*

@@ -168,6 +168,11 @@ const routes: RouteRecordRaw[] = [
         name: 'reception-close-shift',
         component: ReceptionCloseShiftView,
       },
+      {
+        path: 'floors',
+        name: 'reception-floors',
+        component: AdminFloorsView,
+      },
     ],
   },
 

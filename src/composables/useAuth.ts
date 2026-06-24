@@ -83,8 +83,9 @@ export function useAuth() {
 
     const url = import.meta.env.VITE_SUPABASE_URL || ''
     const isPlaceholder = url.includes('placeholder') || url.includes('<project-ref>')
+    const isDev = import.meta.env.DEV
 
-    if (isPlaceholder) {
+    if (isPlaceholder || (isDev && localStorage.getItem('ngu-cat.mock-session'))) {
       console.warn('[useAuth] Initialising local mock authentication.')
       const savedSession = localStorage.getItem('ngu-cat.mock-session')
       const savedProfile = localStorage.getItem('ngu-cat.mock-profile')
@@ -134,6 +135,7 @@ export function useAuth() {
   async function signIn(email: string, password: string) {
     const url = import.meta.env.VITE_SUPABASE_URL || ''
     const isPlaceholder = url.includes('placeholder') || url.includes('<project-ref>')
+    const isDev = import.meta.env.DEV
 
     const cleanEmail = email.trim().toLowerCase()
     const validEmails = [
@@ -144,8 +146,10 @@ export function useAuth() {
       'kitchen.q1@nguucat.vn'
     ]
 
-    if (isPlaceholder) {
-      console.warn('[useAuth] Bypassing auth via local mock login (placeholder URL detected).')
+    const shouldMock = isPlaceholder || (isDev && validEmails.includes(cleanEmail))
+
+    if (shouldMock) {
+      console.warn('[useAuth] Bypassing auth via local mock login (Dev mode or placeholder URL detected).')
       if (!validEmails.includes(cleanEmail)) {
         throw new Error('Cửa hàng hoặc tài khoản không tồn tại trên hệ thống')
       }

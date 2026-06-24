@@ -36,8 +36,11 @@
     <main class="flex-1 flex flex-col overflow-hidden">
       <header class="h-16 border-b bg-white flex items-center justify-between px-6 shrink-0 shadow-sm z-10">
         <div class="font-bold text-xl text-gray-800" id="reception-header-title">Bảng điều khiển</div>
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-3">
            <span class="text-sm font-semibold text-gray-500">Chi nhánh 1</span>
+           <button class="px-3 py-2 rounded-lg text-sm font-semibold text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors" @click="handleSignOut">
+             Đăng xuất
+           </button>
         </div>
       </header>
       <section class="flex-1 overflow-auto bg-gray-50 p-6">
@@ -48,5 +51,16 @@
 </template>
 
 <script setup lang="ts">
-import { RouterView, RouterLink } from 'vue-router'
+import { RouterView, RouterLink, useRouter } from 'vue-router'
+import { useAuth } from '@/composables/useAuth'
+
+const $router = useRouter()
+const { signOut, profile } = useAuth()
+
+async function handleSignOut() {
+  await signOut()
+  await $router.push({ name: 'login' })
+}
+
+void profile
 </script>

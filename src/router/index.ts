@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'
+import { getFallbackRouteForRole } from '@/utils/route'
 
 // ─── Layouts ──────────────────────────────────────────────────────────────────
 import ManagerLayout from '@/layouts/ManagerLayout.vue'
@@ -317,7 +318,7 @@ router.beforeEach(async (to) => {
   const prefix = String(to.path.split('/')[1] ?? '')
   const allowed = ROUTE_ROLES[prefix]
   if (allowed && role.value && !allowed.includes(role.value)) {
-    return { name: 'manager-dashboard' }
+    return getFallbackRouteForRole(role.value)
   }
 
   return

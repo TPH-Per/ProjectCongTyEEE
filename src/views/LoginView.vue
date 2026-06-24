@@ -3,10 +3,11 @@ import { ref, reactive, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuth } from '@/composables/useAuth'
+import { getHomeRouteForRole } from '@/utils/route'
 
 const router = useRouter()
 const { t } = useI18n()
-const { signIn, loading: authLoading, isAuthenticated } = useAuth()
+const { signIn, loading: authLoading, isAuthenticated, role } = useAuth()
 
 const form = reactive({
   email: '',
@@ -26,8 +27,8 @@ async function onSubmit() {
   errorMsg.value = null
   try {
     await signIn(form.email.trim(), form.password)
-    // Router guard will redirect to the proper portal via role-based home.
-    await router.push({ name: 'home' })
+    // Role-aware landing — admin → /admin/dashboard, staff → /staff/floor-plan, etc.
+    await router.push(getHomeRouteForRole(role.value))
   } catch (e) {
     errorMsg.value = e instanceof Error ? e.message : String(e)
   } finally {
@@ -77,6 +78,10 @@ void t
         >
           {{ submitting ? 'Signing in…' : 'Sign in' }}
         </button>
+
+        <p class="login-hint">
+          Tài khoản được cấp bởi quản lý. Liên hệ admin nếu chưa có.
+        </p>
       </form>
     </div>
   </div>
@@ -147,5 +152,12 @@ void t
 .login-submit:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+.login-hint {
+  margin: 0;
+  text-align: center;
+  font-size: 12px;
+  color: #64748b;
+  font-style: italic;
 }
 </style>

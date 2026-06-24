@@ -80,6 +80,9 @@
           <button class="relative p-2 rounded-2xl hover:bg-[hsl(var(--muted))] transition-colors">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
           </button>
+          <button class="px-3 py-2 rounded-2xl text-sm font-semibold text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors" @click="handleSignOut">
+            Đăng xuất
+          </button>
         </div>
       </header>
       <section class="flex-1 overflow-auto p-6 bg-gray-50/50">
@@ -90,6 +93,16 @@
 </template>
 
 <script setup lang="ts">
-import { RouterView, RouterLink, useRoute } from 'vue-router'
+import { RouterView, RouterLink, useRoute, useRouter } from 'vue-router'
+import { useAuth } from '@/composables/useAuth'
 const $route = useRoute()
+const $router = useRouter()
+const { signOut, profile } = useAuth()
+
+async function handleSignOut() {
+  await signOut()
+  await $router.push({ name: 'login' })
+}
+
+void profile
 </script>

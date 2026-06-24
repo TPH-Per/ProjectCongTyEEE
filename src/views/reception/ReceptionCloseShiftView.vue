@@ -3,8 +3,8 @@
     <!-- Header -->
     <div class="flex items-start justify-between">
       <div>
-        <h1 class="text-2xl font-black text-[hsl(var(--foreground))] tracking-tight">Tổng Kết Ca</h1>
-        <p class="text-sm text-[hsl(var(--muted-foreground))] mt-1">シフト終了レポート — Đóng ca & Xuất báo cáo ngày 20/06/2026</p>
+        <h1 class="text-2xl font-black text-[hsl(var(--foreground))] tracking-tight">{{ t('auto_t_ng_k_t_ca') }}</h1>
+        <p class="text-sm text-[hsl(var(--muted-foreground))] mt-1">{{ t('auto_______________ng_ca___xu_t_b_o') }}</p>
       </div>
       <div class="flex gap-2">
         <button class="kawaii-btn-ghost px-4 py-2 text-sm font-bold flex items-center gap-2">
@@ -24,57 +24,57 @@
 
     <!-- Revenue by Type -->
     <div class="kawaii-card p-6">
-      <h3 class="font-bold text-base text-[hsl(var(--foreground))] mb-5">Doanh Thu Theo Loại Hình (本日売上分類)</h3>
+      <h3 class="font-bold text-base text-[hsl(var(--foreground))] mb-5">{{ t('auto_doanh_thu_theo_lo_i_h_nh______') }}</h3>
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <div class="rounded-2xl border-2 border-red-200 bg-red-50 p-4 text-center">
           <div class="text-2xl mb-2">🍖</div>
-          <div class="text-xs font-bold text-red-400 uppercase tracking-wide mb-1">Bữa Tối (Dinner)</div>
+          <div class="text-xs font-bold text-red-400 uppercase tracking-wide mb-1">{{ t('auto_b_a_t_i__dinner_') }}</div>
           <div class="text-2xl font-black text-red-700">7,200,000</div>
-          <div class="text-xs text-red-400 mt-1">58% • 148 khách</div>
+          <div class="text-xs text-red-400 mt-1">{{ t('auto_58____148_kh_ch') }}</div>
         </div>
         <div class="rounded-2xl border-2 border-orange-200 bg-orange-50 p-4 text-center">
           <div class="text-2xl mb-2">🍱</div>
-          <div class="text-xs font-bold text-orange-400 uppercase tracking-wide mb-1">Bữa Trưa (Lunch)</div>
+          <div class="text-xs font-bold text-orange-400 uppercase tracking-wide mb-1">{{ t('auto_b_a_tr_a__lunch_') }}</div>
           <div class="text-2xl font-black text-orange-700">3,400,000</div>
-          <div class="text-xs text-orange-400 mt-1">27.4% • 72 khách</div>
+          <div class="text-xs text-orange-400 mt-1">{{ t('auto_27_4____72_kh_ch') }}</div>
         </div>
         <div class="rounded-2xl border-2 border-purple-200 bg-purple-50 p-4 text-center">
           <div class="text-2xl mb-2">🍶</div>
-          <div class="text-xs font-bold text-purple-400 uppercase tracking-wide mb-1">Rượu/Wine</div>
+          <div class="text-xs font-bold text-purple-400 uppercase tracking-wide mb-1">{{ t('auto_r__u_wine') }}</div>
           <div class="text-2xl font-black text-purple-700">1,100,000</div>
-          <div class="text-xs text-purple-400 mt-1">8.9% • kèm bữa</div>
+          <div class="text-xs text-purple-400 mt-1">{{ t('auto_8_9____k_m_b_a') }}</div>
         </div>
         <div class="rounded-2xl border-2 border-blue-200 bg-blue-50 p-4 text-center">
           <div class="text-2xl mb-2">🛵</div>
-          <div class="text-xs font-bold text-blue-400 uppercase tracking-wide mb-1">Giao Hàng (Delivery)</div>
+          <div class="text-xs font-bold text-blue-400 uppercase tracking-wide mb-1">{{ t('auto_giao_h_ng__delivery_') }}</div>
           <div class="text-2xl font-black text-blue-700">700,000</div>
-          <div class="text-xs text-blue-400 mt-1">5.6% • 28 đơn</div>
+          <div class="text-xs text-blue-400 mt-1">{{ t('auto_5_6____28___n') }}</div>
         </div>
       </div>
 
       <div class="bg-[hsl(var(--muted))] rounded-xl p-4 flex items-center justify-between">
-        <div class="font-black text-lg text-[hsl(var(--foreground))]">Tổng Doanh Thu Ngày</div>
-        <div class="text-3xl font-black text-[hsl(var(--primary))]">12,400,000đ</div>
+        <div class="font-black text-lg text-[hsl(var(--foreground))]">{{ t('auto_t_ng_doanh_thu_ng_y') }}</div>
+        <div class="text-3xl font-black text-[hsl(var(--primary))]">{{ t('auto_12_400_000_') }}</div>
       </div>
     </div>
 
     <!-- Session Summary Table -->
     <div class="kawaii-card overflow-hidden">
       <div class="kawaii-card-header">
-        <span class="font-bold text-sm">Lịch Sử Thanh Toán Trong Ca</span>
-        <span class="kawaii-pill bg-[hsl(var(--primary))]/10 text-[hsl(var(--primary))]">12 bàn</span>
+        <span class="font-bold text-sm">{{ t('auto_l_ch_s__thanh_to_n_trong_ca') }}</span>
+        <span class="kawaii-pill bg-[hsl(var(--primary))]/10 text-[hsl(var(--primary))]">{{ t('auto_12_b_n') }}</span>
       </div>
       <div class="overflow-x-auto">
         <table class="w-full text-sm">
           <thead>
             <tr class="border-b border-[hsl(var(--border))]">
-              <th class="text-left py-2 px-4 font-bold text-gray-500 text-[11px] uppercase">Bàn</th>
-              <th class="text-left py-2 px-4 font-bold text-gray-500 text-[11px] uppercase">Loại</th>
-              <th class="text-right py-2 px-4 font-bold text-gray-500 text-[11px] uppercase">Khách</th>
-              <th class="text-left py-2 px-4 font-bold text-gray-500 text-[11px] uppercase">Gói</th>
-              <th class="text-left py-2 px-4 font-bold text-gray-500 text-[11px] uppercase">Kênh</th>
+              <th class="text-left py-2 px-4 font-bold text-gray-500 text-[11px] uppercase">{{ t('auto_b_n') }}</th>
+              <th class="text-left py-2 px-4 font-bold text-gray-500 text-[11px] uppercase">{{ t('auto_lo_i') }}</th>
+              <th class="text-right py-2 px-4 font-bold text-gray-500 text-[11px] uppercase">{{ t('auto_kh_ch') }}</th>
+              <th class="text-left py-2 px-4 font-bold text-gray-500 text-[11px] uppercase">{{ t('auto_g_i') }}</th>
+              <th class="text-left py-2 px-4 font-bold text-gray-500 text-[11px] uppercase">{{ t('auto_k_nh') }}</th>
               <th class="text-right py-2 px-4 font-bold text-gray-500 text-[11px] uppercase">Doanh Thu</th>
-              <th class="text-left py-2 px-4 font-bold text-gray-500 text-[11px] uppercase">TG Thanh Toán</th>
+              <th class="text-left py-2 px-4 font-bold text-gray-500 text-[11px] uppercase">{{ t('auto_tg_thanh_to_n') }}</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-[hsl(var(--border))]">
@@ -96,16 +96,18 @@
 
     <!-- Staff Notes -->
     <div class="kawaii-card p-6">
-      <h3 class="font-bold text-base text-[hsl(var(--foreground))] mb-3">Ghi Chú Ca (本日特記事項)</h3>
+      <h3 class="font-bold text-base text-[hsl(var(--foreground))] mb-3">{{ t('auto_ghi_ch__ca_________') }}</h3>
       <textarea class="kawaii-input w-full py-3 text-sm h-24 resize-none" placeholder="Ghi chú bất thường trong ca, vấn đề cần bàn giao..."></textarea>
       <div class="flex justify-end mt-3">
-        <button class="kawaii-btn-primary px-5 py-2 text-sm font-bold">Lưu Ghi Chú</button>
+        <button class="kawaii-btn-primary px-5 py-2 text-sm font-bold">{{ t('auto_l_u_ghi_ch_') }}</button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 const sessions = [
   { table: 'T1-A4', type: 'Dinner', guests: 4, course: 'Premium Buffet 1380k', channel: 'Zalo OA', revenue: 5520000, time: '21:35' },
   { table: 'T2-B2', type: 'Dinner', guests: 2, course: 'Set Biz 1200k', channel: 'Google Map', revenue: 2400000, time: '21:10' },

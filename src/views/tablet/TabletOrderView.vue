@@ -7,15 +7,15 @@
           🐂
         </div>
         <div>
-          <h2 class="text-xl font-bold text-white">Bàn T1-A4</h2>
+          <h2 class="text-xl font-bold text-white">{{ t('auto_b_n_t1_a4') }}</h2>
           <p class="text-sm text-gray-400">Premium Buffet 1380k + Drink A</p>
         </div>
       </div>
       
       <div class="flex items-center gap-6">
         <div class="bg-gray-800 rounded-full px-4 py-2 flex items-center gap-2">
-          <span class="text-gray-400 font-medium">Giới hạn gọi món:</span>
-          <span class="text-white font-bold"><span class="text-red-500">3</span> / 10 món</span>
+          <span class="text-gray-400 font-medium">{{ t('auto_gi_i_h_n_g_i_m_n_') }}</span>
+          <span class="text-white font-bold"><span class="text-red-500">3</span> {{ t('auto___10_m_n') }}</span>
         </div>
         <button @click="submitOrder" :disabled="submitting" class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-full text-lg shadow-[0_0_15px_rgba(220,38,38,0.5)] transition-all disabled:opacity-50 disabled:cursor-not-allowed">
           {{ submitting ? 'Đang gửi...' : 'Gửi Bếp' }}
@@ -49,8 +49,8 @@
         <div class="mb-6 bg-blue-900/30 border border-blue-800 rounded-xl p-4 flex items-start gap-3">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-400 mt-0.5"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
           <div>
-            <h4 class="text-blue-400 font-bold text-sm">Luồng Gọi Món 1 Chiều</h4>
-            <p class="text-gray-400 text-sm mt-1">Quý khách vui lòng chọn các món trong danh mục hiện tại trước khi tiếp tục. Không thể quay lại trang trước.</p>
+            <h4 class="text-blue-400 font-bold text-sm">{{ t('auto_lu_ng_g_i_m_n_1_chi_u') }}</h4>
+            <p class="text-gray-400 text-sm mt-1">{{ t('auto_qu__kh_ch_vui_l_ng_ch_n_c_c_m_') }}</p>
           </div>
         </div>
 
@@ -98,6 +98,8 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 import { ref, onMounted } from 'vue'
 import { useMenu } from '@/composables/useMenu'
 import { useOrder } from '@/composables/useOrder'

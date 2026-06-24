@@ -6,7 +6,7 @@
       <!-- Column: Chờ chế biến -->
       <div class="flex-1 min-w-[350px] bg-gray-800 rounded-xl flex flex-col border border-gray-700">
         <div class="p-4 border-b border-gray-700 bg-gray-800/80 rounded-t-xl sticky top-0 flex justify-between items-center z-10">
-          <h2 class="text-xl font-bold text-gray-100 uppercase tracking-wider">Chờ chế biến</h2>
+          <h2 class="text-xl font-bold text-gray-100 uppercase tracking-wider">{{ t('auto_ch__ch__bi_n') }}</h2>
           <span class="bg-gray-700 text-gray-300 px-3 py-1 rounded text-sm font-bold">{{ pendingOrders.length }}</span>
         </div>
         <div class="p-4 flex-1 overflow-y-auto space-y-4">
@@ -55,7 +55,7 @@
       <!-- Column: Đang làm -->
       <div class="flex-1 min-w-[350px] bg-gray-800 rounded-xl flex flex-col border border-gray-700">
          <div class="p-4 border-b border-gray-700 bg-gray-800/80 rounded-t-xl sticky top-0 flex justify-between items-center z-10">
-          <h2 class="text-xl font-bold text-blue-400 uppercase tracking-wider">Đang làm</h2>
+          <h2 class="text-xl font-bold text-blue-400 uppercase tracking-wider">{{ t('auto__ang_l_m') }}</h2>
           <span class="bg-blue-900/50 text-blue-300 px-3 py-1 rounded text-sm font-bold border border-blue-700/50">{{ preparingOrders.length }}</span>
         </div>
         <div class="p-4 flex-1 overflow-y-auto space-y-4">
@@ -104,7 +104,7 @@
       <!-- Column: Hoàn thành -->
       <div class="flex-1 min-w-[350px] bg-gray-800 rounded-xl flex flex-col border border-gray-700 opacity-80">
          <div class="p-4 border-b border-gray-700 bg-gray-800/80 rounded-t-xl sticky top-0 flex justify-between items-center z-10">
-          <h2 class="text-xl font-bold text-green-400 uppercase tracking-wider">Hoàn thành</h2>
+          <h2 class="text-xl font-bold text-green-400 uppercase tracking-wider">{{ t('auto_ho_n_th_nh') }}</h2>
           <span class="bg-green-900/50 text-green-300 px-3 py-1 rounded text-sm font-bold border border-green-700/50">{{ doneOrders.length }}</span>
         </div>
         <div class="p-4 flex-1 overflow-y-auto space-y-4">
@@ -133,6 +133,8 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { supabase } from '@/lib/supabase';
 import { useRealtime } from '@/composables/useRealtime';

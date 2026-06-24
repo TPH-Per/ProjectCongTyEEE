@@ -2,8 +2,8 @@
   <div class="space-y-6">
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
       <div>
-        <h2 class="text-2xl font-bold text-gray-800">Quản lý chi nhánh</h2>
-        <p class="text-sm text-gray-500">Quản lý thông tin và trạng thái các chi nhánh trong hệ thống</p>
+        <h2 class="text-2xl font-bold text-gray-800">{{ t('auto_qu_n_l__chi_nh_nh') }}</h2>
+        <p class="text-sm text-gray-500">{{ t('auto_qu_n_l__th_ng_tin_v__tr_ng_th_') }}</p>
       </div>
       <button class="kawaii-btn-primary flex items-center shadow-lg shadow-rose-200">
         <PlusIcon class="w-5 h-5 mr-2" />
@@ -23,9 +23,9 @@
       </div>
       <div class="flex gap-2 w-full md:w-auto">
         <select class="kawaii-input w-full md:w-auto bg-gray-50">
-          <option>Tất cả trạng thái</option>
-          <option>Đang hoạt động</option>
-          <option>Tạm ngưng</option>
+          <option>{{ t('auto_t_t_c__tr_ng_th_i') }}</option>
+          <option>{{ t('auto__ang_ho_t___ng') }}</option>
+          <option>{{ t('auto_t_m_ng_ng') }}</option>
         </select>
         <button class="kawaii-btn-ghost flex items-center justify-center p-3">
           <FilterIcon class="w-5 h-5" />
@@ -64,20 +64,20 @@
           
           <div class="mt-auto pt-4 border-t border-gray-100 grid grid-cols-2 gap-4">
             <div>
-              <p class="text-xs text-gray-400 mb-1">Quản lý</p>
+              <p class="text-xs text-gray-400 mb-1">{{ t('auto_qu_n_l_') }}</p>
               <p class="text-sm font-medium text-gray-700 flex items-center">
                 <UserIcon class="w-4 h-4 mr-1" /> {{ branch.manager }}
               </p>
             </div>
             <div>
-              <p class="text-xs text-gray-400 mb-1">Sức chứa</p>
+              <p class="text-xs text-gray-400 mb-1">{{ t('auto_s_c_ch_a') }}</p>
               <p class="text-sm font-medium text-gray-700">{{ branch.capacity }} bàn</p>
             </div>
           </div>
         </div>
         <div class="px-5 py-3 bg-gray-50 border-t border-gray-100 flex justify-between">
-          <button class="text-sm font-medium text-[#FF7B89] hover:underline">Cấu hình</button>
-          <button class="text-sm font-medium text-gray-600 hover:text-gray-800">Thống kê</button>
+          <button class="text-sm font-medium text-[#FF7B89] hover:underline">{{ t('auto_c_u_h_nh') }}</button>
+          <button class="text-sm font-medium text-gray-600 hover:text-gray-800">{{ t('auto_th_ng_k_') }}</button>
         </div>
       </div>
       <div v-if="loading" class="col-span-full text-center py-8 text-gray-500">
@@ -88,6 +88,8 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 import { ref, onMounted } from 'vue'
 import { 
   PlusIcon, 

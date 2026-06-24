@@ -6,7 +6,7 @@
       </RouterLink>
       <div>
         <h2 class="text-xl font-bold text-gray-900">Mở bàn: {{ tableCode }}</h2>
-        <p class="text-xs text-gray-500">Scan QR & Profile Khách</p>
+        <p class="text-xs text-gray-500">{{ t('auto_scan_qr___profile_kh_ch') }}</p>
       </div>
     </div>
 
@@ -34,12 +34,12 @@
       <div class="space-y-4">
         <label class="flex items-center gap-3 p-3 border border-red-200 bg-red-50 rounded-xl cursor-pointer">
           <input type="checkbox" class="w-5 h-5 text-red-600 accent-red-600" />
-          <span class="text-sm font-bold text-red-800">Dự đoán là Khách Quen (Repeater)</span>
+          <span class="text-sm font-bold text-red-800">{{ t('auto_d___o_n_l__kh_ch_quen__repeate') }}</span>
         </label>
 
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <span class="text-xs text-gray-500 font-medium block mb-1">Số lượng Nam</span>
+            <span class="text-xs text-gray-500 font-medium block mb-1">{{ t('auto_s__l__ng_nam') }}</span>
             <div class="flex items-center bg-gray-50 border border-gray-200 rounded-xl overflow-hidden">
               <button class="w-10 h-10 flex items-center justify-center text-gray-500 border-r">-</button>
               <input type="text" class="flex-1 w-full text-center bg-transparent font-bold text-sm" value="2" />
@@ -47,7 +47,7 @@
             </div>
           </div>
           <div>
-            <span class="text-xs text-gray-500 font-medium block mb-1">Số lượng Nữ</span>
+            <span class="text-xs text-gray-500 font-medium block mb-1">{{ t('auto_s__l__ng_n_') }}</span>
             <div class="flex items-center bg-gray-50 border border-gray-200 rounded-xl overflow-hidden">
               <button class="w-10 h-10 flex items-center justify-center text-gray-500 border-r">-</button>
               <input type="text" class="flex-1 w-full text-center bg-transparent font-bold text-sm" value="1" />
@@ -55,7 +55,7 @@
             </div>
           </div>
           <div>
-            <span class="text-xs text-gray-500 font-medium block mb-1">Trẻ em</span>
+            <span class="text-xs text-gray-500 font-medium block mb-1">{{ t('auto_tr__em') }}</span>
             <div class="flex items-center bg-gray-50 border border-gray-200 rounded-xl overflow-hidden">
               <button class="w-10 h-10 flex items-center justify-center text-gray-500 border-r">-</button>
               <input type="text" class="flex-1 w-full text-center bg-transparent font-bold text-sm" value="0" />
@@ -63,7 +63,7 @@
             </div>
           </div>
           <div>
-            <span class="text-xs text-gray-500 font-medium block mb-1">Độ tuổi chung</span>
+            <span class="text-xs text-gray-500 font-medium block mb-1">{{ t('auto____tu_i_chung') }}</span>
             <select class="w-full h-10 bg-gray-50 border border-gray-200 rounded-xl px-2 text-sm font-bold text-gray-700">
               <option>20-30</option>
               <option>30-40</option>
@@ -84,7 +84,7 @@
 
       <div class="space-y-3">
         <div>
-          <span class="text-xs text-gray-500 font-medium block mb-1">Gói Đồ Ăn</span>
+          <span class="text-xs text-gray-500 font-medium block mb-1">{{ t('auto_g_i_____n') }}</span>
           <select class="w-full h-12 bg-gray-50 border border-gray-200 rounded-xl px-3 text-sm font-bold text-gray-900">
             <option>Buffet Premium 1380k</option>
             <option>Buffet Standard 1150k</option>
@@ -93,7 +93,7 @@
         </div>
 
         <div>
-          <span class="text-xs text-gray-500 font-medium block mb-1">Gói Đồ Uống</span>
+          <span class="text-xs text-gray-500 font-medium block mb-1">{{ t('auto_g_i____u_ng') }}</span>
           <select class="w-full h-12 bg-gray-50 border border-gray-200 rounded-xl px-3 text-sm font-bold text-gray-900">
             <option>Softdrink Free (A)</option>
             <option>Alcohol Free (B)</option>
@@ -103,7 +103,7 @@
         </div>
 
         <div class="pt-2">
-          <span class="text-xs text-gray-500 font-medium block mb-2">Quyền kiểm soát (Tablet Control)</span>
+          <span class="text-xs text-gray-500 font-medium block mb-2">{{ t('auto_quy_n_ki_m_so_t__tablet_contro') }}</span>
           <div class="grid grid-cols-2 gap-2">
             <button class="bg-red-50 border-2 border-red-500 text-red-700 font-bold py-2 rounded-xl text-xs flex flex-col items-center gap-1">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
@@ -125,6 +125,8 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useCheckIn } from '@/composables/useCheckIn'

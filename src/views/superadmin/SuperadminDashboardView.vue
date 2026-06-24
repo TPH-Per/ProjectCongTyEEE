@@ -5,7 +5,7 @@
       <div class="kawaii-card bg-white p-6 relative overflow-hidden">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-sm font-medium text-gray-500 mb-1">Tổng doanh thu toàn hệ thống</p>
+            <p class="text-sm font-medium text-gray-500 mb-1">{{ t('auto_t_ng_doanh_thu_to_n_h__th_ng') }}</p>
             <h3 class="text-2xl font-bold text-gray-800">{{ formatCurrency(totalRevenue) }}</h3>
             <p class="text-xs text-green-500 mt-2 flex items-center">
               <TrendingUpIcon class="w-3 h-3 mr-1" /> +12.5% so với tháng trước
@@ -23,7 +23,7 @@
       <div class="kawaii-card bg-white p-6 relative overflow-hidden">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-sm font-medium text-gray-500 mb-1">Tổng bàn đang phục vụ</p>
+            <p class="text-sm font-medium text-gray-500 mb-1">{{ t('auto_t_ng_b_n__ang_ph_c_v_') }}</p>
             <h3 class="text-2xl font-bold text-gray-800">{{ activeTables }} / {{ totalTables }}</h3>
             <p class="text-xs text-blue-500 mt-2 flex items-center">
               <ActivityIcon class="w-3 h-3 mr-1" /> Công suất {{ totalTables > 0 ? Math.round((activeTables / totalTables) * 100) : 0 }}%
@@ -38,8 +38,8 @@
       <div class="kawaii-card bg-white p-6 relative overflow-hidden">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-sm font-medium text-gray-500 mb-1">Trạng thái hệ thống</p>
-            <h3 class="text-2xl font-bold text-green-500">Hoạt động tốt</h3>
+            <p class="text-sm font-medium text-gray-500 mb-1">{{ t('auto_tr_ng_th_i_h__th_ng') }}</p>
+            <h3 class="text-2xl font-bold text-green-500">{{ t('auto_ho_t___ng_t_t') }}</h3>
             <p class="text-xs text-gray-500 mt-2 flex items-center">
               <CheckCircleIcon class="w-3 h-3 mr-1 text-green-500" /> API / ERP / Đồng bộ
             </p>
@@ -54,11 +54,11 @@
     <!-- Branch Performance -->
     <div class="kawaii-card bg-white p-6">
       <div class="flex justify-between items-center mb-4">
-        <h3 class="text-lg font-bold text-gray-800">Hiệu suất chi nhánh</h3>
+        <h3 class="text-lg font-bold text-gray-800">{{ t('auto_hi_u_su_t_chi_nh_nh') }}</h3>
         <select class="kawaii-input text-sm py-1 px-3 w-auto bg-gray-50 border-none">
-          <option>Hôm nay</option>
-          <option>Tuần này</option>
-          <option>Tháng này</option>
+          <option>{{ t('auto_h_m_nay') }}</option>
+          <option>{{ t('auto_tu_n_n_y') }}</option>
+          <option>{{ t('auto_th_ng_n_y') }}</option>
         </select>
       </div>
       
@@ -66,11 +66,11 @@
         <table class="w-full text-left border-collapse">
           <thead>
             <tr class="text-gray-400 text-sm border-b border-gray-100">
-              <th class="py-3 px-4 font-medium">Chi nhánh</th>
+              <th class="py-3 px-4 font-medium">{{ t('auto_chi_nh_nh') }}</th>
               <th class="py-3 px-4 font-medium">Doanh thu</th>
-              <th class="py-3 px-4 font-medium">Đơn hàng</th>
-              <th class="py-3 px-4 font-medium">Đánh giá</th>
-              <th class="py-3 px-4 font-medium">Trạng thái</th>
+              <th class="py-3 px-4 font-medium">{{ t('auto___n_h_ng') }}</th>
+              <th class="py-3 px-4 font-medium">{{ t('auto___nh_gi_') }}</th>
+              <th class="py-3 px-4 font-medium">{{ t('auto_tr_ng_th_i') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -108,6 +108,8 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 import { ref, onMounted } from 'vue'
 import { 
   TrendingUpIcon, 

@@ -1,27 +1,13 @@
 // =============================================================================
 // src/types/database.ts
-// Hand-written mirror of docs/DATABASE_SCHEMA.sql (2026-06-22).
-//
-// Run `npx supabase gen types typescript --project-id <ref> --schema public`
-// to regenerate from the live DB. Until then this file gives full type
-// safety on the typed client: `createClient<Database>(url, key)`.
+// Hand-written mirror of docs/DATABASE_SCHEMA.sql (Refactored 2026-06-25)
 // =============================================================================
 
 // ─── Enums ──────────────────────────────────────────────────────────────────
 export type UserRole = 'admin' | 'manager' | 'reception' | 'staff' | 'kitchen'
-export type TableStatus = 'available' | 'reserved' | 'occupied' | 'maintenance'
-export type ReservationStatus =
-  | 'Pending'
-  | 'Arrived'
-  | 'Dining'
-  | 'Completed'
-  | 'Cancelled'
-export type OrderStatus =
-  | 'Pending'
-  | 'Preparing'
-  | 'Served'
-  | 'Paid'
-  | 'Cancelled'
+export type TableStatus = 'available' | 'reserved' | 'occupied' | 'maintenance' | 'needs_cleaning'
+export type ReservationStatus = 'Pending' | 'Arrived' | 'Dining' | 'Completed' | 'Cancelled'
+export type OrderStatus = 'Pending' | 'Preparing' | 'Served' | 'Paid' | 'Cancelled'
 export type InvoiceStatus = 'draft' | 'issued' | 'paid' | 'cancelled' | 'refunded'
 export type PaymentMethod = 'cash' | 'card' | 'transfer' | 'voucher' | 'other'
 export type ShiftStatus = 'open' | 'closed'
@@ -29,59 +15,48 @@ export type PackageType = 'buffet' | 'set' | 'drink' | 'other'
 export type RevenueType = 'lunch' | 'dinner' | 'wine' | 'delivery' | 'other'
 export type VoucherType = 'percent' | 'amount'
 
-// ─── Helpers (typed shortcuts for JSONB columns we read/write a lot) ───────
-export interface CustomerSnapshot {
-  name?: string
-  phone?: string
-  email?: string
+// ─── JSONB Interfaces ───────────────────────────────────────────────────────
+export interface I18nString {
+  vi: string
+  en: string
+  ja: string
+  [k: string]: string
+}
+
+export interface CustomerPreferences {
+  allergies?: string[]
+  favorite_tables?: string[]
+  [k: string]: unknown
+}
+
+export interface PackageItemConfig {
+  menu_item_id: string
+  limit: number | null
+}
+
+export interface AppliedVoucher {
+  voucher_id: string
+  code: string
+  discount_amount: number
+}
+
+export interface TaxInfo {
   tax_code?: string
-}
-
-export interface PartySize {
-  male: number
-  female: number
-  children: number
-  age_bucket: string
-  gender?: 'male' | 'female' | 'mixed'
-  nationality?: 'local' | 'foreign'
-}
-
-export interface TableAssignmentMetadata {
-  package_id?: string
-  package_name_snapshot?: string
-  package_type?: PackageType
-  item_limit?: number
-  duration_minutes?: number
-  flow_mode?: 'one_way' | 'free'
-  party_size?: PartySize
-  demographics_capture?: PartySize
-  checkout_acknowledged?: boolean
-  [k: string]: unknown
-}
-
-export interface CustomerDemographics {
-  gender?: 'male' | 'female' | 'mixed' | string
-  age_bucket?: string
-  nationality?: 'local' | 'foreign' | string
-  [k: string]: unknown
-}
-
-export interface InvoiceMetadata {
-  serial?: string
-  template?: string
-  xml_url?: string
-  pdf_path?: string
-  vt_invoice_id?: string
-  vt_serial?: string
-  vt_number?: string
-  vt_status?: string
-  notes?: string
-  [k: string]: unknown
+  company_name?: string
+  address?: string
+  email?: string
 }
 
 export interface ShiftNotes {
   handover_notes?: string
   incidents?: string
+  [k: string]: unknown
+}
+
+export interface BookingInfo {
+  source?: string
+  occasion?: string
+  notes?: string
   [k: string]: unknown
 }
 
@@ -111,21 +86,10 @@ export interface UserRow {
   created_at: string
   updated_at: string
 }
-export interface ZoneRow {
-  id: string
-  branch_id: string
-  name: string
-  color: string | null
-  sort_order: number
-  is_active: boolean
-  metadata: Record<string, unknown>
-  created_at: string
-  updated_at: string
-}
 export interface TableRow {
   id: string
   branch_id: string
-  zone_id: string
+  zone: string
   code: string
   capacity: number
   shape: 'round' | 'square' | 'rectangle' | null
@@ -148,18 +112,8 @@ export interface CustomerRow {
   last_visit_at: string | null
   is_vip: boolean
   tags: string[]
-  preferences: Record<string, unknown>
-  demographics: CustomerDemographics
-  metadata: Record<string, unknown>
-  created_at: string
-  updated_at: string
-}
-export interface MenuCategoryRow {
-  id: string
-  branch_id: string
-  name: string
-  sort_order: number
-  is_active: boolean
+  preferences: CustomerPreferences
+  demographics: Record<string, unknown>
   metadata: Record<string, unknown>
   created_at: string
   updated_at: string
@@ -167,9 +121,11 @@ export interface MenuCategoryRow {
 export interface MenuItemRow {
   id: string
   branch_id: string
-  category_id: string
+  category: string
   name: string
+  i18n_name: I18nString
   description: string | null
+  i18n_description: I18nString
   price: number
   cost: number | null
   unit: string
@@ -186,78 +142,59 @@ export interface PackageRow {
   id: string
   branch_id: string
   name: string
+  i18n_name: I18nString
   type: PackageType
   price: number
   item_limit: number | null
   duration_minutes: number | null
   image_url: string | null
   is_active: boolean
+  items_included: PackageItemConfig[]
   metadata: Record<string, unknown>
   created_at: string
   updated_at: string
-}
-export interface PackageItemRow {
-  package_id: string
-  menu_item_id: string
-  sort_order: number
-  unit_price: number | null
-  is_included: boolean
-  created_at: string
 }
 export interface ReservationRow {
   id: string
   branch_id: string
-  customer_id: string
+  customer_id: string | null
+  table_id: string | null
   booking_code: string
   reservation_date: string
   reservation_time: string
   guests: number
+  children_count: number
   status: ReservationStatus
   source: string | null
-  type: string | null
-  customer_snapshot: CustomerSnapshot
-  notes: Record<string, unknown>
-  occasion: string | null
-  decorations: Record<string, unknown>
-  transport: string | null
-  children_count: number
-  expected_end: string | null
-  metadata: Record<string, unknown>
-  created_by: string | null
+  customer_snapshot: Record<string, unknown>
+  booking_info: BookingInfo
+  survey_results: Record<string, unknown>
+  course_id: string | null
+  drink_group: string | null
+  qr_token: string | null
+  qr_expires_at: string | null
+  timer_started_at: string | null
+  expected_end_at: string | null
   arrived_at: string | null
-  seated_at: string | null
   completed_at: string | null
   cancelled_at: string | null
   cancel_reason: string | null
+  created_by: string | null
   created_at: string
   updated_at: string
-}
-export interface TableAssignmentRow {
-  id: string
-  branch_id: string
-  reservation_id: string | null
-  table_id: string
-  assigned_at: string
-  released_at: string | null
-  assigned_by: string | null
-  metadata: TableAssignmentMetadata
 }
 export interface OrderRow {
   id: string
   branch_id: string
-  reservation_id: string | null
-  table_id: string | null
-  customer_id: string | null
+  reservation_id: string
   order_number: string
   status: OrderStatus
   subtotal: number
   vat_rate: number
   vat: number
-  discount: number
   total: number
   notes: Record<string, unknown>
   created_by: string | null
-  served_by: string | null
   created_at: string
   updated_at: string
 }
@@ -281,19 +218,18 @@ export interface OrderItemRow {
 export interface InvoiceRow {
   id: string
   branch_id: string
-  order_id: string
+  reservation_id: string
   invoice_number: string
   status: InvoiceStatus
   subtotal: number
   vat: number
   discount: number
   total: number
-  tax_code: string | null
-  customer_company: string | null
-  customer_address: string | null
-  customer_snapshot: CustomerSnapshot
+  tax_info: TaxInfo
+  applied_vouchers: AppliedVoucher[]
+  customer_snapshot: Record<string, unknown>
   notes: Record<string, unknown>
-  metadata: InvoiceMetadata
+  metadata: Record<string, unknown>
   issued_at: string | null
   issued_by: string | null
   created_at: string
@@ -331,27 +267,6 @@ export interface VoucherRow {
   created_at: string
   updated_at: string
 }
-export interface VoucherRedemptionRow {
-  id: string
-  branch_id: string
-  voucher_id: string
-  invoice_id: string
-  discount_amount: number
-  redeemed_at: string
-  redeemed_by: string | null
-}
-export interface DepositRow {
-  id: string
-  branch_id: string
-  reservation_id: string
-  amount: number
-  method: PaymentMethod
-  received_by: string | null
-  reference: string | null
-  received_at: string
-  metadata: Record<string, unknown>
-  created_at: string
-}
 export interface ShiftRow {
   id: string
   branch_id: string
@@ -368,32 +283,6 @@ export interface ShiftRow {
   created_at: string
   updated_at: string
 }
-export interface KPITargetRow {
-  id: string
-  branch_id: string | null
-  metric_key: string
-  target_value: number
-  period_start: string
-  period_end: string
-  scope: 'branch' | 'group'
-  notes: Record<string, unknown>
-  created_by: string | null
-  created_at: string
-  updated_at: string
-}
-export interface MarketingCostRow {
-  id: string
-  branch_id: string
-  channel: string
-  period_start: string
-  period_end: string
-  amount: number
-  notes: string | null
-  metadata: Record<string, unknown>
-  created_by: string | null
-  created_at: string
-  updated_at: string
-}
 export interface AuditEventRow {
   id: string
   branch_id: string
@@ -401,9 +290,6 @@ export interface AuditEventRow {
   action: string
   entity_type: string | null
   entity_id: string | null
-  reservation_id: string | null
-  order_id: string | null
-  invoice_id: string | null
   payload: Record<string, unknown>
   ip_address: string | null
   user_agent: string | null
@@ -441,16 +327,44 @@ export interface SystemEventRow {
   created_at: string
 }
 
-// ─── Public schema definition for createClient<Database> ───────────────────
-//
-// We hand-author an Insert/Update shape per table so postgrest-js can keep
-// strong typing on .insert() / .update() / .upsert().
-//
-// `RejectExcessProperties<Base, Row>` allows keys in `Base` (the Insert/Update
-// shape) to accept either the typed value OR `never`, but anything missing from
-// `Base` is `never`. We make every column a Partial<Row> which is the
-// canonical typing Supabase itself generates. Anything in the Row type that is
-// NOT in MakeInsert becomes a typing error — which is what we want.
+export interface MenuCategory {
+  id: string
+  branch_id: string
+  name: string
+  i18n_name?: I18nString
+  sort_order?: number
+  is_active?: boolean
+}
+
+export interface Zone {
+  id: string
+  branch_id: string
+  name: string
+  color: string
+}
+
+export interface KPITarget {
+  id: string
+  branch_id: string
+  period: string
+  target_revenue: number
+  metric_key?: string
+  target_value?: number
+  period_start?: string
+  period_end?: string
+  [k: string]: any
+}
+
+export interface MarketingCost {
+  id: string
+  branch_id: string
+  channel: string
+  cost: number
+  period_start?: string
+  period_end?: string
+  [k: string]: any
+}
+
 
 type TableShape<Row, InsertT = Partial<Row>, UpdateT = Partial<Row>> = {
   Row: Row
@@ -464,25 +378,17 @@ export type Database = {
     Tables: {
       branches: TableShape<BranchRow>
       users: TableShape<UserRow>
-      zones: TableShape<ZoneRow>
       tables: TableShape<TableRow>
       customers: TableShape<CustomerRow>
-      menu_categories: TableShape<MenuCategoryRow>
       menu_items: TableShape<MenuItemRow>
       packages: TableShape<PackageRow>
-      package_items: TableShape<PackageItemRow>
       reservations: TableShape<ReservationRow>
-      table_assignments: TableShape<TableAssignmentRow>
       orders: TableShape<OrderRow>
       order_items: TableShape<OrderItemRow>
       invoices: TableShape<InvoiceRow>
       payments: TableShape<PaymentRow>
       vouchers: TableShape<VoucherRow>
-      voucher_redemptions: TableShape<VoucherRedemptionRow>
-      deposits: TableShape<DepositRow>
       shifts: TableShape<ShiftRow>
-      kpi_targets: TableShape<KPITargetRow>
-      marketing_costs: TableShape<MarketingCostRow>
       audit_events: TableShape<AuditEventRow>
       notifications: TableShape<NotificationRow>
       branch_settings: TableShape<BranchSettingRow>
@@ -493,10 +399,7 @@ export type Database = {
       current_user_id: { Args: Record<string, never>; Returns: string }
       current_branch_id: { Args: Record<string, never>; Returns: string }
       has_role: { Args: { roles: UserRole[] }; Returns: boolean }
-      increment_customer_stats: {
-        Args: { p_customer_id: string; p_total_spent: number }
-        Returns: undefined
-      }
+      revenue_by_hour: { Args: { p_branch_id: string, p_date: string }; Returns: any }
     }
     Enums: {
       user_role: UserRole
@@ -513,25 +416,20 @@ export type Database = {
   }
 }
 
-// Convenience aliases used by composables.
+// Convenience aliases
 export type AppUser = UserRow
 export type Branch = BranchRow
-export type Zone = ZoneRow
 export type TableT = TableRow
 export type Customer = CustomerRow
-export type MenuCategory = MenuCategoryRow
 export type MenuItem = MenuItemRow
 export type Package = PackageRow
 export type Reservation = ReservationRow
-export type TableAssignment = TableAssignmentRow
 export type Order = OrderRow
 export type OrderItem = OrderItemRow
 export type Invoice = InvoiceRow
 export type Payment = PaymentRow
 export type Voucher = VoucherRow
 export type Shift = ShiftRow
-export type KPITarget = KPITargetRow
-export type MarketingCost = MarketingCostRow
 export type AuditEvent = AuditEventRow
 export type Notification = NotificationRow
 export type BranchSetting = BranchSettingRow

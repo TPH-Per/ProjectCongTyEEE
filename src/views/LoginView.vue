@@ -57,7 +57,7 @@ void t
 <template>
   <div class="login-shell">
     <div class="login-card">
-      <h1 class="login-title">🐂 NGƯU CÁT</h1>
+      <h1 class="login-title">{{ t('auto____ng_u_c_t') }}</h1>
       <p class="login-subtitle">Restaurant POS</p>
 
       <form @submit.prevent="onSubmit" class="login-form">

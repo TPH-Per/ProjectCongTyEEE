@@ -5,10 +5,10 @@
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
       </RouterLink>
       <div>
-        <h2 class="text-xl font-bold text-gray-900">Bàn: T1-A4</h2>
+        <h2 class="text-xl font-bold text-gray-900">{{ t('auto_b_n__t1_a4') }}</h2>
         <div class="flex items-center gap-2">
           <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
-          <p class="text-xs text-red-600 font-bold">Đang dùng bữa</p>
+          <p class="text-xs text-red-600 font-bold">{{ t('auto__ang_d_ng_b_a') }}</p>
         </div>
       </div>
     </div>
@@ -16,11 +16,11 @@
     <!-- Order Summary -->
     <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-200 mb-4">
       <div class="flex justify-between items-center mb-2">
-        <div class="text-sm font-bold text-gray-800">Gói hiện tại</div>
-        <button class="text-xs text-blue-600 font-bold">Sửa</button>
+        <div class="text-sm font-bold text-gray-800">{{ t('auto_g_i_hi_n_t_i') }}</div>
+        <button class="text-xs text-blue-600 font-bold">{{ t('auto_s_a') }}</button>
       </div>
       <div class="text-sm font-medium text-gray-600">Premium Buffet 1380k + Drink A</div>
-      <div class="text-xs text-gray-500 mt-1">Khách: 4 (2 Nam, 2 Nữ)</div>
+      <div class="text-xs text-gray-500 mt-1">{{ t('auto_kh_ch__4__2_nam__2_n__') }}</div>
     </div>
 
     <!-- In-Dining CRM -->
@@ -32,36 +32,36 @@
       
       <div class="space-y-5">
         <div>
-          <label class="text-xs text-gray-500 font-bold block mb-2">Kênh Marketing (Khách biết qua đâu?)</label>
+          <label class="text-xs text-gray-500 font-bold block mb-2">{{ t('auto_k_nh_marketing__kh_ch_bi_t_qua') }}</label>
           <select class="w-full h-12 bg-gray-50 border border-gray-200 rounded-xl px-3 text-sm font-semibold text-gray-900">
-            <option value="" disabled selected>Chọn kênh...</option>
+            <option value="" disabled selected>{{ t('auto_ch_n_k_nh___') }}</option>
             <option>Facebook Ads</option>
             <option>Tiktok Reviewer</option>
-            <option>Người quen giới thiệu</option>
-            <option>Đi ngang qua</option>
+            <option>{{ t('auto_ng__i_quen_gi_i_thi_u') }}</option>
+            <option>{{ t('auto__i_ngang_qua') }}</option>
             <option>Google Map</option>
           </select>
         </div>
 
         <div>
-          <label class="text-xs text-gray-500 font-bold block mb-2">Xin phép truyền thông (Photo/Video)</label>
+          <label class="text-xs text-gray-500 font-bold block mb-2">{{ t('auto_xin_ph_p_truy_n_th_ng__photo_v') }}</label>
           <div class="flex items-center gap-4 bg-gray-50 p-3 rounded-xl border border-gray-200">
             <label class="flex items-center gap-2 cursor-pointer">
               <input type="radio" name="media" class="text-red-600 accent-red-600 w-4 h-4" />
-              <span class="text-sm font-medium">Đồng ý</span>
+              <span class="text-sm font-medium">{{ t('auto___ng__') }}</span>
             </label>
             <label class="flex items-center gap-2 cursor-pointer">
               <input type="radio" name="media" class="text-red-600 accent-red-600 w-4 h-4" />
-              <span class="text-sm font-medium">Từ chối</span>
+              <span class="text-sm font-medium">{{ t('auto_t__ch_i') }}</span>
             </label>
           </div>
         </div>
 
         <div>
-          <label class="text-xs text-gray-500 font-bold block mb-2">Quà tặng giữ chân (Voucher)</label>
+          <label class="text-xs text-gray-500 font-bold block mb-2">{{ t('auto_qu__t_ng_gi__ch_n__voucher_') }}</label>
           <label class="flex items-center gap-3 p-3 border border-gray-200 bg-gray-50 rounded-xl cursor-pointer">
             <input type="checkbox" class="w-5 h-5 text-red-600 accent-red-600" />
-            <span class="text-sm font-bold text-gray-800">Đã tặng Voucher 10% cho lần sau</span>
+            <span class="text-sm font-bold text-gray-800">{{ t('auto____t_ng_voucher_10__cho_l_n_sa') }}</span>
           </label>
         </div>
       </div>
@@ -72,3 +72,8 @@
     </button>
   </div>
 </template>
+
+<script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
+</script>

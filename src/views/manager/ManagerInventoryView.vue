@@ -3,8 +3,8 @@
     <!-- Page Header -->
     <div class="flex items-start justify-between">
       <div>
-        <h1 class="text-2xl font-black text-[hsl(var(--foreground))] tracking-tight">Tồn Kho Hàng Ngày</h1>
-        <p class="text-sm text-[hsl(var(--muted-foreground))] mt-1">日次在庫管理 — Quản lý nguyên liệu để chuẩn bị xuất hóa đơn đỏ</p>
+        <h1 class="text-2xl font-black text-[hsl(var(--foreground))] tracking-tight">{{ t('auto_t_n_kho_h_ng_ng_y') }}</h1>
+        <p class="text-sm text-[hsl(var(--muted-foreground))] mt-1">{{ t('auto__________qu_n_l__nguy_n_li_u__') }}</p>
       </div>
       <div class="flex gap-2">
         <button class="kawaii-btn-ghost px-4 py-2 text-sm font-bold flex items-center gap-2">
@@ -22,22 +22,22 @@
     <div class="flex gap-4">
       <div class="kawaii-card p-4 flex items-center gap-3 flex-1">
         <input type="date" value="2026-06-20" class="kawaii-input py-2 text-sm w-40" />
-        <span class="text-sm text-gray-500">Ngày xuất kho</span>
+        <span class="text-sm text-gray-500">{{ t('auto_ng_y_xu_t_kho') }}</span>
       </div>
       <div class="kawaii-card p-4 flex items-center gap-4 flex-1">
         <div class="text-center">
-          <div class="text-[10px] text-gray-500 font-bold uppercase">Tổng Nguyên Liệu</div>
+          <div class="text-[10px] text-gray-500 font-bold uppercase">{{ t('auto_t_ng_nguy_n_li_u') }}</div>
           <div class="text-xl font-black text-[hsl(var(--foreground))]">47 SKU</div>
         </div>
         <div class="w-px h-8 bg-[hsl(var(--border))]" />
         <div class="text-center">
-          <div class="text-[10px] text-gray-500 font-bold uppercase">Tổng Giá Trị Xuất</div>
-          <div class="text-xl font-black text-[hsl(var(--primary))]">69,300,000đ</div>
+          <div class="text-[10px] text-gray-500 font-bold uppercase">{{ t('auto_t_ng_gi__tr__xu_t') }}</div>
+          <div class="text-xl font-black text-[hsl(var(--primary))]">{{ t('auto_69_300_000_') }}</div>
         </div>
         <div class="w-px h-8 bg-[hsl(var(--border))]" />
         <div class="text-center">
-          <div class="text-[10px] text-gray-500 font-bold uppercase">Trạng thái</div>
-          <div class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-bold rounded-full">Chờ Xác Nhận</div>
+          <div class="text-[10px] text-gray-500 font-bold uppercase">{{ t('auto_tr_ng_th_i') }}</div>
+          <div class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-bold rounded-full">{{ t('auto_ch__x_c_nh_n') }}</div>
         </div>
       </div>
     </div>
@@ -47,19 +47,19 @@
       <!-- Category: Thịt Bò -->
       <div class="kawaii-card overflow-hidden">
         <div class="kawaii-card-header">
-          <span class="font-bold text-sm text-[hsl(var(--foreground))]">🥩 Thịt Bò (Beef)</span>
-          <span class="kawaii-pill bg-red-100 text-red-700">9 loại</span>
+          <span class="font-bold text-sm text-[hsl(var(--foreground))]">{{ t('auto____th_t_b___beef_') }}</span>
+          <span class="kawaii-pill bg-red-100 text-red-700">{{ t('auto_9_lo_i') }}</span>
         </div>
         <div class="overflow-x-auto">
           <table class="w-full text-sm">
             <thead>
               <tr class="border-b border-[hsl(var(--border))]">
-                <th class="text-left py-2 px-4 font-bold text-gray-500 text-[11px] uppercase">Nguyên Liệu</th>
-                <th class="text-right py-2 px-4 font-bold text-gray-500 text-[11px] uppercase">Tồn Đầu</th>
-                <th class="text-right py-2 px-4 font-bold text-gray-500 text-[11px] uppercase">Xuất Bếp</th>
-                <th class="text-right py-2 px-4 font-bold text-gray-500 text-[11px] uppercase">Tồn Cuối</th>
-                <th class="text-right py-2 px-4 font-bold text-gray-500 text-[11px] uppercase">Đơn Giá</th>
-                <th class="text-right py-2 px-4 font-bold text-gray-500 text-[11px] uppercase">Thành Tiền</th>
+                <th class="text-left py-2 px-4 font-bold text-gray-500 text-[11px] uppercase">{{ t('auto_nguy_n_li_u') }}</th>
+                <th class="text-right py-2 px-4 font-bold text-gray-500 text-[11px] uppercase">{{ t('auto_t_n___u') }}</th>
+                <th class="text-right py-2 px-4 font-bold text-gray-500 text-[11px] uppercase">{{ t('auto_xu_t_b_p') }}</th>
+                <th class="text-right py-2 px-4 font-bold text-gray-500 text-[11px] uppercase">{{ t('auto_t_n_cu_i') }}</th>
+                <th class="text-right py-2 px-4 font-bold text-gray-500 text-[11px] uppercase">{{ t('auto___n_gi_') }}</th>
+                <th class="text-right py-2 px-4 font-bold text-gray-500 text-[11px] uppercase">{{ t('auto_th_nh_ti_n') }}</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-[hsl(var(--border))]">
@@ -74,8 +74,8 @@
             </tbody>
             <tfoot>
               <tr class="bg-[hsl(var(--muted))]/60 font-bold">
-                <td class="py-2.5 px-4 text-[hsl(var(--foreground))]" colspan="5">Tổng Thịt Bò</td>
-                <td class="py-2.5 px-4 text-right text-[hsl(var(--primary))] font-black">31,410,000đ</td>
+                <td class="py-2.5 px-4 text-[hsl(var(--foreground))]" colspan="5">{{ t('auto_t_ng_th_t_b_') }}</td>
+                <td class="py-2.5 px-4 text-right text-[hsl(var(--primary))] font-black">{{ t('auto_31_410_000_') }}</td>
               </tr>
             </tfoot>
           </table>
@@ -85,19 +85,19 @@
       <!-- Category: Đồ Uống -->
       <div class="kawaii-card overflow-hidden">
         <div class="kawaii-card-header">
-          <span class="font-bold text-sm text-[hsl(var(--foreground))]">🍶 Đồ Uống (Beverage)</span>
-          <span class="kawaii-pill bg-purple-100 text-purple-700">6 loại</span>
+          <span class="font-bold text-sm text-[hsl(var(--foreground))]">{{ t('auto_______u_ng__beverage_') }}</span>
+          <span class="kawaii-pill bg-purple-100 text-purple-700">{{ t('auto_6_lo_i') }}</span>
         </div>
         <div class="overflow-x-auto">
           <table class="w-full text-sm">
             <thead>
               <tr class="border-b border-[hsl(var(--border))]">
-                <th class="text-left py-2 px-4 font-bold text-gray-500 text-[11px] uppercase">Nguyên Liệu</th>
-                <th class="text-right py-2 px-4 font-bold text-gray-500 text-[11px] uppercase">Tồn Đầu</th>
-                <th class="text-right py-2 px-4 font-bold text-gray-500 text-[11px] uppercase">Xuất Bán</th>
-                <th class="text-right py-2 px-4 font-bold text-gray-500 text-[11px] uppercase">Tồn Cuối</th>
-                <th class="text-right py-2 px-4 font-bold text-gray-500 text-[11px] uppercase">Đơn Giá</th>
-                <th class="text-right py-2 px-4 font-bold text-gray-500 text-[11px] uppercase">Thành Tiền</th>
+                <th class="text-left py-2 px-4 font-bold text-gray-500 text-[11px] uppercase">{{ t('auto_nguy_n_li_u') }}</th>
+                <th class="text-right py-2 px-4 font-bold text-gray-500 text-[11px] uppercase">{{ t('auto_t_n___u') }}</th>
+                <th class="text-right py-2 px-4 font-bold text-gray-500 text-[11px] uppercase">{{ t('auto_xu_t_b_n') }}</th>
+                <th class="text-right py-2 px-4 font-bold text-gray-500 text-[11px] uppercase">{{ t('auto_t_n_cu_i') }}</th>
+                <th class="text-right py-2 px-4 font-bold text-gray-500 text-[11px] uppercase">{{ t('auto___n_gi_') }}</th>
+                <th class="text-right py-2 px-4 font-bold text-gray-500 text-[11px] uppercase">{{ t('auto_th_nh_ti_n') }}</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-[hsl(var(--border))]">
@@ -112,8 +112,8 @@
             </tbody>
             <tfoot>
               <tr class="bg-[hsl(var(--muted))]/60 font-bold">
-                <td class="py-2.5 px-4 text-[hsl(var(--foreground))]" colspan="5">Tổng Đồ Uống</td>
-                <td class="py-2.5 px-4 text-right text-purple-600 font-black">12,560,000đ</td>
+                <td class="py-2.5 px-4 text-[hsl(var(--foreground))]" colspan="5">{{ t('auto_t_ng____u_ng') }}</td>
+                <td class="py-2.5 px-4 text-right text-purple-600 font-black">{{ t('auto_12_560_000_') }}</td>
               </tr>
             </tfoot>
           </table>
@@ -129,28 +129,28 @@
       </h3>
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <div class="bg-red-50 border border-red-100 rounded-xl p-3 text-center">
-          <div class="text-xs font-bold text-red-400 uppercase mb-1">Bữa Tối (Dinner)</div>
-          <div class="font-black text-lg text-red-700">7,200,000đ</div>
+          <div class="text-xs font-bold text-red-400 uppercase mb-1">{{ t('auto_b_a_t_i__dinner_') }}</div>
+          <div class="font-black text-lg text-red-700">{{ t('auto_7_200_000_') }}</div>
         </div>
         <div class="bg-orange-50 border border-orange-100 rounded-xl p-3 text-center">
-          <div class="text-xs font-bold text-orange-400 uppercase mb-1">Bữa Trưa (Lunch)</div>
-          <div class="font-black text-lg text-orange-700">3,400,000đ</div>
+          <div class="text-xs font-bold text-orange-400 uppercase mb-1">{{ t('auto_b_a_tr_a__lunch_') }}</div>
+          <div class="font-black text-lg text-orange-700">{{ t('auto_3_400_000_') }}</div>
         </div>
         <div class="bg-purple-50 border border-purple-100 rounded-xl p-3 text-center">
-          <div class="text-xs font-bold text-purple-400 uppercase mb-1">Rượu/Wine</div>
-          <div class="font-black text-lg text-purple-700">1,100,000đ</div>
+          <div class="text-xs font-bold text-purple-400 uppercase mb-1">{{ t('auto_r__u_wine') }}</div>
+          <div class="font-black text-lg text-purple-700">{{ t('auto_1_100_000_') }}</div>
         </div>
         <div class="bg-blue-50 border border-blue-100 rounded-xl p-3 text-center">
           <div class="text-xs font-bold text-blue-400 uppercase mb-1">Delivery</div>
-          <div class="font-black text-lg text-blue-700">700,000đ</div>
+          <div class="font-black text-lg text-blue-700">{{ t('auto_700_000_') }}</div>
         </div>
       </div>
       <div class="flex items-center justify-between bg-[hsl(var(--muted))] rounded-xl p-4">
         <div>
-          <div class="font-black text-lg text-[hsl(var(--foreground))]">Tổng Doanh Thu Cần Xuất HĐ Đỏ</div>
-          <div class="text-sm text-gray-500">Bao gồm VAT 8%</div>
+          <div class="font-black text-lg text-[hsl(var(--foreground))]">{{ t('auto_t_ng_doanh_thu_c_n_xu_t_h____') }}</div>
+          <div class="text-sm text-gray-500">{{ t('auto_bao_g_m_vat_8_') }}</div>
         </div>
-        <div class="text-3xl font-black text-[hsl(var(--primary))]">12,400,000đ</div>
+        <div class="text-3xl font-black text-[hsl(var(--primary))]">{{ t('auto_12_400_000_') }}</div>
       </div>
       <div class="flex gap-3 mt-4">
         <button class="kawaii-btn-ghost px-4 py-2 text-sm font-bold flex-1">
@@ -165,6 +165,8 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 const beefItems = [
   { name: 'Thăn Ngoại Wagyu A5', openStock: 12, used: 8.5, closeStock: 3.5, price: 900000 },
   { name: 'Lưỡi Bò Thượng Hạng', openStock: 8, used: 5, closeStock: 3, price: 400000 },

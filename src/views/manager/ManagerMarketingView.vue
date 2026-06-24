@@ -6,12 +6,12 @@
     <div v-else>
       <!-- Page Header -->
       <div class="mb-6">
-      <h1 class="text-2xl font-bold text-gray-800">Phân Tích Marketing</h1>
-      <p class="text-sm text-gray-500 mt-1">Tháng 6 / 2026 · Tổng khách: 248 lượt</p>
+      <h1 class="text-2xl font-bold text-gray-800">{{ t('auto_ph_n_t_ch_marketing') }}</h1>
+      <p class="text-sm text-gray-500 mt-1">{{ t('auto_th_ng_6___2026___t_ng_kh_ch__2') }}</p>
     </div>
 
     <!-- SNS Channel Attribution -->
-    <h2 class="text-base font-bold text-gray-700 mb-3">Nguồn Khách Theo Kênh</h2>
+    <h2 class="text-base font-bold text-gray-700 mb-3">{{ t('auto_ngu_n_kh_ch_theo_k_nh') }}</h2>
     <div class="grid grid-cols-5 gap-3 mb-6">
       <div
         v-for="ch in channels"
@@ -36,10 +36,10 @@
     <div class="grid grid-cols-3 gap-4 mb-6">
       <!-- Marketing Cost Input Form -->
       <div class="col-span-1 kawaii-card p-5">
-        <h2 class="text-base font-bold text-gray-800 mb-4">Nhập Chi Phí Marketing</h2>
+        <h2 class="text-base font-bold text-gray-800 mb-4">{{ t('auto_nh_p_chi_ph__marketing') }}</h2>
         <!-- Month picker -->
         <div class="mb-4">
-          <label class="block text-xs font-semibold text-gray-500 mb-1">Tháng</label>
+          <label class="block text-xs font-semibold text-gray-500 mb-1">{{ t('auto_th_ng') }}</label>
           <input
             v-model="selectedMonth"
             type="month"
@@ -64,11 +64,11 @@
         <!-- Total display -->
         <div class="bg-pink-50 rounded-xl p-3 mb-3">
           <div class="flex justify-between items-center mb-1">
-            <span class="text-xs font-semibold text-gray-600">Tổng Chi Phí</span>
+            <span class="text-xs font-semibold text-gray-600">{{ t('auto_t_ng_chi_ph_') }}</span>
             <span class="text-base font-extrabold text-pink-600">{{ formattedTotal }}</span>
           </div>
           <div class="flex justify-between items-center">
-            <span class="text-xs font-semibold text-gray-600">CPA (Chi phí / khách digital)</span>
+            <span class="text-xs font-semibold text-gray-600">{{ t('auto_cpa__chi_ph____kh_ch_digital_') }}</span>
             <span class="text-sm font-bold text-gray-700">{{ formattedCPA }}</span>
           </div>
         </div>
@@ -80,7 +80,7 @@
       <!-- Campaign Table -->
       <div class="col-span-2 kawaii-card overflow-hidden">
         <div class="px-5 py-4 border-b border-gray-100">
-          <h2 class="text-base font-bold text-gray-800">Bảng Chiến Dịch</h2>
+          <h2 class="text-base font-bold text-gray-800">{{ t('auto_b_ng_chi_n_d_ch') }}</h2>
         </div>
         <div class="overflow-x-auto">
           <table class="w-full text-sm">
@@ -118,14 +118,14 @@
 
     <!-- Event Revenue Extraction -->
     <div class="kawaii-card p-5">
-      <h2 class="text-base font-bold text-gray-800 mb-4">Trích Xuất Doanh Thu Theo Sự Kiện / Ngày</h2>
+      <h2 class="text-base font-bold text-gray-800 mb-4">{{ t('auto_tr_ch_xu_t_doanh_thu_theo_s__k') }}</h2>
       <div class="flex flex-wrap items-end gap-4">
         <div>
-          <label class="block text-xs font-semibold text-gray-500 mb-1">Từ ngày</label>
+          <label class="block text-xs font-semibold text-gray-500 mb-1">{{ t('auto_t__ng_y') }}</label>
           <input v-model="dateFrom" type="date" class="kawaii-input text-sm" />
         </div>
         <div>
-          <label class="block text-xs font-semibold text-gray-500 mb-1">Đến ngày</label>
+          <label class="block text-xs font-semibold text-gray-500 mb-1">{{ t('auto___n_ng_y') }}</label>
           <input v-model="dateTo" type="date" class="kawaii-input text-sm" />
         </div>
         <button
@@ -144,22 +144,22 @@
       <!-- Result display -->
       <transition name="fade">
         <div v-if="showResult" class="mt-5 bg-gradient-to-r from-pink-50 to-orange-50 rounded-2xl p-5 border border-pink-100">
-          <p class="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wider">Kết Quả</p>
+          <p class="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wider">{{ t('auto_k_t_qu_') }}</p>
           <div class="flex flex-wrap gap-8 items-center">
             <div>
-              <p class="text-xs text-gray-500">Ngày 15–16/06/2026</p>
+              <p class="text-xs text-gray-500">{{ t('auto_ng_y_15_16_06_2026') }}</p>
               <p class="text-2xl font-extrabold text-gray-800 mt-1">34,200,000<span class="text-base font-normal text-gray-500">đ</span></p>
-              <p class="text-xs text-green-600 font-medium mt-0.5">▲ Tổng doanh thu kỳ chọn</p>
+              <p class="text-xs text-green-600 font-medium mt-0.5">{{ t('auto___t_ng_doanh_thu_k__ch_n') }}</p>
             </div>
             <div class="w-px h-12 bg-pink-200"></div>
             <div>
-              <p class="text-xs text-gray-500">Tổng Khách</p>
+              <p class="text-xs text-gray-500">{{ t('auto_t_ng_kh_ch') }}</p>
               <p class="text-2xl font-extrabold text-gray-800 mt-1">186</p>
-              <p class="text-xs text-gray-400 font-medium mt-0.5">lượt ghé thăm</p>
+              <p class="text-xs text-gray-400 font-medium mt-0.5">{{ t('auto_l__t_gh__th_m') }}</p>
             </div>
             <div class="w-px h-12 bg-pink-200"></div>
             <div>
-              <p class="text-xs text-gray-500">Chi Tiêu TB / Khách</p>
+              <p class="text-xs text-gray-500">{{ t('auto_chi_ti_u_tb___kh_ch') }}</p>
               <p class="text-2xl font-extrabold text-pink-600 mt-1">183,871<span class="text-base font-normal text-pink-400">đ</span></p>
             </div>
           </div>
@@ -171,6 +171,8 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 import { ref, computed, onMounted } from 'vue'
 import { useMarketing } from '@/composables/useMarketing'
 

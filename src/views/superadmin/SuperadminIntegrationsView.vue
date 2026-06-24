@@ -1,8 +1,8 @@
 <template>
   <div class="space-y-6 max-w-4xl mx-auto">
     <div>
-      <h2 class="text-2xl font-bold text-gray-800 mb-2">Tích hợp hệ thống (API & ERP)</h2>
-      <p class="text-sm text-gray-500">Cấu hình kết nối với các đối tác phần mềm thứ ba để đồng bộ dữ liệu.</p>
+      <h2 class="text-2xl font-bold text-gray-800 mb-2">{{ t('auto_t_ch_h_p_h__th_ng__api___erp_') }}</h2>
+      <p class="text-sm text-gray-500">{{ t('auto_c_u_h_nh_k_t_n_i_v_i_c_c___i_t') }}</p>
     </div>
 
     <!-- MISA Kế toán -->
@@ -14,7 +14,7 @@
           </div>
           <div>
             <h3 class="text-lg font-bold text-gray-800">MISA SME / AMIS</h3>
-            <p class="text-sm text-gray-500">Đồng bộ doanh thu, phiếu thu/chi và xuất hóa đơn điện tử.</p>
+            <p class="text-sm text-gray-500">{{ t('auto___ng_b__doanh_thu__phi_u_thu_c') }}</p>
           </div>
         </div>
         <label class="relative inline-flex items-center cursor-pointer">
@@ -45,8 +45,8 @@
           </div>
         </div>
         <div class="flex justify-end pt-2">
-          <button class="kawaii-btn-ghost mr-2">Kiểm tra kết nối</button>
-          <button class="kawaii-btn-primary">Lưu cấu hình</button>
+          <button class="kawaii-btn-ghost mr-2">{{ t('auto_ki_m_tra_k_t_n_i') }}</button>
+          <button class="kawaii-btn-primary">{{ t('auto_l_u_c_u_h_nh') }}</button>
         </div>
       </div>
     </div>
@@ -59,8 +59,8 @@
             <span class="font-bold text-green-600 text-lg">KV</span>
           </div>
           <div>
-            <h3 class="text-lg font-bold text-gray-800">KiotViet Quản lý kho</h3>
-            <p class="text-sm text-gray-500">Đồng bộ trừ kho nguyên vật liệu theo định lượng món ăn.</p>
+            <h3 class="text-lg font-bold text-gray-800">{{ t('auto_kiotviet_qu_n_l__kho') }}</h3>
+            <p class="text-sm text-gray-500">{{ t('auto___ng_b__tr__kho_nguy_n_v_t_li_') }}</p>
           </div>
         </div>
         <label class="relative inline-flex items-center cursor-pointer">
@@ -81,7 +81,7 @@
           </div>
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Webhook URL (Nhận thông báo cập nhật kho)</label>
+          <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('auto_webhook_url__nh_n_th_ng_b_o_c_') }}</label>
           <div class="flex">
             <input type="text" readonly value="https://api.nguucat.vn/webhooks/kiotviet" class="kawaii-input w-full bg-gray-50 rounded-r-none border-r-0 text-gray-500" />
             <button class="px-4 bg-gray-100 border border-gray-200 rounded-r-xl hover:bg-gray-200 transition-colors">
@@ -90,8 +90,8 @@
           </div>
         </div>
         <div class="flex justify-end pt-2">
-          <button class="kawaii-btn-ghost mr-2">Kiểm tra kết nối</button>
-          <button class="kawaii-btn-primary">Lưu cấu hình</button>
+          <button class="kawaii-btn-ghost mr-2">{{ t('auto_ki_m_tra_k_t_n_i') }}</button>
+          <button class="kawaii-btn-primary">{{ t('auto_l_u_c_u_h_nh') }}</button>
         </div>
       </div>
     </div>
@@ -105,7 +105,7 @@
           </div>
           <div>
             <h3 class="text-lg font-bold text-gray-800">Base HRM / Base Payroll</h3>
-            <p class="text-sm text-gray-500">Đồng bộ nhân viên, ca làm việc và tính lương.</p>
+            <p class="text-sm text-gray-500">{{ t('auto___ng_b__nh_n_vi_n__ca_l_m_vi_c') }}</p>
           </div>
         </div>
         <label class="relative inline-flex items-center cursor-pointer">
@@ -120,7 +120,7 @@
           <input type="password" class="kawaii-input w-full" placeholder="Nhập mã Access Token từ Base.vn" />
         </div>
         <div class="flex justify-end pt-2">
-          <button class="kawaii-btn-primary">Lưu cấu hình</button>
+          <button class="kawaii-btn-primary">{{ t('auto_l_u_c_u_h_nh') }}</button>
         </div>
       </div>
     </div>
@@ -129,6 +129,8 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 import { ref, reactive } from 'vue'
 import { EyeIcon, EyeOffIcon, CopyIcon } from 'lucide-vue-next'
 

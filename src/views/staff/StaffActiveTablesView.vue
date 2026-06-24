@@ -1,7 +1,7 @@
 <template>
   <div class="p-4 space-y-4">
     <div class="flex items-center justify-between">
-      <h2 class="text-lg font-bold text-gray-900">Đang Phục Vụ</h2>
+      <h2 class="text-lg font-bold text-gray-900">{{ t('auto__ang_ph_c_v_') }}</h2>
       <span class="bg-red-100 text-red-700 text-xs font-bold px-2.5 py-1 rounded-full">{{ activeTables.length }} bàn</span>
     </div>
 
@@ -31,7 +31,7 @@
               <div class="text-xs text-gray-500 mt-0.5">{{ table.course }}</div>
             </div>
             <div class="text-right">
-              <div class="text-xs font-semibold text-gray-400">Đã ngồi</div>
+              <div class="text-xs font-semibold text-gray-400">{{ t('auto____ng_i') }}</div>
               <div class="font-bold text-gray-700">{{ table.duration }}</div>
             </div>
           </div>
@@ -85,12 +85,14 @@
     <!-- Empty state -->
     <div v-if="activeTables.length === 0" class="text-center py-16 text-gray-400">
       <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mx-auto mb-3 text-gray-300"><path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/><rect width="20" height="14" x="2" y="6" rx="2"/></svg>
-      <p class="font-semibold">Chưa có bàn nào đang phục vụ</p>
+      <p class="font-semibold">{{ t('auto_ch_a_c__b_n_n_o__ang_ph_c_v_') }}</p>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 import { RouterLink } from 'vue-router'
 import { ref, onMounted } from 'vue'
 import { useTable } from '@/composables/useTable'

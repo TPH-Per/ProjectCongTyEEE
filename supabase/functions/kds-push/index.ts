@@ -1,6 +1,7 @@
 // supabase/functions/kds-push/index.ts
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
-import { corsHeaders, getAdminClient, requireUser } from '../_shared/auth.ts'
+import { getAdminClient, requireUser } from '../_shared/auth.ts'
+import { corsHeaders } from '../_shared/cors.ts'
 
 interface KdsPayload {
   orderId: string

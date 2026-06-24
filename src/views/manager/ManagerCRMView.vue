@@ -6,8 +6,8 @@
     <div v-else>
       <!-- Page Header -->
       <div class="mb-6">
-      <h1 class="text-2xl font-bold text-gray-800">Quản Lý Khách Hàng (CRM)</h1>
-      <p class="text-sm text-gray-500 mt-1">Tổng quan toàn thời gian · Cập nhật: hôm nay</p>
+      <h1 class="text-2xl font-bold text-gray-800">{{ t('auto_qu_n_l__kh_ch_h_ng__crm_') }}</h1>
+      <p class="text-sm text-gray-500 mt-1">{{ t('auto_t_ng_quan_to_n_th_i_gian___c_p') }}</p>
     </div>
 
     <!-- Summary Row -->
@@ -27,7 +27,7 @@
     <div class="grid grid-cols-3 gap-4 mb-6">
       <!-- SVG Ring -->
       <div class="kawaii-card p-6 flex flex-col items-center justify-center">
-        <p class="text-sm font-bold text-gray-600 mb-4">Khách Quay Lại</p>
+        <p class="text-sm font-bold text-gray-600 mb-4">{{ t('auto_kh_ch_quay_l_i') }}</p>
         <div class="relative w-40 h-40">
           <svg class="w-40 h-40 -rotate-90" viewBox="0 0 160 160">
             <!-- Background ring -->
@@ -61,7 +61,7 @@
 
       <!-- Channel Breakdown bars -->
       <div class="kawaii-card p-5">
-        <h2 class="text-sm font-bold text-gray-800 mb-4">Kênh Tiếp Cận (Toàn Thời Gian)</h2>
+        <h2 class="text-sm font-bold text-gray-800 mb-4">{{ t('auto_k_nh_ti_p_c_n__to_n_th_i_gian_') }}</h2>
         <div class="space-y-3">
           <div v-for="ch in channelBars" :key="ch.label">
             <div class="flex justify-between items-center mb-1">
@@ -80,7 +80,7 @@
 
       <!-- Demographics by Age -->
       <div class="kawaii-card p-5">
-        <h2 class="text-sm font-bold text-gray-800 mb-4">Độ Tuổi Khách Hàng</h2>
+        <h2 class="text-sm font-bold text-gray-800 mb-4">{{ t('auto____tu_i_kh_ch_h_ng') }}</h2>
         <div class="space-y-3">
           <div v-for="age in ageBars" :key="age.label">
             <div class="flex justify-between items-center mb-1">
@@ -104,8 +104,8 @@
       <div class="px-5 py-4 border-b border-gray-100">
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 class="text-base font-bold text-gray-800">Danh Sách Khách Hàng</h2>
-            <p class="text-xs text-gray-400 mt-0.5">1,240 khách · Đang hiển thị 6</p>
+            <h2 class="text-base font-bold text-gray-800">{{ t('auto_danh_s_ch_kh_ch_h_ng') }}</h2>
+            <p class="text-xs text-gray-400 mt-0.5">{{ t('auto_1_240_kh_ch____ang_hi_n_th__6') }}</p>
           </div>
           <!-- Search -->
           <div class="relative">
@@ -167,7 +167,7 @@
                 <span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-purple-50 text-purple-700">{{ c.group }}</span>
               </td>
               <td class="px-4 py-3">
-                <button class="text-xs text-teal-600 hover:underline font-medium">💬 Nhắn</button>
+                <button class="text-xs text-teal-600 hover:underline font-medium">{{ t('auto____nh_n') }}</button>
               </td>
               <td class="px-4 py-3">
                 <span
@@ -181,10 +181,10 @@
       </div>
       <!-- Footer -->
       <div class="px-5 py-3 bg-gray-50 flex items-center justify-between">
-        <p class="text-xs text-gray-400">Hiển thị 6 / 1,240 khách</p>
+        <p class="text-xs text-gray-400">{{ t('auto_hi_n_th__6___1_240_kh_ch') }}</p>
         <div class="flex gap-2">
-          <button class="kawaii-btn-ghost text-xs px-3 py-1.5">← Trước</button>
-          <button class="kawaii-btn-primary text-xs px-3 py-1.5">Tiếp →</button>
+          <button class="kawaii-btn-ghost text-xs px-3 py-1.5">{{ t('auto___tr__c') }}</button>
+          <button class="kawaii-btn-primary text-xs px-3 py-1.5">{{ t('auto_ti_p__') }}</button>
         </div>
       </div>
     </div>
@@ -193,6 +193,8 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 import { ref, computed, onMounted } from 'vue'
 import { useCustomer } from '@/composables/useCustomer'
 

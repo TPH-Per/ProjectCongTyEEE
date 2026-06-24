@@ -5,7 +5,7 @@
         <h1 class="text-3xl font-bold text-gray-800 mb-2 flex items-center gap-2">
           <span class="text-[#FF7B89]">🕵️</span> Nhật Ký Hoạt Động (Audit Log)
         </h1>
-        <p class="text-gray-500">Giám sát mọi thao tác và thay đổi dữ liệu trong hệ thống</p>
+        <p class="text-gray-500">{{ t('auto_gi_m_s_t_m_i_thao_t_c_v__thay_') }}</p>
       </div>
       
       <div class="flex gap-2">
@@ -23,27 +23,27 @@
       </div>
       <div>
         <select class="kawaii-input w-full bg-white appearance-none cursor-pointer">
-          <option value="">🗓️ Tất cả thời gian</option>
-          <option value="today">Hôm nay</option>
-          <option value="week">Tuần này</option>
-          <option value="month">Tháng này</option>
+          <option value="">{{ t('auto_____t_t_c__th_i_gian') }}</option>
+          <option value="today">{{ t('auto_h_m_nay') }}</option>
+          <option value="week">{{ t('auto_tu_n_n_y') }}</option>
+          <option value="month">{{ t('auto_th_ng_n_y') }}</option>
         </select>
       </div>
       <div>
         <select class="kawaii-input w-full bg-white appearance-none cursor-pointer">
-          <option value="">⚡ Tất cả hành động</option>
-          <option value="create">Tạo mới (CREATE)</option>
-          <option value="update">Cập nhật (UPDATE)</option>
-          <option value="delete">Xóa (DELETE)</option>
-          <option value="login">Đăng nhập (LOGIN)</option>
+          <option value="">{{ t('auto___t_t_c__h_nh___ng') }}</option>
+          <option value="create">{{ t('auto_t_o_m_i__create_') }}</option>
+          <option value="update">{{ t('auto_c_p_nh_t__update_') }}</option>
+          <option value="delete">{{ t('auto_x_a__delete_') }}</option>
+          <option value="login">{{ t('auto___ng_nh_p__login_') }}</option>
         </select>
       </div>
       <div>
         <select class="kawaii-input w-full bg-white appearance-none cursor-pointer">
-          <option value="">📦 Tất cả đối tượng</option>
-          <option value="order">Đơn hàng</option>
-          <option value="user">Người dùng</option>
-          <option value="menu">Thực đơn</option>
+          <option value="">{{ t('auto____t_t_c____i_t__ng') }}</option>
+          <option value="order">{{ t('auto___n_h_ng') }}</option>
+          <option value="user">{{ t('auto_ng__i_d_ng') }}</option>
+          <option value="menu">{{ t('auto_th_c___n') }}</option>
           <option value="kpi">KPI</option>
         </select>
       </div>
@@ -55,13 +55,13 @@
         <table class="w-full text-left border-collapse min-w-[900px]">
           <thead class="bg-pink-50/30 sticky top-0 z-10 backdrop-blur-md">
             <tr class="text-gray-600 border-b border-pink-100">
-              <th class="py-4 px-6 font-semibold text-sm">Thời gian</th>
-              <th class="py-4 px-6 font-semibold text-sm">Nhánh</th>
-              <th class="py-4 px-6 font-semibold text-sm">Người dùng</th>
-              <th class="py-4 px-6 font-semibold text-sm">Hành động</th>
-              <th class="py-4 px-6 font-semibold text-sm">Loại đối tượng</th>
+              <th class="py-4 px-6 font-semibold text-sm">{{ t('auto_th_i_gian') }}</th>
+              <th class="py-4 px-6 font-semibold text-sm">{{ t('auto_nh_nh') }}</th>
+              <th class="py-4 px-6 font-semibold text-sm">{{ t('auto_ng__i_d_ng') }}</th>
+              <th class="py-4 px-6 font-semibold text-sm">{{ t('auto_h_nh___ng') }}</th>
+              <th class="py-4 px-6 font-semibold text-sm">{{ t('auto_lo_i___i_t__ng') }}</th>
               <th class="py-4 px-6 font-semibold text-sm">ID</th>
-              <th class="py-4 px-6 font-semibold text-sm w-1/3">Payload (Chi tiết)</th>
+              <th class="py-4 px-6 font-semibold text-sm w-1/3">{{ t('auto_payload__chi_ti_t_') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -101,7 +101,7 @@
         </table>
       </div>
       <div class="p-4 border-t border-gray-100 flex justify-between items-center bg-white rounded-b-3xl">
-        <span class="text-sm text-gray-500 font-medium">Hiển thị 1-10 trên 150 kết quả</span>
+        <span class="text-sm text-gray-500 font-medium">{{ t('auto_hi_n_th__1_10_tr_n_150_k_t_qu_') }}</span>
         <div class="flex gap-1.5">
           <button class="w-8 h-8 flex items-center justify-center rounded-xl border border-gray-200 text-gray-500 hover:bg-gray-50 hover:border-gray-300 transition-all disabled:opacity-50">&lt;</button>
           <button class="w-8 h-8 flex items-center justify-center rounded-xl bg-[#FF7B89] text-white font-bold shadow-sm shadow-pink-200">1</button>
@@ -115,6 +115,8 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 import { ref } from 'vue';
 
 const auditLogs = ref([

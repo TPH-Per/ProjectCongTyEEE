@@ -1,7 +1,7 @@
 <template>
   <div class="p-4">
     <div class="flex items-center justify-between mb-6">
-      <h2 class="text-xl font-bold text-gray-800">Sơ đồ bàn</h2>
+      <h2 class="text-xl font-bold text-gray-800">{{ t('auto_s_____b_n') }}</h2>
       <div class="bg-red-50 text-red-600 px-3 py-1 rounded-full text-xs font-bold">
         {{ activeCount }} Đang phục vụ
       </div>
@@ -35,7 +35,7 @@
         <RouterLink v-else :to="`/staff/table/${table.id}/open`" class="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm relative flex flex-col h-32 opacity-80 hover:opacity-100 hover:border-gray-300 transition-all">
           <div class="flex justify-between items-start mb-2">
             <span class="font-bold text-lg text-gray-900">{{ table.code }}</span>
-            <span class="bg-gray-100 text-gray-500 text-[10px] font-bold px-2 py-0.5 rounded">Trống</span>
+            <span class="bg-gray-100 text-gray-500 text-[10px] font-bold px-2 py-0.5 rounded">{{ t('auto_tr_ng') }}</span>
           </div>
           <div class="mt-auto flex justify-center">
             <div class="text-xs font-bold text-red-600 flex items-center gap-1">
@@ -50,6 +50,8 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 import { RouterLink } from 'vue-router'
 import { ref, onMounted, computed } from 'vue'
 import { useTable } from '@/composables/useTable'

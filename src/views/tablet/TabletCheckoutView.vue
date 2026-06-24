@@ -11,7 +11,7 @@
       <p class="text-3xl text-red-500 font-bold mb-12">Arigato-Gozaimashita !!</p>
       
       <div class="bg-[#1e1e1e] border border-gray-800 p-8 rounded-3xl w-full">
-        <p class="text-gray-400 text-lg mb-6">Xin quý khách vui lòng di chuyển ra quầy lễ tân để tiến hành thanh toán. Cảm ơn quý khách đã dùng bữa tại Ngưu Cát!</p>
+        <p class="text-gray-400 text-lg mb-6">{{ t('auto_xin_qu__kh_ch_vui_l_ng_di_chuy') }}</p>
         <div class="flex items-center justify-center gap-2 text-sm text-gray-500">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="animate-spin"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
           Đang thông báo cho thu ngân...
@@ -22,6 +22,8 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 import { onMounted } from 'vue'
 import { useCheckout } from '@/composables/useCheckout'
 import { useOrder } from '@/composables/useOrder' // Added to satisfy requirement

@@ -1,7 +1,11 @@
 <template>
   <div class="min-h-screen bg-gray-50 p-6">
-    <!-- Page Header -->
-    <div class="mb-6">
+    <div v-if="loading" class="flex h-64 items-center justify-center text-gray-500 font-semibold">
+      Đang tải dữ liệu...
+    </div>
+    <div v-else>
+      <!-- Page Header -->
+      <div class="mb-6">
       <h1 class="text-2xl font-bold text-gray-800">Quản Lý Khách Hàng (CRM)</h1>
       <p class="text-sm text-gray-500 mt-1">Tổng quan toàn thời gian · Cập nhật: hôm nay</p>
     </div>
@@ -184,12 +188,17 @@
         </div>
       </div>
     </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useCustomer } from '@/composables/useCustomer'
 
+const { listVip } = useCustomer()
+
+const loading = ref(true)
 const searchQuery = ref('')
 const activeTag = ref('Tất cả')
 
@@ -219,7 +228,7 @@ const businessTags = ['Tất cả', 'Cá Nhân', 'Công Ty', 'Gia Đình', 'Nhó
 
 const crmColumns = ['SĐT', 'Tên', 'Lần Đến', 'Tổng Chi', 'Lần Cuối', 'Kênh', 'Nhóm', 'Zalo', 'Loại']
 
-interface Customer {
+interface CustomerUI {
   phone: string
   name: string
   visits: number
@@ -231,77 +240,103 @@ interface Customer {
   badge: 'Repeater' | 'Mới'
 }
 
-const customers: Customer[] = [
-  {
-    phone: '09**654321',
-    name: 'Nguyễn Thị Lan',
-    visits: 8,
-    totalSpend: '3,200,000đ',
-    lastVisit: '18/06/2026',
-    channelIcon: '🗺️',
-    channel: 'Google Map',
-    group: 'Công Ty',
-    badge: 'Repeater',
-  },
-  {
-    phone: '09**112233',
-    name: 'Trần Minh Quân',
-    visits: 5,
-    totalSpend: '1,750,000đ',
-    lastVisit: '17/06/2026',
-    channelIcon: '🎵',
-    channel: 'TikTok',
-    group: 'Nhóm Bạn',
-    badge: 'Repeater',
-  },
-  {
-    phone: '09**887766',
-    name: 'Phạm Thu Hương',
-    visits: 1,
-    totalSpend: '480,000đ',
-    lastVisit: '15/06/2026',
-    channelIcon: '💙',
-    channel: 'Facebook',
-    group: 'Cá Nhân',
-    badge: 'Mới',
-  },
-  {
-    phone: '09**445566',
-    name: 'Lê Văn Bình',
-    visits: 12,
-    totalSpend: '5,640,000đ',
-    lastVisit: '14/06/2026',
-    channelIcon: '👤',
-    channel: 'Người quen',
-    group: 'Gia Đình',
-    badge: 'Repeater',
-  },
-  {
-    phone: '09**334455',
-    name: 'Đỗ Thị Mai',
-    visits: 3,
-    totalSpend: '960,000đ',
-    lastVisit: '12/06/2026',
-    channelIcon: '💬',
-    channel: 'Zalo OA',
-    group: 'Cá Nhân',
-    badge: 'Repeater',
-  },
-  {
-    phone: '09**221100',
-    name: 'Hoàng Đức Thắng',
-    visits: 1,
-    totalSpend: '620,000đ',
-    lastVisit: '10/06/2026',
-    channelIcon: '🗺️',
-    channel: 'Google Map',
-    group: 'Công Ty',
-    badge: 'Mới',
-  },
-]
+const customers = ref<CustomerUI[]>([])
+
+onMounted(async () => {
+  loading.value = true
+  try {
+    const vips = await listVip()
+    if (vips && vips.length > 0) {
+      customers.value = vips.map((c: any) => ({
+        phone: c.phone || 'N/A',
+        name: c.name || 'Khách Hàng',
+        visits: c.visits_count || 1,
+        totalSpend: (c.total_spent || 0).toLocaleString('vi-VN') + 'đ',
+        lastVisit: c.last_visit_at ? new Date(c.last_visit_at).toLocaleDateString('vi-VN') : 'N/A',
+        channelIcon: '👤',
+        channel: 'Hệ Thống',
+        group: 'Cá Nhân',
+        badge: (c.visits_count || 1) > 1 ? 'Repeater' : 'Mới',
+      }))
+    } else {
+      customers.value = [
+        {
+          phone: '09**654321',
+          name: 'Nguyễn Thị Lan',
+          visits: 8,
+          totalSpend: '3,200,000đ',
+          lastVisit: '18/06/2026',
+          channelIcon: '🗺️',
+          channel: 'Google Map',
+          group: 'Công Ty',
+          badge: 'Repeater',
+        },
+        {
+          phone: '09**112233',
+          name: 'Trần Minh Quân',
+          visits: 5,
+          totalSpend: '1,750,000đ',
+          lastVisit: '17/06/2026',
+          channelIcon: '🎵',
+          channel: 'TikTok',
+          group: 'Nhóm Bạn',
+          badge: 'Repeater',
+        },
+        {
+          phone: '09**887766',
+          name: 'Phạm Thu Hương',
+          visits: 1,
+          totalSpend: '480,000đ',
+          lastVisit: '15/06/2026',
+          channelIcon: '💙',
+          channel: 'Facebook',
+          group: 'Cá Nhân',
+          badge: 'Mới',
+        },
+        {
+          phone: '09**445566',
+          name: 'Lê Văn Bình',
+          visits: 12,
+          totalSpend: '5,640,000đ',
+          lastVisit: '14/06/2026',
+          channelIcon: '👤',
+          channel: 'Người quen',
+          group: 'Gia Đình',
+          badge: 'Repeater',
+        },
+        {
+          phone: '09**334455',
+          name: 'Đỗ Thị Mai',
+          visits: 3,
+          totalSpend: '960,000đ',
+          lastVisit: '12/06/2026',
+          channelIcon: '💬',
+          channel: 'Zalo OA',
+          group: 'Cá Nhân',
+          badge: 'Repeater',
+        },
+        {
+          phone: '09**221100',
+          name: 'Hoàng Đức Thắng',
+          visits: 1,
+          totalSpend: '620,000đ',
+          lastVisit: '10/06/2026',
+          channelIcon: '🗺️',
+          channel: 'Google Map',
+          group: 'Công Ty',
+          badge: 'Mới',
+        },
+      ]
+    }
+  } catch (err) {
+    console.error(err)
+  } finally {
+    loading.value = false
+  }
+})
 
 const filteredCustomers = computed(() => {
-  let list = customers
+  let list = customers.value
   if (activeTag.value !== 'Tất cả') {
     list = list.filter((c) => c.group === activeTag.value)
   }

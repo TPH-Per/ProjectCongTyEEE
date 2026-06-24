@@ -39,68 +39,58 @@
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100">
-          <tr class="hover:bg-gray-50">
-            <td class="px-5 py-3 font-bold text-gray-900">AD01</td>
-            <td class="px-5 py-3 font-medium text-gray-900">Trần Quản Trị</td>
+          <tr v-for="user in users" :key="user.id" class="hover:bg-gray-50">
+            <td class="px-5 py-3 font-bold text-gray-900">{{ user.id.slice(0, 8) }}</td>
+            <td class="px-5 py-3 font-medium text-gray-900">{{ user.full_name }}</td>
             <td class="px-5 py-3">
-              <span class="px-2.5 py-1 rounded-md text-xs font-bold bg-gray-900 text-white">Admin</span>
+              <span v-if="user.role === 'admin'" class="px-2.5 py-1 rounded-md text-xs font-bold bg-gray-900 text-white">Admin</span>
+              <span v-else-if="user.role === 'manager'" class="px-2.5 py-1 rounded-md text-xs font-bold bg-blue-100 text-blue-700 border border-blue-200">Manager</span>
+              <span v-else-if="user.role === 'reception'" class="px-2.5 py-1 rounded-md text-xs font-bold bg-purple-100 text-purple-700 border border-purple-200">Thu Ngân</span>
+              <span v-else class="px-2.5 py-1 rounded-md text-xs font-bold bg-orange-100 text-orange-700 border border-orange-200">Phục Vụ</span>
             </td>
             <td class="px-5 py-3">
-              <span class="flex items-center gap-1.5 text-green-600 font-medium text-xs">
+              <span class="flex items-center gap-1.5 text-green-600 font-medium text-xs" v-if="user.is_active">
                 <span class="w-2 h-2 rounded-full bg-green-500"></span> Đang hoạt động
+              </span>
+              <span class="flex items-center gap-1.5 text-red-600 font-medium text-xs" v-else>
+                <span class="w-2 h-2 rounded-full bg-red-500"></span> Ngừng hoạt động
               </span>
             </td>
             <td class="px-5 py-3">
               <button class="text-blue-600 hover:text-blue-800 font-medium">Sửa</button>
             </td>
           </tr>
-          <tr class="hover:bg-gray-50">
-            <td class="px-5 py-3 font-bold text-gray-900">QL01</td>
-            <td class="px-5 py-3 font-medium text-gray-900">Lê Quản Lý</td>
-            <td class="px-5 py-3">
-              <span class="px-2.5 py-1 rounded-md text-xs font-bold bg-blue-100 text-blue-700 border border-blue-200">Manager</span>
-            </td>
-            <td class="px-5 py-3">
-              <span class="flex items-center gap-1.5 text-green-600 font-medium text-xs">
-                <span class="w-2 h-2 rounded-full bg-green-500"></span> Đang hoạt động
-              </span>
-            </td>
-            <td class="px-5 py-3">
-              <button class="text-blue-600 hover:text-blue-800 font-medium">Sửa</button>
-            </td>
-          </tr>
-          <tr class="hover:bg-gray-50">
-            <td class="px-5 py-3 font-bold text-gray-900">RC01</td>
-            <td class="px-5 py-3 font-medium text-gray-900">Nguyễn Thu Ngân</td>
-            <td class="px-5 py-3">
-              <span class="px-2.5 py-1 rounded-md text-xs font-bold bg-purple-100 text-purple-700 border border-purple-200">Thu Ngân</span>
-            </td>
-            <td class="px-5 py-3">
-              <span class="flex items-center gap-1.5 text-green-600 font-medium text-xs">
-                <span class="w-2 h-2 rounded-full bg-green-500"></span> Đang hoạt động
-              </span>
-            </td>
-            <td class="px-5 py-3">
-              <button class="text-blue-600 hover:text-blue-800 font-medium">Sửa</button>
-            </td>
-          </tr>
-          <tr class="hover:bg-gray-50">
-            <td class="px-5 py-3 font-bold text-gray-900">NV01</td>
-            <td class="px-5 py-3 font-medium text-gray-900">Nguyễn Văn A</td>
-            <td class="px-5 py-3">
-              <span class="px-2.5 py-1 rounded-md text-xs font-bold bg-orange-100 text-orange-700 border border-orange-200">Phục Vụ</span>
-            </td>
-            <td class="px-5 py-3">
-              <span class="flex items-center gap-1.5 text-green-600 font-medium text-xs">
-                <span class="w-2 h-2 rounded-full bg-green-500"></span> Đang hoạt động
-              </span>
-            </td>
-            <td class="px-5 py-3">
-              <button class="text-blue-600 hover:text-blue-800 font-medium">Sửa</button>
-            </td>
+          <tr v-if="loading">
+            <td colspan="5" class="px-5 py-4 text-center text-gray-500">Đang tải...</td>
           </tr>
         </tbody>
       </table>
     </div>
   </div>
 </template>
+
+<script setup lang="ts">
+import { ref, onMounted } from 'vue'
+import { supabase } from '@/lib/supabase'
+import { useAuth } from '@/composables/useAuth'
+import type { AppUser } from '@/types/database'
+
+const { branchId, isAdmin } = useAuth()
+const users = ref<AppUser[]>([])
+const loading = ref(true)
+
+onMounted(async () => {
+  loading.value = true
+  let query = supabase.from('users').select('*')
+  
+  if (!isAdmin.value && branchId.value) {
+    query = query.eq('branch_id', branchId.value)
+  }
+  
+  const { data } = await query.order('created_at', { ascending: false })
+  if (data) {
+    users.value = data as AppUser[]
+  }
+  loading.value = false
+})
+</script>

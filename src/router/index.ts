@@ -1,4 +1,5 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
+import { useAuth } from '@/composables/useAuth'
 
 // ─── Layouts ──────────────────────────────────────────────────────────────────
 import ManagerLayout from '@/layouts/ManagerLayout.vue'
@@ -6,6 +7,11 @@ import AdminLayout from '@/layouts/AdminLayout.vue'
 import TabletLayout from '@/layouts/TabletLayout.vue'
 import StaffLayout from '@/layouts/StaffLayout.vue'
 import ReceptionLayout from '@/layouts/ReceptionLayout.vue'
+import KitchenLayout from '@/layouts/KitchenLayout.vue'
+import SuperadminLayout from '@/layouts/SuperadminLayout.vue'
+
+// ─── Auth ─────────────────────────────────────────────────────────────────────
+import LoginView from '@/views/LoginView.vue'
 
 // ─── Manager Views ──────────────────────────────────────────────────────────────
 import ManagerDashboardView from '@/views/manager/ManagerDashboardView.vue'
@@ -40,7 +46,21 @@ import ReceptionDashboardView from '@/views/reception/ReceptionDashboardView.vue
 import ReceptionCheckoutView from '@/views/reception/ReceptionCheckoutView.vue'
 import ReceptionCloseShiftView from '@/views/reception/ReceptionCloseShiftView.vue'
 
-const routes = [
+// ─── Kitchen Views ────────────────────────────────────────────────────────────
+import KitchenKDSView from '@/views/kitchen/KitchenKDSView.vue'
+
+// ─── Superadmin Views ─────────────────────────────────────────────────────────
+import SuperadminDashboardView from '@/views/superadmin/SuperadminDashboardView.vue'
+import SuperadminBrandsView from '@/views/superadmin/SuperadminBrandsView.vue'
+import SuperadminIntegrationsView from '@/views/superadmin/SuperadminIntegrationsView.vue'
+
+const routes: RouteRecordRaw[] = [
+  {
+    path: '/login',
+    name: 'login',
+    component: LoginView,
+    meta: { requiresAuth: false },
+  },
   {
     path: '/',
     redirect: '/manager/dashboard',
@@ -210,11 +230,97 @@ const routes = [
       },
     ],
   },
+
+  // ═══════════════════════════════════════════════════════════════
+  // KITCHEN KDS (Display — Role: Kitchen / Bếp)
+  // ═══════════════════════════════════════════════════════════════
+  {
+    path: '/kitchen',
+    component: KitchenLayout,
+    children: [
+      {
+        path: 'kds',
+        name: 'kitchen-kds',
+        component: KitchenKDSView,
+      },
+    ],
+  },
+
+  // ═══════════════════════════════════════════════════════════════
+  // SUPERADMIN PORTAL (Desktop — Role: Enterprise Admin)
+  // ═══════════════════════════════════════════════════════════════
+  {
+    path: '/superadmin',
+    component: SuperadminLayout,
+    children: [
+      {
+        path: 'dashboard',
+        name: 'superadmin-dashboard',
+        component: SuperadminDashboardView,
+      },
+      {
+        path: 'brands',
+        name: 'superadmin-brands',
+        component: SuperadminBrandsView,
+      },
+      {
+        path: 'integrations',
+        name: 'superadmin-integrations',
+        component: SuperadminIntegrationsView,
+      },
+    ],
+  },
 ]
 
 const router = createRouter({
   history: createWebHistory(),
   routes,
+})
+
+/**
+ * Map URL prefix → set of roles allowed to enter that portal.
+ * `admin` can always impersonate any portal (supervisor mode).
+ */
+const ROUTE_ROLES: Record<string, string[]> = {
+  admin: ['admin'],
+  superadmin: ['admin'],
+  manager: ['admin', 'manager'],
+  reception: ['admin', 'manager', 'reception'],
+  staff: ['admin', 'manager', 'staff'],
+  kitchen: ['admin', 'kitchen'],
+  tablet: ['admin', 'manager', 'reception', 'staff'],
+}
+
+router.beforeEach(async (to) => {
+  const { isAuthenticated, loading, role } = useAuth()
+
+  // Wait for the initial session/profile fetch to finish.
+  if (loading.value) {
+    await new Promise<void>((resolve) => {
+      const check = setInterval(() => {
+        if (!loading.value) {
+          clearInterval(check)
+          resolve()
+        }
+      }, 50)
+    })
+  }
+
+  // Public routes.
+  if (to.meta.requiresAuth === false) return
+
+  // Must be signed in for everything else.
+  if (!isAuthenticated.value) {
+    return { name: 'login' }
+  }
+
+  const prefix = String(to.path.split('/')[1] ?? '')
+  const allowed = ROUTE_ROLES[prefix]
+  if (allowed && role.value && !allowed.includes(role.value)) {
+    return { name: 'manager-dashboard' }
+  }
+
+  return
 })
 
 export default router

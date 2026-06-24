@@ -1,7 +1,11 @@
 <template>
   <div class="min-h-screen bg-gray-50 p-6">
-    <!-- Page Header -->
-    <div class="mb-6 flex items-center justify-between">
+    <div v-if="loading" class="flex h-64 items-center justify-center text-gray-500 font-semibold">
+      Đang tải dữ liệu...
+    </div>
+    <div v-else>
+      <!-- Page Header -->
+      <div class="mb-6 flex items-center justify-between">
       <div>
         <h1 class="text-2xl font-bold text-gray-800">🍜 Bảng Điều Khiển</h1>
         <p class="text-sm text-gray-500 mt-1">Thứ 6, 20/06/2026 · Cập nhật lúc 15:49</p>
@@ -52,16 +56,16 @@
             </defs>
           </svg>
           <div class="absolute inset-0 flex flex-col items-center justify-center">
-            <span class="text-2xl font-bold text-gray-800">82.7%</span>
+            <span class="text-2xl font-bold text-gray-800">{{ kpiDayPct }}%</span>
             <span class="text-xs text-green-500 font-semibold">✓ Đạt</span>
           </div>
         </div>
         <div class="mt-4 text-center space-y-1">
-          <p class="text-xs text-gray-500">Mục tiêu: <span class="font-semibold text-gray-700">15,000,000đ</span></p>
-          <p class="text-xs text-gray-500">Thực hiện: <span class="font-bold text-pink-500">12,400,000đ</span></p>
+          <p class="text-xs text-gray-500">Mục tiêu: <span class="font-semibold text-gray-700">{{ kpiDayTarget.toLocaleString('vi-VN') }}đ</span></p>
+          <p class="text-xs text-gray-500">Thực hiện: <span class="font-bold text-pink-500">{{ revenue.toLocaleString('vi-VN') }}đ</span></p>
         </div>
         <div class="mt-3 w-full rounded-full bg-gray-100 h-1.5">
-          <div class="h-1.5 rounded-full kawaii-gradient" style="width: 82.7%"></div>
+          <div class="h-1.5 rounded-full kawaii-gradient" :style="{ width: kpiDayPct + '%' }"></div>
         </div>
       </div>
 
@@ -152,7 +156,7 @@
             +12%
           </span>
         </div>
-        <p class="text-3xl font-bold text-gray-800 mt-2">248</p>
+        <p class="text-3xl font-bold text-gray-800 mt-2">{{ covers }}</p>
         <p class="text-xs font-medium text-gray-400 mt-0.5">Khách Hôm Nay</p>
         <div class="mt-3 flex gap-2 text-xs">
           <span class="rounded-lg bg-blue-50 px-2 py-1 text-blue-600 font-semibold">🇻🇳 210</span>
@@ -172,13 +176,13 @@
             +8.3%
           </span>
         </div>
-        <p class="text-2xl font-bold text-gray-800 mt-2">12,400,000<span class="text-base text-gray-500">đ</span></p>
+        <p class="text-2xl font-bold text-gray-800 mt-2">{{ revenue.toLocaleString('vi-VN') }}<span class="text-base text-gray-500">đ</span></p>
         <p class="text-xs font-medium text-gray-400 mt-0.5">Doanh Thu Hôm Nay</p>
         <div class="mt-3">
           <div class="h-1 w-full rounded-full bg-gray-100">
-            <div class="h-1 rounded-full kawaii-gradient" style="width: 82.7%"></div>
+            <div class="h-1 rounded-full kawaii-gradient" :style="{ width: kpiDayPct + '%' }"></div>
           </div>
-          <p class="text-xs text-gray-400 mt-1">82.7% mục tiêu ngày</p>
+          <p class="text-xs text-gray-400 mt-1">{{ kpiDayPct }}% mục tiêu ngày</p>
         </div>
       </div>
 
@@ -193,7 +197,7 @@
             ─ 0%
           </span>
         </div>
-        <p class="text-2xl font-bold text-gray-800 mt-2">50,000<span class="text-base text-gray-500">đ</span></p>
+        <p class="text-2xl font-bold text-gray-800 mt-2">{{ Math.round(avgCheck).toLocaleString('vi-VN') }}<span class="text-base text-gray-500">đ</span></p>
         <p class="text-xs font-medium text-gray-400 mt-0.5">Trung Bình / Khách</p>
         <div class="mt-3">
           <p class="text-xs text-gray-400">Mục tiêu: 55,000đ/khách</p>
@@ -418,10 +422,48 @@
         </div>
       </div>
     </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-// Static dashboard view - no reactive data needed for prototype
-// Data is hardcoded for display purposes
+import { ref, onMounted, computed } from 'vue'
+import { useReport } from '@/composables/useReport'
+import { useKPI } from '@/composables/useKPI'
+
+const { todayHeadline } = useReport()
+const { listCurrent } = useKPI()
+
+const loading = ref(true)
+
+const revenue = ref(0)
+const covers = ref(0)
+
+const avgCheck = computed(() => covers.value > 0 ? revenue.value / covers.value : 0)
+
+const kpiDayTarget = ref(15000000)
+const kpiDayPct = computed(() => Math.min(Math.round((revenue.value / kpiDayTarget.value) * 100), 100))
+
+onMounted(async () => {
+  loading.value = true
+  try {
+    const [headline, currentKPIs] = await Promise.all([
+      todayHeadline(),
+      listCurrent(new Date().toISOString().slice(0, 10), new Date().toISOString().slice(0, 10))
+    ])
+    
+    revenue.value = headline.revenue
+    covers.value = headline.covers
+    
+    // Attempt to override target if available
+    const revKpi = currentKPIs.find((k: any) => k.metric_key === 'revenue')
+    if (revKpi && revKpi.target_value) {
+      kpiDayTarget.value = revKpi.target_value
+    }
+  } catch (e) {
+    console.error(e)
+  } finally {
+    loading.value = false
+  }
+})
 </script>

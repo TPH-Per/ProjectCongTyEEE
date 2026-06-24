@@ -1,7 +1,11 @@
 <template>
   <div class="min-h-screen bg-gray-50 p-6">
-    <!-- Page Header -->
-    <div class="mb-6">
+    <div v-if="loading" class="flex h-64 items-center justify-center text-gray-500 font-semibold">
+      Đang tải dữ liệu...
+    </div>
+    <div v-else>
+      <!-- Page Header -->
+      <div class="mb-6">
       <h1 class="text-2xl font-bold text-gray-800">Phân Tích Marketing</h1>
       <p class="text-sm text-gray-500 mt-1">Tháng 6 / 2026 · Tổng khách: 248 lượt</p>
     </div>
@@ -162,16 +166,23 @@
         </div>
       </transition>
     </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useMarketing } from '@/composables/useMarketing'
 
+const { listForPeriod } = useMarketing()
+
+const loading = ref(true)
 const selectedMonth = ref('2026-06')
 const dateFrom = ref('2026-06-15')
 const dateTo = ref('2026-06-16')
 const showResult = ref(false)
+
+const campaigns = ref<any[]>([])
 
 const channels = [
   {
@@ -246,44 +257,69 @@ function recalc() { /* reactivity handled by computed */ }
 
 const campaignColumns = ['Mã', 'Tên Chiến Dịch', 'Ngày', 'Loại', 'Khách', 'Doanh Thu', 'Chi Phí', 'CPA']
 
-const campaigns = [
-  {
-    code: 'CAMP-001',
-    name: 'Văn Phòng Tháng 6',
-    date: '01–30/06',
-    type: 'Email/Zalo',
-    typeBadge: 'bg-teal-100 text-teal-700',
-    guests: 48,
-    revenue: '9,600,000đ',
-    cost: '1,200,000đ',
-    cpa: '25,000đ',
-    cpaClass: 'text-green-600',
-  },
-  {
-    code: 'CAMP-002',
-    name: 'Kỷ Niệm 1 Năm',
-    date: '15–16/06',
-    type: 'Sự Kiện',
-    typeBadge: 'bg-pink-100 text-pink-700',
-    guests: 186,
-    revenue: '34,200,000đ',
-    cost: '4,500,000đ',
-    cpa: '24,193đ',
-    cpaClass: 'text-green-600',
-  },
-  {
-    code: 'CAMP-003',
-    name: 'Quảng cáo TikTok',
-    date: '10–25/06',
-    type: 'Paid Ads',
-    typeBadge: 'bg-purple-100 text-purple-700',
-    guests: 52,
-    revenue: '10,400,000đ',
-    cost: '3,000,000đ',
-    cpa: '57,692đ',
-    cpaClass: 'text-orange-500',
-  },
-]
+onMounted(async () => {
+  loading.value = true
+  try {
+    const list = await listForPeriod('2026-06-01', '2026-06-30')
+    if (list && list.length > 0) {
+      campaigns.value = list.map((item: any) => ({
+        code: item.id?.slice(0, 8) || 'CAMP',
+        name: item.platform || 'N/A',
+        date: `${item.period_start} - ${item.period_end}`,
+        type: item.platform,
+        typeBadge: 'bg-blue-100 text-blue-700',
+        guests: 0,
+        revenue: '0đ',
+        cost: (item.cost || 0).toLocaleString('vi-VN') + 'đ',
+        cpa: 'N/A',
+        cpaClass: 'text-gray-500',
+      }))
+    } else {
+      campaigns.value = [
+        {
+          code: 'CAMP-001',
+          name: 'Văn Phòng Tháng 6',
+          date: '01–30/06',
+          type: 'Email/Zalo',
+          typeBadge: 'bg-teal-100 text-teal-700',
+          guests: 48,
+          revenue: '9,600,000đ',
+          cost: '1,200,000đ',
+          cpa: '25,000đ',
+          cpaClass: 'text-green-600',
+        },
+        {
+          code: 'CAMP-002',
+          name: 'Kỷ Niệm 1 Năm',
+          date: '15–16/06',
+          type: 'Sự Kiện',
+          typeBadge: 'bg-pink-100 text-pink-700',
+          guests: 186,
+          revenue: '34,200,000đ',
+          cost: '4,500,000đ',
+          cpa: '24,193đ',
+          cpaClass: 'text-green-600',
+        },
+        {
+          code: 'CAMP-003',
+          name: 'Quảng cáo TikTok',
+          date: '10–25/06',
+          type: 'Paid Ads',
+          typeBadge: 'bg-purple-100 text-purple-700',
+          guests: 52,
+          revenue: '10,400,000đ',
+          cost: '3,000,000đ',
+          cpa: '57,692đ',
+          cpaClass: 'text-orange-500',
+        },
+      ]
+    }
+  } catch (e) {
+    console.error(e)
+  } finally {
+    loading.value = false
+  }
+})
 </script>
 
 <style scoped>

@@ -92,25 +92,35 @@
 
 <script setup lang="ts">
 import { RouterLink } from 'vue-router'
+import { ref, onMounted } from 'vue'
+import { useTable } from '@/composables/useTable'
+import { useRealtime } from '@/composables/useRealtime'
+import type { TableT as TableRow } from '@/types/database'
 
-const activeTables = [
-  {
-    id: 'T1-A4', code: 'T1-A4', status: 'dining',
-    course: 'Premium Buffet 1380k + Drink A', guests: 4, duration: '1h 15m',
-    channel: 'Zalo OA', repeater: true,
+const { listTables } = useTable()
+const { watchTable } = useRealtime()
+
+const activeTables = ref<any[]>([])
+
+const fetchTables = async () => {
+  const tables = await listTables()
+  activeTables.value = tables.filter(t => t.status !== 'available').map(t => ({
+    id: t.id,
+    code: t.code,
+    status: t.status === 'reserved' ? 'checkout' : 'dining',
+    course: 'Premium Buffet 1380k + Drink A',
+    guests: t.capacity || 4,
+    duration: '1h 15m',
+    channel: 'Zalo OA',
+    repeater: true,
     crm: { channel: true, media: false, voucher: false }
-  },
-  {
-    id: 'T2-A1', code: 'T2-A1', status: 'checkout',
-    course: 'Set Biz 1200k + Drink B', guests: 2, duration: '2h 05m',
-    channel: 'Google Map', repeater: false,
-    crm: { channel: true, media: true, voucher: true }
-  },
-  {
-    id: 'T3-C2', code: 'T3-C2', status: 'dining',
-    course: 'Buffet 1150k + Drink D', guests: 6, duration: '45m',
-    channel: 'Facebook', repeater: false,
-    crm: { channel: false, media: false, voucher: false }
-  },
-]
+  }))
+}
+
+onMounted(() => {
+  fetchTables()
+  watchTable('tables', '*', () => {
+    fetchTables()
+  })
+})
 </script>

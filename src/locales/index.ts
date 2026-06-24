@@ -1,9 +1,10 @@
 import { createI18n } from 'vue-i18n'
 import vi from './vi'
 import ja from './ja'
+import en from './en'
 
 export type MessageSchema = typeof vi
-export type AppLocale = 'vi' | 'ja'
+export type AppLocale = 'vi' | 'ja' | 'en'
 
 export const i18n = createI18n({
   legacy: false,
@@ -13,6 +14,7 @@ export const i18n = createI18n({
   messages: {
     vi,
     ja,
+    en,
   },
 })
 

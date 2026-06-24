@@ -5,7 +5,7 @@
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
       </RouterLink>
       <div>
-        <h2 class="text-xl font-bold text-gray-900">Mở bàn: T1-B1</h2>
+        <h2 class="text-xl font-bold text-gray-900">Mở bàn: {{ tableCode }}</h2>
         <p class="text-xs text-gray-500">Scan QR & Profile Khách</p>
       </div>
     </div>
@@ -118,8 +118,43 @@
       </div>
     </div>
 
-    <button class="mt-auto w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-2xl shadow-lg transition-colors text-lg">
-      Mở Bàn & Kích Hoạt Tablet
+    <button @click="handleCheckIn" :disabled="loading" class="mt-auto w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-2xl shadow-lg transition-colors text-lg disabled:opacity-50">
+      {{ loading ? 'Đang xử lý...' : 'Mở Bàn & Kích Hoạt Tablet' }}
     </button>
   </div>
 </template>
+
+<script setup lang="ts">
+import { ref, computed, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { useCheckIn } from '@/composables/useCheckIn'
+import { useTable } from '@/composables/useTable'
+
+const route = useRoute()
+const router = useRouter()
+const { checkIn, loading } = useCheckIn()
+const { listTables } = useTable()
+
+const tableId = computed(() => route.params.id as string)
+const tableCode = ref('')
+
+onMounted(async () => {
+  const tables = await listTables()
+  const table = tables.find(t => t.id === tableId.value)
+  if (table) tableCode.value = table.code
+})
+
+const handleCheckIn = async () => {
+  try {
+    await checkIn({
+      walk_in: {
+        party_size: 3, // Mock value as per template
+        table_id: tableId.value
+      }
+    })
+    router.push('/staff/floor-plan')
+  } catch (err) {
+    console.error('Check-in failed:', err)
+  }
+}
+</script>

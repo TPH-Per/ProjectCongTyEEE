@@ -163,9 +163,9 @@
             <span class="text-3xl font-black text-red-600">4,665,600đ</span>
           </div>
           
-          <button class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-xl shadow-lg transition-colors text-lg flex items-center justify-center gap-2 mb-3">
+          <button @click="handleCheckout" :disabled="loading" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-xl shadow-lg transition-colors text-lg flex items-center justify-center gap-2 mb-3 disabled:opacity-50">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>
-            In Hóa Đơn & Đóng Bàn
+            {{ loading ? 'Đang xử lý...' : 'In Hóa Đơn & Đóng Bàn' }}
           </button>
 
           <p class="text-xs text-center text-gray-500 font-medium">Nhớ nhờ khách đánh giá Google Map nhé!</p>
@@ -174,3 +174,28 @@
     </div>
   </div>
 </template>
+
+<script setup lang="ts">
+import { useRoute, useRouter, RouterLink } from 'vue-router'
+import { useCheckout } from '@/composables/useCheckout'
+
+const route = useRoute()
+const router = useRouter()
+const { checkout, loading } = useCheckout()
+
+const handleCheckout = async () => {
+  try {
+    // In real app, we would fetch the order to get the correct order_id
+    // Here we use the table id from the route as a fallback mock
+    const orderId = (route.params.id as string) || 'mock-order-id'
+    
+    await checkout({
+      order_id: orderId,
+      payments: [{ method: 'cash', amount: 4665600 }],
+    })
+    router.push('/reception/dashboard')
+  } catch (err) {
+    console.error('Checkout failed:', err)
+  }
+}
+</script>

@@ -1,7 +1,11 @@
 <template>
   <div class="min-h-screen bg-gray-50 p-6">
-    <!-- Page Header -->
-    <div class="mb-6 flex items-center justify-between">
+    <div v-if="loading" class="flex h-64 items-center justify-center text-gray-500 font-semibold">
+      Đang tải dữ liệu...
+    </div>
+    <div v-else>
+      <!-- Page Header -->
+      <div class="mb-6 flex items-center justify-between">
       <div>
         <h1 class="text-2xl font-bold text-gray-800">📈 Báo Cáo Doanh Thu</h1>
         <p class="text-sm text-gray-500 mt-1">Phân tích chi tiết doanh thu nhà hàng Ngưu Cát</p>
@@ -60,7 +64,7 @@
       <div class="kawaii-card kawaii-shadow p-5 relative overflow-hidden">
         <div class="absolute -right-2 -top-2 text-5xl opacity-5">💵</div>
         <p class="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3">Tổng Doanh Thu</p>
-        <p class="text-2xl font-bold text-gray-900">12,400,000<span class="text-sm text-gray-400">đ</span></p>
+        <p class="text-2xl font-bold text-gray-900">{{ revenue.toLocaleString('vi-VN') }}<span class="text-sm text-gray-400">đ</span></p>
         <div class="mt-2 flex items-center gap-1.5">
           <span class="inline-flex items-center gap-0.5 text-xs font-bold text-green-600 bg-green-50 rounded-full px-2 py-0.5">
             <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
@@ -78,7 +82,7 @@
       <div class="kawaii-card kawaii-shadow p-5 relative overflow-hidden">
         <div class="absolute -right-2 -top-2 text-5xl opacity-5">🧑‍🤝‍🧑</div>
         <p class="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3">Tổng Khách</p>
-        <p class="text-2xl font-bold text-gray-900">248</p>
+        <p class="text-2xl font-bold text-gray-900">{{ covers }}</p>
         <div class="mt-2 flex gap-2 text-xs">
           <span class="rounded-lg bg-blue-50 px-2 py-1 text-blue-600 font-semibold">🇻🇳 210 Việt</span>
           <span class="rounded-lg bg-green-50 px-2 py-1 text-green-600 font-semibold">🌍 38 Nước ngoài</span>
@@ -93,7 +97,7 @@
       <div class="kawaii-card kawaii-shadow p-5 relative overflow-hidden">
         <div class="absolute -right-2 -top-2 text-5xl opacity-5">🧾</div>
         <p class="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3">Trung Bình / Khách</p>
-        <p class="text-2xl font-bold text-gray-900">50,000<span class="text-sm text-gray-400">đ</span></p>
+        <p class="text-2xl font-bold text-gray-900">{{ Math.round(avgCheck).toLocaleString('vi-VN') }}<span class="text-sm text-gray-400">đ</span></p>
         <div class="mt-2 flex items-center gap-1.5">
           <span class="inline-flex items-center text-xs font-bold text-gray-500 bg-gray-100 rounded-full px-2 py-0.5">
             ─ Ổn định
@@ -247,7 +251,7 @@
         </div>
 
         <div class="mt-4 pt-3 border-t border-gray-100">
-          <p class="text-xs text-gray-400">Tổng: 248 khách · Trung bình 50,000đ/khách</p>
+          <p class="text-xs text-gray-400">Tổng: {{ covers }} khách · Trung bình {{ Math.round(avgCheck).toLocaleString('vi-VN') }}đ/khách</p>
         </div>
       </div>
     </div>
@@ -360,11 +364,34 @@
         </div>
       </div>
     </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted, computed } from 'vue'
+import { useReport } from '@/composables/useReport'
+
+const { todayHeadline } = useReport()
+
+const loading = ref(true)
+const revenue = ref(0)
+const covers = ref(0)
+
+const avgCheck = computed(() => covers.value > 0 ? revenue.value / covers.value : 0)
+
+onMounted(async () => {
+  loading.value = true
+  try {
+    const headline = await todayHeadline()
+    revenue.value = headline.revenue
+    covers.value = headline.covers
+  } catch (err) {
+    console.error(err)
+  } finally {
+    loading.value = false
+  }
+})
 
 // Tab state
 const activeTab = ref<'day' | 'week' | 'month'>('day')

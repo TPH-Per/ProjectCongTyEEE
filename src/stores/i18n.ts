@@ -3,6 +3,7 @@ import { ref, computed, watch } from 'vue'
 import { setI18nLocale, type AppLocale } from '@/locales'
 import vi from '@/locales/vi'
 import ja from '@/locales/ja'
+import en from '@/locales/en'
 
 /**
  * ============================================================
@@ -22,7 +23,7 @@ import ja from '@/locales/ja'
  */
 
 const STORAGE_KEY = 'ngu-cat.locale'
-const SUPPORTED: AppLocale[] = ['vi', 'ja']
+const SUPPORTED: AppLocale[] = ['vi', 'ja', 'en']
 
 export interface LanguageMeta {
   code: AppLocale
@@ -34,6 +35,7 @@ export interface LanguageMeta {
 export const LANGUAGE_META: Record<AppLocale, LanguageMeta> = {
   vi: { code: 'vi', label: 'Vietnamese',  nativeLabel: 'Tiếng Việt',  flag: '🇻🇳' },
   ja: { code: 'ja', label: 'Japanese',    nativeLabel: '日本語',       flag: '🇯🇵' },
+  en: { code: 'en', label: 'English',     nativeLabel: 'English',     flag: '🇬🇧' },
 }
 
 /* ---------- Helpers ---------- */
@@ -66,6 +68,7 @@ export const useI18nStore = defineStore('i18n', () => {
   /* ===== getters ===== */
   const isVi = computed(() => locale.value === 'vi')
   const isJa = computed(() => locale.value === 'ja')
+  const isEn = computed(() => locale.value === 'en')
 
   const availableLocales = computed<AppLocale[]>(() => [...SUPPORTED])
 
@@ -76,6 +79,7 @@ export const useI18nStore = defineStore('i18n', () => {
   const messages = computed(() => ({
     vi,
     ja,
+    en,
   }))
 
   /* ===== actions ===== */
@@ -97,7 +101,8 @@ export const useI18nStore = defineStore('i18n', () => {
   }
 
   function toggleLocale() {
-    setLocale(locale.value === 'vi' ? 'ja' : 'vi')
+    const next = locale.value === 'vi' ? 'en' : locale.value === 'en' ? 'ja' : 'vi'
+    setLocale(next)
   }
 
   /**
@@ -112,7 +117,7 @@ export const useI18nStore = defineStore('i18n', () => {
           acc && typeof acc === 'object'
             ? (acc as Record<string, unknown>)[segment]
             : undefined,
-        l === 'vi' ? vi : ja,
+        l === 'vi' ? vi : l === 'ja' ? ja : en,
       )
     const raw: unknown = lookup(locale.value) ?? lookup('vi') ?? key
     if (typeof raw !== 'string') return key
@@ -142,6 +147,7 @@ export const useI18nStore = defineStore('i18n', () => {
     /* getters */
     isVi,
     isJa,
+    isEn,
     availableLocales,
     currentMeta,
     messages,

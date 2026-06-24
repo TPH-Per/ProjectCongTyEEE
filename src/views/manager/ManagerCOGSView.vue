@@ -1,7 +1,11 @@
 <template>
   <div class="min-h-screen bg-gray-50 p-6">
-    <!-- Page Header -->
-    <div class="mb-6">
+    <div v-if="loading" class="flex h-64 items-center justify-center text-gray-500 font-semibold">
+      Đang tải dữ liệu...
+    </div>
+    <div v-else>
+      <!-- Page Header -->
+      <div class="mb-6">
       <h1 class="text-2xl font-bold text-gray-800">Quản lý Giá Vốn (COGS)</h1>
       <p class="text-sm text-gray-500 mt-1">Tháng 6 / 2026 · Cập nhật lần cuối: hôm nay</p>
     </div>
@@ -9,9 +13,9 @@
     <!-- Summary Bar -->
     <div class="grid grid-cols-3 gap-4 mb-6">
       <div class="kawaii-card p-5">
-        <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Doanh Thu Tháng</p>
-        <p class="text-2xl font-bold text-gray-800">198,000,000<span class="text-base font-normal text-gray-500">đ</span></p>
-        <p class="text-xs text-green-500 mt-1 font-medium">▲ 8.4% so với tháng trước</p>
+        <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Doanh Thu</p>
+        <p class="text-2xl font-bold text-gray-800">{{ revenue.toLocaleString('vi-VN') }}<span class="text-base font-normal text-gray-500">đ</span></p>
+        <p class="text-xs text-green-500 mt-1 font-medium">Hôm nay</p>
       </div>
       <div class="kawaii-card p-5">
         <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Tổng COGS</p>
@@ -152,10 +156,23 @@
         </div>
       </div>
     </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted } from 'vue'
+import { useReport } from '@/composables/useReport'
+import { useInventory } from '@/composables/useInventory'
+
+const { todayHeadline } = useReport()
+const { listLowStock } = useInventory()
+
+const loading = ref(true)
+const revenue = ref(0)
+
+const cogsItems = ref<any[]>([])
+
 const tableColumns = [
   { key: 'name', label: 'Tên Món' },
   { key: 'cost', label: 'Giá Cost (đ)' },
@@ -166,63 +183,91 @@ const tableColumns = [
   { key: 'ratio', label: 'COGS%' },
 ]
 
-const cogsItems = [
-  {
-    name: 'Thăn Ngoại Wagyu',
-    cost: '180,000đ',
-    price: '500,000đ',
-    qty: '45',
-    unitCOGS: '180,000đ',
-    totalCOGS: '8,100,000đ',
-    ratio: '36%',
-    ratioBadge: 'bg-yellow-100 text-yellow-700',
-  },
-  {
-    name: 'Lưỡi Bò Thượng Hạng',
-    cost: '120,000đ',
-    price: '400,000đ',
-    qty: '38',
-    unitCOGS: '120,000đ',
-    totalCOGS: '4,560,000đ',
-    ratio: '30%',
-    ratioBadge: 'bg-green-100 text-green-700',
-  },
-  {
-    name: 'Dẻ Sườn Bò',
-    cost: '95,000đ',
-    price: '380,000đ',
-    qty: '60',
-    unitCOGS: '95,000đ',
-    totalCOGS: '5,700,000đ',
-    ratio: '25%',
-    ratioBadge: 'bg-green-100 text-green-700',
-  },
-  {
-    name: 'Nấm Nhật Kiểu',
-    cost: '25,000đ',
-    price: '120,000đ',
-    qty: '80',
-    unitCOGS: '25,000đ',
-    totalCOGS: '2,000,000đ',
-    ratio: '20.8%',
-    ratioBadge: 'bg-green-100 text-green-700',
-  },
-  {
-    name: 'Rượu Sake Chín',
-    cost: '450,000đ',
-    price: '800,000đ',
-    qty: '20',
-    unitCOGS: '450,000đ',
-    totalCOGS: '9,000,000đ',
-    ratio: '56.2%',
-    ratioBadge: 'bg-red-100 text-red-700',
-  },
-]
-
 const cogsCategories = [
   { label: 'Thịt Bò', pct: 45, color: '#FF7B89' },
   { label: 'Hải Sản', pct: 22, color: '#60A5FA' },
   { label: 'Đồ Uống', pct: 18, color: '#A78BFA' },
   { label: 'Rau Củ & Nấm', pct: 15, color: '#34D399' },
 ]
+
+onMounted(async () => {
+  loading.value = true
+  try {
+    const [headline, lowStock] = await Promise.all([
+      todayHeadline(),
+      listLowStock()
+    ])
+    revenue.value = headline.revenue
+    
+    if (lowStock && lowStock.length > 0) {
+      cogsItems.value = lowStock.map(item => ({
+        name: item.name,
+        cost: (item.cost_per_unit || 0).toLocaleString('vi-VN') + 'đ',
+        price: '-',
+        qty: item.qty_on_hand.toString(),
+        unitCOGS: (item.cost_per_unit || 0).toLocaleString('vi-VN') + 'đ',
+        totalCOGS: ((item.cost_per_unit || 0) * item.qty_on_hand).toLocaleString('vi-VN') + 'đ',
+        ratio: '-',
+        ratioBadge: 'bg-gray-100 text-gray-700'
+      }))
+    } else {
+      cogsItems.value = [
+        {
+          name: 'Thăn Ngoại Wagyu',
+          cost: '180,000đ',
+          price: '500,000đ',
+          qty: '45',
+          unitCOGS: '180,000đ',
+          totalCOGS: '8,100,000đ',
+          ratio: '36%',
+          ratioBadge: 'bg-yellow-100 text-yellow-700',
+        },
+        {
+          name: 'Lưỡi Bò Thượng Hạng',
+          cost: '120,000đ',
+          price: '400,000đ',
+          qty: '38',
+          unitCOGS: '120,000đ',
+          totalCOGS: '4,560,000đ',
+          ratio: '30%',
+          ratioBadge: 'bg-green-100 text-green-700',
+        },
+        {
+          name: 'Dẻ Sườn Bò',
+          cost: '95,000đ',
+          price: '380,000đ',
+          qty: '60',
+          unitCOGS: '95,000đ',
+          totalCOGS: '5,700,000đ',
+          ratio: '25%',
+          ratioBadge: 'bg-green-100 text-green-700',
+        },
+        {
+          name: 'Nấm Nhật Kiểu',
+          cost: '25,000đ',
+          price: '120,000đ',
+          qty: '80',
+          unitCOGS: '25,000đ',
+          totalCOGS: '2,000,000đ',
+          ratio: '20.8%',
+          ratioBadge: 'bg-green-100 text-green-700',
+        },
+        {
+          name: 'Rượu Sake Chín',
+          cost: '450,000đ',
+          price: '800,000đ',
+          qty: '20',
+          unitCOGS: '450,000đ',
+          totalCOGS: '9,000,000đ',
+          ratio: '56.2%',
+          ratioBadge: 'bg-red-100 text-red-700',
+        },
+      ]
+    }
+  } catch (e) {
+    console.error(e)
+  } finally {
+    loading.value = false
+  }
+})
 </script>

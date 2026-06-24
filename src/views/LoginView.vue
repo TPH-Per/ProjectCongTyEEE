@@ -6,7 +6,7 @@ import { useAuth } from '@/composables/useAuth'
 
 const router = useRouter()
 const { t } = useI18n()
-const { signIn, loading: authLoading, isAuthenticated } = useAuth()
+const { signIn, loading: authLoading, isAuthenticated, role } = useAuth()
 
 const form = reactive({
   email: '',
@@ -26,8 +26,22 @@ async function onSubmit() {
   errorMsg.value = null
   try {
     await signIn(form.email.trim(), form.password)
-    // Router guard will redirect to the proper portal via role-based home.
-    await router.push({ name: 'home' })
+    
+    // Redirect dynamically based on user role
+    const userRole = role.value
+    if (userRole === 'admin') {
+      await router.push({ name: 'admin-dashboard' })
+    } else if (userRole === 'manager') {
+      await router.push({ name: 'manager-dashboard' })
+    } else if (userRole === 'reception') {
+      await router.push({ name: 'reception-dashboard' })
+    } else if (userRole === 'staff') {
+      await router.push({ name: 'staff-floor-plan' })
+    } else if (userRole === 'kitchen') {
+      await router.push({ name: 'kitchen-kds' })
+    } else {
+      await router.push('/')
+    }
   } catch (e) {
     errorMsg.value = e instanceof Error ? e.message : String(e)
   } finally {

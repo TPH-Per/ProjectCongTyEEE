@@ -19,12 +19,7 @@
           </li>
         </ul>
       </nav>
-      <div class="p-4 border-t border-gray-100">
-        <button class="flex items-center text-sm text-gray-500 hover:text-red-500 transition-colors w-full px-4 py-2">
-          <LogOutIcon class="w-4 h-4 mr-2" />
-          Đăng xuất
-        </button>
-      </div>
+
     </aside>
 
     <!-- Main Content -->
@@ -39,12 +34,25 @@
             <BellIcon class="w-6 h-6" />
             <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
           </button>
-          <div class="flex items-center space-x-2 cursor-pointer">
-            <div class="w-8 h-8 rounded-full bg-rose-200 flex items-center justify-center text-[#FF7B89] font-bold">
-              SA
+          <div class="relative">
+            <!-- Backdrop to close dropdown on click outside -->
+            <div v-if="isDropdownOpen" class="fixed inset-0 z-40" @click="isDropdownOpen = false"></div>
+
+            <div @click="isDropdownOpen = !isDropdownOpen" class="flex items-center space-x-2 cursor-pointer p-1 rounded-xl hover:bg-gray-50 transition-colors select-none z-50 relative">
+              <div class="w-8 h-8 rounded-full bg-rose-200 flex items-center justify-center text-[#FF7B89] font-bold">
+                SA
+              </div>
+              <span class="text-sm font-medium hidden md:block">Superadmin</span>
+              <ChevronDownIcon class="w-4 h-4 text-gray-400" />
             </div>
-            <span class="text-sm font-medium hidden md:block">Superadmin</span>
-            <ChevronDownIcon class="w-4 h-4 text-gray-400" />
+            
+            <!-- Dropdown Menu -->
+            <div v-if="isDropdownOpen" class="absolute right-0 top-full mt-2 w-48 bg-white border border-gray-100 rounded-xl shadow-lg py-1.5 z-50">
+              <button @click="handleSignOut" class="w-full flex items-center px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors">
+                <LogOutIcon class="w-4 h-4 mr-2" />
+                Đăng xuất
+              </button>
+            </div>
           </div>
         </div>
       </header>
@@ -64,8 +72,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { computed, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { useAuth } from '@/composables/useAuth'
 import { 
   LayoutDashboardIcon, 
   StoreIcon, 
@@ -77,6 +86,9 @@ import {
 } from 'lucide-vue-next'
 
 const route = useRoute()
+const router = useRouter()
+const { signOut } = useAuth()
+const isDropdownOpen = ref(false)
 
 const menuItems = [
   { name: 'Tổng quan', path: '/superadmin/dashboard', icon: LayoutDashboardIcon },
@@ -89,6 +101,11 @@ const currentRouteName = computed(() => {
   const current = menuItems.find(item => route.path.includes(item.path))
   return current ? current.name : 'Quản lý'
 })
+
+async function handleSignOut() {
+  await signOut()
+  router.push({ name: 'login' })
+}
 </script>
 
 <style scoped>

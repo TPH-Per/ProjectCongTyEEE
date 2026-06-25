@@ -45,7 +45,6 @@ import { useUserSticker } from '@/composables/useUserSticker'
 const { stickerUrl } = useUserSticker()
 const router = useRouter()
 const { signOut, profile } = useAuth()
-const { stickerUrl } = useUserSticker()
 
 const currentTime = ref('');
 let timer: number | null = null;

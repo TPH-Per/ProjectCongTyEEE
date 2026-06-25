@@ -22,12 +22,12 @@
             <div class="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center shadow-inner">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
             </div>
-            <span class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Total Revenue</span>
+            <span class="text-sm font-semibold text-gray-500 uppercase tracking-wider">{{ t('auto_doanh_thu_t_ng', 'Tổng Doanh Thu') }}</span>
           </div>
           <div class="text-3xl font-black text-gray-900">{{ formatCurrency(stats.totalRevenue) }}</div>
           <p class="text-xs text-green-600 font-medium mt-2 flex items-center gap-1">
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg>
-            From Invoices
+            {{ t('auto_t_h_a_n', 'Từ hóa đơn') }}
           </p>
         </div>
 
@@ -37,41 +37,42 @@
             <div class="w-12 h-12 rounded-full bg-green-100 text-green-600 flex items-center justify-center shadow-inner">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
             </div>
-            <span class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Total Payments</span>
+            <span class="text-sm font-semibold text-gray-500 uppercase tracking-wider">{{ t('auto_t_ng_chi', 'Tổng Chi Trả') }}</span>
           </div>
           <div class="text-3xl font-black text-gray-900">{{ formatCurrency(stats.totalPayments) }}</div>
-          <p class="text-xs text-green-600 font-medium mt-2 flex items-center gap-1">
-            Collected
+          <p class="text-xs text-blue-600 font-medium mt-2 flex items-center gap-1">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg>
+            {{ t('auto_ph_i_tr_ncc', 'Phí trả NCC') }}
           </p>
         </div>
 
         <!-- Staff Costs Card -->
         <div class="bg-gradient-to-br from-white to-gray-50 rounded-2xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
           <div class="flex items-center gap-4 mb-4">
-            <div class="w-12 h-12 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center shadow-inner">
+            <div class="w-12 h-12 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center shadow-inner">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             </div>
-            <span class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Est. Staff Costs</span>
+            <span class="text-sm font-semibold text-gray-500 uppercase tracking-wider">{{ t('auto_l_ng_nh_n_s_', 'Chi Phí Nhân Sự') }}</span>
           </div>
           <div class="text-3xl font-black text-gray-900">{{ formatCurrency(stats.totalStaffCosts) }}</div>
-          <p class="text-xs text-orange-600 font-medium mt-2 flex items-center gap-1">
-            Based on shifts
+          <p class="text-xs text-gray-500 font-medium mt-2 flex items-center gap-1">
+            {{ t('auto_t_m_t_nh_theo_ca', 'Tạm tính theo ca') }}
           </p>
         </div>
 
         <!-- Profit Card -->
         <div class="bg-gradient-to-br from-white to-gray-50 rounded-2xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
           <div class="flex items-center gap-4 mb-4">
-            <div class="w-12 h-12 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center shadow-inner">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20h.01"/><path d="M7 20v-4"/><path d="M12 20v-8"/><path d="M17 20V8"/><path d="M22 4v16"/></svg>
+            <div class="w-12 h-12 rounded-full flex items-center justify-center shadow-inner" :class="stats.profit >= 0 ? 'bg-emerald-100 text-emerald-600' : 'bg-red-100 text-red-600'">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
             </div>
-            <span class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Estimated Profit</span>
+            <span class="text-sm font-semibold text-gray-500 uppercase tracking-wider">{{ t('auto_l_i_nhu_n', 'Lợi Nhuận Ước Tính') }}</span>
           </div>
           <div class="text-3xl font-black text-gray-900" :class="stats.profit >= 0 ? 'text-green-600' : 'text-red-600'">
             {{ formatCurrency(stats.profit) }}
           </div>
           <p class="text-xs font-medium mt-2 flex items-center gap-1" :class="stats.profit >= 0 ? 'text-green-600' : 'text-red-600'">
-            Revenue - Costs
+            {{ t('auto_doanh_thu_chi_ph_', 'Doanh thu - Chi phí') }}
           </p>
         </div>
       </div>

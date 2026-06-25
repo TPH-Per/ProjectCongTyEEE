@@ -64,7 +64,11 @@
           </button>
         </div>
       <LanguageSwitcher />
-        </header>
+        <!-- Header User Avatar -->
+        <div class="flex items-center gap-2 ml-4">
+          <img :src="stickerUrl" alt="User Avatar" class="w-8 h-8 rounded-full border border-[hsl(var(--border))] object-contain bg-[hsl(var(--muted))]" />
+        </div>
+      </header>
       <section class="flex-1 overflow-auto p-6">
         <RouterView />
       </section>

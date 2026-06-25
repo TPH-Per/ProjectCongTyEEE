@@ -1,0 +1,11 @@
+# Supabase project config — minimal, only what's needed for local CLI workflows.
+# Keep this file small. Per-project settings (auth, db, functions, storage, …)
+# are owned by the live dashboard. Anything added here overrides the dashboard
+# on next `supabase db push` / `supabase functions deploy`, so we deliberately
+# leave them out until we actually need them locally.
+#
+# Refs:
+#   https://supabase.com/docs/guides/cli/local-development#configuring-supabase
+#   https://supabase.com/docs/reference/cli/config
+
+project_id = "zjtnmrcczkbcoxjlndva"

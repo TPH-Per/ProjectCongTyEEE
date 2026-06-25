@@ -63,6 +63,7 @@ import { useI18n } from 'vue-i18n'
 import { ref, onMounted, onUnmounted } from 'vue'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/composables/useAuth'
+import { DEFAULT_BRANCH_ID } from '@/lib/branch-constants'
 
 const { t } = useI18n()
 const { branchId } = useAuth()
@@ -75,7 +76,7 @@ async function fetchActiveOrders() {
   const { data } = await supabase
     .from('reservations')
     .select('*, tables(code), orders(id, order_items(id))')
-    .eq('branch_id', branchId.value || 'B001')
+    .eq('branch_id', branchId.value || DEFAULT_BRANCH_ID)
     .eq('status', 'Dining')
     .order('created_at', { ascending: false })
   

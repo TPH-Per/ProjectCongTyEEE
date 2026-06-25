@@ -100,6 +100,7 @@ import { useI18n } from 'vue-i18n'
 import { ref, onMounted, computed } from 'vue'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/composables/useAuth'
+import { DEFAULT_BRANCH_ID } from '@/lib/branch-constants'
 
 const { t } = useI18n()
 const { branchId } = useAuth()
@@ -124,7 +125,7 @@ async function fetchStats() {
   // Fetch today's closed orders
   const { data } = await supabase.from('orders')
     .select('*, reservations(guests, table_id, tables(code))')
-    .eq('branch_id', branchId.value || 'B001')
+    .eq('branch_id', branchId.value || DEFAULT_BRANCH_ID)
     .eq('status', 'Paid')
     .gte('created_at', today)
     .order('created_at', { ascending: false })
@@ -168,7 +169,7 @@ async function handleCloseShift() {
   try {
     const { error } = await supabase.functions.invoke('close-shift', {
       body: {
-        branch_id: branchId.value || 'B001'
+        branch_id: branchId.value || DEFAULT_BRANCH_ID
       }
     })
     if (error) throw error
@@ -184,7 +185,7 @@ async function handleExportCSV() {
   Swal.fire('Thông báo', 'Đang gọi Export CSV Edge Function...', 'info')
   try {
     const { data, error } = await supabase.functions.invoke('export-shift-csv', {
-      body: { branch_id: branchId.value || 'B001' }
+      body: { branch_id: branchId.value || DEFAULT_BRANCH_ID }
     })
     if (error) throw error
     console.log('CSV Data:', data)

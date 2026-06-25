@@ -1,5 +1,6 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { supabase } from '@/lib/supabase'
+import { DEFAULT_BRANCH_ID } from '@/lib/branch-constants'
 import type { Session, Subscription } from '@supabase/supabase-js'
 import type { AppUser, UserRole } from '@/types/database'
 
@@ -44,7 +45,7 @@ export function useAuth() {
 
     const mockUser: AppUser = {
       id: 'mock-id-' + detectedRole,
-      branch_id: 'B001',
+      branch_id: DEFAULT_BRANCH_ID,
       full_name: detectedRole.charAt(0).toUpperCase() + detectedRole.slice(1) + ' User',
       email: cleanEmail,
       phone: '0909123456',

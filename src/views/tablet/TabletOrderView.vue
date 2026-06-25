@@ -103,6 +103,7 @@ import { useI18n } from 'vue-i18n'
 import { ref, onMounted } from 'vue'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/composables/useAuth'
+import { DEFAULT_BRANCH_ID } from '@/lib/branch-constants'
 import type { MenuCategory, MenuItem } from '@/types/database'
 
 import Swal from 'sweetalert2'
@@ -119,7 +120,7 @@ const loadingItems = ref(false)
 
 // Assume order_id is in localStorage, or provide mock
 const orderId = ref(localStorage.getItem('tablet_order_id') || 'mock-order-id-for-tablet')
-const activeBranchId = branchId.value || localStorage.getItem('branch_id') || 'B001'
+const activeBranchId = branchId.value || localStorage.getItem('branch_id') || DEFAULT_BRANCH_ID
 
 onMounted(async () => {
   await loadCategories()

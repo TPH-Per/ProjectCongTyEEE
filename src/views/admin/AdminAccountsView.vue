@@ -154,6 +154,7 @@ import { useI18n } from 'vue-i18n'
 import { ref, onMounted } from 'vue'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/composables/useAuth'
+import { DEFAULT_BRANCH_ID } from '@/lib/branch-constants'
 import type { AppUser } from '@/types/database'
 
 const { t } = useI18n()
@@ -172,7 +173,7 @@ const form = ref({
   password: '',
   full_name: '',
   role: 'staff',
-  branch_id: branchId.value || 'B001',
+  branch_id: branchId.value || DEFAULT_BRANCH_ID,
   is_active: true
 })
 
@@ -206,7 +207,7 @@ function openCreateModal() {
     password: '',
     full_name: '',
     role: 'staff',
-    branch_id: branchId.value || 'B001',
+    branch_id: branchId.value || DEFAULT_BRANCH_ID,
     is_active: true
   }
   isModalOpen.value = true

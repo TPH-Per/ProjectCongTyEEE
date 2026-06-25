@@ -122,6 +122,7 @@ export interface MenuItemRow {
   id: string
   branch_id: string
   category_id: string
+  subcategory_id: string | null
   menu_categories?: { name: string }
   name: string
   i18n_name: I18nString
@@ -130,11 +131,38 @@ export interface MenuItemRow {
   price: number
   cost: number | null
   unit: string
+  price_display: string | null
   image_url: string | null
   is_available: boolean
+  is_active: boolean
+  sort_order: number
   modifiers: unknown[]
   tags: string[]
   nutrition: Record<string, unknown>
+  metadata: Record<string, unknown>
+  created_at: string
+  updated_at: string
+}
+
+export interface MenuSubcategoryRow {
+  id: string
+  branch_id: string
+  category_id: string
+  name: string
+  sort_order: number
+  is_active: boolean
+  metadata: Record<string, unknown>
+  created_at: string
+  updated_at: string
+}
+
+export interface PackageItemRow {
+  id: string
+  package_id: string
+  menu_item_id: string
+  item_limit: number | null
+  sort_order: number
+  is_active: boolean
   metadata: Record<string, unknown>
   created_at: string
   updated_at: string
@@ -143,14 +171,12 @@ export interface PackageRow {
   id: string
   branch_id: string
   name: string
-  i18n_name: I18nString
   type: PackageType
   price: number
   item_limit: number | null
   duration_minutes: number | null
   image_url: string | null
   is_active: boolean
-  items_included: PackageItemConfig[]
   metadata: Record<string, unknown>
   created_at: string
   updated_at: string
@@ -335,6 +361,18 @@ export interface MenuCategory {
   i18n_name?: I18nString
   sort_order?: number
   is_active?: boolean
+  color?: 'yellow' | 'pink' | string | null
+  metadata?: Record<string, unknown>
+}
+
+export interface MenuSubcategory {
+  id: string
+  branch_id: string
+  category_id: string
+  name: string
+  sort_order: number
+  is_active: boolean
+  metadata?: Record<string, unknown>
 }
 
 export interface Zone {
@@ -381,8 +419,11 @@ export type Database = {
       users: TableShape<UserRow>
       tables: TableShape<TableRow>
       customers: TableShape<CustomerRow>
+      menu_categories: TableShape<MenuCategory>
+      menu_subcategories: TableShape<MenuSubcategoryRow>
       menu_items: TableShape<MenuItemRow>
       packages: TableShape<PackageRow>
+      package_items: TableShape<PackageItemRow>
       reservations: TableShape<ReservationRow>
       orders: TableShape<OrderRow>
       order_items: TableShape<OrderItemRow>
@@ -423,7 +464,9 @@ export type Branch = BranchRow
 export type TableT = TableRow
 export type Customer = CustomerRow
 export type MenuItem = MenuItemRow
+export type MenuSub = MenuSubcategoryRow
 export type Package = PackageRow
+export type PackageItem = PackageItemRow
 export type Reservation = ReservationRow
 export type Order = OrderRow
 export type OrderItem = OrderItemRow

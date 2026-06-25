@@ -33,6 +33,26 @@ serve(async (req) => {
     })
     const body: CheckoutPayload = await req.json()
 
+    // Validate payload.
+    if (!body.orderId) throw new AuthError('orderId là bắt buộc', 400)
+    const uuidRe = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+    if (!uuidRe.test(body.orderId)) throw new AuthError('orderId không phải UUID', 400)
+    if (!Array.isArray(body.payments) || body.payments.length === 0) {
+      throw new AuthError('payments phải là mảng không rỗng', 400)
+    }
+    const validMethods = ['cash', 'card', 'transfer', 'voucher', 'other']
+    for (const p of body.payments) {
+      if (!validMethods.includes(p.method)) {
+        throw new AuthError(`Payment method không hợp lệ: '${p.method}'`, 400)
+      }
+      if (!Number.isFinite(p.amount) || p.amount <= 0) {
+        throw new AuthError('payment.amount phải > 0', 400)
+      }
+      if (p.receivedAmount !== undefined && (!Number.isFinite(p.receivedAmount) || p.receivedAmount < 0)) {
+        throw new AuthError('payment.receivedAmount không hợp lệ', 400)
+      }
+    }
+
     // 1. Lấy order + items
     const { data: order } = await admin
       .from('orders')
@@ -80,12 +100,35 @@ serve(async (req) => {
       throw new Error(`Tổng thanh toán ${paidAmount} ≠ tổng bill ${finalTotal}`)
     }
 
-    // 4. Tạo invoice
-    const { data: customer } = await admin
-      .from('customers')
-      .select('id, name, phone, email, tax_code')
-      .eq('id', body.customerId ?? order.reservation_id ?? '')
-      .maybeSingle()
+    // 4. Tạo invoice — customer must belong to the same branch as the order
+    //    (if a customerId is provided).
+    let customer: any = null
+    if (body.customerId) {
+      if (!uuidRe.test(body.customerId)) {
+        throw new AuthError('customerId không phải UUID', 400)
+      }
+      const { data: c } = await admin
+        .from('customers')
+        .select('id, branch_id, name, phone, email, tax_code')
+        .eq('id', body.customerId)
+        .maybeSingle()
+      if (!c) throw new AuthError('Customer không tồn tại', 404)
+      if (profile.role !== 'admin' && c.branch_id !== order.branch_id) {
+        throw new AuthError('Customer thuộc chi nhánh khác với order', 403)
+      }
+      customer = c
+    } else {
+      // Fallback: try to find a customer via the reservation.
+      const { data: c } = await admin
+        .from('customers')
+        .select('id, branch_id, name, phone, email, tax_code')
+        .eq('id', order.reservation_id ?? '')
+        .maybeSingle()
+      // Only use this customer if it's in our branch. Otherwise treat as walk-in.
+      if (c && (profile.role === 'admin' || c.branch_id === order.branch_id)) {
+        customer = c
+      }
+    }
 
     const invoiceNumber = `INV-${Date.now()}-${order.branch_id.slice(0, 4)}`
     const { data: invoice, error: invErr } = await admin
@@ -111,10 +154,10 @@ serve(async (req) => {
       .single()
     if (invErr) throw invErr
 
-    // 5. Tạo payments
+    // 5. Tạo payments — open shift must belong to our branch (defence in depth)
     const { data: openShift } = await admin
       .from('shifts')
-      .select('id')
+      .select('id, branch_id')
       .eq('branch_id', order.branch_id)
       .eq('user_id', user.id)
       .eq('status', 'open')
@@ -149,9 +192,10 @@ serve(async (req) => {
         .from('vouchers')
         .update({ used_count: voucher.used_count + 1 })
         .eq('id', voucher.id)
+        .eq('branch_id', order.branch_id)
     }
 
-    // 7. Update order → Paid
+    // 7. Update order → Paid (filter by branch — defence in depth)
     await admin
       .from('orders')
       .update({
@@ -160,26 +204,30 @@ serve(async (req) => {
         total: finalTotal,
       })
       .eq('id', order.id)
+      .eq('branch_id', order.branch_id)
 
-    // 8. Release table_assignments
+    // 8. Release table_assignments (filter by branch + table)
     if (order.table_id) {
       await admin
         .from('table_assignments')
         .update({ released_at: new Date().toISOString() })
         .eq('table_id', order.table_id)
+        .eq('branch_id', order.branch_id)
         .is('released_at', null)
       await admin
         .from('tables')
         .update({ status: 'available' })
         .eq('id', order.table_id)
+        .eq('branch_id', order.branch_id)
     }
 
-    // 9. Update reservation → Completed
+    // 9. Update reservation → Completed (filter by branch)
     if (order.reservation_id) {
       await admin
         .from('reservations')
         .update({ status: 'Completed', completed_at: new Date().toISOString() })
         .eq('id', order.reservation_id)
+        .eq('branch_id', order.branch_id)
     }
 
     // 10. Update customer stats

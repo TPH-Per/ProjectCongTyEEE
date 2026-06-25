@@ -4,11 +4,7 @@
     <aside class="w-64 border-r bg-white flex flex-col shrink-0 shadow-sm">
       <div class="p-5 border-b">
         <div class="flex items-center gap-3">
-          <img
-            src="/images/nguucat-logo.png"
-            alt="Ngưu Cát Logo"
-            class="h-10 w-auto object-contain"
-          />
+          <TextLogo size="md" />
         </div>
       </div>
       <nav class="flex-1 px-4 space-y-2 py-6 overflow-y-auto">
@@ -205,6 +201,7 @@ import { ref, computed } from 'vue'
 import { RouterView, RouterLink, useRouter, useRoute } from "vue-router";
 import { useAuth } from "@/composables/useAuth";
 import { useUserSticker } from '@/composables/useUserSticker'
+import TextLogo from '@/components/TextLogo.vue'
 
 const router = useRouter();
 const route = useRoute();

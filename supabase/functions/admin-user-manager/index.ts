@@ -56,7 +56,21 @@ serve(async (req) => {
 
       const { email, password, full_name, role, branch_id } = payload
 
-      // 1. Create auth user
+      // Validate inputs that the SQL CHECK constraints would otherwise
+      // catch with a less friendly error.
+      const validRoles = ['admin', 'manager', 'reception', 'staff', 'kitchen']
+      if (!validRoles.includes(role)) {
+        throw new AuthError(`Role không hợp lệ: '${role}'`, 400)
+      }
+      // branch_id must be a UUID when provided.
+      if (branch_id !== undefined && branch_id !== null && branch_id !== '') {
+        if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(branch_id)) {
+          throw new AuthError(`branch_id không phải UUID hợp lệ: '${branch_id}'`, 400)
+        }
+      }
+
+      // 1. Create auth user — the handle_new_auth_user trigger fires here
+      //    and inserts a default public.users row (role='staff', branch_id=NULL).
       const adminAuthClient = getAdminAuthClient()
       const { data: authData, error: authError } = await adminAuthClient.auth.admin.createUser({
         email,
@@ -66,20 +80,27 @@ serve(async (req) => {
 
       if (authError) throw authError
 
-      // 2. Create public.users record
+      // 2. UPSERT the real role / branch_id / full_name. We can't use plain
+      //    INSERT because the trigger already inserted a row (with the
+      //    defaults 'staff'/NULL). UPSERT guarantees the caller's values
+      //    win — even if the trigger pre-inserted, even if the row was
+      //    partially created by another path (Dashboard signup).
       const { error: dbError } = await supabaseAdmin
         .from('users')
-        .insert({
-          id: authData.user.id,
-          email,
-          full_name,
-          role,
-          branch_id,
-          is_active: true,
-        })
+        .upsert(
+          {
+            id: authData.user.id,
+            email,
+            full_name: full_name ?? null,
+            role,
+            branch_id: branch_id || null,
+            is_active: true,
+          },
+          { onConflict: 'id' },
+        )
 
       if (dbError) {
-        // Rollback auth user on DB insert failure
+        // Rollback auth user on DB upsert failure
         await adminAuthClient.auth.admin.deleteUser(authData.user.id)
         throw dbError
       }
@@ -143,19 +164,38 @@ serve(async (req) => {
       if (branch_id !== undefined) update.branch_id = branch_id
       if (is_active !== undefined) update.is_active = is_active
 
+      // Validate role if it's being changed.
+      if (role !== undefined) {
+        const validRoles = ['admin', 'manager', 'reception', 'staff', 'kitchen']
+        if (!validRoles.includes(role)) {
+          throw new AuthError(`Role không hợp lệ: '${role}'`, 400)
+        }
+      }
+      // Validate branch_id format if being changed.
+      if (branch_id !== undefined && branch_id !== null && branch_id !== '') {
+        if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(branch_id)) {
+          throw new AuthError(`branch_id không phải UUID hợp lệ: '${branch_id}'`, 400)
+        }
+      }
+
       const { error: dbError } = await supabaseAdmin
         .from('users')
         .update(update)
         .eq('id', userId)
       if (dbError) throw dbError
 
+      // Audit branch_id: the TARGET user's branch after the change (not the
+      // caller's branch). This way, an admin acting on a different branch's
+      // user records the action under that branch's audit log — which is
+      // where the security team will be looking when investigating.
+      const newBranchId = (branch_id !== undefined ? branch_id : target.branch_id) ?? null
       await supabaseAdmin.from('audit_events').insert({
-        branch_id: caller.branch_id,
+        branch_id: newBranchId,
         actor_id: caller.id,
         action: 'user.updated',
         entity_type: 'user',
         entity_id: userId,
-        payload: { changes: update, updated_by_role: caller.role },
+        payload: { changes: update, updated_by_role: caller.role, target_email: target.email },
       })
 
       return new Response(

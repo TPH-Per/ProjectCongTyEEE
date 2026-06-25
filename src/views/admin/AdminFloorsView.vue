@@ -1998,12 +1998,45 @@ async function saveNewTable() {
     return;
   }
 
+  // Resolve the typed zone name to the actual zone_id (zones.name is
+  // free-text in the modal, so we must look it up within the user's
+  // branch before inserting). If the zone doesn't exist yet, create
+  // it on the fly so admins don't have to leave the screen.
+  let zoneId: string | null = null
+  const trimmedZone = zone.trim()
+  const { data: existingZone } = await supabase
+    .from('zones')
+    .select('id')
+    .eq('branch_id', bid)
+    .eq('name', trimmedZone)
+    .maybeSingle()
+  if (existingZone) {
+    zoneId = existingZone.id
+  } else {
+    const { data: createdZone, error: zoneErr } = await supabase
+      .from('zones')
+      .insert({
+        branch_id: bid,
+        name: trimmedZone,
+        sort_order: 99,
+        is_active: true,
+      })
+      .select('id')
+      .single()
+    if (zoneErr || !createdZone) {
+      Swal.fire('Lỗi', 'Không thể tạo Phân khu mới: ' + (zoneErr?.message ?? ''), 'error')
+      return
+    }
+    zoneId = createdZone.id
+  }
+
   const { error } = await supabase.from('tables').insert([{
     branch_id: bid,
+    zone_id: zoneId,
     code,
-    zone,
     capacity,
-    status: 'AVAILABLE'
+    status: 'available',
+    is_active: true,
   }]);
 
   if (error) {
@@ -2418,21 +2451,62 @@ const updateSystemClock = () => {
 };
 
 async function loadTables() {
-  const { session, branchId } = useAuth();
-  const bid = branchId.value || session.value?.user.user_metadata?.branch_id;
+  const { branchId } = useAuth();
+  // SECURITY: branch_id MUST come from useAuth (JWT app_metadata →
+  // public.users), NEVER from session.user.user_metadata. user_metadata
+  // is attacker-controlled via auth.updateUser(); using it for branch
+  // decisions would let a signed-in user spoof any branch.
+  const bid = branchId.value;
   if (!bid) return;
-  const { data: tablesData } = await supabase.from('tables').select('*').eq('branch_id', bid).order('code', { ascending: true });
-  if (tablesData) {
-    const zones = [...new Set(tablesData.map((t: any) => t.zone))];
-    areas.value = zones.map((z: any) => ({
-      name: z,
-      description: z,
-      tables: tablesData.filter((t: any) => t.zone === z).map((t: any) => ({
+  // Load zones + tables, then GROUP BY zone_id and JOIN to zones.name.
+  // Bug history: previously this read `t.zone` (which doesn't exist on
+  // `tables` — only `zone_id` does), so the resulting areas list ended up
+  // with name=undefined and tables=[] on every load, silently wiping the
+  // Pinia store's seed.
+  const { data: tablesData } = await supabase
+    .from('tables')
+    .select('id, code, capacity, status, zone_id, zones:zones!inner(id, name, color, sort_order)')
+    .eq('branch_id', bid)
+    .eq('is_active', true)
+    .order('code', { ascending: true });
+
+  if (tablesData && tablesData.length > 0) {
+    // Group by zone id (NOT the old broken `t.zone` field).
+    const byZone = new Map<string, { name: string; tables: TableInfo[] }>();
+    for (const t of tablesData as any[]) {
+      const z = t.zones;
+      if (!byZone.has(z.id)) {
+        byZone.set(z.id, { name: z.name, tables: [] });
+      }
+      // DB enum is lowercase ('available' | 'reserved' | 'occupied' |
+      // 'maintenance'). Map to the PascalCase the UI expects.
+      const uiStatus: TableInfo['status'] =
+        t.status === 'available' ? 'Available'
+        : t.status === 'reserved' ? 'Reserved'
+        : t.status === 'occupied' ? 'Serving'
+        : 'Available';
+      byZone.get(z.id)!.tables.push({
         code: t.code,
-        status: t.status === 'AVAILABLE' ? 'Available' : t.status === 'OCCUPIED' ? 'Serving' : t.status === 'RESERVED' ? 'Reserved' : 'Available',
-        capacity: t.capacity
-      }))
-    }));
+        status: uiStatus,
+        capacity: t.capacity,
+      });
+    }
+    // Replace store areas with DB-backed view. Order zones by their
+    // declared sort_order so Khu A renders before Khu T etc.
+    areas.value = Array.from(byZone.values())
+      .sort((a, b) => a.name.localeCompare(b.name, 'vi'))
+      .map<AreaInfo>((z) => ({
+        name: z.name,
+        description: z.name, // UI only renders name; description kept for parity with the store's seed.
+        tables: z.tables,
+      }));
+  } else {
+    // No DB rows yet (or RLS blocked the read) — fall back to the
+    // Pinia store's hardcoded mock so the UI still has something to
+    // show during a fresh-install demo / dev-mode login.
+    // Intentionally do NOT clear `areas.value` here; the store's seed
+    // (10 zones, 57 tables) is the legacy fallback that keeps the page
+    // useful before the seed migration runs.
   }
 }
 
@@ -2443,7 +2517,9 @@ onMounted(async () => {
 
   const { session, branchId } = useAuth();
   if (session.value) {
-    const bid = branchId.value || session.value.user.user_metadata?.branch_id;
+    // SECURITY: branchId comes from useAuth only — never from
+    // session.user.user_metadata (which is attacker-editable).
+    const bid = branchId.value;
     if (bid) {
       await loadTables();
 

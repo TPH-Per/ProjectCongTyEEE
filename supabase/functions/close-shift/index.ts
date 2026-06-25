@@ -19,18 +19,36 @@ serve(async (req) => {
     })
     const body: CloseShiftPayload = await req.json()
 
+    // Validate payload
+    if (!body.shiftId) throw new AuthError('shiftId là bắt buộc', 400)
+    const uuidRe = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+    if (!uuidRe.test(body.shiftId)) throw new AuthError('shiftId không phải UUID', 400)
+    if (!Number.isFinite(body.closingCash) || body.closingCash < 0) {
+      throw new AuthError('closingCash phải ≥ 0', 400)
+    }
+
     // 1. Lấy shift
     const { data: shift } = await admin
       .from('shifts')
       .select('id, branch_id, user_id, status, opening_cash')
       .eq('id', body.shiftId)
-      .single()
-    if (!shift) throw new Error('Shift not found')
+      .maybeSingle()
+    if (!shift) throw new AuthError('Shift không tồn tại', 404)
     if (shift.status !== 'open') throw new Error('Shift đã đóng')
 
     // Branch ownership (admin bypasses)
     if (profile.role !== 'admin' && profile.branch_id !== shift.branch_id) {
       throw new AuthError('Shift thuộc chi nhánh khác — bạn không có quyền đóng', 403)
+    }
+
+    // Business rule: a RECEPTIONIST may only close their OWN shift (the one
+    // they opened). Manager / admin may close any open shift in their branch.
+    // This prevents reception-A from closing reception-B's shift mid-shift.
+    if (
+      profile.role === 'reception' &&
+      shift.user_id !== user.id
+    ) {
+      throw new AuthError('Reception chỉ được đóng ca do chính mình mở', 403)
     }
 
     // 2. Tính expected_cash (cash payments trong ca)

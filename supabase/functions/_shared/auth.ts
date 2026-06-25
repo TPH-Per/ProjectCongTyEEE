@@ -54,10 +54,24 @@ export interface RequireAppUserResult {
   admin: SupabaseClient
 }
 
-/** Thrown by requireAppUser on any auth failure. Caller should map to 401/403. */
+/** Thrown by requireAppUser (and other helpers) on any auth failure.
+ *  Callers should map the `status` field to the HTTP response code.
+ *
+ *  Allowed statuses:
+ *    400 — Bad Request (malformed payload / missing required body)
+ *    401 — Unauthorized (no JWT, JWT invalid, JWT revoked)
+ *    403 — Forbidden (authenticated but not allowed for this resource)
+ *    404 — Not Found (target resource doesn't exist; we don't distinguish
+ *          "you can't see it" from "it doesn't exist" to avoid leaking
+ *          existence, so 404 is reserved for "the actor themselves" —
+ *          e.g. a manager targeting an unknown user_id in a sub-operation)
+ *    409 — Conflict (e.g. role/branch mismatch where a soft failure is
+ *          more appropriate than a hard 403)
+ */
+export type AuthErrorStatus = 400 | 401 | 403 | 404 | 409
 export class AuthError extends Error {
-  readonly status: 401 | 403
-  constructor(message: string, status: 401 | 403) {
+  readonly status: AuthErrorStatus
+  constructor(message: string, status: AuthErrorStatus) {
     super(message)
     this.name = 'AuthError'
     this.status = status
@@ -105,24 +119,28 @@ export function getAdminClient(): SupabaseClient {
  * Without this, the `write_audit` trigger on table_assignments / orders /
  * invoices / payments / shifts inserts `branch_id = NULL` into audit_events,
  * which fails the NOT NULL constraint and the whole function returns 400.
+ *
+ * Both `role` and `branch_id` are taken from the verified `profile` row
+ * (the source of truth), NOT from `user.app_metadata`. Why: the hook
+ * hasn't fired yet on freshly-issued JWTs in some setups, so
+ * `user.app_metadata` can be empty until the user re-logs-in. We must
+ * stamp claims that are correct right now, not claims that will be correct
+ * on the user's next login.
  */
 export async function setJwtContext(
   admin: SupabaseClient,
   userId: string,
-  appMetadata: Record<string, unknown> | undefined,
-  branchIdFallback?: string | null,
+  profile: AppProfile,
 ): Promise<void> {
   const claims = {
     sub: userId,
     role: 'authenticated',
     aud: 'authenticated',
-    // Important: put role + branch_id under app_metadata, where the SQL
-    // helpers actually read them. The hook writes there too — keep them in
-    // sync so a JWT minted by the hook and a JWT stamped by this function
-    // look the same to current_branch_id() / current_user_role().
+    // role + branch_id go under app_metadata because that's where the SQL
+    // helpers (current_branch_id, current_user_role, has_role) read them.
     app_metadata: {
-      ...(appMetadata ?? {}),
-      branch_id: (appMetadata as any)?.branch_id ?? branchIdFallback ?? null,
+      role: profile.role,
+      branch_id: profile.branch_id ?? null,
     },
     user_metadata: {},
   }
@@ -209,7 +227,9 @@ export async function requireAppUser(
   }
 
   // 5. Stamp JWT context so DB helpers / audit triggers see the right claims.
-  await setJwtContext(admin, user.id, user.app_metadata, profile.branch_id)
+  //    Source of truth is the profile row — NOT user.app_metadata (which can
+  //    lag behind the hook by one login cycle).
+  await setJwtContext(admin, user.id, profile)
 
   return { user, profile, supabase, admin }
 }

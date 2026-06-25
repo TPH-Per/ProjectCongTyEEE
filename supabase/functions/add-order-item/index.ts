@@ -23,10 +23,25 @@ serve(async (req) => {
     })
     const body: AddItemPayload = await req.json()
 
+    // Validate payload.
+    if (!body.orderId || !body.menuItemId) {
+      throw new AuthError('orderId và menuItemId là bắt buộc', 400)
+    }
+    const uuidRe = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+    if (!uuidRe.test(body.orderId)) throw new AuthError('orderId không phải UUID', 400)
+    if (!uuidRe.test(body.menuItemId)) throw new AuthError('menuItemId không phải UUID', 400)
+    if (!Number.isFinite(body.quantity) || body.quantity <= 0) {
+      throw new AuthError('quantity phải > 0', 400)
+    }
+    // Sanity cap — a waiter shouldn't add 1000 portions of anything.
+    if (body.quantity > 99) {
+      throw new AuthError('quantity vượt giới hạn cho phép (99)', 400)
+    }
+
     // 1. Lấy order + menu_item song song (table_assignment cần order.table_id nên phải lấy sau)
     const [orderRes, menuRes] = await Promise.all([
       admin.from('orders').select('id, status, table_id, branch_id').eq('id', body.orderId).single(),
-      admin.from('menu_items').select('id, name, price, cost, is_available, category_id').eq('id', body.menuItemId).single(),
+      admin.from('menu_items').select('id, name, price, cost, is_available, branch_id, category_id').eq('id', body.menuItemId).single(),
     ])
 
     const order = orderRes.data
@@ -40,12 +55,20 @@ serve(async (req) => {
     if (profile.role !== 'admin' && profile.branch_id !== order.branch_id) {
       throw new AuthError('Order thuộc chi nhánh khác — bạn không có quyền sửa', 403)
     }
+    // The menu item must belong to the same branch as the order. Otherwise
+    // a staff member could attach a menu item from a DIFFERENT branch's
+    // catalogue to this order — even though they'd never be able to query
+    // it from the menu UI (RLS hides it), this is defence in depth.
+    if (profile.role !== 'admin' && menu.branch_id !== order.branch_id) {
+      throw new AuthError('Menu item thuộc chi nhánh khác với order', 403)
+    }
 
-    // 2. Lấy table_assignment theo table_id
+    // 2. Lấy table_assignment theo table_id (filter by branch too)
     const { data: assignment } = await admin
       .from('table_assignments')
       .select('id, metadata, released_at')
       .eq('table_id', order.table_id!)
+      .eq('branch_id', order.branch_id)
       .is('released_at', null)
       .order('assigned_at', { ascending: false })
       .limit(1)

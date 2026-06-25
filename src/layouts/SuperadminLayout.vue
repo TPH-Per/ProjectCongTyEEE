@@ -3,7 +3,7 @@
     <!-- Sidebar -->
     <aside class="w-64 bg-white kawaii-shadow flex flex-col z-20">
       <div class="h-16 flex items-center justify-center border-b border-gray-100 kawaii-gradient">
-        <img src="/images/nguucat-logo.png" alt="Ngưu Cát Logo" class="h-8 w-auto object-contain" />
+        <TextLogo size="sm" />
       </div>
       <nav class="flex-1 overflow-y-auto py-4">
         <ul class="space-y-1 px-3">
@@ -93,6 +93,7 @@ import {
 } from 'lucide-vue-next'
 import { useAuth } from '@/composables/useAuth'
 import { useUserSticker } from '@/composables/useUserSticker'
+import TextLogo from '@/components/TextLogo.vue'
 
 const route = useRoute()
 const router = useRouter()

@@ -5,7 +5,7 @@
     <aside :class="['border-r border-[hsl(var(--border))] bg-white flex flex-col shrink-0 w-64 fixed inset-y-0 left-0 z-50 transform transition-transform duration-300 lg:relative lg:translate-x-0', isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full']">
       <div class="p-5 border-b border-[hsl(var(--border))]">
         <div class="flex items-center gap-2.5">
-          <img src="/images/nguucat-logo.png" alt="Ngưu Cát Logo" class="h-10 w-auto object-contain" />
+          <TextLogo size="md" />
         </div>
       </div>
 
@@ -131,6 +131,7 @@ import { ref } from 'vue'
 import { RouterView, RouterLink, useRoute, useRouter } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'
 import { useUserSticker } from '@/composables/useUserSticker'
+import TextLogo from '@/components/TextLogo.vue'
 
 const $route = useRoute()
 const $router = useRouter()

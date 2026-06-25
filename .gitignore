@@ -13,6 +13,7 @@ dist-ssr/
 
 # Supabase CLI temp/cache (auto-generated, never commit)
 supabase/.temp/
+supabase/.branches/
 
 # Logs
 logs

@@ -346,16 +346,20 @@ create table public.packages (
 );
 create index packages_branch_type_idx on public.packages (branch_id, type) where is_active;
 
-CREATE OR REPLACE FUNCTION public.current_user_role() RETURNS text AS $$
-  SELECT COALESCE(
-    current_setting('request.jwt.claims', true)::jsonb ->> 'role',
-    (SELECT role::text FROM public.users WHERE id = auth.uid())
-  );
-$$ LANGUAGE sql STABLE;
-
-CREATE OR REPLACE FUNCTION public.has_role(roles user_role[]) RETURNS boolean AS $$
-  SELECT public.current_user_role() = ANY(roles::text[]);
-$$ LANGUAGE sql STABLE;
+create table public.package_items (
+  id           uuid primary key default gen_random_uuid(),
+  package_id   uuid not null references public.packages(id) on delete cascade,
+  menu_item_id uuid not null references public.menu_items(id) on delete restrict,
+  item_limit   int check (item_limit is null or item_limit > 0),
+  sort_order   int not null default 0,
+  is_active    boolean not null default true,
+  metadata     jsonb not null default '{}'::jsonb,
+  created_at   timestamptz not null default now(),
+  updated_at   timestamptz not null default now(),
+  unique (package_id, menu_item_id)
+);
+create index package_items_package_idx on public.package_items (package_id, sort_order) where is_active;
+create index package_items_menu_item_idx on public.package_items (menu_item_id);
 
 CREATE OR REPLACE FUNCTION public.set_updated_at() RETURNS trigger AS $$
 BEGIN
@@ -781,7 +785,7 @@ declare t text;
 begin
   foreach t in array array[
     'branches','users','zones','tables','customers',
-    'menu_categories','menu_items','packages',
+    'menu_categories','menu_items','packages','package_items',
     'reservations','orders','order_items','invoices',
     'vouchers','shifts','kpi_targets','marketing_costs',
     'branch_settings'

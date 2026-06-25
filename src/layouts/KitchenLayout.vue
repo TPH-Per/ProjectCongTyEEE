@@ -3,7 +3,7 @@
     <!-- Header -->
     <header class="bg-gray-800 border-b border-gray-700 px-6 py-4 flex items-center shadow-md kawaii-shadow z-10">
       <div class="flex items-center space-x-4">
-        <img src="/images/nguucat-logo.png" alt="Ngưu Cát Logo" class="h-8 w-auto object-contain" />
+        <TextLogo size="sm" gradient />
         <span class="bg-gray-700 px-3 py-1 rounded-full text-sm font-medium text-gray-300">Chi nhánh Quận 1</span>
       </div>
       <!-- Right cluster: time + manage + language + avatar + logout -->
@@ -41,6 +41,7 @@ import { ref, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'
 import { useUserSticker } from '@/composables/useUserSticker'
+import TextLogo from '@/components/TextLogo.vue'
 
 const { stickerUrl } = useUserSticker()
 const router = useRouter()

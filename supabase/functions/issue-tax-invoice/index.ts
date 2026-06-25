@@ -20,9 +20,14 @@ serve(async (req) => {
     })
     const body: TaxInvoicePayload = await req.json()
 
+    // Validate payload
+    if (!body.invoiceId) throw new AuthError('invoiceId là bắt buộc', 400)
+    const uuidRe = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+    if (!uuidRe.test(body.invoiceId)) throw new AuthError('invoiceId không phải UUID', 400)
+
     // 1. Validate MST format (10 hoặc 13 số)
     if (!/^\d{10}(-\d{3})?$/.test(body.taxCode)) {
-      throw new Error('MST không hợp lệ (phải 10 hoặc 13 số)')
+      throw new AuthError('MST không hợp lệ (phải 10 hoặc 13 số)', 400)
     }
 
     // 2. Lấy invoice + order items
@@ -36,10 +41,11 @@ serve(async (req) => {
         )
       `)
       .eq('id', body.invoiceId)
-      .single()
-    if (!invoice) throw new Error('Invoice not found')
+      .maybeSingle()
+    if (!invoice) throw new AuthError('Invoice không tồn tại', 404)
 
-    // Branch ownership
+    // Branch ownership — fail BEFORE calling the external API so we never
+    // bill an invoice we don't have permission to issue.
     if (profile.role !== 'admin' && profile.branch_id !== invoice.branch_id) {
       throw new AuthError('Invoice thuộc chi nhánh khác — bạn không có quyền xuất HĐ', 403)
     }
@@ -56,8 +62,14 @@ serve(async (req) => {
       total: invoice.total,
     })
 
-    // 4. Gọi cổng thuế (VNPT example)
-    const vtApiKey = Deno.env.get('VT_API_KEY')!
+    // 4. Gọi cổng thuế (VNPT/VT example). Fail fast if API key is missing
+    //    rather than letting `fetch` get an opaque 500 downstream. We throw
+    //    a plain Error (not AuthError) because this is a misconfiguration,
+    //    not an auth failure — the caller should treat it as 500.
+    const vtApiKey = Deno.env.get('VT_API_KEY')
+    if (!vtApiKey) {
+      throw new Error('Cấu hình VT_API_KEY chưa có — không thể xuất hóa đơn điện tử')
+    }
     const vtApiUrl = Deno.env.get('VT_API_URL') ?? 'https://api.vntax.vn/v1/invoices'
     const resp = await fetch(vtApiUrl, {
       method: 'POST',

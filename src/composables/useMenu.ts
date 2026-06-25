@@ -30,7 +30,7 @@ export function useMenu() {
     error.value = null
     let q = supabase
       .from('menu_items')
-      .select('*')
+      .select('*, menu_categories(name)')
       .eq('branch_id', activeBranchId.value!)
       .eq('is_available', true)
       .order('name')

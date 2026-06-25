@@ -1,0 +1,59 @@
+src/composables/useKPI.ts(29,34): error TS2314: Generic type 'Partial' requires 1 type argument(s).
+src/composables/useKPI.ts(29,41): error TS1099: Type argument list cannot be empty.
+src/composables/useKPI.ts(29,46): error TS2314: Generic type 'Promise<T>' requires 1 type argument(s).
+src/composables/useKPI.ts(29,53): error TS1099: Type argument list cannot be empty.
+src/composables/useKPI.ts(35,14): error TS1099: Type argument list cannot be empty.
+src/composables/useMarketing.ts(29,34): error TS2314: Generic type 'Partial' requires 1 type argument(s).
+src/composables/useMarketing.ts(29,41): error TS1099: Type argument list cannot be empty.
+src/composables/useMarketing.ts(29,46): error TS2314: Generic type 'Promise<T>' requires 1 type argument(s).
+src/composables/useMarketing.ts(29,53): error TS1099: Type argument list cannot be empty.
+src/composables/useMarketing.ts(35,14): error TS1099: Type argument list cannot be empty.
+src/views/admin/AdminFloorsView.vue(108,14): error TS2322: Type '{ label: string; value: string; }' is not assignable to type 'PropertyKey | undefined'.
+src/views/admin/AdminFloorsView.vue(109,21): error TS2322: Type '{ label: string; value: string; }' is not assignable to type 'string'.
+src/views/admin/AdminFloorsView.vue(112,15): error TS2367: This comparison appears to be unintentional because the types 'string' and '{ label: string; value: string; }' have no overlap.
+src/views/admin/AdminFloorsView.vue(117,32): error TS2345: Argument of type '{ label: string; value: string; }' is not assignable to parameter of type 'string'.
+src/views/admin/AdminFloorsView.vue(386,12): error TS2322: Type '{ label: string; value: string; }' is not assignable to type 'PropertyKey | undefined'.
+src/views/admin/AdminFloorsView.vue(387,19): error TS2322: Type '{ label: string; value: string; }' is not assignable to type 'string'.
+src/views/admin/AdminFloorsView.vue(390,13): error TS2367: This comparison appears to be unintentional because the types 'string' and '{ label: string; value: string; }' have no overlap.
+src/views/admin/AdminFloorsView.vue(396,67): error TS2345: Argument of type '{ label: string; value: string; }' is not assignable to parameter of type 'string'.
+src/views/admin/AdminFloorsView.vue(397,65): error TS2345: Argument of type '{ label: string; value: string; }' is not assignable to parameter of type 'string'.
+src/views/admin/AdminFloorsView.vue(398,67): error TS2345: Argument of type '{ label: string; value: string; }' is not assignable to parameter of type 'string'.
+src/views/FloorPlanView.vue(99,16): error TS2322: Type 'Zone' is not assignable to type 'PropertyKey | undefined'.
+src/views/FloorPlanView.vue(100,23): error TS2322: Type 'Zone' is not assignable to type 'string'.
+src/views/FloorPlanView.vue(103,17): error TS2367: This comparison appears to be unintentional because the types 'string' and 'Zone' have no overlap.
+src/views/FloorPlanView.vue(112,19): error TS2367: This comparison appears to be unintentional because the types 'string' and 'Zone' have no overlap.
+src/views/FloorPlanView.vue(117,30): error TS2367: This comparison appears to be unintentional because the types 'string' and 'Zone' have no overlap.
+src/views/FloorPlanView.vue(128,66): error TS2367: This comparison appears to be unintentional because the types 'string' and 'Zone' have no overlap.
+src/views/FloorPlanView.vue(132,32): error TS2538: Type 'Zone' cannot be used as an index type.
+src/views/FloorPlanView.vue(132,89): error TS2538: Type 'Zone' cannot be used as an index type.
+src/views/FloorPlanView.vue(138,40): error TS2538: Type 'Zone' cannot be used as an index type.
+src/views/FloorPlanView.vue(139,32): error TS2538: Type 'Zone' cannot be used as an index type.
+src/views/FloorPlanView.vue(141,40): error TS2538: Type 'Zone' cannot be used as an index type.
+src/views/FloorPlanView.vue(142,32): error TS2538: Type 'Zone' cannot be used as an index type.
+src/views/FloorPlanView.vue(144,40): error TS2538: Type 'Zone' cannot be used as an index type.
+src/views/FloorPlanView.vue(145,32): error TS2538: Type 'Zone' cannot be used as an index type.
+src/views/FloorPlanView.vue(163,56): error TS2339: Property 'color' does not exist on type 'never'.
+src/views/FloorPlanView.vue(165,94): error TS2339: Property 'name' does not exist on type 'never'.
+src/views/FloorPlanView.vue(169,91): error TS2339: Property 'id' does not exist on type 'never'.
+src/views/FloorPlanView.vue(173,89): error TS2339: Property 'id' does not exist on type 'never'.
+src/views/FloorPlanView.vue(177,101): error TS2339: Property 'id' does not exist on type 'never'.
+src/views/FloorPlanView.vue(183,95): error TS2339: Property 'id' does not exist on type 'never'.
+src/views/FloorPlanView.vue(198,56): error TS2339: Property 'color' does not exist on type 'never'.
+src/views/FloorPlanView.vue(201,33): error TS2339: Property 'name' does not exist on type 'never'.
+src/views/FloorPlanView.vue(349,11): error TS2538: Type 'Zone' cannot be used as an index type.
+src/views/FloorPlanView.vue(369,52): error TS2367: This comparison appears to be unintentional because the types 'Zone' and 'string' have no overlap.
+src/views/tablet/TabletOrderView.vue(118,3): error TS2322: Type 'string[]' is not assignable to type '[]'.
+  Target allows only 0 element(s) but source may have more.
+src/views/tablet/TabletOrderView.vue(120,21): error TS2532: Object is possibly 'undefined'.
+src/views/tablet/TabletOrderView.vue(120,38): error TS2493: Tuple type '[]' of length '0' has no element at index '0'.
+src/views/TimelineView.vue(80,12): error TS2322: Type 'Zone' is not assignable to type 'PropertyKey | undefined'.
+src/views/TimelineView.vue(81,19): error TS2322: Type 'Zone' is not assignable to type 'string'.
+src/views/TimelineView.vue(84,13): error TS2367: This comparison appears to be unintentional because the types 'string' and 'Zone' have no overlap.
+src/views/TimelineView.vue(91,40): error TS2367: This comparison appears to be unintentional because the types 'string' and 'Zone' have no overlap.
+src/views/TimelineView.vue(93,37): error TS2538: Type 'Zone' cannot be used as an index type.
+src/views/TimelineView.vue(124,106): error TS2538: Type 'Zone' cannot be used as an index type.
+src/views/TimelineView.vue(134,35): error TS2538: Type 'Zone' cannot be used as an index type.
+src/views/TimelineView.vue(141,42): error TS2538: Type 'Zone' cannot be used as an index type.
+src/views/TimelineView.vue(282,10): error TS2538: Type 'Zone' cannot be used as an index type.
+src/views/TimelineView.vue(283,46): error TS2538: Type 'Zone' cannot be used as an index type.
+src/views/TimelineView.vue(317,66): error TS2367: This comparison appears to be unintentional because the types 'Zone' and 'string' have no overlap.

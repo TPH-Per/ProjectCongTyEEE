@@ -1,5 +1,6 @@
 <template>
   <div class="space-y-5">
+
     <!-- Page Header -->
     <div class="flex flex-wrap items-end justify-between gap-3">
       <div>
@@ -321,3 +322,4 @@ function navigateToOrder(reservationId: string) {
   router.push(`/order/${reservationId}`)
 }
 </script>
+

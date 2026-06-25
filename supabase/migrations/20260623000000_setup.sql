@@ -67,44 +67,14 @@ create type revenue_type      as enum ('lunch', 'dinner', 'wine', 'delivery', 'o
 create type voucher_type      as enum ('percent', 'amount');
 
 -- =============================================================================
--- 2. Helper functions for RLS
--- =============================================================================
--- These make every RLS policy a one-liner:
---   using (branch_id = public.current_branch_id())
--- -----------------------------------------------------------------------
-
-create or replace function public.current_user_id()
-returns uuid language sql stable security definer set search_path = public, auth as $$
-  select auth.uid()
-$$;
-
-create or replace function public.current_branch_id()
-returns uuid language sql stable security definer set search_path = public, auth as $$
-  select branch_id from public.users where id = auth.uid()
-$$;
-
-create or replace function public.has_role(roles user_role[])
-returns boolean language sql stable security definer set search_path = public, auth as $$
-  select exists (
-    select 1 from public.users
-    where id = auth.uid() and role = any(roles)
-  )
-$$;
-
--- =============================================================================
--- 3. HIGH-consistency tables (FK-enforced)
--- =============================================================================
--- These form the core POS data graph.  CASCADE / RESTRICT are chosen carefully:
---   * branches → CASCADE on users/zones/tables  (a deleted branch takes its data)
---   * customers → RESTRICT on reservations/orders (can't lose history of guests)
---   * menu_items → RESTRICT on order_items      (can't break historical orders)
---   * orders → CASCADE on order_items, RESTRICT on invoice (must issue invoice
---                                                      before deleting order)
+-- 2. CORE TABLES — branches + users
+--    These MUST exist before the RLS helper functions (section 3) so that
+--    current_branch_id() / has_role() / current_user_role() can reference them.
 -- =============================================================================
 
--- 3.1 BRANCHES -----------------------------------------------------------------
+-- 2.1 BRANCHES -----------------------------------------------------------------
 create table public.branches (
-  id          uuid primary key default uuid_generate_v4(),
+  id          uuid primary key default gen_random_uuid(),
   code        text not null unique,                 -- 'B001'
   name        text not null,                        -- 'Ngưu Cát Quận 1'
   address     text,
@@ -117,7 +87,7 @@ create table public.branches (
   updated_at  timestamptz not null default now()
 );
 
--- 3.2 USERS --------------------------------------------------------------------
+-- 2.2 USERS --------------------------------------------------------------------
 -- Mirrors auth.users; one row per staff account.
 create table public.users (
   id           uuid primary key references auth.users(id) on delete cascade,
@@ -133,9 +103,126 @@ create table public.users (
 );
 create index users_branch_idx on public.users (branch_id);
 
--- 3.3 ZONES --------------------------------------------------------------------
+-- =============================================================================
+-- 3. Helper functions for RLS
+--    Defined AFTER branches + users so the function bodies can reference them.
+--    All functions are SECURITY DEFINER with a pinned search_path so a hostile
+--    caller cannot poison the schema search order.  They also prefer the JWT
+--    claim (set by Supabase auth middleware / custom-access-token hook) and
+--    fall back to a DB lookup on public.users.
+-- -----------------------------------------------------------------------
+
+create or replace function public.current_user_id()
+returns uuid language sql stable security definer set search_path = public, auth as $$
+  select auth.uid()
+$$;
+
+create or replace function public.current_branch_id()
+returns uuid language sql stable security definer set search_path = public, auth as $$
+  -- Prefer JWT claim (set by Supabase auth middleware), fall back to DB lookup
+  select coalesce(
+    nullif(current_setting('request.jwt.claims', true), '')::jsonb->>'branch_id',
+    (select branch_id::text from public.users where id = auth.uid())
+  )::uuid
+$$;
+
+create or replace function public.has_role(roles user_role[])
+returns boolean language sql stable security definer set search_path = public, auth as $$
+  select coalesce(
+    (nullif(current_setting('request.jwt.claims', true), '')::jsonb->>'role')::user_role = any(roles),
+    exists (select 1 from public.users where id = auth.uid() and role = any(roles))
+  )
+$$;
+
+create or replace function public.current_user_role()
+returns user_role language sql stable security definer set search_path = public, auth as $$
+  -- Whitelist the JWT `role` claim against the user_role enum before casting.
+  -- PostgREST's anon/authenticator/authenticated roles are not in our enum,
+  -- and a bare ::user_role cast on 'anon' raises 22P02 and breaks every
+  -- anon request that touches an RLS-protected table.
+  select coalesce(
+    case
+      when (nullif(current_setting('request.jwt.claims', true), '')::jsonb->>'role')
+           in ('admin','manager','reception','staff','kitchen')
+      then ((nullif(current_setting('request.jwt.claims', true), '')::jsonb->>'role')::user_role)
+    end,
+    (select role from public.users where id = auth.uid())
+  )
+$$;
+
+-- =============================================================================
+-- 3.5 Auth integration — mirror auth.users → public.users
+-- =============================================================================
+-- When Supabase Auth creates an account (Dashboard, Admin API, signUp endpoint),
+-- this trigger inserts a matching row in public.users.  The role / branch_id /
+-- full_name are derived from auth.users.raw_user_meta_data:
+--
+--   raw_user_meta_data->>'role'      cast to user_role (whitelist, default 'staff')
+--   raw_user_meta_data->>'branch_id' cast to uuid (NULL if missing/invalid)
+--   raw_user_meta_data->>'full_name' default = local-part of email
+--
+-- SECURITY DEFINER so the trigger runs as the function owner and bypasses the
+-- "users_self_read"/"users_admin_all" RLS policies on public.users.  search_path
+-- is pinned to prevent schema-search-path attacks.
+--
+-- Once this trigger is in place, admin/manager/reception/staff accounts created
+-- via Dashboard are automatically mirrored — no manual INSERT into public.users
+-- required.  The UPDATE statements in section 11 will then take effect to assign
+-- the correct role + branch_id for each seeded user.
+-- -----------------------------------------------------------------------
+
+create or replace function public.handle_new_auth_user()
+returns trigger language plpgsql security definer set search_path = public, auth as $$
+declare
+  v_role      user_role;
+  v_full_name text;
+  v_branch_id uuid;
+begin
+  -- Whitelist the role to prevent enum cast errors if raw_user_meta_data
+  -- contains an unexpected role string (e.g. from a misconfigured signup form).
+  v_role := case new.raw_user_meta_data->>'role'
+    when 'admin'     then 'admin'::user_role
+    when 'manager'   then 'manager'::user_role
+    when 'reception' then 'reception'::user_role
+    when 'staff'     then 'staff'::user_role
+    when 'kitchen'   then 'kitchen'::user_role
+    else                  'staff'::user_role
+  end;
+
+  v_full_name := coalesce(
+    new.raw_user_meta_data->>'full_name',
+    split_part(new.email, '@', 1)
+  );
+
+  -- Safely parse branch_id: NULL if missing, empty string, or not a valid UUID.
+  begin
+    v_branch_id := nullif(new.raw_user_meta_data->>'branch_id', '')::uuid;
+  exception when invalid_text_representation then
+    v_branch_id := null;
+  end;
+
+  insert into public.users (id, email, full_name, role, branch_id)
+  values (new.id, new.email, v_full_name, v_role, v_branch_id)
+  on conflict (id) do nothing;
+
+  return new;
+end$$;
+
+drop trigger if exists on_auth_user_created on auth.users;
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute function public.handle_new_auth_user();
+
+-- =============================================================================
+-- 4. HIGH-consistency tables (FK-enforced)
+--    Order matters for foreign-key targets: every table a later table references
+--    must already exist.  Notable ordering constraint: `shifts` must be defined
+--    BEFORE `payments` because `payments.shift_id` references `public.shifts(id)`.
+-- =============================================================================
+
+-- 4.1 ZONES --------------------------------------------------------------------
 create table public.zones (
-  id          uuid primary key default uuid_generate_v4(),
+  id          uuid primary key default gen_random_uuid(),
   branch_id   uuid not null references public.branches(id) on delete cascade,
   name        text not null,                        -- 'Khu VIP', 'Sân vườn'
   color       text,
@@ -147,9 +234,9 @@ create table public.zones (
 );
 create index zones_branch_idx on public.zones (branch_id);
 
--- 3.4 TABLES -------------------------------------------------------------------
+-- 4.2 TABLES -------------------------------------------------------------------
 create table public.tables (
-  id          uuid primary key default uuid_generate_v4(),
+  id          uuid primary key default gen_random_uuid(),
   branch_id   uuid not null references public.branches(id) on delete cascade,
   zone_id     uuid not null references public.zones(id) on delete restrict,
   code        text not null,                        -- 'A01', 'VIP02'
@@ -166,9 +253,9 @@ create table public.tables (
 );
 create index tables_branch_zone_idx on public.tables (branch_id, zone_id);
 
--- 3.5 CUSTOMERS ----------------------------------------------------------------
+-- 4.3 CUSTOMERS ----------------------------------------------------------------
 create table public.customers (
-  id             uuid primary key default uuid_generate_v4(),
+  id             uuid primary key default gen_random_uuid(),
   branch_id      uuid not null references public.branches(id) on delete cascade,
   name           text not null,
   phone          text,
@@ -195,9 +282,9 @@ create index customers_branch_email_idx on public.customers (branch_id, email);
 create index customers_vip_idx          on public.customers (branch_id) where is_vip;
 create index customers_tags_gin         on public.customers using gin (tags);
 
--- 3.6 MENU_CATEGORIES ----------------------------------------------------------
+-- 4.4 MENU_CATEGORIES ----------------------------------------------------------
 create table public.menu_categories (
-  id          uuid primary key default uuid_generate_v4(),
+  id          uuid primary key default gen_random_uuid(),
   branch_id   uuid not null references public.branches(id) on delete cascade,
   name        text not null,                        -- 'Buffet', 'Set Lunch'
   sort_order  int not null default 0,
@@ -208,13 +295,13 @@ create table public.menu_categories (
 );
 create index menu_categories_branch_idx on public.menu_categories (branch_id);
 
--- 3.7 MENU_ITEMS ---------------------------------------------------------------
+-- 4.5 MENU_ITEMS ---------------------------------------------------------------
 -- PRICE = selling price (used by order_items snapshot).
 -- COST  = raw-material cost for COGS / margin reporting (ManagerCOGSView).
 -- Both are HIGH-consistency numbers because they feed financial reports.
 -- cost is nullable because not every item has a tracked cost.
 create table public.menu_items (
-  id           uuid primary key default uuid_generate_v4(),
+  id           uuid primary key default gen_random_uuid(),
   branch_id    uuid not null references public.branches(id) on delete cascade,
   category_id  uuid not null references public.menu_categories(id) on delete restrict,
   name         text not null,
@@ -236,7 +323,7 @@ create index menu_items_branch_cat_idx on public.menu_items (branch_id, category
 create index menu_items_modifiers_gin  on public.menu_items using gin (modifiers);
 create index menu_items_tags_gin       on public.menu_items using gin (tags);
 
--- 3.7b PACKAGES (Set Biz 1200k, Buffet Wagyu 1380k, Drink A) -------------------
+-- 4.6 PACKAGES (Set Biz 1200k, Buffet Wagyu 1380k, Drink A) -------------------
 -- Packages (buffet/set/drink) are first-class entities — NOT just menu_items
 -- because they carry:
 --   * item_limit     (e.g. "3/10 món" per table)
@@ -244,7 +331,7 @@ create index menu_items_tags_gin       on public.menu_items using gin (tags);
 --   * their own price independent of included items
 -- Items belonging to a package live in `package_items` (M:N).
 create table public.packages (
-  id               uuid primary key default uuid_generate_v4(),
+  id               uuid primary key default gen_random_uuid(),
   branch_id        uuid not null references public.branches(id) on delete cascade,
   name             text not null,                    -- 'Set Biz 1200k'
   type             package_type not null,            -- buffet | set | drink | other
@@ -259,25 +346,68 @@ create table public.packages (
 );
 create index packages_branch_type_idx on public.packages (branch_id, type) where is_active;
 
-create table public.package_items (
-  package_id   uuid not null references public.packages(id) on delete cascade,
-  menu_item_id uuid not null references public.menu_items(id) on delete restrict,
-  sort_order   int not null default 0,
-  -- Snapshot of the per-item price for accounting; the price in menu_items
-  -- may change but package_items keeps the value at the moment the package
-  -- was created / the item was added.
-  unit_price   numeric(12,2) check (unit_price is null or unit_price >= 0),
-  is_included  boolean not null default true,        -- false = paid add-on
-  created_at   timestamptz not null default now(),
-  primary key (package_id, menu_item_id)
-);
-create index package_items_menu_idx on public.package_items (menu_item_id);
+CREATE OR REPLACE FUNCTION public.current_user_role() RETURNS text AS $$
+  SELECT COALESCE(
+    current_setting('request.jwt.claims', true)::jsonb ->> 'role',
+    (SELECT role::text FROM public.users WHERE id = auth.uid())
+  );
+$$ LANGUAGE sql STABLE;
 
--- 3.8 RESERVATIONS -------------------------------------------------------------
+CREATE OR REPLACE FUNCTION public.has_role(roles user_role[]) RETURNS boolean AS $$
+  SELECT public.current_user_role() = ANY(roles::text[]);
+$$ LANGUAGE sql STABLE;
+
+CREATE OR REPLACE FUNCTION public.set_updated_at() RETURNS trigger AS $$
+BEGIN
+  NEW.updated_at = now();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- 4. CORE HIGH-CONSISTENCY TABLES
+
+-- 4.1. BRANCHES (Tenant ID)
+CREATE TABLE public.branches (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  code text NOT NULL UNIQUE,
+  name text NOT NULL,
+  address text,
+  phone text,
+  timezone text NOT NULL DEFAULT 'Asia/Ho_Chi_Minh',
+  currency text NOT NULL DEFAULT 'VND',
+  vat_rate numeric(5,4) NOT NULL DEFAULT 0.08,
+  is_active boolean NOT NULL DEFAULT true,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
+
+-- 4.7 SHIFTS ------------------------------------------------------------------
+-- Cashier shift envelope: opening cash → closing reconciliation.
+-- Defined BEFORE payments because payments.shift_id references this table.
+create table public.shifts (
+  id              uuid primary key default gen_random_uuid(),
+  branch_id       uuid not null references public.branches(id) on delete cascade,
+  user_id         uuid not null references public.users(id) on delete restrict,
+  status          shift_status not null default 'open',
+  opened_at       timestamptz not null default now(),
+  closed_at       timestamptz,
+  opening_cash    numeric(14,2) not null default 0,
+  closing_cash    numeric(14,2),
+  expected_cash   numeric(14,2),
+  cash_difference numeric(14,2),
+  notes           jsonb not null default '{}'::jsonb,    -- {handover_notes, incidents, …}
+  metadata        jsonb not null default '{}'::jsonb,
+  created_at      timestamptz not null default now(),
+  updated_at      timestamptz not null default now()
+);
+create index shifts_branch_user_idx on public.shifts (branch_id, user_id, opened_at desc);
+create index shifts_status_idx      on public.shifts (branch_id, status);
+
+-- 4.8 RESERVATIONS -------------------------------------------------------------
 -- The booking is the entry point to POS flow (you can only order for a seated
 -- reservation).  customer_snapshot freezes name/phone at booking time.
 create table public.reservations (
-  id               uuid primary key default uuid_generate_v4(),
+  id               uuid primary key default gen_random_uuid(),
   branch_id        uuid not null references public.branches(id) on delete cascade,
   customer_id      uuid not null references public.customers(id) on delete restrict,
   booking_code     text not null,                    -- 'SF_00001729'
@@ -312,13 +442,13 @@ create index reservations_branch_date_idx   on public.reservations (branch_id, r
 create index reservations_branch_status_idx on public.reservations (branch_id, status);
 create index reservations_customer_idx      on public.reservations (customer_id);
 
--- 3.9 TABLE_ASSIGNMENTS --------------------------------------------------------
+-- 4.9 TABLE_ASSIGNMENTS --------------------------------------------------------
 -- Which tables are currently seating which reservation/order.
 -- `released_at IS NULL` = "this table is taken right now".
 -- metadata carries the package + flow mode + staff notes (kept in JSONB
 -- because each seating is one-of-a-kind and not aggregated).
 create table public.table_assignments (
-  id             uuid primary key default uuid_generate_v4(),
+  id             uuid primary key default gen_random_uuid(),
   branch_id      uuid not null references public.branches(id) on delete cascade,
   reservation_id uuid references public.reservations(id) on delete cascade,  -- nullable for walk-in
   table_id       uuid not null references public.tables(id) on delete restrict,
@@ -336,13 +466,13 @@ create index table_assignments_open_idx        on public.table_assignments (tabl
 create index table_assignments_reservation_idx on public.table_assignments (reservation_id);
 create index table_assignments_branch_meta_gin on public.table_assignments using gin (metadata);
 
--- 3.10 ORDERS ------------------------------------------------------------------
+-- 4.10 ORDERS ------------------------------------------------------------------
 -- One reservation (or one walk-in) can have many orders (separate courses,
 -- split bills).  All money math starts here.
 -- table_id is denormalized for hot-path Tablet queries ("3/10 món this table")
 -- — it is OPTIONAL because orders may exist before seating (e.g. pre-order).
 create table public.orders (
-  id              uuid primary key default uuid_generate_v4(),
+  id              uuid primary key default gen_random_uuid(),
   branch_id       uuid not null references public.branches(id) on delete cascade,
   reservation_id  uuid references public.reservations(id) on delete set null,
   table_id        uuid references public.tables(id) on delete set null,   -- ADDED P0.5
@@ -367,12 +497,12 @@ create index orders_reservation_idx on public.orders (reservation_id);
 create index orders_table_idx       on public.orders (table_id) where status not in ('Paid','Cancelled');
 create index orders_status_idx      on public.orders (branch_id, status);
 
--- 3.11 ORDER_ITEMS -------------------------------------------------------------
+-- 4.11 ORDER_ITEMS -------------------------------------------------------------
 -- name_snapshot + unit_price freeze the menu item at order time.
 -- unit_cost freezes the COGS-side number at order time too.
 -- modifiers is the actual choice the customer made (each row has different shape).
 create table public.order_items (
-  id             uuid primary key default uuid_generate_v4(),
+  id             uuid primary key default gen_random_uuid(),
   branch_id      uuid not null references public.branches(id) on delete cascade,
   order_id       uuid not null references public.orders(id) on delete cascade,
   menu_item_id   uuid not null references public.menu_items(id) on delete restrict,
@@ -393,13 +523,13 @@ create index order_items_order_idx     on public.order_items (order_id);
 create index order_items_menu_idx      on public.order_items (menu_item_id);
 create index order_items_modifiers_gin on public.order_items using gin (modifiers);
 
--- 3.12 INVOICES ----------------------------------------------------------------
+-- 4.12 INVOICES ----------------------------------------------------------------
 -- 1:1 with orders.  customer_snapshot for printed receipts.
 -- tax_code + customer_company + customer_address are typed columns for VN
 -- "hóa đơn đỏ" — required by Nghị định 123/2020, must be indexable and
 -- validatable as a 10/13-digit MST.
 create table public.invoices (
-  id                uuid primary key default uuid_generate_v4(),
+  id                uuid primary key default gen_random_uuid(),
   branch_id         uuid not null references public.branches(id) on delete cascade,
   order_id          uuid not null references public.orders(id) on delete restrict,
   invoice_number    text not null,
@@ -426,13 +556,13 @@ create index invoices_order_idx   on public.invoices (order_id);
 create index invoices_status_idx  on public.invoices (branch_id, status);
 create index invoices_tax_code_idx on public.invoices (branch_id, tax_code) where tax_code is not null;
 
--- 3.13 PAYMENTS ----------------------------------------------------------------
+-- 4.13 PAYMENTS ----------------------------------------------------------------
 -- Many-to-one with invoices: split payments supported (e.g. half cash, half card).
 -- shift_id: link to the cashier shift envelope — required for ReceptionCloseShift
 -- to sum revenue by shift without a brittle created_at BETWEEN join.
 -- revenue_type: typed column for the "dinner/lunch/wine/delivery" report.
 create table public.payments (
-  id               uuid primary key default uuid_generate_v4(),
+  id               uuid primary key default gen_random_uuid(),
   branch_id        uuid not null references public.branches(id) on delete cascade,
   invoice_id       uuid not null references public.invoices(id) on delete restrict,
   shift_id         uuid references public.shifts(id) on delete set null,  -- ADDED P0.4
@@ -452,11 +582,11 @@ create index payments_branch_idx  on public.payments (branch_id, paid_at desc);
 create index payments_shift_idx   on public.payments (branch_id, shift_id);
 create index payments_revenue_idx on public.payments (branch_id, revenue_type, paid_at desc);
 
--- 3.14 VOUCHERS ----------------------------------------------------------------
+-- 4.14 VOUCHERS ----------------------------------------------------------------
 -- A voucher is a first-class HIGH entity because misuse = lost money:
 -- code is unique per branch, valid_until is enforced, max_uses limits abuse.
 create table public.vouchers (
-  id          uuid primary key default uuid_generate_v4(),
+  id          uuid primary key default gen_random_uuid(),
   branch_id   uuid not null references public.branches(id) on delete cascade,
   code        text not null,                          -- 'TET2026', printed/scanned
   type        voucher_type not null,                  -- percent | amount
@@ -474,10 +604,10 @@ create table public.vouchers (
 );
 create index vouchers_branch_active_idx on public.vouchers (branch_id) where is_active;
 
--- 3.15 VOUCHER_REDEMPTIONS -----------------------------------------------------
+-- 4.15 VOUCHER_REDEMPTIONS -----------------------------------------------------
 -- One row per invoice that used a voucher.  Audit trail of who redeemed what.
 create table public.voucher_redemptions (
-  id           uuid primary key default uuid_generate_v4(),
+  id           uuid primary key default gen_random_uuid(),
   branch_id    uuid not null references public.branches(id) on delete cascade,
   voucher_id   uuid not null references public.vouchers(id) on delete restrict,
   invoice_id   uuid not null references public.invoices(id) on delete restrict,
@@ -489,10 +619,10 @@ create table public.voucher_redemptions (
 create index voucher_redemptions_invoice_idx on public.voucher_redemptions (invoice_id);
 create index voucher_redemptions_branch_idx  on public.voucher_redemptions (branch_id, redeemed_at desc);
 
--- 3.16 DEPOSITS ----------------------------------------------------------------
+-- 4.16 DEPOSITS ----------------------------------------------------------------
 -- Money taken at booking time (VIP reservations).  Not yet an invoice.
 create table public.deposits (
-  id             uuid primary key default uuid_generate_v4(),
+  id             uuid primary key default gen_random_uuid(),
   branch_id      uuid not null references public.branches(id) on delete cascade,
   reservation_id uuid not null references public.reservations(id) on delete cascade,
   amount         numeric(14,2) not null check (amount > 0),
@@ -506,32 +636,12 @@ create table public.deposits (
 create index deposits_reservation_idx on public.deposits (reservation_id);
 create index deposits_branch_idx      on public.deposits (branch_id, received_at desc);
 
--- 3.17 SHIFTS ------------------------------------------------------------------
--- Cashier shift envelope: opening cash → closing reconciliation.
-create table public.shifts (
-  id              uuid primary key default uuid_generate_v4(),
-  branch_id       uuid not null references public.branches(id) on delete cascade,
-  user_id         uuid not null references public.users(id) on delete restrict,
-  status          shift_status not null default 'open',
-  opened_at       timestamptz not null default now(),
-  closed_at       timestamptz,
-  opening_cash    numeric(14,2) not null default 0,
-  closing_cash    numeric(14,2),
-  expected_cash   numeric(14,2),
-  cash_difference numeric(14,2),
-  notes           jsonb not null default '{}'::jsonb,    -- {handover_notes, incidents, …}
-  metadata        jsonb not null default '{}'::jsonb,
-  created_at      timestamptz not null default now(),
-  updated_at      timestamptz not null default now()
-);
-create index shifts_branch_user_idx on public.shifts (branch_id, user_id, opened_at desc);
-create index shifts_status_idx      on public.shifts (branch_id, status);
-
--- 3.18 KPI_TARGETS -------------------------------------------------------------
+-- 4.17 KPI_TARGETS -------------------------------------------------------------
 -- AdminKPIView configures targets per metric per period.  NULL branch_id
 -- means group-wide target; specific branch_id overrides.
+-- scope: 'branch' (specific branch target) or 'group' (group-wide override).
 create table public.kpi_targets (
-  id            uuid primary key default uuid_generate_v4(),
+  id            uuid primary key default gen_random_uuid(),
   branch_id     uuid references public.branches(id) on delete cascade,  -- NULL = group
   metric_key    text not null,                       -- 'revenue' | 'guests' | 'cogs_ratio' | 'reservation_fill' | 'avg_check'
   target_value  numeric(14,2) not null,
@@ -548,11 +658,11 @@ create table public.kpi_targets (
 create index kpi_targets_period_idx on public.kpi_targets (period_start, period_end);
 create index kpi_targets_branch_idx  on public.kpi_targets (branch_id, metric_key);
 
--- 3.19 MARKETING_COSTS ---------------------------------------------------------
+-- 4.18 MARKETING_COSTS ---------------------------------------------------------
 -- Per-channel ad spend ledger.  Combined with revenue (or reservation count)
 -- captured in audit_events.payload, this drives CPA & ROI.
 create table public.marketing_costs (
-  id            uuid primary key default uuid_generate_v4(),
+  id            uuid primary key default gen_random_uuid(),
   branch_id     uuid not null references public.branches(id) on delete cascade,
   channel       text not null,                       -- 'facebook' | 'tiktok' | 'google' | 'zalo' | 'other'
   period_start  date not null,
@@ -573,7 +683,7 @@ create index marketing_costs_channel_idx
 
 
 -- =============================================================================
--- 4. LOW-consistency tables  (NO foreign keys — NoSQL-style flexible tables)
+-- 5. LOW-consistency tables  (NO foreign keys — NoSQL-style flexible tables)
 -- =============================================================================
 -- These are append-only event/fact stores.  You can SELECT / aggregate / even
 -- JOIN, but the database will NOT block writes when related entities disappear
@@ -586,13 +696,13 @@ create index marketing_costs_channel_idx
 -- Multi-tenancy is enforced by RLS only.
 -- =============================================================================
 
--- 4.1 AUDIT_EVENTS -------------------------------------------------------------
+-- 5.1 AUDIT_EVENTS -------------------------------------------------------------
 -- Generic audit trail.  Every mutation appends a row here.
 -- payload JSONB lets us record the exact diff without bloating the schema.
 -- actor_id, entity_id, reservation_id, order_id, invoice_id are PLAIN UUIDs
 -- (no FK) — audit must survive deletion of related entities.
 create table public.audit_events (
-  id             uuid primary key default uuid_generate_v4(),
+  id             uuid primary key default gen_random_uuid(),
   branch_id      uuid not null,
   actor_id       uuid,                                -- plain uuid, no FK
   action         text not null,                       -- 'reservation.created', 'table.assigned', 'table.checkout_requested', 'customer.crm_captured'
@@ -612,11 +722,11 @@ create index audit_events_entity_idx          on public.audit_events (entity_typ
 create index audit_events_payload_gin         on public.audit_events using gin (payload);
 -- Append-only: no updated_at (you don't update audit, you append a new event).
 
--- 4.2 NOTIFICATIONS ------------------------------------------------------------
+-- 5.2 NOTIFICATIONS ------------------------------------------------------------
 -- Outgoing notifications.  variables JSONB drives the template engine.
 -- No FKs — notification history should survive deletion of users/customers.
 create table public.notifications (
-  id            uuid primary key default uuid_generate_v4(),
+  id            uuid primary key default gen_random_uuid(),
   branch_id     uuid not null,
   channel       text not null,                        -- 'email'|'sms'|'push'|'zalo'
   recipient     text not null,                        -- email / phone / device id
@@ -625,37 +735,37 @@ create table public.notifications (
   status        text not null default 'pending',      -- 'pending'|'sent'|'failed'
   sent_at       timestamptz,
   error_message text,
-  metadata      jsonb not null default '{}'::jsonb,
-  created_at    timestamptz not null default now()
+  metadata jsonb NOT NULL DEFAULT '{}',
+  created_at timestamptz NOT NULL DEFAULT now()
 );
 create index notifications_branch_status_idx on public.notifications (branch_id, status);
 create index notifications_pending_idx      on public.notifications (created_at) where status = 'pending';
 -- Append-only.
 
--- 4.3 BRANCH_SETTINGS ----------------------------------------------------------
+-- 5.3 BRANCH_SETTINGS ----------------------------------------------------------
 -- Per-branch key-value configuration.  Replaces scattered `branches.metadata`
 -- so we can add new config keys without ever touching the branches row.
 -- No FK to branches — value lives independently; a soft-deleted branch's
 -- settings still query.
 create table public.branch_settings (
-  id          uuid primary key default uuid_generate_v4(),
+  id          uuid primary key default gen_random_uuid(),
   branch_id   uuid not null,
   key         text not null,                          -- 'operating_hours', 'tax_id', 'logo_url', 'default_locale', 'report_segments'
   value       jsonb not null,                         -- arbitrary JSON
   value_type  text not null default 'string',         -- 'string'|'number'|'boolean'|'json'|'array'
   description text,
-  is_active   boolean not null default true,
-  created_at  timestamptz not null default now(),
-  updated_at  timestamptz not null default now(),
-  unique (branch_id, key)
+  is_active boolean NOT NULL DEFAULT true,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  UNIQUE(branch_id, key)
 );
 create index branch_settings_branch_idx on public.branch_settings (branch_id) where is_active;
 
--- 4.4 SYSTEM_EVENTS ------------------------------------------------------------
+-- 5.4 SYSTEM_EVENTS ------------------------------------------------------------
 -- Generic catch-all event log (analytics, login attempts, errors, page views).
 -- Distinct from audit_events: this is for the app, not for compliance.
 create table public.system_events (
-  id         uuid primary key default uuid_generate_v4(),
+  id         uuid primary key default gen_random_uuid(),
   branch_id  uuid,
   type       text not null,                            -- 'login','page_view','error','feature_used'
   payload    jsonb not null default '{}'::jsonb,
@@ -668,7 +778,7 @@ create index system_events_payload_gin        on public.system_events using gin 
 
 
 -- =============================================================================
--- 5. updated_at trigger (HIGH tables only — LOW tables are append-only)
+-- 6. updated_at trigger (HIGH tables only — LOW tables are append-only)
 -- =============================================================================
 create or replace function public.set_updated_at()
 returns trigger language plpgsql as $$
@@ -695,15 +805,19 @@ begin
   end loop;
 end$$;
 
+
 -- =============================================================================
--- 6. RLS scaffold
+-- 7. RLS — enable on every table + ONE consolidated policy set per table
 -- =============================================================================
 -- Every table has RLS enabled.  Use the helper `public.current_branch_id()`
--- to scope by branch in every policy.  Examples below; add per-role policies
--- as the feature requires.
+-- and `public.has_role()` to scope by branch in every policy.
+--
+-- Policy-name convention: `<table>_branch_read` (SELECT) and
+-- `<table>_branch_write` / `<table>_admin_write` (ALL or per-action).
+-- Names are unique per table — no duplicates.
 -- -----------------------------------------------------------------------
 
--- HIGH-consistency tables
+-- 7.1 ENABLE RLS on every table ----------------------------------------------
 alter table public.branches          enable row level security;
 alter table public.users             enable row level security;
 alter table public.zones             enable row level security;
@@ -713,6 +827,7 @@ alter table public.menu_categories   enable row level security;
 alter table public.menu_items        enable row level security;
 alter table public.packages          enable row level security;
 alter table public.package_items     enable row level security;
+alter table public.shifts            enable row level security;
 alter table public.reservations      enable row level security;
 alter table public.table_assignments enable row level security;
 alter table public.orders            enable row level security;
@@ -722,334 +837,294 @@ alter table public.payments          enable row level security;
 alter table public.vouchers          enable row level security;
 alter table public.voucher_redemptions enable row level security;
 alter table public.deposits          enable row level security;
-alter table public.shifts            enable row level security;
 alter table public.kpi_targets       enable row level security;
 alter table public.marketing_costs   enable row level security;
-
--- LOW-consistency tables
 alter table public.audit_events      enable row level security;
 alter table public.notifications     enable row level security;
 alter table public.branch_settings   enable row level security;
 alter table public.system_events     enable row level security;
 
--- ----- Example policies (replicate / adjust per role) -------------------------
+-- 7.2 POLICIES (consolidated — one set per table) ---------------------------
 
--- Admin: full access everywhere
-create policy "admin all on branches" on public.branches
-  for all using (public.has_role(array['admin']::user_role[])) with check (public.has_role(array['admin']::user_role[]));
+-- ----- branches -----
+create policy "branches_admin_all" on public.branches
+  for all using (public.has_role(array['admin']::user_role[]))
+            with check (public.has_role(array['admin']::user_role[]));
 
--- Manager: read all branches, full access to their own
-create policy "manager read branches" on public.branches
-  for select using (public.has_role(array['admin','manager']::user_role[]));
+create policy "branches_branch_read" on public.branches
+  for select using (
+    public.has_role(array['admin','manager']::user_role[])
+    or id = public.current_branch_id()
+  );
 
--- Staff: only their own branch
-create policy "staff read own branch" on public.branches
-  for select using (id = public.current_branch_id());
-
--- Reservations: scoped by branch
-create policy "branch read reservations" on public.reservations
-  for select using (branch_id = public.current_branch_id());
-create policy "branch write reservations" on public.reservations
-  for insert with check (branch_id = public.current_branch_id());
-create policy "branch update reservations" on public.reservations
-  for update using (branch_id = public.current_branch_id()) with check (branch_id = public.current_branch_id());
-
--- Orders / order_items / invoices / payments / deposits: same pattern as reservations
--- (replicate the three policies above for each of those tables)
-
--- Tables: branch-scoped
-create policy "branch read tables" on public.tables
-  for select using (branch_id = public.current_branch_id());
-create policy "branch write tables" on public.tables
-  for insert with check (branch_id = public.current_branch_id());
-create policy "branch update tables" on public.tables
-  for update using (branch_id = public.current_branch_id()) with check (branch_id = public.current_branch_id());
-
--- Packages: branch-scoped
-create policy "branch read packages" on public.packages
-  for select using (branch_id = public.current_branch_id());
-create policy "branch write packages" on public.packages
-  for insert with check (branch_id = public.current_branch_id());
-create policy "branch update packages" on public.packages
-  for update using (branch_id = public.current_branch_id()) with check (branch_id = public.current_branch_id());
-
--- Vouchers: branch-scoped, manager+ only for write
-create policy "branch read vouchers" on public.vouchers
-  for select using (branch_id = public.current_branch_id());
-create policy "manager write vouchers" on public.vouchers
-  for all using (public.has_role(array['admin','manager']::user_role[]) and branch_id = public.current_branch_id());
-
--- KPI targets: branch-scoped
-create policy "branch read kpi" on public.kpi_targets
-  for select using (branch_id is null or branch_id = public.current_branch_id());
-create policy "admin write kpi" on public.kpi_targets
-  for all using (public.has_role(array['admin','manager']::user_role[]));
-
--- Marketing costs: branch-scoped, manager+ only
-create policy "branch read marketing" on public.marketing_costs
-  for select using (branch_id = public.current_branch_id());
-create policy "manager write marketing" on public.marketing_costs
-  for all using (public.has_role(array['admin','manager']::user_role[]) and branch_id = public.current_branch_id());
-
--- LOW tables: branch-scoped read, anyone signed-in can write their branch
-create policy "branch read audit" on public.audit_events
-  for select using (branch_id = public.current_branch_id());
-create policy "branch write audit" on public.audit_events
-  for insert with check (branch_id = public.current_branch_id());
-
-create policy "branch read notifications" on public.notifications
-  for select using (branch_id = public.current_branch_id());
-create policy "branch write notifications" on public.notifications
-  for insert with check (branch_id = public.current_branch_id());
-
-create policy "branch read settings" on public.branch_settings
-  for select using (branch_id = public.current_branch_id());
-create policy "manager write settings" on public.branch_settings
-  for all using (public.has_role(array['admin','manager']::user_role[]));
-
-create policy "branch read system_events" on public.system_events
-  for select using (branch_id = public.current_branch_id());
-create policy "branch write system_events" on public.system_events
-  for insert with check (branch_id = public.current_branch_id());
-
--- =============================================================================
--- 7. Realtime publication (Supabase)
--- =============================================================================
--- Subscribe to volatile multi-user tables only.  Filter by branch_id on the
--- client to save connection slots.
---
--- alter publication supabase_realtime add table public.reservations;
--- alter publication supabase_realtime add table public.tables;
--- alter publication supabase_realtime add table public.table_assignments;
--- alter publication supabase_realtime add table public.orders;
--- alter publication supabase_realtime add table public.order_items;
--- alter publication supabase_realtime add table public.notifications;
-
--- =============================================================================
--- 8. Auth.users → public.users trigger (Supabase Auth integration)
--- =============================================================================
--- Mirrors every new auth.users row into public.users.  Adjust the default
--- role/branch as needed.
---
--- create or replace function public.handle_new_auth_user()
--- returns trigger language plpgsql security definer set search_path = public, auth as $$
--- begin
---   insert into public.users (id, email, full_name, role)
---   values (
---     new.id,
---     new.email,
---     coalesce(new.raw_user_meta_data->>'full_name', split_part(new.email,'@',1)),
---     coalesce((new.raw_user_meta_data->>'role')::user_role, 'staff')
---   )
---   on conflict (id) do nothing;
---   return new;
--- end$$;
---
--- drop trigger if exists on_auth_user_created on auth.users;
--- create trigger on_auth_user_created
---   after insert on auth.users
---   for each row execute function public.handle_new_auth_user();
-
-
--- ===================== RLS POLICIES =====================
-update public.users
-set role = 'admin',
-    branch_id = (select id from public.branches where code = 'B001'),
-    full_name = 'System Admin',
-    phone = '+84-xxx'
-where email = 'admin@nguucat.vn';
-
--- Tạo user qua auth.users + trigger tự chạy
--- (Supabase không cho insert trực tiếp auth.users nếu không có admin client)
-
--- Cách thực tế: dùng Admin API từ Edge Function hoặc Dashboard
--- Sau đó update role:
-
-update public.users set role = 'manager', branch_id = (select id from public.branches where code = 'B001')
-where email = 'manager.q1@nguucat.vn';
-
-update public.users set role = 'reception', branch_id = (select id from public.branches where code = 'B001')
-where email = 'reception.q1@nguucat.vn';
-
-update public.users set role = 'staff', branch_id = (select id from public.branches where code = 'B001')
-where email = 'staff.q1@nguucat.vn';
-
-create or replace function public.current_branch_id()
-returns uuid language sql stable as $$
-  -- ưu tiên JWT claim, fallback query DB
-  select coalesce(
-    (current_setting('request.jwt.claims', true)::jsonb->>'branch_id')::uuid,
-    (select branch_id from public.users where id = auth.uid())
-  )
-$$;
-
-create or replace function public.has_role(roles user_role[])
-returns boolean language sql stable as $$
-  select coalesce(
-    (current_setting('request.jwt.claims', true)::jsonb->>'role')::user_role = any(roles),
-    exists (select 1 from public.users where id = auth.uid() and role = any(roles))
-  )
-$$;
-
--- Ưu tiên JWT claim, fallback DB
-create or replace function public.current_user_role()
-returns user_role language sql stable as $$
-  select coalesce(
-    (current_setting('request.jwt.claims', true)::jsonb->>'role')::user_role,
-    (select role from public.users where id = auth.uid())
-  )
-$$;
-
--- ========== USERS ==========
-create policy "users self read" on public.users
+-- ----- users -----
+create policy "users_self_read" on public.users
   for select using (id = auth.uid() or public.has_role(array['admin','manager']::user_role[]));
-create policy "users admin write" on public.users
+
+create policy "users_admin_all" on public.users
   for all using (public.has_role(array['admin']::user_role[]));
 
--- ========== RESERVATIONS ==========
--- Read: tất cả role trong branch
-create policy "reservations read" on public.reservations
+-- ----- zones -----
+create policy "zones_branch_read" on public.zones
   for select using (branch_id = public.current_branch_id());
--- Insert: reception/manager/admin/staff (walk-in)
-create policy "reservations insert" on public.reservations
-  for insert with check (
-    branch_id = public.current_branch_id() and
-    public.has_role(array['admin','manager','reception','staff']::user_role[])
+
+create policy "zones_branch_write" on public.zones
+  for all using (branch_id = public.current_branch_id());
+
+-- ----- tables -----
+create policy "tables_branch_read" on public.tables
+  for select using (branch_id = public.current_branch_id());
+
+create policy "tables_branch_write" on public.tables
+  for all using (branch_id = public.current_branch_id());
+
+-- ----- customers -----
+create policy "customers_branch_read" on public.customers
+  for select using (branch_id = public.current_branch_id());
+
+create policy "customers_branch_write" on public.customers
+  for all using (
+    branch_id = public.current_branch_id()
+    and public.has_role(array['admin','manager','reception','staff']::user_role[])
   );
--- Update: reception/manager/admin (staff chỉ xem)
-create policy "reservations update" on public.reservations
+
+-- ----- menu_categories -----
+create policy "menu_categories_branch_read" on public.menu_categories
+  for select using (branch_id = public.current_branch_id());
+
+create policy "menu_categories_branch_write" on public.menu_categories
+  for all using (branch_id = public.current_branch_id());
+
+-- ----- menu_items -----
+create policy "menu_items_branch_read" on public.menu_items
+  for select using (branch_id = public.current_branch_id());
+
+create policy "menu_items_branch_write" on public.menu_items
+  for all using (branch_id = public.current_branch_id());
+
+-- ----- packages -----
+create policy "packages_branch_read" on public.packages
+  for select using (branch_id = public.current_branch_id());
+
+create policy "packages_branch_write" on public.packages
+  for all using (branch_id = public.current_branch_id());
+
+-- ----- package_items (derive branch via parent package) -----
+create policy "package_items_branch_read" on public.package_items
+  for select using (exists (
+    select 1 from public.packages p
+    where p.id = package_items.package_id
+      and p.branch_id = public.current_branch_id()
+  ));
+
+create policy "package_items_branch_write" on public.package_items
+  for all using (exists (
+    select 1 from public.packages p
+    where p.id = package_items.package_id
+      and p.branch_id = public.current_branch_id()
+  ));
+
+-- ----- shifts -----
+create policy "shifts_branch_read" on public.shifts
+  for select using (branch_id = public.current_branch_id());
+
+create policy "shifts_branch_write" on public.shifts
+  for all using (
+    branch_id = public.current_branch_id()
+    and (user_id = auth.uid() or public.has_role(array['admin','manager']::user_role[]))
+  );
+
+-- ----- reservations -----
+create policy "reservations_branch_read" on public.reservations
+  for select using (branch_id = public.current_branch_id());
+
+create policy "reservations_branch_insert" on public.reservations
+  for insert with check (
+    branch_id = public.current_branch_id()
+    and public.has_role(array['admin','manager','reception','staff']::user_role[])
+  );
+
+create policy "reservations_branch_update" on public.reservations
   for update using (
-    branch_id = public.current_branch_id() and
-    public.has_role(array['admin','manager','reception']::user_role[])
-  );
-
--- ========== ORDERS ==========
-create policy "orders read" on public.orders
-  for select using (branch_id = public.current_branch_id());
-create policy "orders write" on public.orders
-  for all using (
-    branch_id = public.current_branch_id() and
-    public.has_role(array['admin','manager','reception','staff']::user_role[])
-  );
-
--- ========== ORDER ITEMS ==========
-create policy "order_items read" on public.order_items
-  for select using (branch_id = public.current_branch_id());
-create policy "order_items write" on public.order_items
-  for all using (
-    branch_id = public.current_branch_id() and
-    public.has_role(array['admin','manager','reception','staff','kitchen']::user_role[])
-  );
-
--- ========== INVOICES + PAYMENTS ==========
-create policy "invoices read" on public.invoices
-  for select using (branch_id = public.current_branch_id());
-create policy "invoices write" on public.invoices
-  for all using (
-    branch_id = public.current_branch_id() and
-    public.has_role(array['admin','manager','reception']::user_role[])
-  );
-create policy "payments read" on public.payments
-  for select using (branch_id = public.current_branch_id());
-create policy "payments write" on public.payments
-  for all using (
-    branch_id = public.current_branch_id() and
-    public.has_role(array['admin','manager','reception']::user_role[])
-  );
-
--- ========== TABLE_ASSIGNMENTS ==========
-create policy "table_assignments read" on public.table_assignments
-  for select using (branch_id = public.current_branch_id());
-create policy "table_assignments write" on public.table_assignments
-  for all using (
-    branch_id = public.current_branch_id() and
-    public.has_role(array['admin','manager','reception','staff']::user_role[])
-  );
-
--- ========== VOUCHERS ==========
-create policy "vouchers read" on public.vouchers
-  for select using (branch_id = public.current_branch_id() and is_active);
-create policy "vouchers admin write" on public.vouchers
-  for all using (
-    public.has_role(array['admin','manager']::user_role[]) and
     branch_id = public.current_branch_id()
+    and public.has_role(array['admin','manager','reception']::user_role[])
+  ) with check (
+    branch_id = public.current_branch_id()
+    and public.has_role(array['admin','manager','reception']::user_role[])
   );
-create policy "voucher_redemptions read" on public.voucher_redemptions
+
+-- ----- table_assignments -----
+create policy "table_assignments_branch_read" on public.table_assignments
   for select using (branch_id = public.current_branch_id());
-create policy "voucher_redemptions reception write" on public.voucher_redemptions
+
+create policy "table_assignments_branch_write" on public.table_assignments
+  for all using (
+    branch_id = public.current_branch_id()
+    and public.has_role(array['admin','manager','reception','staff']::user_role[])
+  );
+
+-- ----- orders -----
+create policy "orders_branch_read" on public.orders
+  for select using (branch_id = public.current_branch_id());
+
+create policy "orders_branch_write" on public.orders
+  for all using (
+    branch_id = public.current_branch_id()
+    and public.has_role(array['admin','manager','reception','staff']::user_role[])
+  );
+
+-- ----- order_items -----
+create policy "order_items_branch_read" on public.order_items
+  for select using (branch_id = public.current_branch_id());
+
+create policy "order_items_branch_write" on public.order_items
+  for all using (
+    branch_id = public.current_branch_id()
+    and public.has_role(array['admin','manager','reception','staff','kitchen']::user_role[])
+  );
+
+-- ----- invoices -----
+create policy "invoices_branch_read" on public.invoices
+  for select using (branch_id = public.current_branch_id());
+
+create policy "invoices_branch_write" on public.invoices
+  for all using (
+    branch_id = public.current_branch_id()
+    and public.has_role(array['admin','manager','reception']::user_role[])
+  );
+
+-- ----- payments -----
+create policy "payments_branch_read" on public.payments
+  for select using (branch_id = public.current_branch_id());
+
+create policy "payments_branch_write" on public.payments
+  for all using (
+    branch_id = public.current_branch_id()
+    and public.has_role(array['admin','manager','reception']::user_role[])
+  );
+
+-- ----- vouchers -----
+create policy "vouchers_branch_read" on public.vouchers
+  for select using (branch_id = public.current_branch_id() and is_active);
+
+create policy "vouchers_admin_write" on public.vouchers
+  for all using (
+    public.has_role(array['admin','manager']::user_role[])
+    and branch_id = public.current_branch_id()
+  );
+
+-- ----- voucher_redemptions -----
+create policy "voucher_redemptions_branch_read" on public.voucher_redemptions
+  for select using (branch_id = public.current_branch_id());
+
+create policy "voucher_redemptions_branch_insert" on public.voucher_redemptions
   for insert with check (
-    branch_id = public.current_branch_id() and
-    public.has_role(array['admin','manager','reception']::user_role[])
-  );
-
--- ========== SHIFTS ==========
-create policy "shifts read" on public.shifts
-  for select using (branch_id = public.current_branch_id());
-create policy "shifts own write" on public.shifts
-  for all using (
-    branch_id = public.current_branch_id() and
-    (user_id = auth.uid() or public.has_role(array['admin','manager']::user_role[]))
-  );
-
--- ========== BRANCH SETTINGS ==========
-create policy "settings read" on public.branch_settings
-  for select using (branch_id = public.current_branch_id() and is_active);
-create policy "settings write" on public.branch_settings
-  for all using (
-    public.has_role(array['admin','manager']::user_role[]) and
     branch_id = public.current_branch_id()
+    and public.has_role(array['admin','manager','reception']::user_role[])
   );
 
--- ========== AUDIT_EVENTS ==========
-create policy "audit read" on public.audit_events
-  for select using (
-    branch_id = public.current_branch_id() and
-    public.has_role(array['admin','manager','reception']::user_role[])
+-- ----- deposits -----
+create policy "deposits_branch_read" on public.deposits
+  for select using (branch_id = public.current_branch_id());
+
+create policy "deposits_branch_write" on public.deposits
+  for all using (
+    branch_id = public.current_branch_id()
+    and public.has_role(array['admin','manager','reception']::user_role[])
   );
-create policy "audit insert" on public.audit_events
+
+-- ----- kpi_targets -----
+create policy "kpi_targets_branch_read" on public.kpi_targets
+  for select using (branch_id is null or branch_id = public.current_branch_id());
+
+create policy "kpi_targets_admin_write" on public.kpi_targets
+  for all using (public.has_role(array['admin','manager']::user_role[]));
+
+-- ----- marketing_costs -----
+create policy "marketing_costs_branch_read" on public.marketing_costs
+  for select using (branch_id = public.current_branch_id());
+
+create policy "marketing_costs_admin_write" on public.marketing_costs
+  for all using (
+    public.has_role(array['admin','manager']::user_role[])
+    and branch_id = public.current_branch_id()
+  );
+
+-- ----- branch_settings -----
+create policy "branch_settings_branch_read" on public.branch_settings
+  for select using (branch_id = public.current_branch_id() and is_active);
+
+create policy "branch_settings_admin_write" on public.branch_settings
+  for all using (
+    public.has_role(array['admin','manager']::user_role[])
+    and branch_id = public.current_branch_id()
+  );
+
+-- ----- audit_events -----
+create policy "audit_events_branch_read" on public.audit_events
+  for select using (
+    branch_id = public.current_branch_id()
+    and public.has_role(array['admin','manager','reception']::user_role[])
+  );
+
+create policy "audit_events_branch_insert" on public.audit_events
   for insert with check (branch_id = public.current_branch_id());
 
--- ========== KPI + MARKETING (manager+ only) ==========
-create policy "kpi read" on public.kpi_targets
-  for select using (branch_id is null or branch_id = public.current_branch_id());
-create policy "kpi write" on public.kpi_targets
-  for all using (public.has_role(array['admin','manager']::user_role[]));
-create policy "marketing read" on public.marketing_costs
+-- ----- notifications -----
+create policy "notifications_branch_read" on public.notifications
   for select using (branch_id = public.current_branch_id());
-create policy "marketing write" on public.marketing_costs
-  for all using (
-    public.has_role(array['admin','manager']::user_role[]) and
-    branch_id = public.current_branch_id()
-  );
+
+create policy "notifications_branch_insert" on public.notifications
+  for insert with check (branch_id = public.current_branch_id());
+
+-- ----- system_events -----
+create policy "system_events_branch_read" on public.system_events
+  for select using (branch_id = public.current_branch_id());
+
+create policy "system_events_branch_insert" on public.system_events
+  for insert with check (branch_id = public.current_branch_id());
+
+
+-- =============================================================================
+-- 8. write_audit() trigger function + audit triggers
+-- =============================================================================
+-- SECURITY DEFINER so the trigger can insert into audit_events regardless of
+-- the calling user's INSERT policy on audit_events.  search_path is pinned to
+-- prevent schema-search-path attacks.
+-- -----------------------------------------------------------------------
 
 create or replace function public.write_audit()
-returns trigger language plpgsql as $$
+returns trigger language plpgsql security definer set search_path = public, auth as $$
 declare
   v_action text;
   v_payload jsonb;
   v_actor uuid := auth.uid();
   v_branch uuid := public.current_branch_id();
+  v_entity_id uuid;
 begin
   if (TG_OP = 'INSERT') then
     v_action := TG_ARGV[0] || '.created';
     v_payload := to_jsonb(NEW);
+    v_entity_id := NEW.id;
   elsif (TG_OP = 'UPDATE') then
     v_action := TG_ARGV[0] || '.updated';
     v_payload := jsonb_build_object('before', to_jsonb(OLD), 'after', to_jsonb(NEW));
+    v_entity_id := NEW.id;
   else
     v_action := TG_ARGV[0] || '.deleted';
     v_payload := to_jsonb(OLD);
+    v_entity_id := OLD.id;
   end if;
 
   insert into public.audit_events
     (branch_id, actor_id, action, entity_type, entity_id, payload)
   values
-    (v_branch, v_actor, v_action, TG_ARGV[0], NEW.id, v_payload);
+    (v_branch, v_actor, v_action, TG_ARGV[0], v_entity_id, v_payload);
 
   return coalesce(NEW, OLD);
 end$$;
 
--- Gắn cho các bảng tiền/booking
+-- Attach audit triggers to money/booking tables
 create trigger trg_audit_reservations after insert or update or delete on public.reservations
   for each row execute function public.write_audit('reservation');
 create trigger trg_audit_orders after insert or update or delete on public.orders
@@ -1065,8 +1140,10 @@ create trigger trg_audit_table_assignments after insert or update or delete on p
 create trigger trg_audit_shifts after insert or update or delete on public.shifts
   for each row execute function public.write_audit('shift');
 
--- ===================== REALTIME =====================
--- ===================== SEED DATA =====================
+-- =============================================================================
+-- 9. revenue_by_hour helper function
+-- =============================================================================
+
 create or replace function public.revenue_by_hour(p_branch_id uuid, p_date date)
 returns table(hour_bucket int, total numeric) language sql stable as $$
   select extract(hour from p.paid_at)::int as hour_bucket, sum(p.amount) as total
@@ -1076,7 +1153,13 @@ returns table(hour_bucket int, total numeric) language sql stable as $$
   group by 1 order by 1;
 $$;
 
--- Chạy trong SQL Editor:
+-- =============================================================================
+-- 10. Realtime publication (Supabase)
+-- =============================================================================
+-- Subscribe to volatile multi-user tables only.  Filter by branch_id on the
+-- client to save connection slots.
+-- -----------------------------------------------------------------------
+
 alter publication supabase_realtime add table public.reservations;
 alter publication supabase_realtime add table public.tables;
 alter publication supabase_realtime add table public.table_assignments;
@@ -1085,12 +1168,21 @@ alter publication supabase_realtime add table public.order_items;
 alter publication supabase_realtime add table public.notifications;
 alter publication supabase_realtime add table public.audit_events;
 
--- Branch
+-- =============================================================================
+-- 11. Seed data
+-- =============================================================================
+-- NOTE: The UPDATE statements for public.users silently no-op if the matching
+-- auth.users row does not exist.  That is the expected behaviour on first
+-- deploy: create the auth.users accounts via Supabase Dashboard / Edge
+-- Function / Admin API BEFORE running this migration (or re-run the UPDATEs
+-- after creating the accounts).
+
+-- 11.1 BRANCHES ----------------------------------------------------------------
 insert into public.branches (id, name, code, address, phone, is_active) values
   ('b1000000-0000-0000-0000-000000000001', 'Ngưu Cát Quận 1', 'B001', '123 Nguyễn Huệ, Q1, TP.HCM', '028-1234-5678', true),
   ('b1000000-0000-0000-0000-000000000002', 'Ngưu Cát Phú Nhuận', 'B002', '456 Phan Xích Long, Phú Nhuận', '028-8765-4321', true);
 
--- Zones (B001)
+-- 11.2 ZONES (B001) -----------------------------------------------------------
 insert into public.zones (branch_id, name, sort_order) values
   ('b1000000-0000-0000-0000-000000000001', 'Khu A - VIP', 1),
   ('b1000000-0000-0000-0000-000000000001', 'Khu B - Sân Vườn', 2),
@@ -1098,7 +1190,7 @@ insert into public.zones (branch_id, name, sort_order) values
   ('b1000000-0000-0000-0000-000000000001', 'Khu R - Phòng Riêng', 4),
   ('b1000000-0000-0000-0000-000000000001', 'Khu T - Terrace', 5);
 
--- Tables (10 bàn cho B001, zone A)
+-- 11.3 TABLES (B001, zones A & B) --------------------------------------------
 insert into public.tables (branch_id, zone_id, code, capacity, status) values
   ('b1000000-0000-0000-0000-000000000001', (select id from zones where name='Khu A - VIP' limit 1), 'A01', 4, 'available'),
   ('b1000000-0000-0000-0000-000000000001', (select id from zones where name='Khu A - VIP' limit 1), 'A02', 4, 'available'),
@@ -1106,7 +1198,7 @@ insert into public.tables (branch_id, zone_id, code, capacity, status) values
   ('b1000000-0000-0000-0000-000000000001', (select id from zones where name='Khu B - Sân Vườn' limit 1), 'B01', 4, 'available'),
   ('b1000000-0000-0000-0000-000000000001', (select id from zones where name='Khu B - Sân Vườn' limit 1), 'B02', 8, 'available');
 
--- Menu categories
+-- 11.4 MENU CATEGORIES (B001) ------------------------------------------------
 insert into public.menu_categories (branch_id, name, sort_order, is_active) values
   ('b1000000-0000-0000-0000-000000000001', 'Thịt Bò', 1, true),
   ('b1000000-0000-0000-0000-000000000001', 'Hải Sản', 2, true),
@@ -1114,7 +1206,7 @@ insert into public.menu_categories (branch_id, name, sort_order, is_active) valu
   ('b1000000-0000-0000-0000-000000000001', 'Đồ Uống', 4, true),
   ('b1000000-0000-0000-0000-000000000001', 'Tráng Miệng', 5, true);
 
--- Menu items (sample)
+-- 11.5 MENU ITEMS (B001, sample) --------------------------------------------
 insert into public.menu_items (branch_id, category_id, name, price, cost, is_available) values
   ('b1000000-0000-0000-0000-000000000001', (select id from menu_categories where name='Thịt Bò' limit 1), 'Thăn Ngoại Wagyu A5', 500000, 180000, true),
   ('b1000000-0000-0000-0000-000000000001', (select id from menu_categories where name='Thịt Bò' limit 1), 'Lưỡi Bò Thượng Hạng', 400000, 120000, true),
@@ -1122,15 +1214,40 @@ insert into public.menu_items (branch_id, category_id, name, price, cost, is_ava
   ('b1000000-0000-0000-0000-000000000001', (select id from menu_categories where name='Rau Củ & Nấm' limit 1), 'Nấm Nhật Kiểu', 120000, 25000, true),
   ('b1000000-0000-0000-0000-000000000001', (select id from menu_categories where name='Đồ Uống' limit 1), 'Rượu Sake Chín', 800000, 450000, true);
 
--- Packages
+-- 11.6 PACKAGES (B001) -------------------------------------------------------
 insert into public.packages (branch_id, name, type, price, item_limit, duration_minutes, is_active) values
   ('b1000000-0000-0000-0000-000000000001', 'Set Biz Trưa', 'set', 350000, 5, 90, true),
   ('b1000000-0000-0000-0000-000000000001', 'Premium Buffet', 'buffet', 1380000, 20, 120, true),
   ('b1000000-0000-0000-0000-000000000001', 'Drink A', 'drink', 690000, 10, 120, true);
 
--- KPI targets
+-- 11.7 KPI TARGETS (B001, scope='branch' to satisfy CHECK constraint) -------
+-- The CHECK constraint on kpi_targets.scope only allows 'branch' or 'group'.
+-- The period granularity (daily/weekly/monthly) is encoded in metric_key.
 insert into public.kpi_targets (branch_id, metric_key, target_value, period_start, period_end, scope) values
-  ('b1000000-0000-0000-0000-000000000001', 'revenue_daily', 15000000, '2026-06-01', '2026-06-30', 'daily'),
-  ('b1000000-0000-0000-0000-000000000001', 'revenue_weekly', 90000000, '2026-06-01', '2026-06-30', 'weekly'),
-  ('b1000000-0000-0000-0000-000000000001', 'revenue_monthly', 360000000, '2026-06-01', '2026-06-30', 'monthly');
+  ('b1000000-0000-0000-0000-000000000001', 'revenue_daily',   15000000,  '2026-06-01', '2026-06-30', 'branch'),
+  ('b1000000-0000-0000-0000-000000000001', 'revenue_weekly',   90000000,  '2026-06-01', '2026-06-30', 'branch'),
+  ('b1000000-0000-0000-0000-000000000001', 'revenue_monthly', 360000000,  '2026-06-01', '2026-06-30', 'branch');
 
+-- 11.8 USERS — role/branch assignment (no-op if auth.users rows absent) -----
+-- Run AFTER creating the matching auth.users rows in Supabase Auth Dashboard.
+update public.users
+   set role = 'admin',
+       branch_id = (select id from public.branches where code = 'B001'),
+       full_name = 'System Admin',
+       phone = '+84-xxx'
+ where email = 'admin@nguucat.vn';
+
+update public.users
+   set role = 'manager',
+       branch_id = (select id from public.branches where code = 'B001')
+ where email = 'manager.q1@nguucat.vn';
+
+update public.users
+   set role = 'reception',
+       branch_id = (select id from public.branches where code = 'B001')
+ where email = 'reception.q1@nguucat.vn';
+
+update public.users
+   set role = 'staff',
+       branch_id = (select id from public.branches where code = 'B001')
+ where email = 'staff.q1@nguucat.vn';

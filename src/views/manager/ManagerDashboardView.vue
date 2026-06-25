@@ -1,21 +1,22 @@
 <template>
   <div class="min-h-screen bg-gray-50 p-6">
+
     <div v-if="loading" class="flex h-64 items-center justify-center text-gray-500 font-semibold">
-      Đang tải dữ liệu...
+      {{ t('auto_ang_t_i_d_li_u', 'Đang tải dữ liệu...') }}
     </div>
     <div v-else>
       <!-- Page Header -->
       <div class="mb-6 flex items-center justify-between">
       <div>
-        <h1 class="text-2xl font-bold text-gray-800">🍜 Bảng Điều Khiển</h1>
-        <p class="text-sm text-gray-500 mt-1">Thứ 6, 20/06/2026 · Cập nhật lúc 15:49</p>
+        <h1 class="text-2xl font-bold text-gray-800">{{ t('auto____b_ng__i_u_khi_n') }}</h1>
+        <p class="text-sm text-gray-500 mt-1">{{ t('auto_th__6__20_06_2026___c_p_nh_t_l') }}</p>
       </div>
       <div class="flex items-center gap-3">
         <span class="inline-flex items-center gap-1.5 rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
           <span class="h-2 w-2 rounded-full bg-green-500 animate-pulse"></span>
-          Đang hoạt động
+          {{ t('auto_ang_ho_t_ng', 'Đang hoạt động') }}
         </span>
-        <button class="kawaii-btn-ghost text-sm">⚙ Cài Đặt</button>
+        <button class="kawaii-btn-ghost text-sm">{{ t('auto___c_i___t') }}</button>
       </div>
     </div>
 
@@ -23,11 +24,11 @@
     <div class="mb-6 flex items-center gap-3 rounded-2xl border border-orange-200 bg-orange-50 px-5 py-4 shadow-sm">
       <span class="text-2xl">⚠️</span>
       <div class="flex-1">
-        <p class="font-semibold text-orange-800">KPI Tuần đang ở mức 74.4% — Cần theo dõi</p>
-        <p class="text-xs text-orange-600 mt-0.5">Doanh thu tuần này thấp hơn mục tiêu 22,600,000đ. Hãy kiểm tra các ca chiều &amp; tối.</p>
+        <p class="font-semibold text-orange-800">{{ t('auto_kpi_tu_n__ang___m_c_74_4____c_') }}</p>
+        <p class="text-xs text-orange-600 mt-0.5">{{ t('auto_doanh_thu_tu_n_n_y_th_p_h_n_m_') }}</p>
       </div>
       <button class="rounded-xl bg-orange-100 px-4 py-1.5 text-xs font-semibold text-orange-700 hover:bg-orange-200 transition-colors">
-        Xem Chi Tiết
+        {{ t('auto_xem_chi_ti_t', 'Xem Chi Tiết') }}
       </button>
     </div>
 
@@ -36,7 +37,7 @@
       <!-- KPI Ngày -->
       <div class="kawaii-card kawaii-shadow p-6 flex flex-col items-center relative overflow-hidden">
         <div class="absolute top-0 right-0 h-24 w-24 rounded-full bg-pink-50 -translate-y-8 translate-x-8 opacity-60"></div>
-        <p class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-4">KPI Ngày</p>
+        <p class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-4">{{ t('auto_kpi_ng_y') }}</p>
         <div class="relative">
           <svg width="120" height="120" viewBox="0 0 120 120">
             <circle cx="60" cy="60" r="50" fill="none" stroke="#F3F4F6" stroke-width="10"/>
@@ -57,12 +58,12 @@
           </svg>
           <div class="absolute inset-0 flex flex-col items-center justify-center">
             <span class="text-2xl font-bold text-gray-800">{{ kpiDayPct }}%</span>
-            <span class="text-xs text-green-500 font-semibold">✓ Đạt</span>
+            <span class="text-xs text-green-500 font-semibold">{{ t('auto_____t') }}</span>
           </div>
         </div>
         <div class="mt-4 text-center space-y-1">
-          <p class="text-xs text-gray-500">Mục tiêu: <span class="font-semibold text-gray-700">{{ kpiDayTarget.toLocaleString('vi-VN') }}đ</span></p>
-          <p class="text-xs text-gray-500">Thực hiện: <span class="font-bold text-pink-500">{{ revenue.toLocaleString('vi-VN') }}đ</span></p>
+          <p class="text-xs text-gray-500">{{ t('auto_m_c_ti_u_') }} <span class="font-semibold text-gray-700">{{ kpiDayTarget.toLocaleString('vi-VN') }}đ</span></p>
+          <p class="text-xs text-gray-500">{{ t('auto_th_c_hi_n_') }} <span class="font-bold text-pink-500">{{ revenue.toLocaleString('vi-VN') }}đ</span></p>
         </div>
         <div class="mt-3 w-full rounded-full bg-gray-100 h-1.5">
           <div class="h-1.5 rounded-full kawaii-gradient" :style="{ width: kpiDayPct + '%' }"></div>
@@ -72,7 +73,7 @@
       <!-- KPI Tuần -->
       <div class="kawaii-card kawaii-shadow p-6 flex flex-col items-center relative overflow-hidden">
         <div class="absolute top-0 right-0 h-24 w-24 rounded-full bg-orange-50 -translate-y-8 translate-x-8 opacity-60"></div>
-        <p class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-4">KPI Tuần</p>
+        <p class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-4">{{ t('auto_kpi_tu_n') }}</p>
         <div class="relative">
           <svg width="120" height="120" viewBox="0 0 120 120">
             <circle cx="60" cy="60" r="50" fill="none" stroke="#F3F4F6" stroke-width="10"/>
@@ -93,12 +94,12 @@
           </svg>
           <div class="absolute inset-0 flex flex-col items-center justify-center">
             <span class="text-2xl font-bold text-gray-800">74.4%</span>
-            <span class="text-xs text-orange-500 font-semibold">⚠ Chú ý</span>
+            <span class="text-xs text-orange-500 font-semibold">{{ t('auto___ch___') }}</span>
           </div>
         </div>
         <div class="mt-4 text-center space-y-1">
-          <p class="text-xs text-gray-500">Mục tiêu: <span class="font-semibold text-gray-700">90,000,000đ</span></p>
-          <p class="text-xs text-gray-500">Thực hiện: <span class="font-bold text-orange-500">67,000,000đ</span></p>
+          <p class="text-xs text-gray-500">{{ t('auto_m_c_ti_u_') }} <span class="font-semibold text-gray-700">{{ t('auto_90_000_000_') }}</span></p>
+          <p class="text-xs text-gray-500">{{ t('auto_th_c_hi_n_') }} <span class="font-bold text-orange-500">{{ t('auto_67_000_000_') }}</span></p>
         </div>
         <div class="mt-3 w-full rounded-full bg-gray-100 h-1.5">
           <div class="h-1.5 rounded-full bg-gradient-to-r from-orange-400 to-orange-300" style="width: 74.4%"></div>
@@ -108,7 +109,7 @@
       <!-- KGI Tháng -->
       <div class="kawaii-card kawaii-shadow p-6 flex flex-col items-center relative overflow-hidden">
         <div class="absolute top-0 right-0 h-24 w-24 rounded-full bg-purple-50 -translate-y-8 translate-x-8 opacity-60"></div>
-        <p class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-4">KGI Tháng</p>
+        <p class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-4">{{ t('auto_kgi_th_ng') }}</p>
         <div class="relative">
           <svg width="120" height="120" viewBox="0 0 120 120">
             <circle cx="60" cy="60" r="50" fill="none" stroke="#F3F4F6" stroke-width="10"/>
@@ -129,12 +130,12 @@
           </svg>
           <div class="absolute inset-0 flex flex-col items-center justify-center">
             <span class="text-2xl font-bold text-gray-800">55%</span>
-            <span class="text-xs text-purple-500 font-semibold">½ Tháng</span>
+            <span class="text-xs text-purple-500 font-semibold">{{ t('auto___th_ng') }}</span>
           </div>
         </div>
         <div class="mt-4 text-center space-y-1">
-          <p class="text-xs text-gray-500">Mục tiêu: <span class="font-semibold text-gray-700">360,000,000đ</span></p>
-          <p class="text-xs text-gray-500">Thực hiện: <span class="font-bold text-purple-500">198,000,000đ</span></p>
+          <p class="text-xs text-gray-500">{{ t('auto_m_c_ti_u_') }} <span class="font-semibold text-gray-700">{{ t('auto_360_000_000_') }}</span></p>
+          <p class="text-xs text-gray-500">{{ t('auto_th_c_hi_n_') }} <span class="font-bold text-purple-500">{{ t('auto_198_000_000_') }}</span></p>
         </div>
         <div class="mt-3 w-full rounded-full bg-gray-100 h-1.5">
           <div class="h-1.5 rounded-full bg-gradient-to-r from-purple-500 to-purple-300" style="width: 55%"></div>
@@ -157,7 +158,7 @@
           </span>
         </div>
         <p class="text-3xl font-bold text-gray-800 mt-2">{{ covers }}</p>
-        <p class="text-xs font-medium text-gray-400 mt-0.5">Khách Hôm Nay</p>
+        <p class="text-xs font-medium text-gray-400 mt-0.5">{{ t('auto_kh_ch_h_m_nay') }}</p>
         <div class="mt-3 flex gap-2 text-xs">
           <span class="rounded-lg bg-blue-50 px-2 py-1 text-blue-600 font-semibold">🇻🇳 210</span>
           <span class="rounded-lg bg-green-50 px-2 py-1 text-green-600 font-semibold">🌍 38</span>
@@ -176,8 +177,8 @@
             +8.3%
           </span>
         </div>
-        <p class="text-2xl font-bold text-gray-800 mt-2">{{ revenue.toLocaleString('vi-VN') }}<span class="text-base text-gray-500">đ</span></p>
-        <p class="text-xs font-medium text-gray-400 mt-0.5">Doanh Thu Hôm Nay</p>
+        <p class="text-2xl font-bold text-gray-800 mt-2">{{ revenue.toLocaleString('vi-VN') }}<span class="text-base text-gray-500">{{ t('auto_', 'đ') }}</span></p>
+        <p class="text-xs font-medium text-gray-400 mt-0.5">{{ t('auto_doanh_thu_h_m_nay') }}</p>
         <div class="mt-3">
           <div class="h-1 w-full rounded-full bg-gray-100">
             <div class="h-1 rounded-full kawaii-gradient" :style="{ width: kpiDayPct + '%' }"></div>
@@ -197,10 +198,10 @@
             ─ 0%
           </span>
         </div>
-        <p class="text-2xl font-bold text-gray-800 mt-2">{{ Math.round(avgCheck).toLocaleString('vi-VN') }}<span class="text-base text-gray-500">đ</span></p>
-        <p class="text-xs font-medium text-gray-400 mt-0.5">Trung Bình / Khách</p>
+        <p class="text-2xl font-bold text-gray-800 mt-2">{{ Math.round(avgCheck).toLocaleString('vi-VN') }}<span class="text-base text-gray-500">{{ t('auto_', 'đ') }}</span></p>
+        <p class="text-xs font-medium text-gray-400 mt-0.5">{{ t('auto_trung_b_nh___kh_ch') }}</p>
         <div class="mt-3">
-          <p class="text-xs text-gray-400">Mục tiêu: 55,000đ/khách</p>
+          <p class="text-xs text-gray-400">{{ t('auto_m_c_ti_u__55_000__kh_ch') }}</p>
         </div>
       </div>
 
@@ -217,7 +218,7 @@
           </span>
         </div>
         <p class="text-3xl font-bold text-gray-800 mt-2">34<span class="text-base text-gray-500">%</span></p>
-        <p class="text-xs font-medium text-gray-400 mt-0.5">Tỉ Lệ Khách Quay Lại</p>
+        <p class="text-xs font-medium text-gray-400 mt-0.5">{{ t('auto_t__l__kh_ch_quay_l_i') }}</p>
         <div class="mt-3">
           <div class="h-1 w-full rounded-full bg-gray-100">
             <div class="h-1 rounded-full bg-gradient-to-r from-purple-500 to-purple-300" style="width: 34%"></div>
@@ -233,12 +234,12 @@
         <div class="mb-5 flex items-center justify-between">
           <div>
             <h2 class="text-base font-bold text-gray-800">📊 Doanh Thu Theo Ca</h2>
-            <p class="text-xs text-gray-400 mt-0.5">Phân bổ doanh thu trong ngày hôm nay</p>
+            <p class="text-xs text-gray-400 mt-0.5">{{ t('auto_ph_n_b__doanh_thu_trong_ng_y_h') }}</p>
           </div>
           <select class="rounded-xl border border-gray-200 bg-gray-50 px-3 py-1.5 text-xs text-gray-600 focus:outline-none">
-            <option>Hôm nay</option>
-            <option>Hôm qua</option>
-            <option>7 ngày qua</option>
+            <option>{{ t('auto_h_m_nay') }}</option>
+            <option>{{ t('auto_h_m_qua') }}</option>
+            <option>{{ t('auto_7_ng_y_qua') }}</option>
           </select>
         </div>
 
@@ -248,10 +249,10 @@
             <div class="flex items-center justify-between mb-1.5">
               <div class="flex items-center gap-2">
                 <span class="text-base">🌅</span>
-                <span class="text-sm font-semibold text-gray-700">Sáng</span>
+                <span class="text-sm font-semibold text-gray-700">{{ t('auto_s_ng') }}</span>
                 <span class="text-xs text-gray-400">6h – 11h</span>
               </div>
-              <span class="text-sm font-bold text-gray-800">2,100,000đ</span>
+              <span class="text-sm font-bold text-gray-800">{{ t('auto_2_100_000_') }}</span>
             </div>
             <div class="relative h-8 rounded-xl bg-gray-100 overflow-hidden">
               <div
@@ -268,10 +269,10 @@
             <div class="flex items-center justify-between mb-1.5">
               <div class="flex items-center gap-2">
                 <span class="text-base">☀️</span>
-                <span class="text-sm font-semibold text-gray-700">Trưa</span>
+                <span class="text-sm font-semibold text-gray-700">{{ t('auto_tr_a') }}</span>
                 <span class="text-xs text-gray-400">11h – 14h</span>
               </div>
-              <span class="text-sm font-bold text-gray-800">4,800,000đ</span>
+              <span class="text-sm font-bold text-gray-800">{{ t('auto_4_800_000_') }}</span>
             </div>
             <div class="relative h-8 rounded-xl bg-gray-100 overflow-hidden">
               <div
@@ -288,10 +289,10 @@
             <div class="flex items-center justify-between mb-1.5">
               <div class="flex items-center gap-2">
                 <span class="text-base">🌤</span>
-                <span class="text-sm font-semibold text-gray-700">Chiều</span>
+                <span class="text-sm font-semibold text-gray-700">{{ t('auto_chi_u') }}</span>
                 <span class="text-xs text-gray-400">14h – 17h</span>
               </div>
-              <span class="text-sm font-bold text-gray-800">1,200,000đ</span>
+              <span class="text-sm font-bold text-gray-800">{{ t('auto_1_200_000_') }}</span>
             </div>
             <div class="relative h-8 rounded-xl bg-gray-100 overflow-hidden">
               <div
@@ -308,12 +309,12 @@
             <div class="flex items-center justify-between mb-1.5">
               <div class="flex items-center gap-2">
                 <span class="text-base">🌙</span>
-                <span class="text-sm font-semibold text-gray-700">Tối</span>
+                <span class="text-sm font-semibold text-gray-700">{{ t('auto_t_i') }}</span>
                 <span class="text-xs text-gray-400">17h – 22h</span>
               </div>
               <div class="flex items-center gap-2">
-                <span class="text-xs font-semibold text-pink-500 bg-pink-50 rounded-full px-2 py-0.5">🔥 Cao nhất</span>
-                <span class="text-sm font-bold text-gray-800">7,300,000đ</span>
+                <span class="text-xs font-semibold text-pink-500 bg-pink-50 rounded-full px-2 py-0.5">{{ t('auto____cao_nh_t') }}</span>
+                <span class="text-sm font-bold text-gray-800">{{ t('auto_7_300_000_') }}</span>
               </div>
             </div>
             <div class="relative h-8 rounded-xl bg-gray-100 overflow-hidden">
@@ -328,8 +329,8 @@
         </div>
 
         <div class="mt-5 pt-4 border-t border-gray-100 flex items-center justify-between text-xs text-gray-400">
-          <span>Tổng doanh thu hôm nay: <strong class="text-gray-700">15,400,000đ</strong></span>
-          <span>Ca tối chiếm <strong class="text-pink-500">47.4%</strong></span>
+          <span>{{ t('auto_t_ng_doanh_thu_h_m_nay_') }} <strong class="text-gray-700">{{ t('auto_15_400_000_') }}</strong></span>
+          <span>{{ t('auto_ca_t_i_chi_m') }} <strong class="text-pink-500">47.4%</strong></span>
         </div>
       </div>
 
@@ -337,8 +338,8 @@
       <div class="lg:col-span-2 flex flex-col gap-5">
         <!-- Reservation Rate -->
         <div class="kawaii-card kawaii-shadow p-6 flex-1">
-          <h2 class="text-base font-bold text-gray-800 mb-1">🗓 Tỉ Lệ Đặt Bàn</h2>
-          <p class="text-xs text-gray-400 mb-5">Đặt trước vs walk-in hôm nay</p>
+          <h2 class="text-base font-bold text-gray-800 mb-1">{{ t('auto____t__l____t_b_n') }}</h2>
+          <p class="text-xs text-gray-400 mb-5">{{ t('auto___t_tr__c_vs_walk_in_h_m_nay') }}</p>
 
           <!-- Segmented bar -->
           <div class="relative h-10 w-full rounded-2xl overflow-hidden flex">
@@ -358,7 +359,7 @@
           <div class="mt-4 flex justify-between text-xs">
             <div class="flex items-center gap-2">
               <div class="h-3 w-3 rounded-full kawaii-gradient"></div>
-              <span class="font-semibold text-gray-600">Đặt Trước</span>
+              <span class="font-semibold text-gray-600">{{ t('auto___t_tr__c') }}</span>
               <span class="font-bold text-gray-800">68%</span>
             </div>
             <div class="flex items-center gap-2">
@@ -371,7 +372,7 @@
           <div class="mt-5 grid grid-cols-2 gap-3">
             <div class="rounded-2xl bg-pink-50 p-3 text-center">
               <p class="text-xl font-bold text-pink-500">169</p>
-              <p class="text-xs text-pink-400 mt-0.5">Đặt Trước</p>
+              <p class="text-xs text-pink-400 mt-0.5">{{ t('auto___t_tr__c') }}</p>
             </div>
             <div class="rounded-2xl bg-gray-50 p-3 text-center">
               <p class="text-xl font-bold text-gray-600">79</p>
@@ -382,41 +383,41 @@
 
         <!-- Table Status Summary -->
         <div class="kawaii-card kawaii-shadow p-6">
-          <h2 class="text-base font-bold text-gray-800 mb-4">🪑 Trạng Thái Bàn</h2>
+          <h2 class="text-base font-bold text-gray-800 mb-4">{{ t('auto____tr_ng_th_i_b_n') }}</h2>
           <div class="space-y-3">
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-2">
                 <div class="h-2.5 w-2.5 rounded-full bg-green-500"></div>
-                <span class="text-sm text-gray-600">Đang phục vụ</span>
+                <span class="text-sm text-gray-600">{{ t('auto__ang_ph_c_v_') }}</span>
               </div>
-              <span class="font-bold text-gray-800">8 bàn</span>
+              <span class="font-bold text-gray-800">{{ t('auto_8_b_n') }}</span>
             </div>
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-2">
                 <div class="h-2.5 w-2.5 rounded-full bg-gray-300"></div>
-                <span class="text-sm text-gray-600">Trống</span>
+                <span class="text-sm text-gray-600">{{ t('auto_tr_ng') }}</span>
               </div>
-              <span class="font-bold text-gray-800">4 bàn</span>
+              <span class="font-bold text-gray-800">{{ t('auto_4_b_n') }}</span>
             </div>
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-2">
                 <div class="h-2.5 w-2.5 rounded-full bg-yellow-400"></div>
-                <span class="text-sm text-gray-600">Đã đặt trước</span>
+                <span class="text-sm text-gray-600">{{ t('auto______t_tr__c') }}</span>
               </div>
-              <span class="font-bold text-gray-800">3 bàn</span>
+              <span class="font-bold text-gray-800">{{ t('auto_3_b_n') }}</span>
             </div>
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-2">
                 <div class="h-2.5 w-2.5 rounded-full bg-red-400"></div>
-                <span class="text-sm text-gray-600">Bảo trì</span>
+                <span class="text-sm text-gray-600">{{ t('auto_b_o_tr_') }}</span>
               </div>
-              <span class="font-bold text-gray-800">1 bàn</span>
+              <span class="font-bold text-gray-800">{{ t('auto_1_b_n') }}</span>
             </div>
           </div>
           <div class="mt-4 pt-3 border-t border-gray-100">
             <div class="flex justify-between text-xs text-gray-400">
-              <span>Tổng: 16 bàn</span>
-              <span class="font-semibold text-green-600">Công suất: 75%</span>
+              <span>{{ t('auto_t_ng__16_b_n') }}</span>
+              <span class="font-semibold text-green-600">{{ t('auto_c_ng_su_t__75_') }}</span>
             </div>
           </div>
         </div>
@@ -427,6 +428,8 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 import { ref, onMounted, computed } from 'vue'
 import { useReport } from '@/composables/useReport'
 import { useKPI } from '@/composables/useKPI'
@@ -467,3 +470,4 @@ onMounted(async () => {
   }
 })
 </script>
+

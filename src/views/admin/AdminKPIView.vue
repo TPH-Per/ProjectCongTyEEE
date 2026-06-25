@@ -1,48 +1,49 @@
 <template>
   <div class="p-6 max-w-7xl mx-auto">
+
     <div class="mb-8">
       <h1 class="text-3xl font-bold text-gray-800 mb-2 flex items-center gap-2">
-        <span class="text-[#FF7B89]">🎯</span> Quản Lý KPI / KGI
+        <span class="text-[#FF7B89]">🎯</span> {{ t('auto_qu_n_l_kpi_kgi', 'Quản Lý KPI / KGI') }}
       </h1>
-      <p class="text-gray-500">Cấu hình và theo dõi mục tiêu kinh doanh của nhà hàng</p>
+      <p class="text-gray-500">{{ t('auto_c_u_h_nh_v__theo_d_i_m_c_ti_u_') }}</p>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
       <!-- Cấu hình KPI Form -->
       <div class="kawaii-card lg:col-span-1 p-6">
         <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-          <span class="text-[#FF7B89]">⚙️</span> Thiết Lập Mục Tiêu
+          <span class="text-[#FF7B89]">⚙️</span> {{ t('auto_thi_t_l_p_m_c_ti_u', 'Thiết Lập Mục Tiêu') }}
         </h2>
         
         <form @submit.prevent="saveKPI" class="space-y-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Tháng / Năm</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('auto_th_ng___n_m') }}</label>
             <input type="month" v-model="form.month" class="kawaii-input w-full" />
           </div>
           
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Mục tiêu Doanh Thu (VNĐ)</label>
-            <input type="number" v-model="form.revenue" placeholder="Ví dụ: 500000000" class="kawaii-input w-full" />
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('auto_m_c_ti_u_doanh_thu__vn__') }}</label>
+            <input type="number" v-model="form.revenue" :placeholder="t('auto_v_d_500000000', 'Ví dụ: 500000000')" class="kawaii-input w-full" />
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Mục tiêu Số Khách</label>
-            <input type="number" v-model="form.guests" placeholder="Ví dụ: 1500" class="kawaii-input w-full" />
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('auto_m_c_ti_u_s__kh_ch') }}</label>
+            <input type="number" v-model="form.guests" :placeholder="t('auto_v_d_1500', 'Ví dụ: 1500')" class="kawaii-input w-full" />
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Tỷ lệ COGS tối đa (%)</label>
-            <input type="number" v-model="form.cogsRatio" placeholder="Ví dụ: 30" class="kawaii-input w-full" />
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('auto_t__l__cogs_t_i__a____') }}</label>
+            <input type="number" v-model="form.cogsRatio" :placeholder="t('auto_v_d_30', 'Ví dụ: 30')" class="kawaii-input w-full" />
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Tỷ lệ Lấp đầy bàn (%)</label>
-            <input type="number" v-model="form.fillRate" placeholder="Ví dụ: 80" class="kawaii-input w-full" />
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('auto_t__l__l_p___y_b_n____') }}</label>
+            <input type="number" v-model="form.fillRate" :placeholder="t('auto_v_d_80', 'Ví dụ: 80')" class="kawaii-input w-full" />
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Giá trị TB/Hóa đơn (VNĐ)</label>
-            <input type="number" v-model="form.avgCheck" placeholder="Ví dụ: 350000" class="kawaii-input w-full" />
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('auto_gi__tr__tb_h_a___n__vn__') }}</label>
+            <input type="number" v-model="form.avgCheck" :placeholder="t('auto_v_d_350000', 'Ví dụ: 350000')" class="kawaii-input w-full" />
           </div>
 
           <button type="submit" :disabled="loading" class="kawaii-btn-primary w-full mt-4 flex justify-center items-center gap-2 py-3 rounded-xl font-bold">
@@ -56,7 +57,7 @@
         <div class="kawaii-card p-6">
           <div class="flex justify-between items-center mb-6">
             <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
-              <span class="text-[#FF7B89]">📊</span> Hiện Trạng vs Mục Tiêu (Tháng này)
+              <span class="text-[#FF7B89]">📊</span> {{ t('auto_hi_n_tr_ng_vs_m_c_ti_u_th_ng', 'Hiện Trạng vs Mục Tiêu (Tháng này)') }}
             </h2>
           </div>
           
@@ -72,7 +73,7 @@
 
             <!-- Guests -->
             <div class="border rounded-2xl p-4 bg-blue-50/50 border-blue-100 hover:shadow-md transition-shadow">
-              <div class="text-sm text-gray-500 font-medium mb-1">Số Khách</div>
+              <div class="text-sm text-gray-500 font-medium mb-1">{{ t('auto_s__kh_ch') }}</div>
               <div class="text-2xl font-bold text-blue-600 mb-2">850 <span class="text-sm font-normal text-gray-400">/ {{ form.guests || 0 }}</span></div>
               <div class="w-full bg-blue-200/50 rounded-full h-3">
                 <div class="bg-blue-400 h-3 rounded-full shadow-sm" :style="`width: ${Math.min(100, (850 / (form.guests || 1)) * 100)}%`"></div>
@@ -81,7 +82,7 @@
 
             <!-- COGS -->
             <div class="border rounded-2xl p-4 bg-green-50/50 border-green-100 hover:shadow-md transition-shadow">
-              <div class="text-sm text-gray-500 font-medium mb-1">Tỷ lệ COGS</div>
+              <div class="text-sm text-gray-500 font-medium mb-1">{{ t('auto_t__l__cogs') }}</div>
               <div class="text-2xl font-bold text-green-600 mb-2">28% <span class="text-sm font-normal text-gray-400">/ {{ form.cogsRatio || 0 }}%</span></div>
               <div class="w-full bg-green-200/50 rounded-full h-3">
                 <div class="bg-green-400 h-3 rounded-full shadow-sm" :style="`width: ${Math.min(100, (28 / (form.cogsRatio || 1)) * 100)}%`"></div>
@@ -90,7 +91,7 @@
 
             <!-- Fill Rate -->
             <div class="border rounded-2xl p-4 bg-purple-50/50 border-purple-100 hover:shadow-md transition-shadow">
-              <div class="text-sm text-gray-500 font-medium mb-1">Tỷ lệ Lấp Đầy</div>
+              <div class="text-sm text-gray-500 font-medium mb-1">{{ t('auto_t__l__l_p___y') }}</div>
               <div class="text-2xl font-bold text-purple-600 mb-2">65% <span class="text-sm font-normal text-gray-400">/ {{ form.fillRate || 0 }}%</span></div>
               <div class="w-full bg-purple-200/50 rounded-full h-3">
                 <div class="bg-purple-400 h-3 rounded-full shadow-sm" :style="`width: ${Math.min(100, (65 / (form.fillRate || 1)) * 100)}%`"></div>
@@ -99,7 +100,7 @@
 
             <!-- Avg Check -->
             <div class="border rounded-2xl p-4 bg-pink-50/50 border-pink-100 hover:shadow-md transition-shadow">
-              <div class="text-sm text-gray-500 font-medium mb-1">Giá trị TB/Hóa đơn</div>
+              <div class="text-sm text-gray-500 font-medium mb-1">{{ t('auto_gi__tr__tb_h_a___n') }}</div>
               <div class="text-2xl font-bold text-[#FF7B89] mb-2">380k <span class="text-sm font-normal text-gray-400">/ {{ (form.avgCheck / 1000) || 0 }}k</span></div>
               <div class="w-full bg-pink-200/50 rounded-full h-3">
                 <div class="bg-[#FF7B89] h-3 rounded-full shadow-sm" :style="`width: ${Math.min(100, (380000 / (form.avgCheck || 1)) * 100)}%`"></div>
@@ -110,25 +111,25 @@
 
         <div class="kawaii-card p-6">
           <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-            <span class="text-[#FF7B89]">📋</span> Lịch Sử Cấu Hình
+            <span class="text-[#FF7B89]">📋</span> {{ t('auto_l_ch_s_c_u_h_nh', 'Lịch Sử Cấu Hình') }}
           </h2>
           <div class="overflow-x-auto rounded-2xl border border-gray-100">
             <table class="w-full text-left border-collapse">
               <thead class="bg-gray-50/50">
                 <tr class="text-gray-500 border-b border-gray-100">
-                  <th class="py-3 px-4 font-medium text-sm">Tháng</th>
+                  <th class="py-3 px-4 font-medium text-sm">{{ t('auto_th_ng') }}</th>
                   <th class="py-3 px-4 font-medium text-sm">Doanh Thu</th>
-                  <th class="py-3 px-4 font-medium text-sm">Số Khách</th>
+                  <th class="py-3 px-4 font-medium text-sm">{{ t('auto_s__kh_ch') }}</th>
                   <th class="py-3 px-4 font-medium text-sm">COGS</th>
-                  <th class="py-3 px-4 font-medium text-sm">Lấp Đầy</th>
-                  <th class="py-3 px-4 font-medium text-sm">TB/HĐ</th>
-                  <th class="py-3 px-4 font-medium text-sm">Hành động</th>
+                  <th class="py-3 px-4 font-medium text-sm">{{ t('auto_l_p___y') }}</th>
+                  <th class="py-3 px-4 font-medium text-sm">{{ t('auto_tb_h_') }}</th>
+                  <th class="py-3 px-4 font-medium text-sm">{{ t('auto_h_nh___ng') }}</th>
                 </tr>
               </thead>
               <tbody>
                 <tr v-if="kpiHistory.length === 0" class="border-b border-gray-50">
                   <td colspan="7" class="py-6 px-4 text-center text-sm text-gray-500">
-                    Chưa có dữ liệu KPI nào
+                    {{ t('auto_ch_a_c_d_li_u_kpi_n_o', 'Chưa có dữ liệu KPI nào') }}
                   </td>
                 </tr>
                 <tr v-for="kpi in kpiHistory" :key="kpi.month" class="border-b border-gray-50 hover:bg-pink-50/30 transition-colors">
@@ -154,6 +155,9 @@
 </template>
 
 <script setup lang="ts">
+import Swal from 'sweetalert2';
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 import { ref, onMounted } from 'vue'
 import { useKPI } from '@/composables/useKPI'
 
@@ -230,10 +234,10 @@ const saveKPI = async () => {
         scope: 'branch'
       })
     }
-    alert('Đã lưu cấu hình KPI!')
+    Swal.fire('Thông báo', 'Đã lưu cấu hình KPI!', 'info')
     await fetchKPIs()
   } catch (err) {
-    alert('Có lỗi xảy ra: ' + (error.value || err))
+    Swal.fire('Lỗi', 'Có lỗi xảy ra: ' + (error.value || err), 'error')
   }
 }
 
@@ -248,3 +252,4 @@ const editKPI = (kpi: any) => {
   }
 }
 </script>
+

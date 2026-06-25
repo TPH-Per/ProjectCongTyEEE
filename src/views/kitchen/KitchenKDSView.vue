@@ -1,12 +1,13 @@
 <template>
   <div class="h-full flex flex-col">
+
     <!-- Kanban Board -->
     <div class="flex-1 flex gap-6 overflow-x-auto pb-4">
       
       <!-- Column: Chờ chế biến -->
       <div class="flex-1 min-w-[350px] bg-gray-800 rounded-xl flex flex-col border border-gray-700">
         <div class="p-4 border-b border-gray-700 bg-gray-800/80 rounded-t-xl sticky top-0 flex justify-between items-center z-10">
-          <h2 class="text-xl font-bold text-gray-100 uppercase tracking-wider">Chờ chế biến</h2>
+          <h2 class="text-xl font-bold text-gray-100 uppercase tracking-wider">{{ t('auto_ch__ch__bi_n') }}</h2>
           <span class="bg-gray-700 text-gray-300 px-3 py-1 rounded text-sm font-bold">{{ pendingOrders.length }}</span>
         </div>
         <div class="p-4 flex-1 overflow-y-auto space-y-4">
@@ -45,7 +46,7 @@
             
             <div class="mt-5 pt-4 border-t border-gray-600 flex justify-end">
               <button class="kawaii-btn-primary w-full py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-bold text-lg transition-colors" @click="moveToPreparing(order)">
-                Bắt đầu làm
+                {{ t('auto_b_t_u_l_m', 'Bắt đầu làm') }}
               </button>
             </div>
           </div>
@@ -55,7 +56,7 @@
       <!-- Column: Đang làm -->
       <div class="flex-1 min-w-[350px] bg-gray-800 rounded-xl flex flex-col border border-gray-700">
          <div class="p-4 border-b border-gray-700 bg-gray-800/80 rounded-t-xl sticky top-0 flex justify-between items-center z-10">
-          <h2 class="text-xl font-bold text-blue-400 uppercase tracking-wider">Đang làm</h2>
+          <h2 class="text-xl font-bold text-blue-400 uppercase tracking-wider">{{ t('auto__ang_l_m') }}</h2>
           <span class="bg-blue-900/50 text-blue-300 px-3 py-1 rounded text-sm font-bold border border-blue-700/50">{{ preparingOrders.length }}</span>
         </div>
         <div class="p-4 flex-1 overflow-y-auto space-y-4">
@@ -94,7 +95,7 @@
             
             <div class="mt-5 pt-4 border-t border-gray-600 flex justify-end">
               <button class="kawaii-btn-primary w-full py-3 bg-green-600 hover:bg-green-500 text-white rounded-lg font-bold text-lg transition-colors" @click="moveToDone(order)">
-                Hoàn tất Đơn
+                {{ t('auto_ho_n_t_t_n', 'Hoàn tất Đơn') }}
               </button>
             </div>
            </div>
@@ -104,7 +105,7 @@
       <!-- Column: Hoàn thành -->
       <div class="flex-1 min-w-[350px] bg-gray-800 rounded-xl flex flex-col border border-gray-700 opacity-80">
          <div class="p-4 border-b border-gray-700 bg-gray-800/80 rounded-t-xl sticky top-0 flex justify-between items-center z-10">
-          <h2 class="text-xl font-bold text-green-400 uppercase tracking-wider">Hoàn thành</h2>
+          <h2 class="text-xl font-bold text-green-400 uppercase tracking-wider">{{ t('auto_ho_n_th_nh') }}</h2>
           <span class="bg-green-900/50 text-green-300 px-3 py-1 rounded text-sm font-bold border border-green-700/50">{{ doneOrders.length }}</span>
         </div>
         <div class="p-4 flex-1 overflow-y-auto space-y-4">
@@ -133,6 +134,8 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { supabase } from '@/lib/supabase';
 import { useRealtime } from '@/composables/useRealtime';
@@ -321,3 +324,4 @@ onUnmounted(() => {
   background-color: rgba(107, 114, 128, 1); /* gray-500 */
 }
 </style>
+

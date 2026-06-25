@@ -6,4 +6,7 @@
 
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
+import { useUserSticker } from '@/composables/useUserSticker'
+
+const { stickerUrl } = useUserSticker()
 </script>

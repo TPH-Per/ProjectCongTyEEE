@@ -1,28 +1,29 @@
 <template>
   <div>
+
     <div class="mb-6 flex items-center justify-between">
       <div>
-        <h2 class="text-2xl font-bold text-gray-900">Tổng quan ca làm việc</h2>
-        <p class="text-sm text-gray-500">Hôm nay</p>
+        <h2 class="text-2xl font-bold text-gray-900">{{ t('auto_t_ng_quan_ca_l_m_vi_c') }}</h2>
+        <p class="text-sm text-gray-500">{{ t('auto_h_m_nay') }}</p>
       </div>
       <div class="flex gap-3">
         <div class="bg-white border px-4 py-2 rounded-xl text-center">
-          <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Bàn Đang Dùng</div>
+          <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wide">{{ t('auto_b_n__ang_d_ng') }}</div>
           <div class="text-xl font-black text-gray-900">{{ diningTables.length }}</div>
         </div>
         <div class="bg-white border px-4 py-2 rounded-xl text-center">
-          <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Chờ Thanh Toán</div>
+          <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wide">{{ t('auto_ch__thanh_to_n') }}</div>
           <div class="text-xl font-black text-red-600">{{ checkoutTables.length }}</div>
         </div>
         <div class="bg-white border px-4 py-2 rounded-xl text-center">
-          <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Đặt Bàn Hôm Nay</div>
+          <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wide">{{ t('auto___t_b_n_h_m_nay') }}</div>
           <div class="text-xl font-black text-blue-600">{{ reservations.length }}</div>
         </div>
       </div>
     </div>
 
     <!-- Alerts Section -->
-    <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">Cần Xử Lý Ngay</h3>
+    <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">{{ t('auto_c_n_x__l__ngay') }}</h3>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
       
       <!-- Checkout Alert -->
@@ -32,30 +33,30 @@
         </div>
         <div class="flex items-center gap-3 mb-3">
           <div class="w-3 h-3 rounded-full bg-red-500 animate-pulse"></div>
-          <span class="font-bold text-red-700">Yêu Cầu Thanh Toán</span>
+          <span class="font-bold text-red-700">{{ t('auto_y_u_c_u_thanh_to_n') }}</span>
         </div>
         <div class="text-3xl font-black text-gray-900 mb-1">Bàn {{ table.code }}</div>
         <div class="text-sm text-gray-600 mb-6">{{ table.capacity || 4 }} Khách</div>
         <RouterLink :to="`/reception/checkout/${table.id}`" class="block w-full bg-red-600 hover:bg-red-700 text-white text-center font-bold py-3 rounded-xl transition-colors">
-          Tiến Hành Thanh Toán
+          {{ t('auto_ti_n_h_nh_thanh_to_n', 'Tiến Hành Thanh Toán') }}
         </RouterLink>
       </div>
 
       <div v-if="checkoutTables.length === 0" class="col-span-full text-sm text-gray-400">
-        Không có yêu cầu thanh toán nào.
+        {{ t('auto_kh_ng_c_y_u_c_u_thanh_to_n_n', 'Không có yêu cầu thanh toán nào.') }}
       </div>
     </div>
 
-    <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">Danh Sách Bàn Đang Phục Vụ</h3>
+    <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">{{ t('auto_danh_s_ch_b_n__ang_ph_c_v_') }}</h3>
     <div class="bg-white border rounded-2xl overflow-hidden shadow-sm">
       <table class="w-full text-left border-collapse">
         <thead>
           <tr class="bg-gray-50 border-b">
-            <th class="py-3 px-4 text-xs font-bold text-gray-500 uppercase">Mã Bàn</th>
-            <th class="py-3 px-4 text-xs font-bold text-gray-500 uppercase">Gói Dịch Vụ</th>
-            <th class="py-3 px-4 text-xs font-bold text-gray-500 uppercase">Khách</th>
-            <th class="py-3 px-4 text-xs font-bold text-gray-500 uppercase">Thời Gian</th>
-            <th class="py-3 px-4 text-xs font-bold text-gray-500 uppercase">Trạng Thái</th>
+            <th class="py-3 px-4 text-xs font-bold text-gray-500 uppercase">{{ t('auto_m__b_n') }}</th>
+            <th class="py-3 px-4 text-xs font-bold text-gray-500 uppercase">{{ t('auto_g_i_d_ch_v_') }}</th>
+            <th class="py-3 px-4 text-xs font-bold text-gray-500 uppercase">{{ t('auto_kh_ch') }}</th>
+            <th class="py-3 px-4 text-xs font-bold text-gray-500 uppercase">{{ t('auto_th_i_gian') }}</th>
+            <th class="py-3 px-4 text-xs font-bold text-gray-500 uppercase">{{ t('auto_tr_ng_th_i') }}</th>
           </tr>
         </thead>
         <tbody class="text-sm divide-y">
@@ -63,11 +64,11 @@
             <td class="py-3 px-4 font-bold text-gray-900">{{ table.code }}</td>
             <td class="py-3 px-4 text-gray-600">Mockup Package</td>
             <td class="py-3 px-4 text-gray-600">{{ table.capacity || 2 }}</td>
-            <td class="py-3 px-4 text-gray-600">Đang phục vụ</td>
-            <td class="py-3 px-4"><span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-bold">Đang dùng bữa</span></td>
+            <td class="py-3 px-4 text-gray-600">{{ t('auto__ang_ph_c_v_') }}</td>
+            <td class="py-3 px-4"><span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-bold">{{ t('auto__ang_d_ng_b_a') }}</span></td>
           </tr>
           <tr v-if="diningTables.length === 0">
-            <td colspan="5" class="py-4 text-center text-gray-400">Không có bàn đang phục vụ.</td>
+            <td colspan="5" class="py-4 text-center text-gray-400">{{ t('auto_kh_ng_c__b_n__ang_ph_c_v__') }}</td>
           </tr>
         </tbody>
       </table>
@@ -76,6 +77,8 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 import { ref, computed, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useTable } from '@/composables/useTable'
@@ -118,3 +121,4 @@ onMounted(() => {
   })
 })
 </script>
+

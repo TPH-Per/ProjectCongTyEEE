@@ -25,10 +25,11 @@ Dự án đã được deploy lên Firebase Hosting (quản lý qua tài khoản
 - **Domain truy cập chính thức:** 
   - `https://nguucat-qvn.web.app`
   - `https://nguucat-qvn.firebaseapp.com`
+  - *(Được quản lý thông qua Firebase liên kết trực tiếp với tài khoản Google Workspace đang đăng nhập ở CLI local).*
 
-- **Tài khoản Đăng nhập (Admin Demo):**
+- **Tài khoản Đăng nhập (Admin Demo trên hệ thống):**
   - **Email:** `admin@nguucat.vn`
-  - **Mật khẩu:** (sử dụng mật khẩu mặc định của Supabase Auth đã cung cấp trước đó)
+  - **Mật khẩu:** `admin123`
   - _Lưu ý:_ Toàn bộ tài khoản Supabase Auth, Firebase Deploy đều đang được giữ nguyên quyền theo cấu hình Workspace ban đầu.
 
 ## Github

@@ -3,7 +3,7 @@
     <!-- Sidebar -->
     <aside class="w-64 bg-white kawaii-shadow flex flex-col z-20">
       <div class="h-16 flex items-center justify-center border-b border-gray-100 kawaii-gradient">
-        <h1 class="text-xl font-bold text-white tracking-wide">Ngưu Cát Portal</h1>
+        <img src="/images/nguucat-logo.png" alt="Ngưu Cát Logo" class="h-8 w-auto object-contain" />
       </div>
       <nav class="flex-1 overflow-y-auto py-4">
         <ul class="space-y-1 px-3">
@@ -19,7 +19,12 @@
           </li>
         </ul>
       </nav>
-
+      <div class="p-4 border-t border-gray-100">
+        <button class="flex items-center text-sm text-gray-500 hover:text-red-500 transition-colors w-full px-4 py-2" @click="handleSignOut">
+          <LogOutIcon class="w-4 h-4 mr-2" />
+          Đăng xuất
+        </button>
+      </div>
     </aside>
 
     <!-- Main Content -->
@@ -38,10 +43,8 @@
             <!-- Backdrop to close dropdown on click outside -->
             <div v-if="isDropdownOpen" class="fixed inset-0 z-40" @click="isDropdownOpen = false"></div>
 
-            <div @click="isDropdownOpen = !isDropdownOpen" class="flex items-center space-x-2 cursor-pointer p-1 rounded-xl hover:bg-gray-50 transition-colors select-none z-50 relative">
-              <div class="w-8 h-8 rounded-full bg-rose-200 flex items-center justify-center text-[#FF7B89] font-bold">
-                SA
-              </div>
+            <div @click="isDropdownOpen = !isDropdownOpen" class="flex items-center gap-2 cursor-pointer p-1 rounded-xl hover:bg-gray-50 transition-colors select-none z-50 relative">
+              <img :src="stickerUrl" alt="Avatar" class="w-8 h-8 object-contain drop-shadow-sm rounded-full" />
               <span class="text-sm font-medium hidden md:block">Superadmin</span>
               <ChevronDownIcon class="w-4 h-4 text-gray-400" />
             </div>
@@ -54,6 +57,11 @@
               </button>
             </div>
           </div>
+        </div>
+      <LanguageSwitcher />
+        <!-- Header User Avatar -->
+        <div class="flex items-center gap-2 ml-4">
+          <img :src="stickerUrl" alt="User Avatar" class="w-8 h-8 rounded-full border border-[hsl(var(--border))] object-contain bg-[hsl(var(--muted))]" />
         </div>
       </header>
 
@@ -72,23 +80,22 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useAuth } from '@/composables/useAuth'
-import { 
-  LayoutDashboardIcon, 
-  StoreIcon, 
-  PuzzleIcon, 
+import {
+  LayoutDashboardIcon,
+  StoreIcon,
+  PuzzleIcon,
   SettingsIcon,
   BellIcon,
   ChevronDownIcon,
   LogOutIcon
 } from 'lucide-vue-next'
+import { useAuth } from '@/composables/useAuth'
 
 const route = useRoute()
 const router = useRouter()
-const { signOut } = useAuth()
-const isDropdownOpen = ref(false)
+const { signOut, profile } = useAuth()
 
 const menuItems = [
   { name: 'Tổng quan', path: '/superadmin/dashboard', icon: LayoutDashboardIcon },
@@ -104,8 +111,10 @@ const currentRouteName = computed(() => {
 
 async function handleSignOut() {
   await signOut()
-  router.push({ name: 'login' })
+  await router.push({ name: 'login' })
 }
+
+void profile
 </script>
 
 <style scoped>

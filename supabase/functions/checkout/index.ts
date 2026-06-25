@@ -1,6 +1,7 @@
 // supabase/functions/checkout/index.ts
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
-import { corsHeaders, getAdminClient, requireUser } from '../_shared/auth.ts'
+import { getAdminClient, requireUser } from '../_shared/auth.ts'
+import { corsHeaders } from '../_shared/cors.ts'
 
 interface CheckoutPayload {
   orderId: string
@@ -30,7 +31,7 @@ serve(async (req) => {
     // 1. Lấy order + items
     const { data: order } = await admin
       .from('orders')
-      .select('id, branch_id, table_id, reservation_id, status, subtotal, vat, total, discount')
+      .select('id, branch_id, reservation_id, status, subtotal, vat, total, discount')
       .eq('id', body.orderId)
       .single()
     if (!order) throw new Error('Order not found')

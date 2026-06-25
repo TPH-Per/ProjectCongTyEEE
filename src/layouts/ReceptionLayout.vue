@@ -4,13 +4,7 @@
     <aside class="w-64 border-r bg-white flex flex-col shrink-0 shadow-sm">
       <div class="p-5 border-b">
         <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-xl bg-red-600 flex items-center justify-center text-white font-black text-lg shadow-md">
-            🐂
-          </div>
-          <div>
-            <h1 class="text-base font-black text-gray-900 tracking-tight">NGƯU CÁT</h1>
-            <p class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Thu Ngân POS</p>
-          </div>
+          <img src="/images/nguucat-logo.png" alt="Ngưu Cát Logo" class="h-10 w-auto object-contain" />
         </div>
       </div>
       <nav class="flex-1 px-4 space-y-2 py-6 overflow-y-auto">
@@ -46,7 +40,7 @@
 
         <!-- User Profile Card -->
         <div @click="isDropdownOpen = !isDropdownOpen" class="flex items-center gap-3 px-3 py-2 rounded-xl bg-gray-100 cursor-pointer select-none">
-          <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-xs font-bold text-gray-700">TN</div>
+          <img :src="stickerUrl" alt="Avatar" class="w-8 h-8 object-contain drop-shadow-sm rounded-full" />
           <div class="flex-1 min-w-0">
             <div class="text-xs font-bold text-gray-900 truncate">Thu Ngân 01</div>
           </div>
@@ -55,9 +49,17 @@
     </aside>
     <main class="flex-1 flex flex-col overflow-hidden">
       <header class="h-16 border-b bg-white flex items-center justify-between px-6 shrink-0 shadow-sm z-10">
-        <div class="font-bold text-xl text-gray-800" id="reception-header-title">{{ headerTitle }}</div>
-        <div class="flex items-center gap-2">
+        <div class="font-bold text-xl text-gray-800" id="reception-header-title">Bảng điều khiển</div>
+        <div class="flex items-center gap-3">
            <span class="text-sm font-semibold text-gray-500">Chi nhánh 1</span>
+           <button class="px-3 py-2 rounded-lg text-sm font-semibold text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors" @click="handleSignOut">
+             Đăng xuất
+           </button>
+        </div>
+      <LanguageSwitcher />
+        <!-- Header User Avatar -->
+        <div class="flex items-center gap-2 ml-4">
+          <img :src="stickerUrl" alt="User Avatar" class="w-8 h-8 rounded-full border border-[hsl(var(--border))] object-contain bg-[hsl(var(--muted))]" />
         </div>
       </header>
       <section class="flex-1 overflow-auto bg-gray-50 p-6">
@@ -68,8 +70,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { RouterView, RouterLink, useRouter, useRoute } from 'vue-router'
+import { RouterView, RouterLink, useRouter } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'
 
 const router = useRouter()
@@ -88,6 +89,8 @@ const headerTitle = computed(() => {
 
 async function handleSignOut() {
   await signOut()
-  router.push({ name: 'login' })
+  await $router.push({ name: 'login' })
 }
+
+void profile
 </script>

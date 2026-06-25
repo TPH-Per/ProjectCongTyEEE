@@ -3,6 +3,7 @@ import { ref, reactive, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuth } from '@/composables/useAuth'
+import { getHomeRouteForRole } from '@/utils/route'
 
 const router = useRouter()
 const { t } = useI18n()
@@ -26,22 +27,8 @@ async function onSubmit() {
   errorMsg.value = null
   try {
     await signIn(form.email.trim(), form.password)
-    
-    // Redirect dynamically based on user role
-    const userRole = role.value
-    if (userRole === 'admin') {
-      await router.push({ name: 'admin-dashboard' })
-    } else if (userRole === 'manager') {
-      await router.push({ name: 'manager-dashboard' })
-    } else if (userRole === 'reception') {
-      await router.push({ name: 'reception-dashboard' })
-    } else if (userRole === 'staff') {
-      await router.push({ name: 'staff-floor-plan' })
-    } else if (userRole === 'kitchen') {
-      await router.push({ name: 'kitchen-kds' })
-    } else {
-      await router.push('/')
-    }
+    // Role-aware landing — admin → /admin/dashboard, staff → /staff/floor-plan, etc.
+    await router.push(getHomeRouteForRole(role.value))
   } catch (e) {
     errorMsg.value = e instanceof Error ? e.message : String(e)
   } finally {
@@ -56,9 +43,12 @@ void t
 
 <template>
   <div class="login-shell">
-    <div class="login-card">
-      <h1 class="login-title">🐂 NGƯU CÁT</h1>
-      <p class="login-subtitle">Restaurant POS</p>
+    <div class="login-card relative">
+      
+      <div class="flex justify-center items-center gap-4 mb-6">
+        <img src="/images/nguucat-logo.png" alt="Ngưu Cát" class="h-16 w-auto object-contain" />
+      </div>
+
 
       <form @submit.prevent="onSubmit" class="login-form">
         <label class="login-field">
@@ -91,6 +81,10 @@ void t
         >
           {{ submitting ? 'Signing in…' : 'Sign in' }}
         </button>
+
+        <p class="login-hint">
+          Tài khoản được cấp bởi quản lý. Liên hệ admin nếu chưa có.
+        </p>
       </form>
     </div>
   </div>
@@ -101,7 +95,7 @@ void t
   min-height: 100vh;
   display: grid;
   place-items: center;
-  background: var(--kawaii-cream, #fff5f7);
+  background: #FFF8F5;
 }
 .login-card {
   width: 360px;
@@ -152,7 +146,7 @@ void t
   padding: 12px;
   border-radius: 10px;
   border: none;
-  background: #ff7b89;
+  background: #FF672E;
   color: white;
   font-weight: 700;
   font-size: 15px;
@@ -162,4 +156,12 @@ void t
   opacity: 0.6;
   cursor: not-allowed;
 }
+.login-hint {
+  margin: 0;
+  text-align: center;
+  font-size: 12px;
+  color: #64748b;
+  font-style: italic;
+}
 </style>
+

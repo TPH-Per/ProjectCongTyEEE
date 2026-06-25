@@ -5,28 +5,28 @@
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-gray-200/80 pb-3">
       <div>
         <h1 class="text-2xl font-black text-gray-900 tracking-tight flex items-center gap-2">
-          <span>🖥️</span> Trung Tâm Điều Phối & Sơ Đồ Bàn
+          <span>🖥️</span> {{ t('auto_trung_t_m_i_u_ph_i_s_b', 'Trung Tâm Điều Phối & Sơ Đồ Bàn') }}
         </h1>
-        <p class="text-xs text-gray-500 font-medium mt-0.5">Màn hình kiểm soát vận hành thời gian thực dành cho Lễ tân và Thu ngân</p>
+        <p class="text-xs text-gray-500 font-medium mt-0.5">{{ t('auto_m_n_h_nh_ki_m_so_t_v_n_h_nh_th') }}</p>
       </div>
 
       <!-- Compact Status Legend -->
       <div class="flex items-center gap-2 text-[10px] font-black uppercase tracking-wider">
         <div class="flex items-center gap-1 bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-xl border border-emerald-100/50">
           <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-          Trống
+          {{ t('auto_tr_ng', 'Trống') }}
         </div>
         <div class="flex items-center gap-1 bg-amber-50 text-amber-700 px-2.5 py-1 rounded-xl border border-amber-100/50">
           <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-          Đặt trước
+          {{ t('auto_t_tr_c', 'Đặt trước') }}
         </div>
         <div class="flex items-center gap-1 bg-blue-50 text-blue-700 px-2.5 py-1 rounded-xl border border-blue-100/50">
           <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
-          Đã đến
+          {{ t('auto_n', 'Đã đến') }}
         </div>
         <div class="flex items-center gap-1 bg-rose-50 text-rose-700 px-2.5 py-1 rounded-xl border border-rose-100/50">
           <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
-          Phục vụ
+          {{ t('auto_ph_c_v', 'Phục vụ') }}
         </div>
       </div>
     </div>
@@ -36,8 +36,8 @@
       <div class="flex items-center gap-3 select-none font-sans">
         <div class="w-9 h-9 rounded-xl bg-pink-50 flex items-center justify-center text-lg">🕒</div>
         <div>
-          <h2 class="text-xs font-black text-gray-800 uppercase tracking-wide">Mốc Thời Gian Giả Lập</h2>
-          <p class="text-[10px] text-gray-400 font-semibold mt-0.5">Kéo thanh trượt để xem lịch sử hoạt động và trạng thái bàn tương ứng</p>
+          <h2 class="text-xs font-black text-gray-800 uppercase tracking-wide">{{ t('auto_m_c_th_i_gian_gi__l_p') }}</h2>
+          <p class="text-[10px] text-gray-400 font-semibold mt-0.5">{{ t('auto_k_o_thanh_tr__t____xem_l_ch_s_') }}</p>
         </div>
       </div>
 
@@ -81,7 +81,7 @@
           @click="resetToRealTimeOnly"
           class="px-3 py-1 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-[10px] font-black shadow-sm active:scale-95 transition-all"
         >
-          Đặt về Hiện tại
+          {{ t('auto_t_v_hi_n_t_i', 'Đặt về Hiện tại') }}
         </button>
       </div>
     </div>
@@ -94,7 +94,7 @@
           @click="isZoneDropdownOpen = !isZoneDropdownOpen"
           class="px-3.5 py-2 bg-white border border-gray-200 rounded-xl text-xs font-black text-gray-700 hover:bg-gray-50 flex items-center gap-1.5 shadow-sm active:scale-95"
         >
-          <span>🗺️ Chọn khu vực</span>
+          <span>{{ t('auto_____ch_n_khu_v_c') }}</span>
           <span class="text-gray-400 text-[10px]">▼</span>
         </button>
         
@@ -125,13 +125,32 @@
 
       <!-- Khu vực đang chọn hiện tại -->
       <div class="flex items-center gap-2 select-none">
-        <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Đang xem:</span>
+        <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">{{ t('auto__ang_xem_') }}</span>
         <div class="bg-pink-50 border border-pink-100 text-[#FF7B89] px-3 py-1.5 rounded-xl text-xs font-black flex items-center gap-2 shadow-sm">
           <span>📍 {{ selectedZoneLabel }}</span>
           <span class="text-[9px] bg-[#FF7B89] text-white px-1.5 py-0.5 rounded-full font-black">
             {{ getZoneTableCount(selectedZone) }} bàn
           </span>
         </div>
+      </div>
+
+      <div class="ml-auto flex items-center gap-2">
+        <button 
+          @click="isEditModeEnabled = !isEditModeEnabled"
+          :class="[
+            'px-3 py-1.5 rounded-xl text-xs font-black transition-all shadow-sm flex items-center gap-1.5 active:scale-95',
+            isEditModeEnabled ? 'bg-amber-100 text-amber-700 border border-amber-200' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
+          ]"
+        >
+          <span>{{ isEditModeEnabled ? '🔓 Chế độ Sắp Xếp' : '🔒 Sắp xếp' }}</span>
+        </button>
+        <button 
+          v-if="isEditModeEnabled"
+          @click="openCreateTableModal"
+          class="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-xs font-black shadow-sm active:scale-95 transition-all flex items-center gap-1.5"
+        >
+          <span>{{ t('auto_th_m_b_n', '+ Thêm Bàn') }}</span>
+        </button>
       </div>
     </div>
 
@@ -144,10 +163,10 @@
           
           <div class="flex justify-between items-center mb-3.5 border-b border-gray-100 pb-2">
             <h2 class="text-sm font-black text-gray-800 uppercase tracking-wider flex items-center gap-1.5">
-              🪑 Bản đồ phân khu: 
+              {{ t('auto_b_n_ph_n_khu', '🪑 Bản đồ phân khu:') }} 
               <span class="text-[#FF7B89] font-black text-sm">{{ selectedZoneLabel }}</span>
             </h2>
-            <span class="text-[10px] text-gray-400 font-bold">Lưới bàn tự động căn chỉnh</span>
+            <span class="text-[10px] text-gray-400 font-bold">{{ t('auto_l__i_b_n_t____ng_c_n_ch_nh') }}</span>
           </div>
 
           <!-- Grid display of tables -->
@@ -177,9 +196,12 @@
                   <!-- Card Header: Code & Badge -->
                   <div class="flex justify-between items-start gap-1">
                     <span class="font-black text-base text-gray-900 leading-none">{{ table.code }}</span>
-                    <span :class="['text-[8px] font-black uppercase px-1.5 py-0.5 rounded leading-none border', getBadgeColorClass(table.status)]">
-                      {{ translateTableStatus(table.status) }}
-                    </span>
+                    <div class="flex items-center gap-1">
+                      <button v-if="isEditModeEnabled" @click.stop="deleteTable(table.code)" class="text-[8px] px-1.5 py-0.5 bg-red-100 text-red-600 rounded hover:bg-red-200 border border-red-200" :title="t('auto_x_a_b_n', 'Xóa bàn')">✕</button>
+                      <span :class="['text-[8px] font-black uppercase px-1.5 py-0.5 rounded leading-none border', getBadgeColorClass(table.status)]">
+                        {{ translateTableStatus(table.status) }}
+                      </span>
+                    </div>
                   </div>
 
                   <!-- Card Body: Custom contents based on status -->
@@ -187,7 +209,7 @@
                     
                     <!-- CASE: Available (TRỐNG) -->
                     <template v-if="table.status === 'Available'">
-                      <span class="text-[9px] text-emerald-600 font-extrabold flex items-center gap-0.5">🟢 Sẵn sàng phục vụ</span>
+                      <span class="text-[9px] text-emerald-600 font-extrabold flex items-center gap-0.5">{{ t('auto____s_n_s_ng_ph_c_v_') }}</span>
                       <span class="text-[9px] text-gray-400 font-medium mt-0.5">Sức chứa: {{ table.capacity }} ghế</span>
                     </template>
 
@@ -224,7 +246,7 @@
             </div>
             
             <div v-if="filteredAreas.length === 0" class="py-12 text-center text-gray-400 font-medium text-xs">
-              Không tìm thấy bàn nào thuộc phân khu này.
+              {{ t('auto_kh_ng_t_m_th_y_b_n_n_o_thu_c_p', 'Không tìm thấy bàn nào thuộc phân khu này.') }}
             </div>
           </div>
         </div>
@@ -237,9 +259,9 @@
           <!-- Calendar Title -->
           <div class="flex justify-between items-center mb-2 pb-1 border-b border-gray-100">
             <h3 class="text-xs font-black text-gray-800 uppercase tracking-wider flex items-center gap-1">
-              📅 Lịch Trình Đặt Bàn
+              {{ t('auto_l_ch_tr_nh_t_b_n', '📅 Lịch Trình Đặt Bàn') }}
             </h3>
-            <span class="text-[9px] text-gray-400 font-bold">Tháng trực quan</span>
+            <span class="text-[9px] text-gray-400 font-bold">{{ t('auto_th_ng_tr_c_quan') }}</span>
           </div>
 
           <!-- Calendar Widget -->
@@ -343,7 +365,7 @@
                 </div>
                 <div class="text-right select-none leading-none">
                   <span class="text-sm font-black text-gray-850">{{ booking.reservationTime }}</span>
-                  <span class="block text-[7.5px] text-gray-400 font-bold uppercase mt-0.5">HẸN GIỜ</span>
+                  <span class="block text-[7.5px] text-gray-400 font-bold uppercase mt-0.5">{{ t('auto_h_n_gi_') }}</span>
                 </div>
               </div>
 
@@ -355,18 +377,18 @@
               </div>
 
               <div v-if="booking.notes" class="bg-gray-50 border border-gray-100 text-[9px] text-gray-500 italic p-1.5 rounded-lg leading-tight">
-                <strong>Ghi chú:</strong> {{ booking.notes }}
+                <strong>{{ t('auto_ghi_ch__') }}</strong> {{ booking.notes }}
               </div>
 
               <!-- Icon buttons for card actions -->
               <div class="flex justify-between items-center border-t border-gray-100 pt-2 mt-1 shrink-0">
-                <span class="text-[8px] text-gray-400 font-extrabold uppercase">Thao tác:</span>
+                <span class="text-[8px] text-gray-400 font-extrabold uppercase">{{ t('auto_thao_t_c_') }}</span>
                 <div class="flex items-center gap-1">
-                  <button @click="showBookingDetails(booking)" class="p-1 bg-gray-50 hover:bg-gray-150 text-gray-600 rounded border border-gray-200 text-[10px]" title="Chi tiết">👁️</button>
-                  <button @click="openEditBookingModal(booking)" v-if="booking.status !== 'Cancelled' && booking.status !== 'Completed'" class="p-1 bg-gray-50 hover:bg-gray-150 text-gray-600 rounded border border-gray-200 text-[10px]" title="Chỉnh sửa">✏️</button>
-                  <button @click="openAssignTableModal(booking)" v-if="booking.status !== 'Cancelled' && booking.status !== 'Completed' && booking.status !== 'Seated'" class="p-1 bg-pink-50 hover:bg-pink-100 text-[#FF7B89] rounded border border-pink-100 text-[10px]" title="Xếp bàn">🪑</button>
-                  <button @click="markBookingArrived(booking)" v-if="booking.status === 'Waiting'" class="p-1 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded border border-blue-200 text-[10px]" title="Đón khách">🚶</button>
-                  <button @click="openTableFromBooking(booking)" v-if="booking.status === 'Arrived'" class="p-1 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded border border-rose-250 text-[10px] animate-pulse" title="Mở bàn">🍽️</button>
+                  <button @click="showBookingDetails(booking)" class="p-1 bg-gray-50 hover:bg-gray-150 text-gray-600 rounded border border-gray-200 text-[10px]" :title="t('auto_chi_ti_t', 'Chi tiết')">👁️</button>
+                  <button @click="openEditBookingModal(booking)" v-if="booking.status !== 'Cancelled' && booking.status !== 'Completed'" class="p-1 bg-gray-50 hover:bg-gray-150 text-gray-600 rounded border border-gray-200 text-[10px]" :title="t('auto_ch_nh_s_a', 'Chỉnh sửa')">✏️</button>
+                  <button @click="openAssignTableModal(booking)" v-if="booking.status !== 'Cancelled' && booking.status !== 'Completed' && booking.status !== 'Seated'" class="p-1 bg-pink-50 hover:bg-pink-100 text-[#FF7B89] rounded border border-pink-100 text-[10px]" :title="t('auto_x_p_b_n', 'Xếp bàn')">🪑</button>
+                  <button @click="markBookingArrived(booking)" v-if="booking.status === 'Waiting'" class="p-1 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded border border-blue-200 text-[10px]" :title="t('auto_n_kh_ch', 'Đón khách')">🚶</button>
+                  <button @click="openTableFromBooking(booking)" v-if="booking.status === 'Arrived'" class="p-1 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded border border-rose-250 text-[10px] animate-pulse" :title="t('auto_m_b_n', 'Mở bàn')">🍽️</button>
                 </div>
               </div>
 
@@ -379,7 +401,7 @@
 
     <!-- 4. BOTTOM ZONE SUMMARY DASHBOARD -->
     <div class="bg-white border border-gray-200 rounded-3xl p-4 shadow-sm shrink-0">
-      <h3 class="text-xs font-black text-gray-400 uppercase tracking-wider mb-3">📊 Bảng Tổng Quan Ca Theo Khu Vực:</h3>
+      <h3 class="text-xs font-black text-gray-400 uppercase tracking-wider mb-3">{{ t('auto____b_ng_t_ng_quan_ca_theo_khu_') }}</h3>
       <div class="grid grid-cols-3 sm:grid-cols-6 lg:grid-cols-11 gap-2.5 select-none">
         <div 
           v-for="zone in dashboardZoneList"
@@ -407,14 +429,14 @@
       <!-- Left Section (Operational stats) -->
       <div class="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[10px] font-black border-r border-gray-150 pr-4 select-none">
         <div class="flex items-center gap-1 text-gray-500">
-          🕒 HỆ THỐNG: <span class="bg-gray-100 border border-gray-150 px-2 py-0.5 rounded text-gray-700 font-mono tracking-wider">{{ currentTime }}</span>
+          {{ t('auto_h_th_ng', '🕒 HỆ THỐNG:') }} <span class="bg-gray-100 border border-gray-150 px-2 py-0.5 rounded text-gray-700 font-mono tracking-wider">{{ currentTime }}</span>
         </div>
         <div class="flex items-center gap-2">
-          <span>BÀN:</span>
+          <span>{{ t('auto_b_n_') }}</span>
           <span class="text-emerald-600 bg-emerald-50 border border-emerald-100 px-1.5 py-0.5 rounded">{{ stats.availableTables }}/{{ stats.totalTables }} trống</span>
         </div>
         <div class="flex items-center gap-2">
-          <span>GHẾ:</span>
+          <span>{{ t('auto_gh__') }}</span>
           <span class="text-blue-600 bg-blue-50 border border-blue-100 px-1.5 py-0.5 rounded">{{ stats.availableSeats }}/{{ stats.totalSeats }} trống</span>
         </div>
       </div>
@@ -422,15 +444,15 @@
       <!-- Center Section (Booking statistics) -->
       <div class="flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-[10px] font-black border-r border-gray-150 px-4 select-none">
         <div class="flex items-center gap-1.5">
-          <span>📅 TỔNG HẸN HÔM NAY:</span>
+          <span>{{ t('auto____t_ng_h_n_h_m_nay_') }}</span>
           <span class="bg-gray-100 px-2 py-0.5 rounded border border-gray-200 text-gray-700 text-xs">{{ sidebarStats.total }}</span>
         </div>
         <div class="flex items-center gap-1.5">
-          <span class="text-blue-600">ĐÃ CHECK-IN:</span>
+          <span class="text-blue-600">{{ t('auto____check_in_') }}</span>
           <span class="bg-blue-50 text-blue-700 px-2 py-0.5 rounded border border-blue-200 text-xs">{{ sidebarStats.arrived }}</span>
         </div>
         <div class="flex items-center gap-1.5">
-          <span class="text-amber-600">ĐANG CHỜ BÀN:</span>
+          <span class="text-amber-600">{{ t('auto__ang_ch__b_n_') }}</span>
           <span class="bg-amber-50 text-amber-700 px-2 py-0.5 rounded border border-amber-200 text-xs">{{ sidebarStats.waiting }}</span>
         </div>
       </div>
@@ -438,16 +460,16 @@
       <!-- Right Section (Primary Actions) -->
       <div class="flex gap-2.5 justify-end w-full">
         <button @click="resetToCurrentState" class="flex-1 text-center py-2.5 rounded-xl border border-gray-250 bg-white hover:bg-gray-50 text-gray-700 font-extrabold text-xs transition-colors shadow-sm select-none flex items-center justify-center gap-1 active:scale-95">
-          🕒 Hiện tại
+          {{ t('auto_hi_n_t_i', '🕒 Hiện tại') }}
         </button>
         <button @click="openQuickArrivedModal" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-black text-xs py-2.5 rounded-xl transition-all shadow-sm flex items-center justify-center gap-1 active:scale-95">
-          🚶 Đón Khách Đến
+          {{ t('auto_n_kh_ch_n', '🚶 Đón Khách Đến') }}
         </button>
         <button @click="openQuickOpenModal" class="flex-1 bg-rose-600 hover:bg-rose-700 text-white font-black text-xs py-2.5 rounded-xl transition-all shadow-sm flex items-center justify-center gap-1 active:scale-95 animate-pulse">
-          🍽️ Khai Bàn Nhanh
+          {{ t('auto_khai_b_n_nhanh', '🍽️ Khai Bàn Nhanh') }}
         </button>
         <button @click="openCreateBookingModal" class="flex-1 bg-[#FF7B89] hover:bg-[#FF5A6E] text-white font-black text-xs py-2.5 rounded-xl transition-all shadow-sm flex items-center justify-center gap-1 active:scale-95">
-          + Đặt Bàn
+          {{ t('auto_t_b_n', '+ Đặt Bàn') }}
         </button>
       </div>
 
@@ -473,11 +495,11 @@
         <div class="space-y-4 mb-5">
           <div class="grid grid-cols-2 gap-4 select-none">
             <div class="bg-gray-50 p-3 rounded-xl border border-gray-100">
-              <span class="block text-[9px] font-black text-gray-400 uppercase tracking-wider mb-0.5">Sức chứa</span>
+              <span class="block text-[9px] font-black text-gray-400 uppercase tracking-wider mb-0.5">{{ t('auto_s_c_ch_a') }}</span>
               <span class="font-extrabold text-xs text-gray-800">{{ selectedTableForModal.capacity }} ghế ngồi</span>
             </div>
             <div class="bg-gray-50 p-3 rounded-xl border border-gray-100">
-              <span class="block text-[9px] font-black text-gray-400 uppercase tracking-wider mb-0.5">Trạng thái hiện thời</span>
+              <span class="block text-[9px] font-black text-gray-400 uppercase tracking-wider mb-0.5">{{ t('auto_tr_ng_th_i_hi_n_th_i') }}</span>
               <span :class="['inline-block text-[8px] font-black uppercase px-2 py-0.5 rounded border mt-0.5 tracking-wide', getBadgeColorClass(selectedTableForModal.status)]">
                 {{ translateTableStatus(selectedTableForModal.status) }}
               </span>
@@ -485,34 +507,34 @@
           </div>
 
           <div class="bg-gray-50 p-3.5 rounded-xl border border-gray-100 space-y-2.5">
-            <h4 class="text-[10px] font-black text-gray-400 uppercase">Thông Tin Chi Tiết Ca Phục Vụ:</h4>
+            <h4 class="text-[10px] font-black text-gray-400 uppercase">{{ t('auto_th_ng_tin_chi_ti_t_ca_ph_c_v__') }}</h4>
             
             <div class="space-y-1">
-              <label class="text-[8px] font-black text-gray-400 uppercase">Tên Khách Hàng</label>
+              <label class="text-[8px] font-black text-gray-400 uppercase">{{ t('auto_t_n_kh_ch_h_ng') }}</label>
               <input 
                 type="text" 
                 v-model="tableModalForm.customerName" 
-                placeholder="Nhập tên khách dùng bàn"
+                :placeholder="t('auto_nh_p_t_n_kh_ch_d_ng_b_n', 'Nhập tên khách dùng bàn')"
                 class="w-full bg-white border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
               />
             </div>
 
             <div class="grid grid-cols-2 gap-3.5">
               <div class="space-y-1">
-                <label class="text-[8px] font-black text-gray-400 uppercase">Hóa Đơn Tạm Tính</label>
+                <label class="text-[8px] font-black text-gray-400 uppercase">{{ t('auto_h_a___n_t_m_t_nh') }}</label>
                 <input 
                   type="text" 
                   v-model="tableModalForm.billAmount" 
-                  placeholder="0đ"
+                  :placeholder="t('auto_0', '0đ')"
                   class="w-full bg-white border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
                 />
               </div>
               <div class="space-y-1">
-                <label class="text-[8px] font-black text-gray-400 uppercase">Giờ Khai Bàn / Vào</label>
+                <label class="text-[8px] font-black text-gray-400 uppercase">{{ t('auto_gi__khai_b_n___v_o') }}</label>
                 <input 
                   type="text" 
                   v-model="tableModalForm.occupiedDuration" 
-                  placeholder="Ví dụ: 17:15"
+                  :placeholder="t('auto_v_d_17_15', 'Ví dụ: 17:15')"
                   class="w-full bg-white border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
                 />
               </div>
@@ -521,35 +543,35 @@
         </div>
 
         <div class="space-y-3">
-          <span class="block text-[9px] font-black text-gray-400 uppercase tracking-wider mb-2 select-none">Đổi Trạng Thái Bàn Nhanh:</span>
+          <span class="block text-[9px] font-black text-gray-400 uppercase tracking-wider mb-2 select-none">{{ t('auto___i_tr_ng_th_i_b_n_nhanh_') }}</span>
           
           <div class="grid grid-cols-2 gap-2 select-none">
             <button 
               @click="setTableModalStatus('Available')"
               :class="['py-2 px-3 rounded-xl border text-[10px] font-black transition-all', tableModalForm.status === 'Available' ? 'bg-emerald-500 border-emerald-600 text-white shadow-sm' : 'bg-emerald-50 text-emerald-800 border-emerald-100 hover:bg-emerald-100']"
             >
-              🟢 Thiết lập Trống
+              {{ t('auto_thi_t_l_p_tr_ng', '🟢 Thiết lập Trống') }}
             </button>
             
             <button 
               @click="setTableModalStatus('Reserved')"
               :class="['py-2 px-3 rounded-xl border text-[10px] font-black transition-all', tableModalForm.status === 'Reserved' ? 'bg-amber-500 border-amber-600 text-white shadow-sm' : 'bg-amber-50 text-amber-800 border-amber-100 hover:bg-amber-100']"
             >
-              📅 Thiết lập Đặt Trước
+              {{ t('auto_thi_t_l_p_t_tr_c', '📅 Thiết lập Đặt Trước') }}
             </button>
             
             <button 
               @click="setTableModalStatus('Arrived')"
               :class="['py-2 px-3 rounded-xl border text-[10px] font-black transition-all', tableModalForm.status === 'Arrived' ? 'bg-blue-600 border-blue-700 text-white shadow-sm' : 'bg-blue-50 text-blue-800 border-blue-100 hover:bg-blue-100']"
             >
-              🚶 Đón Check-in
+              {{ t('auto_n_check_in', '🚶 Đón Check-in') }}
             </button>
             
             <button 
               @click="setTableModalStatus('Serving')"
               :class="['py-2 px-3 rounded-xl border text-[10px] font-black transition-all', tableModalForm.status === 'Serving' ? 'bg-rose-600 border-rose-700 text-white shadow-sm' : 'bg-rose-50 text-rose-800 border-rose-100 hover:bg-rose-100']"
             >
-              🔥 Mở Phục Vụ
+              {{ t('auto_m_ph_c_v', '🔥 Mở Phục Vụ') }}
             </button>
           </div>
 
@@ -558,7 +580,7 @@
               @click="closeTableModal"
               class="flex-1 py-2 rounded-xl border border-gray-250 bg-white hover:bg-gray-50 text-gray-700 text-[11px] font-bold transition-colors select-none"
             >
-              Đóng
+              {{ t('auto_ng', 'Đóng') }}
             </button>
             <button 
               @click="goToOrderScreen(selectedTableForModal.code)"
@@ -570,7 +592,7 @@
               @click="saveTableModal"
               class="flex-1 py-2 rounded-xl bg-[#FF7B89] hover:bg-[#FF5A6E] text-white text-[11px] font-black transition-colors shadow-sm select-none"
             >
-              Lưu Lại
+              {{ t('auto_l_u_l_i', 'Lưu Lại') }}
             </button>
           </div>
         </div>
@@ -592,31 +614,31 @@
 
         <div class="space-y-3.5 mb-5">
           <div class="space-y-1">
-            <label class="text-[9px] font-black text-gray-400 uppercase">Tên Khách Hàng *</label>
+            <label class="text-[9px] font-black text-gray-400 uppercase">{{ t('auto_t_n_kh_ch_h_ng__') }}</label>
             <input 
               type="text" 
               v-model="newBookingForm.customerName"
-              placeholder="Nhập tên khách hàng"
+              :placeholder="t('auto_nh_p_t_n_kh_ch_h_ng', 'Nhập tên khách hàng')"
               class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
             />
           </div>
 
           <div class="grid grid-cols-2 gap-3.5">
             <div class="space-y-1">
-              <label class="text-[9px] font-black text-gray-400 uppercase">Số Điện Thoại *</label>
+              <label class="text-[9px] font-black text-gray-400 uppercase">{{ t('auto_s___i_n_tho_i__') }}</label>
               <input 
                 type="text" 
                 v-model="newBookingForm.phone"
-                placeholder="Nhập số điện thoại"
+                :placeholder="t('auto_nh_p_s_i_n_tho_i', 'Nhập số điện thoại')"
                 class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
               />
             </div>
             <div class="space-y-1">
-              <label class="text-[9px] font-black text-gray-400 uppercase">Giờ Khách Đến *</label>
+              <label class="text-[9px] font-black text-gray-400 uppercase">{{ t('auto_gi__kh_ch___n__') }}</label>
               <input 
                 type="text" 
                 v-model="newBookingForm.reservationTime"
-                placeholder="Ví dụ: 19:30"
+                :placeholder="t('auto_v_d_19_30', 'Ví dụ: 19:30')"
                 class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
               />
             </div>
@@ -624,21 +646,21 @@
 
           <div class="grid grid-cols-2 gap-3.5">
             <div class="space-y-1">
-              <label class="text-[9px] font-black text-gray-400 uppercase">Tổng Số Khách</label>
+              <label class="text-[9px] font-black text-gray-400 uppercase">{{ t('auto_t_ng_s__kh_ch') }}</label>
               <input 
                 type="number" 
                 v-model="newBookingForm.guestCount"
-                placeholder="Ví dụ: 4"
+                :placeholder="t('auto_v_d_4', 'Ví dụ: 4')"
                 class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
               />
             </div>
             <div class="space-y-1">
-              <label class="text-[9px] font-black text-gray-400 uppercase">Chỉ Định Bàn Ăn</label>
+              <label class="text-[9px] font-black text-gray-400 uppercase">{{ t('auto_ch____nh_b_n__n') }}</label>
               <select 
                 v-model="newBookingForm.assignedTable"
                 class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
               >
-                <option value="">-- Chưa chỉ định --</option>
+                <option value="">{{ t('auto____ch_a_ch____nh___') }}</option>
                 <optgroup v-for="area in areas" :key="area.name" :label="area.name">
                   <option 
                     v-for="tbl in area.tables" 
@@ -654,10 +676,10 @@
           </div>
 
           <div class="space-y-1">
-            <label class="text-[9px] font-black text-gray-400 uppercase">Ghi Chú Đặc Biệt</label>
+            <label class="text-[9px] font-black text-gray-400 uppercase">{{ t('auto_ghi_ch____c_bi_t') }}</label>
             <textarea 
               v-model="newBookingForm.notes"
-              placeholder="Ghi chú thêm: bàn gần cửa sổ, ăn buffet chay, cốc nến trang trí..."
+              :placeholder="t('auto_ghi_ch_th_m_b_n_g_n_c_a_s', 'Ghi chú thêm: bàn gần cửa sổ, ăn buffet chay, cốc nến trang trí...')"
               class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89] h-16 resize-none"
             ></textarea>
           </div>
@@ -668,7 +690,7 @@
             @click="isCreateBookingModalOpen = false"
             class="flex-1 py-2 rounded-xl border border-gray-250 bg-white hover:bg-gray-50 text-gray-700 text-[11px] font-bold transition-colors"
           >
-            Hủy Bỏ
+            {{ t('auto_h_y_b', 'Hủy Bỏ') }}
           </button>
           <button 
             @click="saveNewBooking"
@@ -690,17 +712,17 @@
         </button>
 
         <h3 class="text-lg font-black text-gray-900 tracking-tight mb-4 flex items-center gap-1.5 select-none border-b border-gray-100 pb-2">
-          <span>🍽️</span> Khai Bàn Khách Vãng Lai (Walk-in)
+          <span>🍽️</span> {{ t('auto_khai_b_n_kh_ch_v_ng_lai_walk', 'Khai Bàn Khách Vãng Lai (Walk-in)') }}
         </h3>
 
         <div class="space-y-4 mb-5">
           <div class="space-y-1">
-            <label class="text-[9px] font-black text-gray-400 uppercase">Lựa Chọn Bàn Ăn Còn Trống *</label>
+            <label class="text-[9px] font-black text-gray-400 uppercase">{{ t('auto_l_a_ch_n_b_n__n_c_n_tr_ng__') }}</label>
             <select 
               v-model="quickOpenForm.tableCode"
               class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2.5 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
             >
-              <option value="">-- Click chọn bàn trống --</option>
+              <option value="">{{ t('auto____click_ch_n_b_n_tr_ng___') }}</option>
               <optgroup v-for="area in areas" :key="area.name" :label="area.name">
                 <option 
                   v-for="tbl in area.tables" 
@@ -715,31 +737,31 @@
           </div>
 
           <div class="space-y-1">
-            <label class="text-[9px] font-black text-gray-400 uppercase">Tên Khách Hàng (Tùy Chọn)</label>
+            <label class="text-[9px] font-black text-gray-400 uppercase">{{ t('auto_t_n_kh_ch_h_ng__t_y_ch_n_') }}</label>
             <input 
               type="text" 
               v-model="quickOpenForm.customerName"
-              placeholder="Ví dụ: Khách vãng lai / Anh Nam"
+              :placeholder="t('auto_v_d_kh_ch_v_ng_lai_anh_na', 'Ví dụ: Khách vãng lai / Anh Nam')"
               class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
             />
           </div>
 
           <div class="grid grid-cols-2 gap-3.5">
             <div class="space-y-1">
-              <label class="text-[9px] font-black text-gray-400 uppercase">Số Khách Thực Tế</label>
+              <label class="text-[9px] font-black text-gray-400 uppercase">{{ t('auto_s__kh_ch_th_c_t_') }}</label>
               <input 
                 type="number" 
                 v-model="quickOpenForm.guestCount"
-                placeholder="Ví dụ: 4"
+                :placeholder="t('auto_v_d_4', 'Ví dụ: 4')"
                 class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
               />
             </div>
             <div class="space-y-1">
-              <label class="text-[9px] font-black text-gray-400 uppercase">Hóa Đơn Tạm Tính Khởi Điểm</label>
+              <label class="text-[9px] font-black text-gray-400 uppercase">{{ t('auto_h_a___n_t_m_t_nh_kh_i__i_m') }}</label>
               <input 
                 type="text" 
                 v-model="quickOpenForm.billAmount"
-                placeholder="0đ"
+                :placeholder="t('auto_0', '0đ')"
                 class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
               />
             </div>
@@ -751,13 +773,13 @@
             @click="isQuickOpenModalOpen = false"
             class="flex-1 py-2 rounded-xl border border-gray-250 bg-white hover:bg-gray-50 text-gray-700 text-[11px] font-bold transition-colors"
           >
-            Đóng Lại
+            {{ t('auto_ng_l_i', 'Đóng Lại') }}
           </button>
           <button 
             @click="saveQuickOpen"
             class="flex-1 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-[11px] font-black transition-colors shadow-sm"
           >
-            Khai Bàn Phục Vụ
+            {{ t('auto_khai_b_n_ph_c_v', 'Khai Bàn Phục Vụ') }}
           </button>
         </div>
       </div>
@@ -773,17 +795,17 @@
         </button>
 
         <h3 class="text-lg font-black text-gray-900 tracking-tight mb-4 flex items-center gap-1.5 select-none border-b border-gray-100 pb-2">
-          <span>🚶</span> Nhận Khách Đã Đến (Check-in)
+          <span>🚶</span> {{ t('auto_nh_n_kh_ch_n_check_in', 'Nhận Khách Đã Đến (Check-in)') }}
         </h3>
 
         <div class="space-y-4 mb-5">
           <div class="space-y-1">
-            <label class="text-[9px] font-black text-gray-400 uppercase">Lựa Chọn Lượt Hẹn Khách Vừa Đến *</label>
+            <label class="text-[9px] font-black text-gray-400 uppercase">{{ t('auto_l_a_ch_n_l__t_h_n_kh_ch_v_a___') }}</label>
             <select 
               v-model="quickArrivedForm.bookingId"
               class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2.5 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
             >
-              <option value="">-- Click chọn lượt đặt hôm nay --</option>
+              <option value="">{{ t('auto____click_ch_n_l__t___t_h_m_nay') }}</option>
               <option 
                 v-for="b in bookings.filter(b => b.date === getFormattedSelectedDate && b.status === 'Waiting')" 
                 :key="b.id" 
@@ -800,13 +822,13 @@
             @click="isQuickArrivedModalOpen = false"
             class="flex-1 py-2 rounded-xl border border-gray-250 bg-white hover:bg-gray-50 text-gray-700 text-[11px] font-bold transition-colors"
           >
-            Hủy Bỏ
+            {{ t('auto_h_y_b', 'Hủy Bỏ') }}
           </button>
           <button 
             @click="saveQuickArrived"
             class="flex-1 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-black transition-colors shadow-sm"
           >
-            Đón Khách Đến
+            {{ t('auto_n_kh_ch_n', 'Đón Khách Đến') }}
           </button>
         </div>
       </div>
@@ -821,7 +843,7 @@
           <!-- Header -->
           <div class="flex items-center justify-between border-b border-gray-100 pb-3 mb-5 select-none">
             <h3 class="text-lg font-black text-gray-900 flex items-center gap-1.5">
-              <span>📋</span> Nhật Ký Đặt Bàn Chi Tiết
+              <span>📋</span> {{ t('auto_nh_t_k_t_b_n_chi_ti_t', 'Nhật Ký Đặt Bàn Chi Tiết') }}
             </h3>
             <button @click="isBookingDetailsOpen = false" class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 flex items-center justify-center font-bold text-sm">
               ✕
@@ -843,26 +865,26 @@
             <!-- Grid Details -->
             <div class="grid grid-cols-2 gap-3.5">
               <div class="bg-gray-50 p-2.5 rounded-lg border border-gray-100">
-                <span class="block text-[9px] text-gray-400 uppercase tracking-wider mb-0.5 select-none">Số điện thoại liên lạc</span>
+                <span class="block text-[9px] text-gray-400 uppercase tracking-wider mb-0.5 select-none">{{ t('auto_s___i_n_tho_i_li_n_l_c') }}</span>
                 <span class="text-gray-800 text-xs font-black">{{ selectedBookingForDetails.phone }}</span>
               </div>
               <div class="bg-gray-50 p-2.5 rounded-lg border border-gray-100">
-                <span class="block text-[9px] text-gray-400 uppercase tracking-wider mb-0.5 select-none">Lịch hẹn khách đến</span>
+                <span class="block text-[9px] text-gray-400 uppercase tracking-wider mb-0.5 select-none">{{ t('auto_l_ch_h_n_kh_ch___n') }}</span>
                 <span class="text-gray-800 text-xs font-black">📅 {{ selectedBookingForDetails.date }} lúc {{ selectedBookingForDetails.reservationTime }}</span>
               </div>
               <div class="bg-gray-50 p-2.5 rounded-lg border border-gray-100">
-                <span class="block text-[9px] text-gray-400 uppercase tracking-wider mb-0.5 select-none">Khách dùng tiệc</span>
+                <span class="block text-[9px] text-gray-400 uppercase tracking-wider mb-0.5 select-none">{{ t('auto_kh_ch_d_ng_ti_c') }}</span>
                 <span class="text-gray-800 text-xs font-black">👥 {{ selectedBookingForDetails.adults }} Lớn | {{ selectedBookingForDetails.children }} Trẻ</span>
               </div>
               <div class="bg-gray-50 p-2.5 rounded-lg border border-gray-100">
-                <span class="block text-[9px] text-gray-400 uppercase tracking-wider mb-0.5 select-none">Bàn đã chỉ định</span>
+                <span class="block text-[9px] text-gray-400 uppercase tracking-wider mb-0.5 select-none">{{ t('auto_b_n____ch____nh') }}</span>
                 <span class="text-gray-800 text-xs font-black">🪑 Bàn: {{ selectedBookingForDetails.assignedTable || 'Chưa gán' }}</span>
               </div>
             </div>
 
             <!-- Status selector -->
             <div class="bg-gray-50 p-3.5 rounded-xl border border-gray-100 space-y-2">
-              <span class="block text-[9px] text-gray-400 uppercase tracking-wider font-extrabold select-none">Trạng thái hiện tại:</span>
+              <span class="block text-[9px] text-gray-400 uppercase tracking-wider font-extrabold select-none">{{ t('auto_tr_ng_th_i_hi_n_t_i_') }}</span>
               <div class="flex flex-wrap gap-1 select-none">
                 <button 
                   v-for="st in ['Waiting', 'Arrived', 'Seated', 'Completed', 'Cancelled'] as const"
@@ -882,7 +904,7 @@
 
             <!-- Note section -->
             <div class="space-y-1">
-              <label class="text-[9px] font-black text-gray-400 uppercase select-none">Yêu cầu đặc biệt</label>
+              <label class="text-[9px] font-black text-gray-400 uppercase select-none">{{ t('auto_y_u_c_u___c_bi_t') }}</label>
               <p class="text-xs text-gray-600 bg-gray-50 p-3 rounded-lg border border-gray-100 min-h-[50px] italic">
                 {{ selectedBookingForDetails.notes || 'Không có ghi chú nào khác.' }}
               </p>
@@ -897,7 +919,7 @@
             @click="markBookingArrived(selectedBookingForDetails); isBookingDetailsOpen = false;"
             class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black text-sm py-2.5 rounded-xl transition-all shadow-sm flex items-center justify-center gap-1 active:scale-95"
           >
-            Đón Khách Đến (Check-in)
+            {{ t('auto_n_kh_ch_n_check_in', 'Đón Khách Đến (Check-in)') }}
           </button>
           
           <button 
@@ -905,7 +927,7 @@
             @click="openTableFromBooking(selectedBookingForDetails); isBookingDetailsOpen = false;"
             class="w-full bg-rose-600 hover:bg-rose-700 text-white font-black text-sm py-2.5 rounded-xl transition-all shadow-sm flex items-center justify-center gap-1 active:scale-95 animate-pulse"
           >
-            Khai Bàn Mở Phục Vụ (Serving)
+            {{ t('auto_khai_b_n_m_ph_c_v_serving', 'Khai Bàn Mở Phục Vụ (Serving)') }}
           </button>
 
           <div class="flex gap-2">
@@ -913,15 +935,80 @@
               @click="cancelBooking(selectedBookingForDetails.id)"
               class="flex-1 py-2 rounded-xl border border-red-200 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-bold transition-all flex items-center justify-center gap-1 active:scale-95"
             >
-              🗑️ Hủy Đặt
+              {{ t('auto_h_y_t', '🗑️ Hủy Đặt') }}
             </button>
             <button 
               @click="isBookingDetailsOpen = false"
               class="flex-1 py-2 rounded-xl border border-gray-250 bg-white hover:bg-gray-50 text-gray-700 text-xs font-bold transition-colors"
             >
-              Đóng Lại
+              {{ t('auto_ng_l_i', 'Đóng Lại') }}
             </button>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL 7: CREATE NEW TABLE -->
+    <div v-if="isCreateTableModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm" @click="isCreateTableModalOpen = false"></div>
+      
+      <div class="bg-white border-2 border-pink-100 rounded-3xl w-full max-w-sm shadow-2xl p-6 z-10 relative animate-fade-in text-xs font-bold text-gray-700">
+        <button @click="isCreateTableModalOpen = false" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 hover:text-gray-800 flex items-center justify-center transition-colors font-bold text-sm select-none">
+          ✕
+        </button>
+
+        <h3 class="text-base font-black text-gray-900 tracking-tight mb-3 flex items-center gap-1 border-b border-gray-100 pb-2 select-none">
+          <span>🪑</span> {{ t('auto_th_m_b_n_m_i', 'Thêm Bàn Mới') }}
+        </h3>
+
+        <div class="space-y-4 mb-5">
+          <div class="space-y-1">
+            <label class="text-[9px] font-black text-gray-400 uppercase select-none">{{ t('auto_m_b_n_t_n_b_n', 'Mã Bàn / Tên Bàn') }}</label>
+            <input 
+              type="text" 
+              v-model="createTableForm.code"
+              placeholder="VD: A01, B02..."
+              class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-850 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
+            />
+          </div>
+          <div class="space-y-1">
+            <label class="text-[9px] font-black text-gray-400 uppercase select-none">{{ t('auto_ph_n_khu_t_ng', 'Phân Khu / Tầng') }}</label>
+            <input 
+              type="text" 
+              v-model="createTableForm.zone"
+              :placeholder="t('auto_vd_t_ng_1_t_ng_2', 'VD: Tầng 1, Tầng 2...')"
+              class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-850 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
+              list="zone-datalist"
+            />
+            <datalist id="zone-datalist">
+              <option v-for="zone in zoneOptions" :key="zone.value" :value="zone.value !== 'All' ? zone.value : ''" />
+            </datalist>
+          </div>
+          <div class="space-y-1">
+            <label class="text-[9px] font-black text-gray-400 uppercase select-none">{{ t('auto_s_c_ch_a_s_ng_i', 'Sức Chứa (Số Người)') }}</label>
+            <input 
+              type="number" 
+              v-model="createTableForm.capacity"
+              placeholder="VD: 4"
+              min="1"
+              class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-850 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
+            />
+          </div>
+        </div>
+
+        <div class="flex gap-3 select-none">
+          <button 
+            @click="isCreateTableModalOpen = false"
+            class="flex-1 py-2 rounded-xl border border-gray-250 bg-white hover:bg-gray-50 text-gray-700 text-xs font-bold transition-colors"
+          >
+            {{ t('auto_h_y', 'Hủy') }}
+          </button>
+          <button 
+            @click="saveNewTable"
+            class="flex-1 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-black transition-colors shadow-sm active:scale-95"
+          >
+            {{ t('auto_t_o_b_n_m_i', 'Tạo Bàn Mới') }}
+          </button>
         </div>
       </div>
     </div>
@@ -936,21 +1023,21 @@
         </button>
 
         <h3 class="text-base font-black text-gray-900 tracking-tight mb-3 flex items-center gap-1 border-b border-gray-100 pb-2 select-none">
-          <span>🪑</span> Gán Chỉ Định Bàn Cho Lượt Đặt
+          <span>🪑</span> {{ t('auto_g_n_ch_nh_b_n_cho_l_t_t', 'Gán Chỉ Định Bàn Cho Lượt Đặt') }}
         </h3>
         
         <p class="text-xs text-gray-500 font-semibold mb-4 select-none">
-          Khách hàng: <strong>{{ selectedBookingForAssign.customerName }}</strong> (Khung giờ hẹn: {{ selectedBookingForAssign.reservationTime }})
+          {{ t('auto_kh_ch_h_ng', 'Khách hàng:') }} <strong>{{ selectedBookingForAssign.customerName }}</strong> (Khung giờ hẹn: {{ selectedBookingForAssign.reservationTime }})
         </p>
 
         <div class="space-y-4 mb-5">
           <div class="space-y-1">
-            <label class="text-[9px] font-black text-gray-400 uppercase select-none">Chọn Bàn Đang Trống</label>
+            <label class="text-[9px] font-black text-gray-400 uppercase select-none">{{ t('auto_ch_n_b_n__ang_tr_ng') }}</label>
             <select 
               v-model="assignTableForm.tableCode"
               class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-850 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
             >
-              <option value="">-- Chưa chỉ định bàn ăn --</option>
+              <option value="">{{ t('auto____ch_a_ch____nh_b_n__n___') }}</option>
               <optgroup v-for="area in areas" :key="area.name" :label="area.name">
                 <option 
                   v-for="tbl in area.tables" 
@@ -970,13 +1057,13 @@
             @click="isAssignTableModalOpen = false"
             class="flex-1 py-2 rounded-xl border border-gray-250 bg-white hover:bg-gray-50 text-gray-700 text-xs font-bold transition-colors"
           >
-            Đóng Lại
+            {{ t('auto_ng_l_i', 'Đóng Lại') }}
           </button>
           <button 
             @click="saveAssignTable"
             class="flex-1 py-2 rounded-xl bg-[#FF7B89] hover:bg-[#FF5A6E] text-white text-xs font-black transition-colors shadow-sm active:scale-95"
           >
-            Xác Nhận Xếp
+            {{ t('auto_x_c_nh_n_x_p', 'Xác Nhận Xếp') }}
           </button>
         </div>
       </div>
@@ -986,6 +1073,9 @@
 </template>
 
 <script setup lang="ts">
+import Swal from 'sweetalert2';
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useRestaurantStore } from '@/stores/restaurantStore';
@@ -1022,35 +1112,22 @@ interface Booking {
   guestCount?: number;
 }
 
+// Base dynamic zones
+const areas = ref<AreaInfo[]>([]);
+
 // System Zone options
-const zoneOptions = [
-  { label: 'Tất cả', value: 'All' },
-  { label: 'Khu A', value: 'Khu A' },
-  { label: 'Khu B', value: 'Khu B' },
-  { label: 'Khu C', value: 'Khu C' },
-  { label: 'Khu VIP R', value: 'Khu R' },
-  { label: 'Sân thượng T', value: 'Khu T' },
-  { label: 'Capichi', value: 'Khu Capichi' },
-  { label: 'Shopee', value: 'Khu Shopee' },
-  { label: 'beFood', value: 'Khu BE' },
-  { label: 'GrabFood', value: 'Khu Grab' },
-  { label: 'Mang đi', value: 'Khu Catalog' },
-];
+const zoneOptions = computed(() => {
+  const base = [{ label: 'Tất cả', value: 'All' }];
+  const dynamicZones = areas.value.map(a => ({ label: a.name, value: a.name }));
+  return [...base, ...dynamicZones];
+});
 
 // Bottom Dashboard Zone list order
-const dashboardZoneList = [
-  { label: 'Tất cả', value: 'All' },
-  { label: 'Mang đi', value: 'Khu Catalog' },
-  { label: 'Khu A', value: 'Khu A' },
-  { label: 'Khu B', value: 'Khu B' },
-  { label: 'Khu C', value: 'Khu C' },
-  { label: 'Khu R', value: 'Khu R' },
-  { label: 'Khu T', value: 'Khu T' },
-  { label: 'Capichi', value: 'Khu Capichi' },
-  { label: 'Shopee', value: 'Khu Shopee' },
-  { label: 'beFood', value: 'Khu BE' },
-  { label: 'GrabFood', value: 'Khu Grab' }
-];
+const dashboardZoneList = computed(() => {
+  const base = [{ label: 'Tất cả', value: 'All' }];
+  const dynamicZones = areas.value.map(a => ({ label: a.name, value: a.name }));
+  return [...base, ...dynamicZones];
+});
 
 // Active layout state refs
 const selectedZone = ref('All');
@@ -1224,11 +1301,81 @@ const getShiftCount = (shift: string) => {
 };
 
 // ----------------------------------------------------
+// FLOOR PLAN EDITING STATE & METHODS
+// ----------------------------------------------------
+
+const isEditModeEnabled = ref(false);
+const isCreateTableModalOpen = ref(false);
+const createTableForm = ref({ code: '', zone: '', capacity: 4 });
+
+function openCreateTableModal() {
+  createTableForm.value = { code: '', zone: selectedZone.value !== 'All' ? selectedZone.value : '', capacity: 4 };
+  isCreateTableModalOpen.value = true;
+}
+
+async function saveNewTable() {
+  const { code, zone, capacity } = createTableForm.value;
+  if (!code || !zone || !capacity) {
+    Swal.fire('Lỗi', 'Vui lòng nhập đầy đủ Mã bàn, Phân khu và Sức chứa.', 'error');
+    return;
+  }
+  const { branchId } = useAuth();
+  const bid = branchId.value;
+  if (!bid) {
+    Swal.fire('Lỗi', 'Không tìm thấy thông tin Chi nhánh.', 'error');
+    return;
+  }
+
+  const { error } = await supabase.from('tables').insert([{
+    branch_id: bid,
+    code,
+    zone,
+    capacity,
+    status: 'AVAILABLE'
+  }]);
+
+  if (error) {
+    console.error(error);
+    Swal.fire('Lỗi', 'Không thể tạo bàn mới: ' + error.message, 'error');
+    return;
+  }
+
+  Swal.fire('Thành công', 'Đã tạo bàn mới', 'success');
+  isCreateTableModalOpen.value = false;
+  await loadTables();
+}
+
+async function deleteTable(code: string) {
+  const result = await Swal.fire({
+    title: 'Xóa bàn?',
+    text: `Bạn có chắc chắn muốn xóa bàn ${code}?`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Xóa',
+    cancelButtonText: 'Hủy',
+    confirmButtonColor: '#e3342f'
+  });
+
+  if (result.isConfirmed) {
+    const { branchId } = useAuth();
+    const bid = branchId.value;
+    if (!bid) return;
+    const { error } = await supabase.from('tables').delete().eq('code', code).eq('branch_id', bid);
+    if (error) {
+      Swal.fire('Lỗi', 'Không thể xóa bàn: ' + error.message, 'error');
+    } else {
+      Swal.fire('Thành công', 'Đã xóa bàn', 'success');
+      await loadTables();
+    }
+  }
+}
+
+// ----------------------------------------------------
 // DYNAMIC STATISTICS & SEARCH CO-ORDINATION
 // ----------------------------------------------------
 
 const selectedZoneLabel = computed(() => {
-  const zone = zoneOptions.find(o => o.value === selectedZone.value);
+  const zone = zoneOptions.value.find((o: any) => o.value === selectedZone.value);
   return zone ? zone.label : '';
 });
 
@@ -1598,10 +1745,54 @@ const updateSystemClock = () => {
   });
 };
 
-onMounted(() => {
+async function loadTables() {
+  const { session, branchId } = useAuth();
+  const bid = branchId.value || session.value?.user.user_metadata?.branch_id;
+  if (!bid) return;
+  const { data: tablesData } = await supabase.from('tables').select('*').eq('branch_id', bid).order('code', { ascending: true });
+  if (tablesData) {
+    const zones = [...new Set(tablesData.map((t: any) => t.zone))];
+    areas.value = zones.map((z: any) => ({
+      name: z,
+      description: z,
+      tables: tablesData.filter((t: any) => t.zone === z).map((t: any) => ({
+        code: t.code,
+        status: t.status === 'AVAILABLE' ? 'Available' : t.status === 'OCCUPIED' ? 'Serving' : t.status === 'RESERVED' ? 'Reserved' : 'Available',
+        capacity: t.capacity
+      }))
+    }));
+  }
+}
+
+onMounted(async () => {
   updateSystemClock();
   systemClockInterval = setInterval(updateSystemClock, 1000) as unknown as number;
   resetToRealTimeOnly();
+
+  const { session, branchId } = useAuth();
+  if (session.value) {
+    const bid = branchId.value || session.value.user.user_metadata?.branch_id;
+    if (bid) {
+      await loadTables();
+
+      const { data: resData } = await supabase.from('reservations').select('*, customers(name, phone)').eq('branch_id', bid);
+      if (resData) {
+        bookings.value = resData.map(r => ({
+          id: r.id,
+          bookingNumber: r.booking_code,
+          customerName: r.customers?.name || 'Khách',
+          phone: r.customers?.phone || '',
+          adults: r.guests || 0,
+          children: r.children_count || 0,
+          reservationTime: r.reservation_time,
+          assignedTable: r.table_id || '',
+          notes: (r.booking_info as any)?.notes || '',
+          status: r.status === 'PENDING' ? 'Waiting' : r.status === 'CONFIRMED' ? 'Waiting' : r.status === 'CHECKED_IN' ? 'Arrived' : r.status === 'SEATED' ? 'Seated' : r.status === 'COMPLETED' ? 'Completed' : 'Cancelled',
+          date: r.reservation_date
+        }));
+      }
+    }
+  }
 });
 
 onUnmounted(() => {
@@ -1708,7 +1899,7 @@ function openEditBookingModal(booking: Booking) {
 
 function saveNewBooking() {
   if (!newBookingForm.value.customerName || !newBookingForm.value.phone || !newBookingForm.value.reservationTime) {
-    alert('Vui lòng nhập đầy đủ thông tin: Tên khách, SĐT và Giờ hẹn.');
+    Swal.fire('Thông báo', 'Vui lòng nhập đầy đủ thông tin: Tên khách, SĐT và Giờ hẹn.', 'info');
     return;
   }
 
@@ -1828,7 +2019,7 @@ function goToOrderScreen(tableCode: string) {
 
 function saveQuickOpen() {
   if (!quickOpenForm.value.tableCode) {
-    alert('Vui lòng chọn bàn cần mở.');
+    Swal.fire('Thông báo', 'Vui lòng chọn bàn cần mở.', 'info');
     return;
   }
 
@@ -1863,7 +2054,7 @@ function openQuickArrivedModal() {
 
 function saveQuickArrived() {
   if (!quickArrivedForm.value.bookingId) {
-    alert('Vui lòng chọn khách hàng.');
+    Swal.fire('Thông báo', 'Vui lòng chọn khách hàng.', 'info');
     return;
   }
 
@@ -1922,8 +2113,16 @@ function updateBookingStatus(id: string, newStatus: 'Waiting' | 'Arrived' | 'Sea
   }
 }
 
-function cancelBooking(id: string) {
-  if (confirm('Bạn có chắc chắn muốn hủy lượt đặt bàn này không?')) {
+async function cancelBooking(id: string) {
+  const result = await Swal.fire({
+      title: 'Xác nhận',
+      text: 'Bạn có chắc chắn muốn hủy lượt đặt bàn này không?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Đồng ý',
+      cancelButtonText: 'Hủy'
+    });
+  if (result.isConfirmed) {
     updateBookingStatus(id, 'Cancelled');
   }
 }
@@ -2031,3 +2230,4 @@ const resetToCurrentState = () => {
   display: none;
 }
 </style>
+

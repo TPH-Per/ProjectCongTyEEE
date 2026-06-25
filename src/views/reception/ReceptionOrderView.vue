@@ -1,6 +1,6 @@
 <!-- File: src/views/reception/ReceptionOrderView.vue -->
 <template>
-  <div class="h-screen w-screen flex overflow-hidden font-sans select-none text-gray-800 bg-[#f8f9fa] relative">
+  <div class="h-[calc(100vh-112px)] w-full flex overflow-hidden font-sans select-none text-gray-800 bg-[#f8f9fa] rounded-2xl border border-gray-200 relative shadow-sm">
     
     <!-- SYSTEM TOAST QUEUE OVERLAY -->
     <div class="fixed top-4 right-4 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none">
@@ -47,548 +47,496 @@
     </div>
 
     <!-- ELSE: Show Order Management POS interface -->
-    <div v-else class="flex-1 flex overflow-hidden min-h-0 relative">
+    <div v-else class="flex-1 flex flex-col min-h-0 overflow-hidden bg-[#3a3a3a] text-gray-200">
       
-      <!-- Sidebar trái (width 240px, fixed) -->
-      <aside class="sidebar-pos">
-        <!-- Logo area (cao 80px) -->
-        <div class="sidebar-pos__logo">
-          <div class="sidebar-pos__logo-icon">
-            <span>🐮</span>
+      <!-- 1. Header Bar: Full width top header -->
+      <header class="h-16 shrink-0 bg-[#2d2d2d] border-b border-[#1e1e1e] flex items-center justify-between px-6 select-none z-10 text-white">
+        <div class="flex items-center gap-4">
+          <!-- Restaurant logo -->
+          <div class="flex items-center gap-2 font-bold text-base text-[#ff8f00]">
+            <span class="text-xl">🐮</span>
+            <span>NGƯU CÁT POS</span>
           </div>
-          <div class="sidebar-pos__logo-text">
-            <span class="sidebar-pos__logo-text-main">NGƯU CÁT</span>
-            <span class="sidebar-pos__logo-text-sub">THU NGÂN POS</span>
+          
+          <!-- Order Number -->
+          <div class="flex flex-col gap-0.5 border-l border-[#4a4a4a] pl-4">
+            <span class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Hóa đơn</span>
+            <span class="text-xs font-bold font-mono text-gray-200">{{ activeOrder.orderNumber || 'WB_00001843' }}</span>
+          </div>
+
+          <!-- Customer Name -->
+          <div class="flex flex-col gap-0.5 border-l border-[#4a4a4a] pl-4">
+            <span class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Khách hàng</span>
+            <span class="text-xs font-bold text-gray-200 truncate max-w-[120px]">{{ activeOrder.customerName || 'Ngoc' }}</span>
+          </div>
+
+          <!-- Open Time -->
+          <div class="flex flex-col gap-0.5 border-l border-[#4a4a4a] pl-4">
+            <span class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Giờ mở</span>
+            <span class="text-xs font-mono text-gray-300">{{ activeOrder.openedTime || '11:30 24/06/2026' }}</span>
+          </div>
+
+          <!-- Booking Status Badge -->
+          <div class="border-l border-[#4a4a4a] pl-4 flex items-center h-full">
+            <span 
+              :class="[
+                'px-2 py-0.5 rounded text-[10px] font-bold border uppercase tracking-wider',
+                activeTableStatus === 'Đang ăn' ? 'bg-emerald-950/40 text-emerald-400 border-emerald-900/50' :
+                activeTableStatus === 'Đã đặt' ? 'bg-amber-950/40 text-amber-400 border-amber-900/50' :
+                activeTableStatus === 'Khách đến' ? 'bg-blue-950/40 text-blue-400 border-blue-900/50' :
+                'bg-gray-800 text-gray-400 border-gray-700'
+              ]"
+            >
+              [{{ activeTableStatus }}]
+            </span>
           </div>
         </div>
 
-        <!-- Navigation menu -->
-        <nav class="sidebar-pos__nav">
-          <div class="sidebar-pos__nav-section-label">HOẠT ĐỘNG</div>
-          
-          <router-link to="/reception/dashboard" class="sidebar-pos__nav-item">
-            <span class="sidebar-pos__nav-item-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-              </svg>
+        <div class="flex items-center gap-3">
+          <!-- Session countdown timer -->
+          <div class="flex items-center gap-2 bg-[#3a3a3a] border border-[#4a4a4a] px-3 py-1 rounded-lg text-xs font-semibold">
+            <span class="text-gray-400 uppercase tracking-wide text-[10px]">Thời gian:</span>
+            <span 
+              :class="[
+                'font-mono font-bold px-1 rounded text-xs',
+                timerSecondsLeft <= 0 ? 'bg-red-950/60 text-red-400 animate-pulse' :
+                timerSecondsLeft < 600 ? 'bg-red-950/30 text-red-400 animate-pulse' :
+                'text-gray-200'
+              ]"
+            >
+              🕒 {{ formattedTimeLeft }}
             </span>
-            <span>Bảng điều khiển</span>
-          </router-link>
-          
-          <router-link to="/reception/floors" class="sidebar-pos__nav-item">
-            <span class="sidebar-pos__nav-item-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-              </svg>
-            </span>
-            <span>Sơ đồ bàn</span>
-          </router-link>
-          
-          <div class="sidebar-pos__nav-item sidebar-pos__nav-item--active">
-            <span class="sidebar-pos__nav-item-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-              </svg>
-            </span>
-            <span>Chọn món</span>
           </div>
-          
-          <router-link to="/reception/close-shift" class="sidebar-pos__nav-item">
-            <span class="sidebar-pos__nav-item-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </span>
-            <span>Tổng Kết Ca</span>
-          </router-link>
-        </nav>
 
-        <!-- Footer sidebar (fixed bottom) -->
-        <div class="sidebar-pos__footer">
-          <div class="sidebar-pos__footer-avatar">TN</div>
-          <div class="sidebar-pos__footer-name">Thu Ngân 01</div>
+          <!-- Search Box -->
+          <div class="relative flex items-center bg-[#3a3a3a] border border-[#4a4a4a] rounded-lg px-3 py-1 focus-within:border-[#ff8f00] transition-colors w-56">
+            <span class="text-gray-400 mr-2 text-xs">🔍</span>
+            <input 
+              v-model="searchQuery" 
+              type="text" 
+              placeholder="Tìm kiếm..." 
+              class="bg-transparent border-none text-xs text-white placeholder-gray-500 focus:outline-none w-full"
+            />
+            <button v-if="searchQuery" @click="searchQuery = ''" class="text-gray-400 hover:text-white text-xs ml-1">✕</button>
+          </div>
+
+          <!-- More Actions Icon -->
+          <div class="flex items-center gap-1">
+            <button 
+              @click="printDraftBill" 
+              class="p-1.5 bg-[#3a3a3a] hover:bg-[#4a4a4a] border border-[#4a4a4a] rounded-lg transition-colors" 
+              title="Xem hóa đơn tạm tính"
+            >
+              🖨️
+            </button>
+            <button 
+              @click="openSettingsConfig" 
+              class="p-1.5 bg-[#3a3a3a] hover:bg-[#4a4a4a] border border-[#4a4a4a] rounded-lg transition-colors" 
+              title="Cấu hình gói/Ngôn ngữ"
+            >
+              ⚙️
+            </button>
+          </div>
+
+          <!-- Area/Table Selector Dropdown -->
+          <div class="relative">
+            <select 
+              v-model="selectedTableCode" 
+              class="bg-[#3a3a3a] text-xs text-white font-bold border border-[#4a4a4a] rounded-lg px-3 py-1.5 focus:outline-none focus:border-[#ff8f00] cursor-pointer"
+            >
+              <option v-for="t in allTables" :key="t.code" :value="t.code">
+                {{ t.label }}
+              </option>
+            </select>
+          </div>
         </div>
-      </aside>
+      </header>
 
-      <!-- Main Layout wrapper (contains header top and main content) -->
-      <div class="flex-1 flex flex-col min-w-0">
+      <!-- DRINK GROUP WARNING TIMER EXPIRATION BANNER -->
+      <transition name="fade">
+        <div 
+          v-if="timerSecondsLeft <= 0 && (activeSettings.drinkGroup === 'B' || activeSettings.drinkGroup === 'C')"
+          class="bg-amber-950/60 border-b border-amber-900/50 text-amber-400 px-6 py-2 text-xs font-bold flex items-center justify-between shadow-sm z-10 select-none"
+        >
+          <div class="flex items-center gap-2">
+            <span>⏰</span>
+            <span>Thời gian đồ uống premium đã kết thúc. Chỉ có thể gọi nước ngọt nhóm A.</span>
+          </div>
+          <button @click="openPinModal" class="px-2.5 py-1 bg-amber-700 text-white text-[10px] rounded hover:bg-amber-600 font-bold transition-all">Mở khóa PIN</button>
+        </div>
+      </transition>
+
+      <!-- 2 & 3: Middle container (Split row: Cart Left 30%, Products Right 70%) -->
+      <div class="flex-1 flex min-h-0 relative">
         
-        <!-- Header top (cao 60px, fixed style layout) -->
-        <header class="header-pos">
-          <div class="flex items-center gap-3">
-            <h1 class="header-pos__title">Chọn món & Gọi đồ</h1>
-            <span class="badge-pos badge-pos--secondary bg-[#f5f5f5] text-[#757575] text-[13px] py-1.5 px-3 rounded-full font-semibold">Chi nhánh 1</span>
+        <!-- Cart Sidebar (approx 30% width) -->
+        <aside class="w-[30%] bg-[#2d2d2d] border-r border-[#1e1e1e] flex flex-col justify-between overflow-hidden">
+          
+          <!-- Cart Header -->
+          <div class="p-4 border-b border-[#3a3a3a] flex items-center justify-between shrink-0 select-none">
+            <div class="flex flex-col">
+              <span class="font-bold text-xs text-gray-200">BÀN PHỤC VỤ</span>
+              <span class="text-sm font-black text-[#ff8f00] mt-0.5">{{ activeTableArea }} - Bàn {{ activeOrder.tableCode }}</span>
+            </div>
+            
+            <div class="flex items-center gap-2">
+              <button 
+                @click="clearCart" 
+                :disabled="activeOrder.items.length === 0"
+                class="px-2.5 py-1 text-[11px] font-bold bg-red-950/40 hover:bg-red-900/40 border border-red-900/50 text-red-400 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+              >
+                🗑️ Xóa hết
+              </button>
+            </div>
           </div>
 
-          <!-- Session settings configurations & Timer -->
-          <div class="flex items-center gap-3">
+          <!-- Order Table Scroll area -->
+          <div class="flex-1 overflow-y-auto p-4 ordering-screen-scrollbar">
+            <div class="w-full text-left text-xs">
+              <!-- Columns headers -->
+              <div class="grid grid-cols-[45%_22%_13%_20%] font-bold text-gray-500 uppercase tracking-wider pb-2 border-b border-[#3a3a3a] px-1 select-none">
+                <div>Tên món</div>
+                <div class="text-right">Đơn giá</div>
+                <div class="text-center">VAT</div>
+                <div class="text-right">Thành tiền</div>
+              </div>
+
+              <!-- Cart Empty state -->
+              <div v-if="activeOrder.items.length === 0" class="py-20 text-center text-gray-500 select-none">
+                <div class="text-4xl mb-3">🛒</div>
+                <p class="font-bold text-gray-400">Hóa đơn trống</p>
+                <p class="text-[10px] text-gray-500 mt-1 max-w-[200px] mx-auto leading-relaxed">Vui lòng chọn món ăn từ thực đơn bên phải để order</p>
+              </div>
+
+              <!-- Cart items rows -->
+              <div v-else class="divide-y divide-[#3a3a3a] mt-1">
+                <div 
+                  v-for="item in activeOrder.items" 
+                  :key="item.id"
+                  class="grid grid-cols-[45%_22%_13%_20%] items-start py-3 hover:bg-[#333333] px-1 rounded-lg transition-colors group"
+                >
+                  <div class="pr-2">
+                    <div class="font-bold text-gray-100 leading-tight">{{ item.name }}</div>
+                    <div class="text-[10px] text-gray-500 mt-0.5">ĐVT: {{ item.unit }}</div>
+                    
+                    <!-- Counter Controls -->
+                    <div class="flex items-center gap-1 mt-2 select-none">
+                      <button 
+                        @click="updateQty(item.id, -1)" 
+                        class="w-5 h-5 rounded bg-[#3a3a3a] text-gray-300 hover:bg-[#ff8f00] hover:text-white flex items-center justify-center font-bold text-xs active:scale-90 transition-all"
+                      >
+                        -
+                      </button>
+                      <span class="font-bold font-mono text-xs px-2 py-0.5 text-white bg-[#1e1e1e] rounded min-w-[24px] text-center">{{ item.quantity }}</span>
+                      <button 
+                        @click="updateQty(item.id, 1)" 
+                        class="w-5 h-5 rounded bg-[#3a3a3a] text-gray-300 hover:bg-[#ff8f00] hover:text-white flex items-center justify-center font-bold text-xs active:scale-90 transition-all"
+                      >
+                        +
+                      </button>
+                      <button 
+                        @click="removeItem(item.id)" 
+                        class="text-red-500 hover:text-red-400 text-xs ml-2.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                        title="Xóa món khỏi giỏ"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="text-right font-mono font-bold text-gray-300 mt-0.5">
+                    <span v-if="isItemInPackage(item, activeSettings.package)" class="text-emerald-500 text-[10px] block leading-tight">Trong gói</span>
+                    <span v-else>{{ formatVND(item.price) }}</span>
+                  </div>
+
+                  <div class="text-center font-mono text-gray-400 mt-0.5">10%</div>
+
+                  <div class="text-right font-mono font-bold text-[#ff8f00] mt-0.5">
+                    <span v-if="isItemInPackage(item, activeSettings.package)" class="text-emerald-500 text-xs">0đ</span>
+                    <span v-else>{{ formatVND(item.price * item.quantity) }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sticky summary footer -->
+          <div class="border-t border-[#3a3a3a] bg-[#1e1e1e] p-4 text-xs font-semibold text-gray-300 space-y-2 select-none shrink-0">
+            <div class="flex justify-between items-center">
+              <span class="text-gray-400">Tạm tính (món + gói):</span>
+              <span class="font-mono text-gray-200">{{ formatVND(summary.subtotal) }}</span>
+            </div>
+            <div class="flex justify-between items-center text-gray-400">
+              <span>Phí dịch vụ (5%):</span>
+              <span class="font-mono">{{ formatVND(summary.serviceCharge) }}</span>
+            </div>
+            <div class="flex justify-between items-center text-gray-400">
+              <span>Thuế GTGT (VAT 10%):</span>
+              <span class="font-mono">{{ formatVND(summary.vat) }}</span>
+            </div>
             
-            <!-- Timer countdown container -->
-            <div class="flex items-center gap-2 bg-gray-50 border border-[#e0e0e0] px-3 py-1.5 rounded-lg text-xs font-semibold">
-              <span class="text-gray-500 uppercase tracking-wide">Thời gian:</span>
-              <span 
-                :class="[
-                  'font-mono font-bold px-1.5 py-0.5 rounded text-sm',
-                  timerSecondsLeft <= 0 ? 'bg-red-100 text-red-700 animate-pulse' :
-                  timerSecondsLeft < 600 ? 'bg-red-50 text-red-600 animate-pulse' :
-                  'text-gray-800'
-                ]"
-              >
-                🕒 {{ formattedTimeLeft }}
+            <div class="flex justify-between items-center pt-2 border-t border-[#3a3a3a]">
+              <span class="text-gray-400 flex items-center gap-1.5">Tổng số lượng món:</span>
+              <span class="bg-[#ff8f00] text-white font-mono px-2 py-0.5 rounded-full text-[10px] font-bold">
+                {{ activeOrder.items.reduce((sum, item) => sum + item.quantity, 0) }} món
               </span>
             </div>
-
-            <!-- Package selector display -->
-            <div class="flex items-center gap-2 bg-gray-50 border border-[#e0e0e0] px-3 py-1.5 rounded-lg text-xs font-semibold">
-              <span class="text-gray-500 uppercase tracking-wide">Course:</span>
-              <span class="text-[#c62828] font-bold text-sm uppercase">🏆 {{ activeSettings.package || 'Chưa Chọn' }}</span>
+            
+            <div class="flex justify-between items-center text-sm font-bold text-white pt-1">
+              <span>TỔNG THANH TOÁN:</span>
+              <span class="text-xl font-mono text-[#ff8f00]">{{ formatVND(summary.grandTotal) }}</span>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-2 pt-3">
               <button 
-                @click="openSettingsConfig"
-                class="ml-1 text-gray-400 hover:text-[#c62828] transition-colors"
-                title="Thay đổi gói / thiết lập"
+                @click="holdOrder"
+                class="py-2 bg-[#2d2d2d] hover:bg-[#333333] border border-[#4a4a4a] text-white text-xs font-bold rounded-lg transition-all"
               >
-                ⚙️
+                ⏸️ Tạm lưu
+              </button>
+              <button 
+                @click="sendToKitchen"
+                :disabled="activeOrder.items.length === 0"
+                class="py-2 bg-[#1976d2] hover:bg-[#1565c0] text-white text-xs font-bold rounded-lg disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+              >
+                🍳 Gửi Bếp
               </button>
             </div>
             
+            <button 
+              @click="checkoutTable"
+              class="w-full py-2.5 bg-[#c62828] hover:bg-[#b71c1c] text-white text-xs font-bold rounded-xl shadow-md transition-all active:scale-95 flex items-center justify-center gap-2 mt-2"
+            >
+              💸 IN THANH TOÁN (BILL)
+            </button>
           </div>
-        </header>
+        </aside>
 
-        <!-- DRINK GROUP WARNING TIMER EXPIRATION BANNER -->
-        <transition name="fade">
-          <div 
-            v-if="timerSecondsLeft <= 0 && (activeSettings.drinkGroup === 'B' || activeSettings.drinkGroup === 'C')"
-            class="absolute top-[60px] left-[240px] right-0 z-20 bg-[#fff3e0] border-b border-[#ffe0b2] text-[#e65100] px-6 py-2.5 text-xs font-bold flex items-center justify-between shadow-sm"
-          >
-            <div class="flex items-center gap-2">
-              <span>⏰</span>
-              <span>Thời gian đồ uống premium đã kết thúc. Chỉ có thể gọi nước ngọt nhóm A.</span>
-            </div>
-            <button @click="openPinModal" class="px-2.5 py-1 bg-[#e65100] text-white text-[10px] rounded hover:bg-[#d84315] font-bold">Mở khóa bằng mã PIN</button>
-          </div>
-        </transition>
+        <!-- Product Grid Area (approx 70% width) -->
+        <main class="w-[70%] bg-[#3a3a3a] flex flex-col justify-between overflow-hidden relative">
+          
 
-        <!-- Main content area (margin top and left handled in CSS) -->
-        <main class="main-content-pos">
-          <div class="main-content-pos__grid">
+
+          <!-- Products scrollable grid container -->
+          <div class="flex-1 overflow-y-auto p-5 ordering-screen-scrollbar">
             
-            <!-- ─── Component Cart/Invoice Panel (Bên trái) ─── -->
-            <div class="card-pos bg-white rounded-xl shadow-sm border border-[#e0e0e0] overflow-hidden min-h-[calc(100vh-108px)] flex flex-col justify-between">
+            <!-- Filters & Preferences bar -->
+            <div class="flex flex-wrap items-center justify-between gap-3 mb-5 select-none shrink-0 bg-[#2d2d2d] p-3 rounded-xl border border-[#4a4a4a]">
+              <!-- Left: Quick filters & status/price sort -->
+              <div class="flex flex-wrap items-center gap-3">
+                <div class="flex gap-1.5">
+                  <button 
+                    v-for="f in [{id: 'favorites', label: '⭐ Yêu thích'}, {id: 'popular', label: '🔥 Bán chạy'}, {id: 'recent', label: '🕒 Mới gọi'}]"
+                    :key="f.id"
+                    @click="toggleQuickFilter(activeQuickFilter === f.id ? '' : (f.id as any))"
+                    :class="[
+                      'px-3 py-1.5 rounded-full text-xs font-bold transition-all border shrink-0 active:scale-95',
+                      activeQuickFilter === f.id
+                        ? 'bg-[#ff8f00] border-[#ff8f00] text-white shadow-xs'
+                        : 'bg-[#3a3a3a] border-[#4a4a4a] text-gray-400 hover:bg-[#4a4a4a] hover:text-white'
+                    ]"
+                  >
+                    {{ f.label }}
+                  </button>
+                </div>
+
+                <!-- Sort & Filter Dropdowns -->
+                <div class="flex items-center gap-2 border-l border-[#4a4a4a] pl-3">
+                  <!-- Status Filter -->
+                  <select 
+                    v-model="activeStatusFilter" 
+                    class="bg-[#3a3a3a] text-xs text-gray-200 border border-[#4a4a4a] rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-[#ff8f00] cursor-pointer"
+                  >
+                    <option value="all">Tất cả món</option>
+                    <option value="available">Còn món</option>
+                    <option value="unavailable">Hết món</option>
+                  </select>
+
+                  <!-- Price Sort -->
+                  <select 
+                    v-model="priceSort" 
+                    class="bg-[#3a3a3a] text-xs text-gray-200 border border-[#4a4a4a] rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-[#ff8f00] cursor-pointer"
+                  >
+                    <option value="">Không sắp xếp</option>
+                    <option value="asc">Giá thấp → cao</option>
+                    <option value="desc">Giá cao → thấp</option>
+                  </select>
+                </div>
+              </div>
               
-              <!-- Section 1 - Header Card -->
-              <div class="p-5 border-b border-[#f0f0f0]">
-                <div class="flex flex-col gap-1">
-                  <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">MÃ HÓA ĐƠN</span>
-                  <span class="text-[16px] font-bold text-gray-900 leading-none">{{ activeOrder.orderNumber || 'SF_00005290' }}</span>
-                </div>
-                <div class="flex justify-between items-center mt-3 pt-3 border-t border-[#f7f7f7]">
-                  <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">BÀN PHỤC VỤ</span>
-                  <span class="badge-pos badge-pos--primary bg-[#ffebee] text-[#c62828] px-3 py-1 rounded-full font-bold text-[13px]">
-                     {{ activeTableArea }} - {{ activeOrder.tableCode }}
-                  </span>
-                </div>
-              </div>
-
-              <!-- Section 2 - Customer Info -->
-              <div class="p-5 border-b border-[#f0f0f0] bg-white">
-                <div class="grid grid-cols-3 gap-4">
-                  <div>
-                    <span class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">KHÁCH HÀNG</span>
-                    <span class="block text-sm font-semibold text-gray-800 truncate">{{ activeOrder.customerName || 'Phạm Hùng' }}</span>
-                  </div>
-                  <div>
-                    <span class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">SỐ KHÁCH</span>
-                    <span class="block text-sm font-semibold text-gray-800">{{ activeOrder.guestCount || 4 }} ghế</span>
-                  </div>
-                  <div>
-                    <span class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">GIỜ MỞ BÀN</span>
-                    <span class="block text-sm font-semibold text-gray-800">{{ activeOrder.openedTime || '17:45' }}</span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Section 3 - Order Items -->
-              <div class="flex-1 overflow-y-auto p-5 min-h-0 bg-white border-b border-[#f0f0f0] ordering-screen-scrollbar">
-                
-                <!-- EMPTY STATE -->
-                <div v-if="activeOrder.items.length === 0" class="h-full flex flex-col items-center justify-center text-center text-gray-400 py-16">
-                  <div class="w-16 h-16 rounded-full bg-gray-50 flex items-center justify-center text-3xl mb-3 text-gray-300">
-                    🛒
-                  </div>
-                  <p class="text-xs font-bold text-gray-800">Chưa có món nào trong hóa đơn</p>
-                  <p class="text-[10px] text-gray-400 mt-1 max-w-[200px] leading-relaxed">Hãy chọn món từ danh mục bên phải để bắt đầu order</p>
-                </div>
-
-                <!-- CARDS LIST -->
-                <div v-else class="space-y-3">
+              <!-- Right: Toggle to show only course package elements -->
+              <div v-if="activeSettings.package" class="flex items-center gap-2 bg-[#3a3a3a] border border-[#4a4a4a] px-3 py-1 rounded-full text-xs">
+                <span class="text-gray-400 font-bold text-[10px] uppercase">Chỉ món trong gói ({{ activeSettings.package }}):</span>
+                <button 
+                  @click="showOnlyPackageItems = !showOnlyPackageItems"
+                  :class="[
+                    'w-8 h-4 rounded-full transition-colors relative flex items-center',
+                    showOnlyPackageItems ? 'bg-[#ff8f00]' : 'bg-[#2d2d2d]'
+                  ]"
+                >
                   <div 
-                    v-for="item in activeOrder.items" 
-                    :key="item.id"
-                    class="p-4 border border-[#e0e0e0] rounded-lg bg-white flex flex-col justify-between"
-                  >
-                    <!-- Row 1: Tên món + Info icon -->
-                    <div class="flex justify-between items-start">
-                      <h4 class="font-bold text-[15px] text-gray-900 pr-3 leading-snug">
-                        {{ item.name }}
-                      </h4>
-                      <button 
-                        @click="openDetailPanel(getMenuItemFromCartItem(item))"
-                        class="w-5 h-5 rounded-full hover:bg-gray-100 flex items-center justify-center text-gray-400 hover:text-[#c62828] transition-colors shrink-0"
-                        title="Xem chi tiết"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                      </button>
-                    </div>
-
-                    <!-- Row 2: Đơn giá và thuế -->
-                    <div class="text-[12px] text-gray-400 mt-1 font-medium">
-                      {{ isItemInPackage(item, activeSettings.package) ? '0đ (Trong gói)' : formatVND(item.price) }} / {{ item.unit }} • Thuế: 10%
-                    </div>
-
-                    <!-- Row 3: Control Số lượng + Giá tiền + Xóa -->
-                    <div class="flex justify-between items-center mt-3">
-                      <!-- Controls số lượng -->
-                      <div class="flex items-center gap-2 select-none">
-                        <button 
-                          @click="updateQty(item.id, -1)" 
-                          class="w-8 h-8 rounded border border-[#e0e0e0] bg-white hover:bg-gray-50 text-gray-700 font-bold flex items-center justify-center transition-colors active:scale-95"
-                        >
-                          -
-                        </button>
-                        <span class="w-10 text-center font-bold text-base text-gray-900">
-                          {{ item.quantity }}
-                        </span>
-                        <button 
-                          @click="updateQty(item.id, 1)" 
-                          :disabled="item.quantity >= 10"
-                          :class="[
-                            'w-8 h-8 rounded border border-[#e0e0e0] bg-white text-gray-700 font-bold flex items-center justify-center transition-colors active:scale-95',
-                            item.quantity >= 10 ? 'opacity-40 cursor-not-allowed bg-gray-50' : 'hover:bg-gray-50'
-                          ]"
-                          :title="item.quantity >= 10 ? 'Đã đạt giới hạn 10 món/lượt' : ''"
-                        >
-                          +
-                        </button>
-                      </div>
-
-                      <!-- Giá tiền và Xóa -->
-                      <div class="flex items-center gap-4">
-                        <span class="font-bold text-[16px] text-gray-950">
-                          {{ isItemInPackage(item, activeSettings.package) ? '0đ' : formatVND(item.price * item.quantity) }}
-                        </span>
-                        <button 
-                          @click="removeItem(item.id)" 
-                          class="px-2 py-1 text-xs font-bold text-[#c62828] hover:bg-[#ffebee] rounded transition-colors"
-                        >
-                          XÓA
-                        </button>
-                      </div>
-                    </div>
-
-                  </div>
-                </div>
-
+                    :class="[
+                      'w-3 h-3 rounded-full bg-white transition-transform absolute shadow-xs',
+                      showOnlyPackageItems ? 'translate-x-4' : 'translate-x-0.5'
+                    ]"
+                  ></div>
+                </button>
               </div>
-
-              <!-- Section 4 - Total Calculation -->
-              <div class="bg-[#f8f9fa] border-t border-[#f0f0f0] p-5 text-sm font-medium text-[#757575] space-y-2">
-                <div class="flex justify-between items-center">
-                  <span>Tạm tính (Subtotal):</span>
-                  <span class="text-gray-900 font-semibold">{{ formatVND(summary.subtotal) }}</span>
-                </div>
-                <div class="flex justify-between items-center">
-                  <span>Phí phục vụ (Service Charge 5%):</span>
-                  <span class="text-gray-900 font-semibold">{{ formatVND(summary.serviceCharge) }}</span>
-                </div>
-                <div class="flex justify-between items-center">
-                  <span>Thuế GTGT (VAT 10%):</span>
-                  <span class="text-gray-900 font-semibold">{{ formatVND(summary.vat) }}</span>
-                </div>
-                <div class="flex justify-between items-center">
-                  <span>Chiết khấu / Giảm giá (Discounts):</span>
-                  <span class="text-[#2e7d32] font-semibold">-0đ</span>
-                </div>
-                
-                <div class="border-t border-[#e0e0e0] my-2 pt-2"></div>
-                
-                <div class="flex justify-between items-center">
-                  <span class="font-bold text-gray-950">TỔNG CỘNG (GRAND TOTAL):</span>
-                  <span class="text-[20px] font-bold text-[#c62828]">{{ formatVND(summary.grandTotal) }}</span>
-                </div>
-
-                <!-- Footer buttons -->
-                <div class="grid grid-cols-2 gap-3 pt-3">
-                  <button 
-                    @click="printDraftBill"
-                    class="py-2.5 bg-white border border-[#e0e0e0] text-gray-700 text-xs font-bold rounded-lg hover:bg-gray-50 active:scale-95 transition-all"
-                  >
-                    Xem tạm tính 📑
-                  </button>
-                  <button 
-                    @click="checkoutTable"
-                    class="py-2.5 bg-[#c62828] hover:bg-[#b71c1c] text-white text-xs font-bold rounded-lg shadow-sm active:scale-95 transition-all"
-                  >
-                    Thanh toán 💳
-                  </button>
-                </div>
-              </div>
-
             </div>
 
-            <!-- ─── Component Menu Selection Panel (Bên phải) ─── -->
-            <div class="card-pos bg-white rounded-xl shadow-sm border border-[#e0e0e0] overflow-hidden min-h-[calc(100vh-108px)] flex flex-col justify-between">
-              
-              <!-- Section 1 - Search & Info Bar -->
-              <div class="p-5 border-b border-[#f0f0f0] bg-white flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
-                <!-- Search Box -->
-                <div class="relative flex-1">
-                  <span class="absolute inset-y-0 left-3.5 flex items-center text-gray-400 select-none">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                  </span>
-                  <input 
-                    type="text" 
-                    placeholder="Tìm tên món ăn hoặc phân loại..."
-                    v-model="searchQuery"
-                    class="w-full bg-white border border-[#e0e0e0] rounded-lg pl-10 pr-10 py-2.5 text-sm font-medium text-gray-800 focus:outline-none focus:border-[#1976d2] focus:ring-1 focus:ring-[#1976d2] shadow-sm transition-all"
-                  />
-                  <button 
-                    v-if="searchQuery"
-                    @click="searchQuery = ''"
-                    class="absolute inset-y-0 right-3.5 flex items-center text-gray-400 hover:text-gray-600 font-bold"
-                  >
-                    ✕
-                  </button>
-                </div>
+            <!-- Loading Spinner -->
+            <div v-if="isGridLoading" class="h-64 flex flex-col items-center justify-center text-gray-400 select-none">
+              <div class="w-8 h-8 border-4 border-[#ff8f00] border-t-transparent rounded-full animate-spin"></div>
+              <p class="text-xs font-bold mt-4">Đang lọc danh mục sản phẩm...</p>
+            </div>
 
-                <div class="flex items-center gap-3 flex-wrap">
-                  <!-- Toggle show only package items -->
-                  <label 
-                    v-if="activeSettings.package"
-                    class="flex items-center gap-2 cursor-pointer select-none text-xs font-bold text-gray-700 bg-gray-50 border border-[#e0e0e0] px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors"
-                  >
-                    <input type="checkbox" v-model="showOnlyPackageItems" class="w-4 h-4 accent-[#c62828]" />
-                    <span>Chỉ món trong gói (🏆 {{ activeSettings.package }})</span>
-                  </label>
+            <!-- Empty Items layout -->
+            <div v-else-if="finalFilteredItems.length === 0" class="h-64 flex flex-col items-center justify-center text-gray-500 text-center border border-dashed border-[#4a4a4a] rounded-2xl p-6 select-none">
+              <div class="text-4xl mb-2">🍽️</div>
+              <h4 class="font-bold text-gray-400 text-xs">Không tìm thấy món ăn nào khớp</h4>
+              <p class="text-[10px] text-gray-500 mt-1 max-w-[280px]">Thực đơn hiện tại không có món này. Thử tắt các bộ lọc hoặc tìm kiếm tên khác.</p>
+            </div>
 
-                  <!-- Table indicator Badge -->
-                  <div class="badge-pos badge-pos--secondary bg-[#f5f5f5] text-[#757575] py-2.5 px-3 rounded-lg font-semibold text-xs whitespace-nowrap self-start md:self-auto">
-                    BÀN ĐANG CHỌN: <span class="font-bold text-gray-900 ml-1">Khu A • Bàn {{ activeOrder.tableCode }}</span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Section 2 - Quick Filter Chips (dynamic categories subcategory filter) -->
+            <!-- Responsive Product Card Grid -->
+            <div v-else class="grid gap-4" style="grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));">
               <div 
-                v-if="activeCategoryHasSubcategories && activeSubcategoriesList.length > 0"
-                class="px-5 py-4 border-b border-[#f0f0f0] bg-white overflow-x-auto scrollbar-none flex gap-2 select-none"
+                v-for="product in finalFilteredItems" 
+                :key="product.id"
+                @click="handleCardClick(product)"
+                :class="[
+                  'bg-[#242424] border rounded-xl p-3 flex flex-col justify-between cursor-pointer hover:border-[#ff8f00] hover:shadow-lg transition-all relative overflow-hidden group select-none',
+                  getCartItemQty(product.id) > 0 ? 'border-[#ff8f00] bg-[#2d2418]' : 'border-[#4a4a4a]',
+                  !getEnrichedItem(product).isAvailable ? 'opacity-30 pointer-events-none' : ''
+                ]"
+                style="height: 140px;"
               >
-                <button 
-                  @click="activeSubCategoryId = 'all'"
-                  :class="[
-                    'chip-pos font-semibold text-[13px] tracking-wide whitespace-nowrap px-4 py-2 rounded-full border transition-all',
-                    activeSubCategoryId === 'all'
-                      ? 'chip-pos--active bg-[#c62828] text-white border-[#c62828] font-bold'
-                      : 'bg-white border-[#e0e0e0] text-[#757575] hover:border-[#c62828] hover:text-[#c62828]'
-                  ]"
+                <!-- Out of stock overlay -->
+                <div 
+                  v-if="!getEnrichedItem(product).isAvailable"
+                  class="absolute inset-0 bg-black/60 flex items-center justify-center z-10 pointer-events-none animate-fade-in"
                 >
-                  Tất cả
-                </button>
-                <button 
-                  v-for="sub in activeSubcategoriesList"
-                  :key="sub.id"
-                  @click="activeSubCategoryId = sub.id"
-                  :class="[
-                    'chip-pos font-semibold text-[13px] tracking-wide whitespace-nowrap px-4 py-2 rounded-full border transition-all',
-                    activeSubCategoryId === sub.id
-                      ? 'chip-pos--active bg-[#c62828] text-white border-[#c62828] font-bold'
-                      : 'bg-white border-[#e0e0e0] text-[#757575] hover:border-[#c62828] hover:text-[#c62828]'
-                  ]"
-                >
-                  {{ sub.name }}
-                </button>
-              </div>
-
-              <!-- Section 3 - Menu Grid (padding 20px, scrollable, cards height 140px) -->
-              <div class="flex-1 overflow-y-auto p-5 bg-[#f8f9fa] min-h-0 ordering-screen-scrollbar">
-                
-                <!-- Loading State -->
-                <div v-if="isGridLoading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  <div v-for="i in 6" :key="i" class="bg-white border border-[#e0e0e0] rounded-xl p-4 h-[140px] animate-pulse flex flex-col justify-between shadow-sm">
-                    <div class="flex justify-between items-start">
-                      <div class="h-3 bg-gray-200 rounded w-16"></div>
-                      <div class="h-4 bg-gray-200 rounded-full w-4"></div>
-                    </div>
-                    <div class="h-4 bg-gray-200 rounded w-3/4"></div>
-                    <div class="flex justify-between items-end">
-                      <div class="h-3 bg-gray-200 rounded w-8"></div>
-                      <div class="h-4 bg-gray-200 rounded w-20"></div>
-                    </div>
-                  </div>
+                  <span class="bg-[#d32f2f] text-white text-[11px] font-extrabold uppercase px-3 py-1 rounded shadow-md tracking-wider transform -rotate-12 border border-red-400">
+                    HẾT MÓN
+                  </span>
                 </div>
 
-                <!-- Products list -->
-                <div v-else-if="finalFilteredItems.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  <div 
-                    v-for="product in finalFilteredItems" 
-                    :key="product.id"
-                    @click="handleCardClick(product)"
-                    class="menu-card-pos"
+                <!-- Qty badge overlay (top-left, green bg) -->
+                <div 
+                  v-if="getCartItemQty(product.id) > 0"
+                  class="absolute top-2.5 left-2.5 bg-[#4CAF50] text-white font-mono text-[9px] font-black px-1.5 py-0.5 rounded shadow-sm z-10"
+                >
+                  {{ getCartItemQty(product.id) }} phần
+                </div>
+
+                <!-- Favorite badge overlay -->
+                <button 
+                  @click.stop="toggleFavorite(product.id)"
+                  class="absolute top-2 right-2 w-6 h-6 rounded-full bg-[#3a3a3a] hover:bg-[#4a4a4a] text-gray-400 flex items-center justify-center text-xs transition-colors shrink-0 z-10"
+                  :title="favoriteIds.includes(product.id) ? 'Bỏ đánh dấu món yêu thích' : 'Đánh dấu món yêu thích'"
+                >
+                  <span :class="favoriteIds.includes(product.id) ? 'text-[#ff8f00] font-black' : 'text-gray-400'">⭐</span>
+                </button>
+
+                <!-- Product Name centered -->
+                <div class="mt-4 flex-1 flex flex-col justify-start">
+                  <h4 
+                    :style="{ color: getCartItemQty(product.id) > 0 ? '#ff8f00' : '#f0f0f0' }"
+                    class="text-sm font-semibold leading-snug line-clamp-2 min-h-[40px] transition-colors"
+                    :title="product.name"
                   >
-                    <!-- Category name & info click overlay -->
-                    <div class="flex justify-between items-start select-none">
-                      <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
-                        {{ translateCategoryId(product.category_id) }}
-                      </span>
-                      <button 
-                        @click.stop="openDetailPanel(product)"
-                        class="w-5 h-5 rounded-full hover:bg-gray-100 flex items-center justify-center text-gray-400 hover:text-[#c62828] transition-colors"
-                        title="Thông tin chi tiết"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                      </button>
-                    </div>
+                    {{ getJpAndViNames(product.name).vi }}
+                  </h4>
+                  <span 
+                    v-if="getJpAndViNames(product.name).jp !== 'N/A'" 
+                    class="text-[9px] text-gray-500 font-bold mt-0.5 truncate"
+                    :title="getJpAndViNames(product.name).jp"
+                  >
+                    {{ getJpAndViNames(product.name).jp }}
+                  </span>
+                </div>
 
-                    <!-- Name -->
-                    <h4 
-                      class="font-bold text-sm text-gray-900 mt-2 line-clamp-2 leading-tight flex-1"
-                      v-html="highlightText(product.name, searchQuery)"
-                    ></h4>
-
-                    <!-- Unit -->
-                    <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mt-1">
-                      {{ product.unit }}
+                <!-- Card Footer metadata -->
+                <div class="flex items-end justify-between border-t border-[#3a3a3a] pt-2 mt-1 shrink-0">
+                  <div class="flex flex-col">
+                    <span class="text-[8px] text-gray-500 font-bold uppercase leading-none">ĐVT: {{ product.unit }}</span>
+                    <span class="text-xs font-mono font-bold mt-1">
+                      <span v-if="isItemInPackage(product, activeSettings.package) || product.price === 0" class="text-emerald-400">Trong gói</span>
+                      <span v-else class="text-[#ff8f00] font-bold text-sm">{{ product.price_display }}</span>
                     </span>
-
-                    <!-- Price -->
-                    <div class="mt-auto pt-1 flex justify-between items-end select-none">
-                      <span class="text-sm font-bold text-gray-900">
-                        {{ activeSettings.package && isItemInPackage(product, activeSettings.package) ? '0đ' : formatVND(product.price) }}
-                      </span>
-                      <span 
-                        v-if="getCartItemQty(product.id) > 0" 
-                        class="bg-[#1976d2] text-white text-[10px] font-bold px-2 py-0.5 rounded"
-                      >
-                        {{ getCartItemQty(product.id) }} x
-                      </span>
-                    </div>
-
                   </div>
-                </div>
 
-                <!-- Empty Grid search state -->
-                <div v-else class="h-full flex flex-col items-center justify-center text-center text-gray-400 py-16 select-none">
-                  <div class="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center text-3xl mb-3 text-gray-300">
-                    🔍
-                  </div>
-                  <p class="text-xs font-bold text-gray-800">Không tìm thấy món ăn nào</p>
-                  <p class="text-[10px] text-gray-400 mt-1 max-w-[220px] leading-relaxed">
-                    Không khớp món nào cho từ khóa "{{ searchQuery }}".
-                  </p>
+                  <!-- Details modal info button -->
                   <button 
-                    @click="clearAllFilters"
-                    class="mt-4 px-4 py-1.5 bg-[#c62828] hover:bg-[#b71c1c] text-white text-xs font-bold rounded-lg transition-all"
+                    @click.stop="openDetailPanel(product)"
+                    class="w-6 h-6 rounded bg-[#3a3a3a] hover:bg-[#4a4a4a] flex items-center justify-center text-gray-400 hover:text-white transition-colors border border-[#4a4a4a]"
+                    title="Xem chi tiết & Tùy chọn"
                   >
-                    Reset Bộ lọc
+                    ℹ️
                   </button>
                 </div>
-
               </div>
-
-              <!-- Section 4 - Category Tabs -->
-              <div class="border-t border-[#f0f0f0] p-5 bg-white shrink-0 space-y-3">
-                
-                <!-- Group 1: Yellow Categories -->
-                <div>
-                  <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">VÉ & GÓI DỊCH VỤ:</div>
-                  <div class="overflow-x-auto scrollbar-none flex gap-2 select-none">
-                    <button 
-                      v-for="cat in menuData.categories.filter(c => c.color === 'yellow')"
-                      :key="cat.id"
-                      @click="selectCategory(cat.id)"
-                      :class="[
-                        'flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all shrink-0 border whitespace-nowrap',
-                        activeCategoryId === cat.id
-                          ? 'bg-[#c62828] border-[#c62828] text-white font-bold shadow-sm'
-                          : 'bg-white border-[#e0e0e0] text-gray-700 hover:border-[#c62828] hover:text-[#c62828]'
-                      ]"
-                    >
-                      <span class="text-xs">🎟️</span>
-                      <span>{{ cat.name }}</span>
-                    </button>
-                  </div>
-                </div>
-
-                <!-- Group 2: Pink Categories -->
-                <div>
-                  <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">THỰC ĐƠN GỌI MÓN:</div>
-                  <div class="overflow-x-auto scrollbar-none flex gap-2 select-none">
-                    <button 
-                      v-for="cat in menuData.categories.filter(c => c.color === 'pink')"
-                      :key="cat.id"
-                      @click="selectCategory(cat.id)"
-                      :class="[
-                        'flex items-center gap-1.5 px-4 py-2.5 rounded-full text-xs font-semibold transition-all shrink-0 border whitespace-nowrap',
-                        activeCategoryId === cat.id
-                          ? 'bg-[#c62828] border-[#c62828] text-white font-bold shadow-sm'
-                          : 'bg-white border-[#e0e0e0] text-gray-700 hover:border-[#c62828] hover:text-[#c62828]'
-                      ]"
-                    >
-                      <span class="text-xs">
-                        <span v-if="cat.id === 'buffet'">🏆</span>
-                        <span v-else-if="cat.id === 'set_lunch'">🍱</span>
-                        <span v-else-if="cat.id.includes('tiec_chieu_dai')">🏮</span>
-                        <span v-else-if="cat.id === 'thuc_an'">🥩</span>
-                        <span v-else-if="cat.id === 'thuc_uong'">🥤</span>
-                        <span v-else-if="cat.id === 'thuc_uong_co_con'">🍺</span>
-                        <span v-else>🍽️</span>
-                      </span>
-                      <span>{{ cat.name }}</span>
-                    </button>
-                  </div>
-                </div>
-
-              </div>
-
-              <!-- Section 5 - Action Buttons -->
-              <div class="p-5 border-t border-[#f0f0f0] bg-white flex justify-end gap-3 shrink-0">
-                <button 
-                  @click="cancelChanges"
-                  class="btn-pos btn-pos--default hover:bg-gray-50 border border-[#e0e0e0] text-[#424242] px-5 py-2.5 rounded-lg text-sm transition-all"
-                >
-                  Hủy Thay Đổi
-                </button>
-                <button 
-                  @click="holdOrder"
-                  class="btn-pos btn-pos--warning bg-[#fff9c4] hover:bg-[#fff59d] text-[#f57f17] px-5 py-2.5 rounded-lg text-sm font-semibold transition-all"
-                >
-                  Tạm Lưu Đơn (Hold)
-                </button>
-                <button 
-                  @click="sendToKitchen"
-                  class="btn-pos btn-pos--secondary bg-[#1976d2] hover:bg-[#1565c0] text-white px-6 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center gap-1.5 shadow-sm"
-                >
-                  <span>Gửi Vào Bếp</span>
-                  <span>🍳</span>
-                </button>
-                <button 
-                  @click="saveOrder"
-                  class="btn-pos btn-pos--primary bg-[#c62828] hover:bg-[#b71c1c] text-white px-6 py-2.5 rounded-lg text-sm font-bold transition-all shadow-md"
-                >
-                  Lưu Gọi Món (Save)
-                </button>
-              </div>
-
             </div>
 
           </div>
-        </main>
 
+          <!-- Bottom Navigation Area -->
+          <div class="bg-[#2d2d2d] border-t border-[#1e1e1e] flex flex-col shrink-0 select-none">
+            <!-- Level 2 - Sub Categories: Directly above Main Categories -->
+            <div class="p-3 border-b border-[#1e1e1e] overflow-x-auto scrollbar-none flex gap-2">
+              <button 
+                @click="selectSubCategory('all')"
+                :style="{
+                  backgroundColor: '#f5a623',
+                  border: activeSubCategoryId === 'all' ? '2px solid white' : '2px solid transparent'
+                }"
+                class="px-4 py-2 rounded-xl text-xs font-bold text-white transition-all shrink-0 active:scale-95 shadow-sm"
+              >
+                Tất cả
+              </button>
+              
+              <button 
+                v-for="sub in activeSubcategoriesList"
+                :key="sub.id"
+                @click="selectSubCategory(sub.id)"
+                :style="{
+                  backgroundColor: '#f5a623',
+                  border: activeSubCategoryId === sub.id ? '2px solid white' : '2px solid transparent'
+                }"
+                class="px-4 py-2 rounded-xl text-xs font-bold text-white transition-all shrink-0 active:scale-95 shadow-sm"
+              >
+                {{ sub.name }}
+              </button>
+            </div>
+
+            <!-- Level 1 - Main Categories: Bottom Row -->
+            <div class="p-3 overflow-x-auto scrollbar-none flex gap-2">
+              <button 
+                v-for="cat in menuHierarchy"
+                :key="cat.id"
+                @click="selectCategory(cat.id)"
+                :style="{
+                  backgroundColor: '#b56576',
+                  border: activeCategoryId === cat.id ? '2px solid #c62828' : '2px solid transparent'
+                }"
+                class="px-5 py-3.5 rounded-xl text-xs font-bold text-white transition-all shrink-0 flex items-center gap-2 uppercase tracking-wide active:scale-95 shadow-sm"
+              >
+                <span>
+                  <span v-if="cat.id === 'buffet'">🏆</span>
+                  <span v-else-if="cat.id === 'set_lunch'">🍱</span>
+                  <span v-else-if="cat.id === 'set_tiec_chieu_dai'">🎉</span>
+                  <span v-else-if="cat.id === 'set_tiec_chieu_dai_jp'">🗾</span>
+                  <span v-else-if="cat.id === 'set_vietravel'">✈️</span>
+                  <span v-else-if="cat.id === 'thuc_an'">🥩</span>
+                  <span v-else-if="cat.id === 'thuc_uong'">🥤</span>
+                  <span v-else-if="cat.id === 'thuc_uong_co_con'">🍺</span>
+                  <span v-else>🍽️</span>
+                </span>
+                <span>{{ cat.name }}</span>
+              </button>
+            </div>
+          </div>
+
+        </main>
       </div>
 
       <!-- VUNG 3: CENTERED POPUP DETAIL MODAL (SIMPLE / COMPLEX ROUTER) -->
@@ -599,7 +547,7 @@
           <div class="fixed inset-0" @click="isDetailPanelOpen = false"></div>
           
           <!-- Centered Container (Width 700-800px) -->
-          <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col relative z-10 animate-scale-up border border-[#e0e0e0]">
+          <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col relative z-10 animate-scale-up border border-[#e0e0e0] text-gray-800">
             
             <!-- Header Modal with Clean Colors -->
             <header class="bg-gradient-to-r from-[#1976d2] to-[#1565c0] text-white px-6 py-4 flex justify-between items-center shrink-0">
@@ -613,7 +561,7 @@
             </header>
 
             <!-- Body Area (Padding 24px) -->
-            <div class="p-6 overflow-y-auto flex-1 min-h-0">
+            <div class="p-6 overflow-y-auto flex-1 min-h-0 text-left text-gray-700">
               
               <!-- ─── CASE A: SIMPLE ITEM DETAIL MODAL ─── -->
               <div v-if="tempOptionGroups.length === 0" class="grid grid-cols-1 md:grid-cols-10 gap-6">
@@ -742,8 +690,36 @@
                     <textarea 
                       v-model="modalItemNote" 
                       placeholder="Thêm ghi chú đặc thù (ít đá, nhiều nước, không hành...)..." 
-                      class="w-full border border-[#e0e0e0] rounded-lg p-2.5 font-bold text-gray-850 h-20 resize-none focus:outline-none focus:border-[#1976d2]"
+                      class="w-full border border-[#e0e0e0] rounded-lg p-2.5 font-bold text-gray-855 h-20 resize-none focus:outline-none focus:border-[#1976d2]"
                     ></textarea>
+                  </div>
+
+                  <!-- Menu Classification Info (Requirement) -->
+                  <div class="border-t border-[#f0f0f0] pt-4 mt-2">
+                    <h5 class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Phân nhóm thực đơn (Hệ thống)</h5>
+                    <div class="grid grid-cols-2 gap-3 bg-gray-50 p-3 rounded-xl border border-[#e0e0e0] text-[11px]">
+                      <div>
+                        <span class="text-gray-400 font-semibold">Nhóm sản phẩm:</span>
+                        <div class="text-gray-800 font-bold mt-0.5">
+                          {{ translateCategoryId(selectedProductForDetail.category_id) }}
+                          <span v-if="getItemSubcategoryId(selectedProductForDetail.id)">
+                            &gt; {{ translateSubCategoryId(getItemSubcategoryId(selectedProductForDetail.id)) }}
+                          </span>
+                        </div>
+                      </div>
+                      <div>
+                        <span class="text-gray-400 font-semibold">Gói Buffet:</span>
+                        <div class="text-gray-800 font-bold mt-0.5">{{ getEligibleBuffetGroups(selectedProductForDetail) }}</div>
+                      </div>
+                      <div>
+                        <span class="text-gray-400 font-semibold">Gói Set Menu:</span>
+                        <div class="text-gray-800 font-bold mt-0.5">{{ getSetMenuGroup(selectedProductForDetail) }}</div>
+                      </div>
+                      <div>
+                        <span class="text-gray-400 font-semibold">Gói Đồ Uống:</span>
+                        <div class="text-gray-800 font-bold mt-0.5">{{ getDrinkGroup(selectedProductForDetail) }}</div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -813,7 +789,7 @@
                   <div class="grid grid-cols-2 gap-3">
                     <div class="space-y-1">
                       <label class="block text-[9px] font-bold text-gray-400 uppercase tracking-wider">Tiền tệ</label>
-                      <select v-model="modalCurrency" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2 py-1.5 font-bold text-gray-800 focus:outline-none text-[11px]">
+                      <select v-model="modalCurrency" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2 py-1.5 font-bold text-gray-850 focus:outline-none text-[11px]">
                         <option value="VND">VND</option>
                         <option value="USD">USD</option>
                       </select>
@@ -831,6 +807,34 @@
                       placeholder="Thêm ghi chú cho cả món ăn..." 
                       class="w-full border border-[#e0e0e0] rounded-lg p-2 font-bold text-gray-850 h-16 resize-none focus:outline-none focus:border-[#1976d2]"
                     ></textarea>
+                  </div>
+
+                  <!-- Menu Classification Info (Requirement) -->
+                  <div class="border-t border-[#f0f0f0] pt-4 mt-2">
+                    <h5 class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Phân nhóm thực đơn (Hệ thống)</h5>
+                    <div class="grid grid-cols-2 gap-3 bg-gray-50 p-3 rounded-xl border border-[#e0e0e0] text-[11px]">
+                      <div>
+                        <span class="text-gray-400 font-semibold">Nhóm sản phẩm:</span>
+                        <div class="text-gray-800 font-bold mt-0.5">
+                          {{ translateCategoryId(selectedProductForDetail.category_id) }}
+                          <span v-if="getItemSubcategoryId(selectedProductForDetail.id)">
+                            &gt; {{ translateSubCategoryId(getItemSubcategoryId(selectedProductForDetail.id)) }}
+                          </span>
+                        </div>
+                      </div>
+                      <div>
+                        <span class="text-gray-400 font-semibold">Gói Buffet:</span>
+                        <div class="text-gray-800 font-bold mt-0.5">{{ getEligibleBuffetGroups(selectedProductForDetail) }}</div>
+                      </div>
+                      <div>
+                        <span class="text-gray-400 font-semibold">Gói Set Menu:</span>
+                        <div class="text-gray-800 font-bold mt-0.5">{{ getSetMenuGroup(selectedProductForDetail) }}</div>
+                      </div>
+                      <div>
+                        <span class="text-gray-400 font-semibold">Gói Đồ Uống:</span>
+                        <div class="text-gray-800 font-bold mt-0.5">{{ getDrinkGroup(selectedProductForDetail) }}</div>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -994,16 +998,16 @@
 
       <!-- COURSE CONFIGURATOR / PACKAGE SELECTOR MODAL OVERLAY -->
       <div 
-        v-if="isPackageModalOpen || !activeSettings.package" 
-        class="fixed inset-0 z-40 flex items-center justify-center p-4 bg-gray-950/60 backdrop-blur-sm animate-fade-in"
+        v-if="isPackageModalOpen" 
+        class="fixed inset-0 z-45 flex items-center justify-center p-4 bg-gray-950/60 backdrop-blur-sm animate-fade-in"
       >
-        <div class="bg-white border border-[#e0e0e0] rounded-2xl w-full max-w-2xl shadow-2xl p-6 relative animate-scale-up max-h-[90vh] overflow-y-auto scrollbar-thin">
+        <div class="bg-white border border-[#e0e0e0] text-gray-800 rounded-2xl w-full max-w-2xl shadow-2xl p-6 relative animate-scale-up max-h-[90vh] overflow-y-auto scrollbar-thin">
           
           <!-- Close button if package already exists -->
           <button 
             v-if="activeSettings.package"
             @click="cancelPackageSelection"
-            class="absolute top-4 right-4 w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 flex items-center justify-center text-sm font-bold active:scale-90 select-none border border-gray-150"
+            class="absolute top-4 right-4 w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-205 text-gray-505 flex items-center justify-center text-sm font-bold active:scale-90 select-none border border-gray-150"
           >
             ✕
           </button>
@@ -1070,7 +1074,7 @@
                     <p class="text-[9px] text-gray-400 font-medium">Nước ngọt uống không giới hạn (Free)</p>
                   </div>
                 </div>
-                <span class="w-4 h-4 rounded-full border border-gray-305 flex items-center justify-center text-[8px] font-black" :class="tempSettings.drinkGroup === 'A' ? 'bg-[#ff8f00] text-white border-[#ff8f00]' : 'text-transparent'">✓</span>
+                <span class="w-4 h-4 rounded-full border border-gray-300 flex items-center justify-center text-[8px] font-black" :class="tempSettings.drinkGroup === 'A' ? 'bg-[#ff8f00] text-white border-[#ff8f00]' : 'text-transparent'">✓</span>
               </div>
 
               <div 
@@ -1088,7 +1092,7 @@
                     <p class="text-[9px] text-gray-400 font-medium">Rượu bia cao cấp uống trong 2 giờ (Free)</p>
                   </div>
                 </div>
-                <span class="w-4 h-4 rounded-full border border-gray-305 flex items-center justify-center text-[8px] font-black" :class="tempSettings.drinkGroup === 'B' ? 'bg-[#ff8f00] text-white border-[#ff8f00]' : 'text-transparent'">✓</span>
+                <span class="w-4 h-4 rounded-full border border-gray-300 flex items-center justify-center text-[8px] font-black" :class="tempSettings.drinkGroup === 'B' ? 'bg-[#ff8f00] text-white border-[#ff8f00]' : 'text-transparent'">✓</span>
               </div>
 
               <div 
@@ -1106,7 +1110,7 @@
                     <p class="text-[9px] text-gray-400 font-medium">Rượu bia thay thế dùng 2 giờ (Free)</p>
                   </div>
                 </div>
-                <span class="w-4 h-4 rounded-full border border-gray-305 flex items-center justify-center text-[8px] font-black" :class="tempSettings.drinkGroup === 'C' ? 'bg-[#ff8f00] text-white border-[#ff8f00]' : 'text-transparent'">✓</span>
+                <span class="w-4 h-4 rounded-full border border-gray-300 flex items-center justify-center text-[8px] font-black" :class="tempSettings.drinkGroup === 'C' ? 'bg-[#ff8f00] text-white border-[#ff8f00]' : 'text-transparent'">✓</span>
               </div>
 
               <div 
@@ -1124,7 +1128,7 @@
                     <p class="text-[9px] text-gray-400 font-medium">Gọi đồ uống lẻ tính tiền riêng lẻ</p>
                   </div>
                 </div>
-                <span class="w-4 h-4 rounded-full border border-gray-305 flex items-center justify-center text-[8px] font-black" :class="tempSettings.drinkGroup === 'D' ? 'bg-[#ff8f00] text-white border-[#ff8f00]' : 'text-transparent'">✓</span>
+                <span class="w-4 h-4 rounded-full border border-gray-300 flex items-center justify-center text-[8px] font-black" :class="tempSettings.drinkGroup === 'D' ? 'bg-[#ff8f00] text-white border-[#ff8f00]' : 'text-transparent'">✓</span>
               </div>
 
             </div>
@@ -1143,7 +1147,7 @@
                   activeSettings.isLocked ? 'pointer-events-none opacity-60 bg-gray-50' : '',
                   tempSettings.language === lang 
                     ? 'bg-[#1976d2] border-[#1976d2] text-white shadow-sm font-semibold' 
-                    : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100'
+                    : 'bg-gray-50 border-gray-205 text-gray-600 hover:bg-gray-100'
                 ]"
               >
                 <span v-if="lang === 'VI'">🇻🇳 Tiếng Việt</span>
@@ -1169,7 +1173,7 @@
               @click="openPinModal"
               class="flex-1 py-2.5 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-xl shadow-sm transition-all"
             >
-              🔓 Nhập mã PIN sửa cấu hình
+              🔓 PIN sửa cấu hình
             </button>
             <button 
               v-else
@@ -1186,13 +1190,13 @@
       <!-- MANAGER PIN PAD UNLOCK MODAL -->
       <div 
         v-if="isPinModalOpen" 
-        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-950/70 backdrop-blur-xs animate-fade-in"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-950/70 backdrop-blur-xs animate-fade-in text-gray-800"
       >
         <div class="bg-white border border-[#e0e0e0] rounded-2xl w-full max-w-xs shadow-2xl p-6 text-center animate-scale-up relative">
           
           <button 
             @click="isPinModalOpen = false"
-            class="absolute top-4 right-4 w-7 h-7 rounded-full bg-gray-100 hover:bg-gray-250 text-gray-500 flex items-center justify-center text-xs font-bold"
+            class="absolute top-4 right-4 w-7 h-7 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-505 flex items-center justify-center text-xs font-bold"
           >
             ✕
           </button>
@@ -1210,7 +1214,7 @@
               :key="i"
               :class="[
                 'w-4 h-4 rounded-full border transition-all duration-100',
-                enteredPin.length >= i ? 'bg-red-650 border-red-700 scale-110 shadow-sm' : 'bg-gray-105 border-gray-300'
+                enteredPin.length >= i ? 'bg-red-650 border-red-700 scale-110 shadow-sm' : 'bg-gray-100 border-gray-300'
               ]"
             ></div>
           </div>
@@ -1227,7 +1231,7 @@
             </button>
             <button 
               @click="clearLastPinDigit"
-              class="w-12 h-12 rounded-2xl bg-amber-50 hover:bg-amber-100 border border-amber-200 text-[10px] font-bold text-amber-700 flex items-center justify-center active:scale-90 transition-all"
+              class="w-12 h-12 rounded-2xl bg-amber-50 hover:bg-amber-150 border border-amber-200 text-[10px] font-bold text-amber-700 flex items-center justify-center active:scale-90 transition-all"
             >
               ⌫
             </button>
@@ -1249,6 +1253,7 @@
       </div>
 
     </div>
+
   </div>
 </template>
 
@@ -1494,10 +1499,11 @@ const isCartOpen = ref(true);
 
 // Menu State filters
 const searchQuery = ref('');
-const activeCategoryId = ref('set_1390');
+const activeCategoryId = ref('buffet');
 const activeSubCategoryId = ref('all');
 const activeQuickFilter = ref<'favorites' | 'popular' | 'recent' | ''>('');
 const activeStatusFilter = ref<'all' | 'available' | 'unavailable'>('all');
+const priceSort = ref<'asc' | 'desc' | ''>('');
 const showOnlyPackageItems = ref(false);
 const isGridLoading = ref(false);
 const favoriteIds = ref<string[]>([]);
@@ -1643,6 +1649,31 @@ const activeOrder = computed(() => {
   return restaurantStore.getOrCreateOrder(selectedTableCode.value);
 });
 
+const allTables = computed(() => {
+  const list: { code: string; label: string }[] = [];
+  restaurantStore.areas.forEach(area => {
+    area.tables.forEach(table => {
+      list.push({
+        code: table.code,
+        label: `${area.name} - ${table.code}`
+      });
+    });
+  });
+  return list;
+});
+
+const activeTableStatus = computed(() => {
+  const code = selectedTableCode.value;
+  if (!code) return 'Trống';
+  const tbl = restaurantStore.getTableByCode(code);
+  if (!tbl) return 'Trống';
+  if (tbl.status === 'Available') return 'Trống';
+  if (tbl.status === 'Reserved') return 'Đã đặt';
+  if (tbl.status === 'Arrived') return 'Khách đến';
+  if (tbl.status === 'Serving') return 'Đang ăn';
+  return tbl.status;
+});
+
 // Watch selected table code to configure timers and load options
 watch(selectedTableCode, (newCode) => {
   if (newCode) {
@@ -1652,7 +1683,7 @@ watch(selectedTableCode, (newCode) => {
     
     // If table settings aren't set, auto-open the package selector
     if (!tableSettings.value[newCode] || !tableSettings.value[newCode].package) {
-      openSettingsConfig();
+      // openSettingsConfig(); // Disabled automatic popup configurator
     }
   } else {
     stopSessionTimer();
@@ -1904,14 +1935,133 @@ const summary = computed(() => {
   return { subtotal, serviceCharge, vat, grandTotal };
 });
 
+// Parsed Japanese and Vietnamese Names extractor helper
+function getJpAndViNames(name: string) {
+  let jp = '';
+  let vi = name;
+
+  if (name.includes('(') && name.includes(')')) {
+    const match = name.match(/^(.*?)\((.*?)\)(.*)$/);
+    if (match) {
+      const part1 = match[1].trim();
+      const part2 = match[2].trim();
+      if (part1.toLowerCase().includes('set') || part1.toLowerCase().includes('buffet') || part1.toLowerCase().includes('drink')) {
+        jp = part1;
+        vi = part2;
+      } else {
+        jp = part1.replace(/Sét|Set/gi, '').trim();
+        vi = part2;
+      }
+    }
+  } else {
+    const lower = name.toLowerCase();
+    if (lower.includes('wagyu')) {
+      jp = '和牛 (Wagyu)';
+    } else if (lower.includes('udon')) {
+      jp = 'うどん (Udon)';
+    } else if (lower.includes('tempura')) {
+      jp = '天ぷら (Tempura)';
+    } else if (lower.includes('nanban')) {
+      jp = 'チキン南蛮 (Chicken Nanban)';
+    } else if (lower.includes('bibimbap')) {
+      jp = 'ビビンバ (Bibimbap)';
+    } else if (lower.includes('sake')) {
+      jp = '日本酒 (Sake)';
+    } else if (lower.includes('shochu')) {
+      jp = '焼酎 (Shochu)';
+    } else if (lower.includes('carry') || lower.includes('cà ri') || lower.includes('cary')) {
+      jp = 'カレー (Curry)';
+    } else if (lower.includes('guma')) {
+      jp = '群馬 (Guma)';
+    } else if (lower.includes('nagasaki')) {
+      jp = '長崎 (Nagasaki)';
+    }
+  }
+  return { jp: jp || 'N/A', vi: vi };
+}
+
+// Menu Hierarchy Builder (Level 1 and Level 2 Categories from actual file)
+const menuHierarchy = computed(() => {
+  const mainCats = menuData.categories.filter(c => c.color === 'pink').map(c => {
+    let subcategories: { id: string; name: string; items: MenuItem[] }[] = [];
+
+    if (c.id === 'buffet') {
+      if (c.subcategories) {
+        subcategories.push(...c.subcategories);
+      }
+      
+      const setDrinkCat = menuData.categories.find(yc => yc.id === 'set_drink');
+      if (setDrinkCat && setDrinkCat.items) {
+        subcategories.push({
+          id: 'set_drink',
+          name: 'SET DRINK',
+          items: setDrinkCat.items
+        });
+      }
+
+      const aLaCarteCat = menuData.categories.find(yc => yc.id === 'a_la_carte');
+      if (aLaCarteCat && aLaCarteCat.items) {
+        subcategories.push({
+          id: 'a_la_carte',
+          name: 'A LA CARTE',
+          items: aLaCarteCat.items
+        });
+      }
+
+      const set550jpCat = menuData.categories.find(yc => yc.id === 'set_550jp');
+      if (set550jpCat && set550jpCat.items) {
+        subcategories.push({
+          id: 'set_550jp',
+          name: 'SET 550JP',
+          items: set550jpCat.items
+        });
+      }
+      
+      const buffetLauCat = menuData.categories.find(yc => yc.id === 'buffet_lau');
+      if (buffetLauCat && buffetLauCat.items) {
+        subcategories.push({
+          id: 'buffet_lau',
+          name: 'BUFFET LẨU',
+          items: buffetLauCat.items
+        });
+      }
+    } else if (c.subcategories && c.subcategories.length > 0) {
+      subcategories = [...c.subcategories];
+    } else if (c.items) {
+      subcategories = [{
+        id: c.id + '_all',
+        name: c.name,
+        items: c.items
+      }];
+    }
+
+    return {
+      id: c.id,
+      name: c.name,
+      subcategories
+    };
+  });
+
+  return mainCats;
+});
+
 // Category and Subcategory tabs helpers
 const activeCategoryHasSubcategories = computed(() => {
-  const cat = menuData.categories.find(c => c.id === activeCategoryId.value);
+  const cat = menuHierarchy.value.find(c => c.id === activeCategoryId.value);
   return !!(cat && cat.subcategories && cat.subcategories.length > 0);
 });
 
+const shouldShowSubcategoriesRow = computed(() => {
+  const cat = menuHierarchy.value.find(c => c.id === activeCategoryId.value);
+  if (!cat || !cat.subcategories) return false;
+  if (cat.subcategories.length === 1 && cat.subcategories[0].id.endsWith('_all')) {
+    return false;
+  }
+  return cat.subcategories.length > 0;
+});
+
 const activeSubcategoriesList = computed(() => {
-  const cat = menuData.categories.find(c => c.id === activeCategoryId.value);
+  const cat = menuHierarchy.value.find(c => c.id === activeCategoryId.value);
   return cat?.subcategories || [];
 });
 
@@ -1925,35 +2075,55 @@ function selectCategory(catId: string) {
   }, 350);
 }
 
+function getEligibleBuffetGroups(product: MenuItem) {
+  const pkgs = ['Buffet 1390', 'Buffet 1150', 'Buffet 680', 'Buffet 490', 'Buffet 380', 'Kids Meal'];
+  const matches = pkgs.filter(p => isItemInPackage(product, p));
+  return matches.length > 0 ? matches.join(', ') : 'Không áp dụng';
+}
+
+function getSetMenuGroup(product: MenuItem) {
+  if (['set_lunch', 'set_tiec_chieu_dai', 'set_tiec_chieu_dai_jp', 'set_vietravel'].includes(product.category_id)) {
+    return translateCategoryId(product.category_id);
+  }
+  return 'Không áp dụng';
+}
+
+function getDrinkGroup(product: MenuItem) {
+  if (['thuc_uong', 'thuc_uong_co_con'].includes(product.category_id)) {
+    const subCat = getItemSubcategoryId(product.id);
+    return translateSubCategoryId(subCat) || translateCategoryId(product.category_id);
+  }
+  return 'Không áp dụng';
+}
+
 // Item card filter lists
 const filteredItems = computed(() => {
-  const cat = menuData.categories.find(c => c.id === activeCategoryId.value);
+  const cat = menuHierarchy.value.find(c => c.id === activeCategoryId.value);
   if (!cat) return [];
 
   let itemsList: MenuItem[] = [];
 
-  if (cat.items) {
-    itemsList = [...cat.items];
-  } else if (cat.subcategories) {
-    if (activeSubCategoryId.value === 'all') {
-      cat.subcategories.forEach(sub => {
-        itemsList.push(...sub.items);
-      });
-    } else {
-      const sub = cat.subcategories.find(s => s.id === activeSubCategoryId.value);
-      if (sub) {
-        itemsList = [...sub.items];
-      }
+  if (activeSubCategoryId.value === 'all') {
+    cat.subcategories.forEach(sub => {
+      itemsList.push(...sub.items);
+    });
+  } else {
+    const sub = cat.subcategories.find(s => s.id === activeSubCategoryId.value);
+    if (sub) {
+      itemsList = [...sub.items];
     }
   }
 
-  // Real-time Text matching filter
+  // Real-time Text matching filter (Product Name, Code, JP, VI)
   if (searchQuery.value.trim() !== '') {
     const q = searchQuery.value.toLowerCase().trim();
-    itemsList = itemsList.filter(item => 
-      item.name.toLowerCase().includes(q) || 
-      item.price_display.toLowerCase().includes(q)
-    );
+    itemsList = itemsList.filter(item => {
+      const names = getJpAndViNames(item.name);
+      return item.name.toLowerCase().includes(q) || 
+             item.id.toLowerCase().includes(q) ||
+             names.jp.toLowerCase().includes(q) ||
+             names.vi.toLowerCase().includes(q);
+    });
   }
 
   return itemsList;
@@ -1991,6 +2161,13 @@ const finalFilteredItems = computed(() => {
     list = list.filter(item => getEnrichedItem(item).isAvailable);
   } else if (activeStatusFilter.value === 'unavailable') {
     list = list.filter(item => !getEnrichedItem(item).isAvailable);
+  }
+
+  // Price sorting filter
+  if (priceSort.value === 'asc') {
+    list = [...list].sort((a, b) => a.price - b.price);
+  } else if (priceSort.value === 'desc') {
+    list = [...list].sort((a, b) => b.price - a.price);
   }
 
   return list;
@@ -2069,6 +2246,14 @@ function removeItem(itemId: string) {
   if (confirm('Xóa món này khỏi đơn của bàn?')) {
     restaurantStore.removeOrderItem(selectedTableCode.value, itemId);
     triggerToast('info', 'Đã xóa món ăn khỏi giỏ hàng.');
+  }
+}
+
+function clearCart() {
+  if (!selectedTableCode.value) return;
+  if (confirm('Bạn có chắc chắn muốn xóa toàn bộ món ăn trong giỏ hàng không?')) {
+    activeOrder.value.items = [];
+    triggerToast('success', 'Đã xóa toàn bộ món ăn trong giỏ hàng.');
   }
 }
 
@@ -2221,6 +2406,7 @@ function clearAllFilters() {
   searchQuery.value = '';
   activeQuickFilter.value = '';
   activeStatusFilter.value = 'all';
+  priceSort.value = '';
 }
 
 // Config Course details modal setup
@@ -2367,6 +2553,43 @@ function saveOrder() {
     triggerToast('success', 'Đã lưu cấu hình món ăn của bàn thành công.');
     router.push('/reception/floors');
   }
+}
+
+watch(activeSubCategoryId, (newSubId) => {
+  if (activeCategoryId.value === 'buffet' && newSubId !== 'all') {
+    const pkgMap: Record<string, string> = {
+      'buffet_1390': 'Buffet 1390',
+      'buffet_1150': 'Buffet 1150',
+      'buffet_680': 'Buffet 680',
+      'buffet_490': 'Buffet 490',
+      'buffet_380': 'Buffet 380',
+      'biz_1200': 'Biz 1200',
+      'biz_900': 'Biz 900',
+      'biz_700': 'Biz 700',
+      'set_drink': 'SET DRINK',
+      'set_550jp': 'Set 550JP',
+      'buffet_lau': 'Buffet Lẩu',
+      'a_la_carte': 'A la carte'
+    };
+    const pkgName = pkgMap[newSubId];
+    if (pkgName && selectedTableCode.value) {
+      if (!tableSettings.value[selectedTableCode.value]) {
+        tableSettings.value[selectedTableCode.value] = {
+          package: pkgName,
+          drinkGroup: 'A',
+          language: 'VI',
+          isLocked: false
+        };
+      } else {
+        tableSettings.value[selectedTableCode.value].package = pkgName;
+      }
+      triggerToast('success', `Đã cấu hình gói ${pkgName} cho bàn ${selectedTableCode.value}`);
+    }
+  }
+});
+
+function selectSubCategory(subId: string) {
+  activeSubCategoryId.value = subId;
 }
 
 onMounted(() => {

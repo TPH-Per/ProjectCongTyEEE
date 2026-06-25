@@ -19,7 +19,12 @@
           </li>
         </ul>
       </nav>
-
+      <div class="p-4 border-t border-gray-100">
+        <button class="flex items-center text-sm text-gray-500 hover:text-red-500 transition-colors w-full px-4 py-2" @click="handleSignOut">
+          <LogOutIcon class="w-4 h-4 mr-2" />
+          Đăng xuất
+        </button>
+      </div>
     </aside>
 
     <!-- Main Content -->
@@ -75,26 +80,22 @@
 </template>
 
 <script setup lang="ts">
-import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useAuth } from '@/composables/useAuth'
-import { useUserSticker } from '@/composables/useUserSticker'
-import { 
-  LayoutDashboardIcon, 
-  StoreIcon, 
-  PuzzleIcon, 
+import {
+  LayoutDashboardIcon,
+  StoreIcon,
+  PuzzleIcon,
   SettingsIcon,
   BellIcon,
   ChevronDownIcon,
   LogOutIcon
 } from 'lucide-vue-next'
+import { useAuth } from '@/composables/useAuth'
 
 const route = useRoute()
 const router = useRouter()
-const { signOut } = useAuth()
-const { stickerUrl } = useUserSticker()
-const isDropdownOpen = ref(false)
+const { signOut, profile } = useAuth()
 
 const menuItems = [
   { name: 'Tổng quan', path: '/superadmin/dashboard', icon: LayoutDashboardIcon },
@@ -110,8 +111,10 @@ const currentRouteName = computed(() => {
 
 async function handleSignOut() {
   await signOut()
-  router.push({ name: 'login' })
+  await router.push({ name: 'login' })
 }
+
+void profile
 </script>
 
 <style scoped>

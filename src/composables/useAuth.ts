@@ -174,6 +174,12 @@ export function useAuth() {
     }
   }
 
+  /**
+   * Đăng xuất khỏi Supabase Auth.  Xóa session ở localStorage và reset
+   * local state.  KHÔNG xóa row trong `public.users` — user vẫn tồn tại
+   * trong DB, chỉ là session hiện tại bị hủy.  Tài khoản do admin tạo
+   * (qua Dashboard), không có chức năng tự đăng ký ở frontend.
+   */
   async function signOut() {
     localStorage.removeItem('ngu-cat.mock-session')
     localStorage.removeItem('ngu-cat.mock-profile')
@@ -184,6 +190,12 @@ export function useAuth() {
     }
     session.value = null
     profile.value = null
+  }
+
+  async function getCurrentUser() {
+    const { data: { user }, error } = await supabase.auth.getUser()
+    if (error) throw error
+    return user
   }
 
   const role = computed<UserRole | undefined>(() => profile.value?.role)
@@ -207,6 +219,7 @@ export function useAuth() {
     isManager,
     signIn,
     signOut,
+    getCurrentUser,
     init,
   }
 }

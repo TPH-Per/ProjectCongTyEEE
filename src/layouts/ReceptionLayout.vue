@@ -45,9 +45,12 @@
     </aside>
     <main class="flex-1 flex flex-col overflow-hidden">
       <header class="h-16 border-b bg-white flex items-center justify-between px-6 shrink-0 shadow-sm z-10">
-        <div class="font-bold text-xl text-gray-800" id="reception-header-title">{{ headerTitle }}</div>
-        <div class="flex items-center gap-2">
+        <div class="font-bold text-xl text-gray-800" id="reception-header-title">Bảng điều khiển</div>
+        <div class="flex items-center gap-3">
            <span class="text-sm font-semibold text-gray-500">Chi nhánh 1</span>
+           <button class="px-3 py-2 rounded-lg text-sm font-semibold text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors" @click="handleSignOut">
+             Đăng xuất
+           </button>
         </div>
       <LanguageSwitcher />
         <!-- Header User Avatar -->
@@ -63,28 +66,16 @@
 </template>
 
 <script setup lang="ts">
-import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
-import { ref, computed } from 'vue'
-import { RouterView, RouterLink, useRouter, useRoute } from 'vue-router'
+import { RouterView, RouterLink, useRouter } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'
-import { useUserSticker } from '@/composables/useUserSticker'
 
-const router = useRouter()
-const route = useRoute()
-const { signOut } = useAuth()
-const { stickerUrl } = useUserSticker()
-const isDropdownOpen = ref(false)
-
-const headerTitle = computed(() => {
-  if (route.path.includes('/reception/dashboard')) return 'Bảng điều khiển'
-  if (route.path.includes('/reception/close-shift')) return 'Tổng Kết Ca'
-  if (route.path.includes('/reception/floors')) return 'Sơ đồ bàn & Đặt chỗ'
-  if (route.path.includes('/reception/checkout')) return 'Thanh toán hóa đơn'
-  return 'Bảng điều khiển'
-})
+const $router = useRouter()
+const { signOut, profile } = useAuth()
 
 async function handleSignOut() {
   await signOut()
-  router.push({ name: 'login' })
+  await $router.push({ name: 'login' })
 }
+
+void profile
 </script>

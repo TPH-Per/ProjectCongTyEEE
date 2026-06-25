@@ -13,17 +13,22 @@ export function useTable() {
     loading.value = true
     error.value = null
     const { data, error: err } = await supabase
-      .from('zones')
-      .select('*')
+      .from('tables')
+      .select('zone')
       .eq('branch_id', activeBranchId.value!)
       .eq('is_active', true)
-      .order('sort_order')
     loading.value = false
     if (err) {
       error.value = err.message
       throw err
     }
-    return (data ?? []) as Zone[]
+    const unique = [...new Set((data || []).map((t: any) => t.zone))]
+    return unique.map(z => ({
+      id: z,
+      branch_id: activeBranchId.value!,
+      name: z,
+      color: '#4ade80' // default color
+    })) as Zone[]
   }
 
   async function listTables(): Promise<TableT[]> {
@@ -32,7 +37,6 @@ export function useTable() {
       .select('*')
       .eq('branch_id', activeBranchId.value!)
       .eq('is_active', true)
-      .order('sort_order', { ascending: true })
 
     if (err) {
       console.error('Error fetching tables:', err)

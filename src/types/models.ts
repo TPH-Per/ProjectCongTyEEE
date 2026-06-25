@@ -5,10 +5,8 @@
 import type {
   AppUser,
   Branch,
-  Zone,
   TableT as Table,
   Customer,
-  MenuCategory,
   MenuItem,
   Package,
   Reservation,
@@ -17,18 +15,15 @@ import type {
   Invoice,
   Payment,
   Shift,
-  KPITarget,
-  MarketingCost,
   Notification,
+  BranchSetting,
 } from '@/types/database'
 
 export type {
   AppUser,
   Branch,
-  Zone,
   Table,
   Customer,
-  MenuCategory,
   MenuItem,
   Package,
   Reservation,
@@ -37,9 +32,8 @@ export type {
   Invoice,
   Payment,
   Shift,
-  KPITarget,
-  MarketingCost,
   Notification,
+  BranchSetting,
 }
 
 /** UI-side enums (kept in sync with the DB enum types in @/types/database). */

@@ -1,5 +1,6 @@
 <template>
   <div class="space-y-5">
+
     <!-- Page Header -->
     <div class="flex flex-wrap items-end justify-between gap-3">
       <div>
@@ -299,3 +300,4 @@ const goToday = () => {
   selectedDate.value = new Date(2026, 5, 18)
 }
 </script>
+

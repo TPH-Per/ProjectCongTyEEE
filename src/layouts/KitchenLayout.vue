@@ -3,7 +3,7 @@
     <!-- Header -->
     <header class="bg-gray-800 border-b border-gray-700 px-6 py-4 flex items-center justify-between shadow-md kawaii-shadow z-10">
       <div class="flex items-center space-x-4">
-        <h1 class="text-2xl font-bold text-[#FF7B89]">Ngưu Cát KDS</h1>
+        <img src="/images/nguucat-logo.png" alt="Ngưu Cát Logo" class="h-8 w-auto object-contain" />
         <span class="bg-gray-700 px-3 py-1 rounded-full text-sm font-medium text-gray-300">Chi nhánh Quận 1</span>
       </div>
       
@@ -24,7 +24,12 @@
           Đăng xuất
         </button>
       </div>
-    </header>
+    <LanguageSwitcher />
+        <!-- Header User Avatar -->
+        <div class="flex items-center gap-2 ml-4">
+          <img :src="stickerUrl" alt="User Avatar" class="w-8 h-8 rounded-full border border-[hsl(var(--border))] object-contain bg-[hsl(var(--muted))]" />
+        </div>
+      </header>
 
     <!-- Main Content -->
     <main class="flex-1 overflow-hidden flex flex-col bg-gray-900 p-6">
@@ -34,6 +39,7 @@
 </template>
 
 <script setup lang="ts">
+import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
 import { ref, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'

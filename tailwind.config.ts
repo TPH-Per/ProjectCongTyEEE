@@ -42,20 +42,20 @@ const config: Config = {
   				DEFAULT: "hsl(var(--card))",
   				foreground: "hsl(var(--card-foreground))",
   			},
-  			// Kawaii palette
-  			salmon: {
-  				50:  "#FFF5F7",
-  				100: "#FFE3E6",
-  				200: "#FFCBD3",
-  				300: "#FFA6B2",
-  				400: "#FF8E9C",
-  				500: "#FF7B89",
-  				600: "#FF5A6E",
-  				700: "#E6455A",
-  				800: "#B8334A",
-  				900: "#8B2538",
+  			// Orange palette
+  			orange: {
+  				50:  "#FFF8F5",
+  				100: "#FFEEE5",
+  				200: "#FFD3BF",
+  				300: "#FFB394",
+  				400: "#FF8E61",
+  				500: "#FF672E",
+  				600: "#F54C0D",
+  				700: "#C93602",
+  				800: "#9E2B08",
+  				900: "#80250A",
   			},
-  			cream: "#FFF5F7",
+  			cream: "#FFF8F5",
   			navy: "#2C3E50",
   		},
   		borderRadius: {

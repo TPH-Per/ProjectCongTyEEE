@@ -1,0 +1,5 @@
+src/composables/useKPI.ts(4,15): error TS2305: Module '"@/types/database"' has no exported member 'KPITarget'.
+src/composables/useMarketing.ts(4,15): error TS2305: Module '"@/types/database"' has no exported member 'MarketingCost'.
+src/composables/useMenu.ts(4,15): error TS2305: Module '"@/types/database"' has no exported member 'MenuCategory'.
+src/composables/useTable.ts(3,15): error TS2305: Module '"@/types/database"' has no exported member 'Zone'.
+src/views/tablet/TabletOrderView.vue(104,15): error TS2305: Module '"@/types/database"' has no exported member 'MenuCategory'.

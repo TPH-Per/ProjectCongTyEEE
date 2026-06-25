@@ -1,0 +1,4 @@
+src/lib/mock-data.ts(4,13): error TS1005: '{' expected.
+src/lib/mock-data.ts(14,1): error TS1128: Declaration or statement expected.
+src/lib/mock-data.ts(14,18): error TS1438: Interface must be given a name.
+src/lib/mock-data.ts(62,13): error TS1110: Type expected.

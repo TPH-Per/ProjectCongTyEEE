@@ -346,19 +346,40 @@ create table public.packages (
 );
 create index packages_branch_type_idx on public.packages (branch_id, type) where is_active;
 
-create table public.package_items (
-  package_id   uuid not null references public.packages(id) on delete cascade,
-  menu_item_id uuid not null references public.menu_items(id) on delete restrict,
-  sort_order   int not null default 0,
-  -- Snapshot of the per-item price for accounting; the price in menu_items
-  -- may change but package_items keeps the value at the moment the package
-  -- was created / the item was added.
-  unit_price   numeric(12,2) check (unit_price is null or unit_price >= 0),
-  is_included  boolean not null default true,        -- false = paid add-on
-  created_at   timestamptz not null default now(),
-  primary key (package_id, menu_item_id)
+CREATE OR REPLACE FUNCTION public.current_user_role() RETURNS text AS $$
+  SELECT COALESCE(
+    current_setting('request.jwt.claims', true)::jsonb ->> 'role',
+    (SELECT role::text FROM public.users WHERE id = auth.uid())
+  );
+$$ LANGUAGE sql STABLE;
+
+CREATE OR REPLACE FUNCTION public.has_role(roles user_role[]) RETURNS boolean AS $$
+  SELECT public.current_user_role() = ANY(roles::text[]);
+$$ LANGUAGE sql STABLE;
+
+CREATE OR REPLACE FUNCTION public.set_updated_at() RETURNS trigger AS $$
+BEGIN
+  NEW.updated_at = now();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- 4. CORE HIGH-CONSISTENCY TABLES
+
+-- 4.1. BRANCHES (Tenant ID)
+CREATE TABLE public.branches (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  code text NOT NULL UNIQUE,
+  name text NOT NULL,
+  address text,
+  phone text,
+  timezone text NOT NULL DEFAULT 'Asia/Ho_Chi_Minh',
+  currency text NOT NULL DEFAULT 'VND',
+  vat_rate numeric(5,4) NOT NULL DEFAULT 0.08,
+  is_active boolean NOT NULL DEFAULT true,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
 );
-create index package_items_menu_idx on public.package_items (menu_item_id);
 
 -- 4.7 SHIFTS ------------------------------------------------------------------
 -- Cashier shift envelope: opening cash → closing reconciliation.
@@ -714,8 +735,8 @@ create table public.notifications (
   status        text not null default 'pending',      -- 'pending'|'sent'|'failed'
   sent_at       timestamptz,
   error_message text,
-  metadata      jsonb not null default '{}'::jsonb,
-  created_at    timestamptz not null default now()
+  metadata jsonb NOT NULL DEFAULT '{}',
+  created_at timestamptz NOT NULL DEFAULT now()
 );
 create index notifications_branch_status_idx on public.notifications (branch_id, status);
 create index notifications_pending_idx      on public.notifications (created_at) where status = 'pending';
@@ -733,10 +754,10 @@ create table public.branch_settings (
   value       jsonb not null,                         -- arbitrary JSON
   value_type  text not null default 'string',         -- 'string'|'number'|'boolean'|'json'|'array'
   description text,
-  is_active   boolean not null default true,
-  created_at  timestamptz not null default now(),
-  updated_at  timestamptz not null default now(),
-  unique (branch_id, key)
+  is_active boolean NOT NULL DEFAULT true,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  UNIQUE(branch_id, key)
 );
 create index branch_settings_branch_idx on public.branch_settings (branch_id) where is_active;
 

@@ -43,9 +43,12 @@ void t
 
 <template>
   <div class="login-shell">
-    <div class="login-card">
-      <h1 class="login-title">🐂 NGƯU CÁT</h1>
-      <p class="login-subtitle">Restaurant POS</p>
+    <div class="login-card relative">
+      
+      <div class="flex justify-center items-center gap-4 mb-6">
+        <img src="/images/nguucat-logo.png" alt="Ngưu Cát" class="h-16 w-auto object-contain" />
+      </div>
+
 
       <form @submit.prevent="onSubmit" class="login-form">
         <label class="login-field">
@@ -92,7 +95,7 @@ void t
   min-height: 100vh;
   display: grid;
   place-items: center;
-  background: var(--kawaii-cream, #fff5f7);
+  background: #FFF8F5;
 }
 .login-card {
   width: 360px;
@@ -143,7 +146,7 @@ void t
   padding: 12px;
   border-radius: 10px;
   border: none;
-  background: #ff7b89;
+  background: #FF672E;
   color: white;
   font-weight: 700;
   font-size: 15px;
@@ -161,3 +164,4 @@ void t
   font-style: italic;
 }
 </style>
+

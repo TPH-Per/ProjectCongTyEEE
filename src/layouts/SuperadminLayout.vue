@@ -80,7 +80,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
   LayoutDashboardIcon,
@@ -92,10 +92,13 @@ import {
   LogOutIcon
 } from 'lucide-vue-next'
 import { useAuth } from '@/composables/useAuth'
+import { useUserSticker } from '@/composables/useUserSticker'
 
 const route = useRoute()
 const router = useRouter()
 const { signOut, profile } = useAuth()
+const { stickerUrl } = useUserSticker()
+const isDropdownOpen = ref(false)
 
 const menuItems = [
   { name: 'Tổng quan', path: '/superadmin/dashboard', icon: LayoutDashboardIcon },

@@ -184,8 +184,8 @@ async function submitOrder() {
       if (qty > 0) {
         const { error } = await supabase.functions.invoke('add-order-item', {
           body: {
-            order_id: orderId.value,
-            menu_item_id: itemId,
+            orderId: orderId.value,
+            menuItemId: itemId,
             quantity: qty
           }
         })

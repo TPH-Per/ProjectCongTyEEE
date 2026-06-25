@@ -65,11 +65,11 @@
           </div>
           <div>
             <span class="text-xs text-gray-500 font-medium block mb-1">{{ t('auto____tu_i_chung') }}</span>
-            <select class="w-full h-10 bg-gray-50 border border-gray-200 rounded-xl px-2 text-sm font-bold text-gray-700">
-              <option>20-30</option>
-              <option>30-40</option>
-              <option>40-50</option>
-              <option>50+</option>
+            <select v-model="ageBucket" class="w-full h-10 bg-gray-50 border border-gray-200 rounded-xl px-2 text-sm font-bold text-gray-700">
+              <option value="20-30">20-30</option>
+              <option value="30-40">30-40</option>
+              <option value="40-50">40-50</option>
+              <option value="50+">50+</option>
             </select>
           </div>
         </div>
@@ -106,11 +106,11 @@
         <div class="pt-2">
           <span class="text-xs text-gray-500 font-medium block mb-2">{{ t('auto_quy_n_ki_m_so_t__tablet_contro') }}</span>
           <div class="grid grid-cols-2 gap-2">
-            <button class="bg-red-50 border-2 border-red-500 text-red-700 font-bold py-2 rounded-xl text-xs flex flex-col items-center gap-1">
+            <button type="button" @click="flowMode = 'one_way'" :class="flowMode === 'one_way' ? 'bg-red-50 border-2 border-red-500 text-red-700' : 'bg-gray-50 border border-gray-200 text-gray-600'" class="font-bold py-2 rounded-xl text-xs flex flex-col items-center gap-1">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
               {{ t('auto_kh_a_course_1_chi_u', 'Khóa Course (1 Chiều)') }}
             </button>
-            <button class="bg-gray-50 border border-gray-200 text-gray-600 font-bold py-2 rounded-xl text-xs flex flex-col items-center gap-1">
+            <button type="button" @click="flowMode = 'free'" :class="flowMode === 'free' ? 'bg-red-50 border-2 border-red-500 text-red-700' : 'bg-gray-50 border border-gray-200 text-gray-600'" class="font-bold py-2 rounded-xl text-xs flex flex-col items-center gap-1">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
               {{ t('auto_lu_ng_t_do_buffet', 'Luồng Tự Do (Buffet)') }}
             </button>
@@ -149,6 +149,8 @@ const loading = ref(false)
 const guestsMale = ref(2)
 const guestsFemale = ref(1)
 const guestsKids = ref(0)
+const ageBucket = ref('20-30')
+const flowMode = ref<'one_way' | 'free'>('free')
 
 const packages = ref<any[]>([])
 const selectedPackageId = ref<string | null>(null)
@@ -172,26 +174,39 @@ const handleCheckIn = async () => {
   if (!selectedPackageId.value) {
     return
   }
-  
+
   loading.value = true
-  const guests_count = guestsMale.value + guestsFemale.value + guestsKids.value
-  
+  const totalGuests = guestsMale.value + guestsFemale.value + guestsKids.value
+
+  // Function signature: {reservationId?, walkIn?, tableIds[], partySize{male,female,children,ageBucket}, packageId?, flowMode}
+  // branch_id được lấy từ JWT (user.app_metadata.branch_id) — function tự xử lý.
   try {
     const { data, error } = await supabase.functions.invoke('check-in', {
       body: {
-        branch_id: branchId.value,
-        table_id: tableId.value,
-        guests_count,
-        package_id: selectedPackageId.value
-      }
+        tableIds: [tableId.value],
+        partySize: {
+          male: guestsMale.value,
+          female: guestsFemale.value,
+          children: guestsKids.value,
+          ageBucket: ageBucket.value,
+          gender: guestsMale.value > guestsFemale.value ? 'male' : guestsFemale.value > 0 ? 'female' : 'mixed',
+          nationality: 'local',
+        },
+        packageId: selectedPackageId.value,
+        flowMode: flowMode.value,
+        walkIn: {
+          customerName: 'Walk-in',
+          guests: totalGuests,
+        },
+      },
     })
-    
+
     if (error) throw error
-    
+
     router.push('/staff/floor-plan')
   } catch (err) {
     console.error('Check-in failed:', err)
-    Swal.fire('Lỗi', 'Check-in failed', 'error')
+    Swal.fire('Lỗi', 'Check-in failed: ' + (err instanceof Error ? err.message : String(err)), 'error')
   } finally {
     loading.value = false
   }

@@ -1,5 +1,5 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
-import { getAdminClient, requireUser } from '../_shared/auth.ts'
+import { getAdminClient, requireUser, setJwtContext } from '../_shared/auth.ts'
 import { corsHeaders } from '../_shared/cors.ts'
 
 interface CheckInPayload {
@@ -24,9 +24,24 @@ serve(async (req) => {
     const admin = getAdminClient()
     const body: CheckInPayload = await req.json()
 
-    // Lấy branch_id từ JWT claim
-    const branchId = user.app_metadata?.branch_id ?? user.user_metadata?.branch_id
-    if (!branchId) throw new Error('User chưa gán branch_id')
+    // Lấy branch_id từ JWT claim (hook sẽ set sau khi đăng ký).
+    // Fallback: query DB nếu hook chưa đăng ký — dùng admin client (bypass RLS) nên an toàn.
+    let branchId = user.app_metadata?.branch_id ?? user.user_metadata?.branch_id
+    if (!branchId) {
+      const { data: profile } = await admin
+        .from('users')
+        .select('branch_id')
+        .eq('id', user.id)
+        .maybeSingle()
+      branchId = profile?.branch_id
+    }
+    if (!branchId) throw new Error('User chưa gán branch_id (cả JWT và DB đều rỗng)')
+
+    // Stamp the JWT claims into the Postgres session so DB helpers
+    // (current_branch_id, current_user_role, has_role RLS, write_audit
+    // trigger) see the right user/branch. Without this the audit trigger
+    // inserts branch_id=NULL into audit_events and the request 400s.
+    await setJwtContext(admin, user.id, user.app_metadata)
 
     // 1. Resolve customer
     let customerId: string

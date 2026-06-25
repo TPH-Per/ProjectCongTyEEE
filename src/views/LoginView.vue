@@ -44,11 +44,20 @@ void t
 <template>
   <div class="login-shell">
     <div class="login-card relative">
-      
-      <div class="flex justify-center items-center gap-4 mb-6">
-        <img src="/images/nguucat-logo.png" alt="Ngưu Cát" class="h-16 w-auto object-contain" />
-      </div>
 
+      <!--
+        Brand mark: gradient orb with the 牛 (cow/cattle) character, then the
+        wordmark and a Vietnamese subtitle. Replaces the previous flat PNG
+        logo, which on a white card read as a low-resolution orange blob and
+        didn't carry the brand name. The orb is a div (not an <img>) so it
+        stays crisp at any DPI, picks up the existing kawaii-gradient palette
+        in globals.css, and renders the same in every browser.
+      -->
+      <div class="brand-header">
+        <div class="brand-orb" aria-hidden="true">牛</div>
+        <h1 class="brand-title">NGƯU CÁT</h1>
+        <p class="brand-subtitle">Hệ thống quản lý nhà hàng</p>
+      </div>
 
       <form @submit.prevent="onSubmit" class="login-form">
         <label class="login-field">
@@ -98,22 +107,50 @@ void t
   background: #FFF8F5;
 }
 .login-card {
-  width: 360px;
-  padding: 32px;
-  border-radius: 16px;
+  width: 380px;
+  padding: 36px 32px 32px;
+  border-radius: 18px;
   background: white;
   box-shadow: 0 8px 32px rgba(44, 62, 80, 0.08);
 }
-.login-title {
-  font-size: 28px;
+.brand-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 24px;
+}
+.brand-orb {
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #FF8E61 0%, #FF672E 100%);
+  display: grid;
+  place-items: center;
+  color: #ffffff;
+  font-size: 40px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  box-shadow: 0 10px 24px rgba(255, 103, 46, 0.32);
+  user-select: none;
+  margin-bottom: 14px;
+}
+.brand-title {
+  margin: 0;
+  font-size: 22px;
   font-weight: 800;
   text-align: center;
   color: #2c3e50;
+  letter-spacing: 0.22em;
+  /* optical centering — compensate for the tracking on the last glyph */
+  padding-left: 0.22em;
 }
-.login-subtitle {
+.brand-subtitle {
+  margin: 6px 0 0;
   text-align: center;
-  margin: 0 0 24px;
   color: #64748b;
+  font-size: 13px;
+  font-weight: 500;
 }
 .login-form {
   display: flex;

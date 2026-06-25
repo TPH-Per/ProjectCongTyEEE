@@ -30,13 +30,14 @@ export function getHomeRouteForRole(role: UserRole | null | undefined): RouteLoc
 
 /**
  * Where to send a user who is signed in but trying to reach a route
- * that doesn't allow their role. We use manager-dashboard as the
- * "neutral" landing because it works for both admin (supervisor) and
- * any other role.
+ * that doesn't allow their role. Send them to their OWN portal landing
+ * (via getHomeRouteForRole) — NOT to manager-dashboard, because
+ * /manager/* is restricted to admin + manager only. Returning manager
+ * for a staff/reception/kitchen user would re-trigger this guard and
+ * loop infinitely ("infinite redirect" Stack Overflow).
  */
 export function getFallbackRouteForRole(
   role: UserRole | null | undefined,
 ): RouteLocationRaw {
-  if (role === 'admin') return { name: 'admin-dashboard' }
-  return { name: 'manager-dashboard' }
+  return getHomeRouteForRole(role)
 }

@@ -364,22 +364,11 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- 4. CORE HIGH-CONSISTENCY TABLES
-
--- 4.1. BRANCHES (Tenant ID)
-CREATE TABLE public.branches (
-  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-  code text NOT NULL UNIQUE,
-  name text NOT NULL,
-  address text,
-  phone text,
-  timezone text NOT NULL DEFAULT 'Asia/Ho_Chi_Minh',
-  currency text NOT NULL DEFAULT 'VND',
-  vat_rate numeric(5,4) NOT NULL DEFAULT 0.08,
-  is_active boolean NOT NULL DEFAULT true,
-  created_at timestamptz NOT NULL DEFAULT now(),
-  updated_at timestamptz NOT NULL DEFAULT now()
-);
+-- (public.branches is already defined in section 2.1 above — the duplicate
+-- `CREATE TABLE public.branches` block previously lived here but has been
+-- removed to keep the migration idempotent. Keeping a single definition also
+-- avoids the inconsistency between gen_random_uuid() (line 76) and the older
+-- uuid_generate_v4() that the duplicate used.)
 
 -- 4.7 SHIFTS ------------------------------------------------------------------
 -- Cashier shift envelope: opening cash → closing reconciliation.

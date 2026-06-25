@@ -170,6 +170,7 @@ import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute, RouterView, RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { useUserSticker } from '@/composables/useUserSticker'
 import {
   LayoutDashboard, List, Map, Utensils, Settings, LogOut, ChevronDown,
   Bell, Search, Check,
@@ -177,6 +178,7 @@ import {
 import { useI18nStore, LANGUAGE_META } from '@/stores/i18n'
 import type { AppLocale } from '@/locales'
 
+const { stickerUrl } = useUserSticker()
 const route = useRoute()
 const { t } = useI18n()
 const i18n = useI18nStore()

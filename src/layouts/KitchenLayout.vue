@@ -43,7 +43,9 @@ import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
 import { ref, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuth } from '@/composables/useAuth';
+import { useUserSticker } from '@/composables/useUserSticker';
 
+const { stickerUrl } = useUserSticker();
 const router = useRouter();
 const { signOut } = useAuth();
 

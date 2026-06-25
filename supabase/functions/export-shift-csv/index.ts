@@ -1,16 +1,29 @@
 // supabase/functions/export-shift-csv/index.ts
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
-import { getAdminClient, requireUser } from '../_shared/auth.ts'
+import { requireAppUser, AuthError } from '../_shared/auth.ts'
 import { corsHeaders } from '../_shared/cors.ts'
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
   try {
-    const { user } = await requireUser(req)
-    const admin = getAdminClient()
+    // Manager / admin only — exporting the full shift ledger is sensitive.
+    const { profile, admin } = await requireAppUser(req, {
+      roles: ['manager', 'admin'],
+    })
     const url = new URL(req.url)
     const shiftId = url.searchParams.get('shiftId')
     if (!shiftId) throw new Error('shiftId required')
+
+    // Verify shift exists and is in caller's branch (admin bypasses).
+    const { data: shift } = await admin
+      .from('shifts')
+      .select('id, branch_id')
+      .eq('id', shiftId)
+      .maybeSingle()
+    if (!shift) throw new Error('Shift not found')
+    if (profile.role !== 'admin' && profile.branch_id !== shift.branch_id) {
+      throw new AuthError('Shift thuộc chi nhánh khác — bạn không có quyền export', 403)
+    }
 
     // Lấy chi tiết payments trong ca
     const { data: payments } = await admin
@@ -50,6 +63,10 @@ serve(async (req) => {
       },
     })
   } catch (e: any) {
-    return new Response(JSON.stringify({ error: e.message }), { status: 400, headers: corsHeaders })
+    const status = e instanceof AuthError ? e.status : 400
+    return new Response(
+      JSON.stringify({ error: e.message }),
+      { status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+    )
   }
 })

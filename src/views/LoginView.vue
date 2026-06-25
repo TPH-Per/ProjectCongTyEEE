@@ -7,7 +7,7 @@ import { getHomeRouteForRole } from '@/utils/route'
 
 const router = useRouter()
 const { t } = useI18n()
-const { signIn, loading: authLoading, isAuthenticated, role } = useAuth()
+const { signIn, profile, role, isAuthenticated } = useAuth()
 
 const form = reactive({
   email: '',
@@ -26,8 +26,20 @@ async function onSubmit() {
   submitting.value = true
   errorMsg.value = null
   try {
+    // signIn() now awaits fetchProfile internally — by the time it returns,
+    // `profile` and `role` are populated and we can route without a race.
+    // If the profile is missing or is_active=false, signIn throws and the
+    // session is torn down, so isAuthenticated will be false here.
     await signIn(form.email.trim(), form.password)
-    // Role-aware landing — admin → /admin/dashboard, staff → /staff/floor-plan, etc.
+
+    if (!isAuthenticated.value || !profile.value || !role.value) {
+      // Defensive: should be unreachable because signIn throws in this case.
+      // Keeps the redirect safe if a future refactor breaks the contract.
+      errorMsg.value = 'Đăng nhập thất công: hồ sơ chưa sẵn sàng. Vui lòng thử lại.'
+      return
+    }
+
+    // Role-aware landing — admin → /admin/dashboard, staff → /staff/floor-plan, …
     await router.push(getHomeRouteForRole(role.value))
   } catch (e) {
     errorMsg.value = e instanceof Error ? e.message : String(e)
@@ -36,8 +48,6 @@ async function onSubmit() {
   }
 }
 
-void isAuthenticated
-void authLoading
 void t
 </script>
 

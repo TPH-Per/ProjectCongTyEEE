@@ -1,6 +1,6 @@
 // supabase/functions/checkout/index.ts
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
-import { getAdminClient, requireUser } from '../_shared/auth.ts'
+import { requireAppUser, AuthError } from '../_shared/auth.ts'
 import { corsHeaders } from '../_shared/cors.ts'
 
 interface CheckoutPayload {
@@ -24,8 +24,13 @@ serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
 
   try {
-    const { user } = await requireUser(req)
-    const admin = getAdminClient()
+    // Checkout is the most sensitive write path (creates invoice, payment,
+    // updates order, releases table). Restrict to reception/manager/admin.
+    // Branch ownership is enforced after we read the order (so the admin
+    // client's RLS-bypass can't leak cross-branch data).
+    const { user, profile, admin } = await requireAppUser(req, {
+      roles: ['reception', 'manager', 'admin'],
+    })
     const body: CheckoutPayload = await req.json()
 
     // 1. Lấy order + items
@@ -37,6 +42,11 @@ serve(async (req) => {
     if (!order) throw new Error('Order not found')
     if (order.status === 'Paid' || order.status === 'Cancelled') {
       throw new Error('Order đã thanh toán')
+    }
+
+    // Branch ownership: admin bypasses; everyone else must match.
+    if (profile.role !== 'admin' && profile.branch_id !== order.branch_id) {
+      throw new AuthError('Order thuộc chi nhánh khác — bạn không có quyền thanh toán', 403)
     }
 
     // 2. Validate voucher (nếu có)
@@ -191,9 +201,10 @@ serve(async (req) => {
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
     )
   } catch (e: any) {
+    const status = e instanceof AuthError ? e.status : 400
     return new Response(
       JSON.stringify({ error: e.message }),
-      { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      { status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
     )
   }
 })

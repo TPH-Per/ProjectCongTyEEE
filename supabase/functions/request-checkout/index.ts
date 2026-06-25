@@ -1,6 +1,6 @@
 // supabase/functions/request-checkout/index.ts
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
-import { getAdminClient, requireUser } from '../_shared/auth.ts'
+import { requireAppUser, AuthError } from '../_shared/auth.ts'
 import { corsHeaders } from '../_shared/cors.ts'
 
 interface Payload { tableId: string }
@@ -8,10 +8,12 @@ interface Payload { tableId: string }
 serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
   try {
-    const { user } = await requireUser(req)
-    const admin = getAdminClient()
+    // Tablet / staff / reception / manager can request checkout.
+    // Branch_id comes from the profile, never from user_metadata.
+    const { user, profile, admin } = await requireAppUser(req)
     const body: Payload = await req.json()
-    const branchId = user.app_metadata?.branch_id
+    const branchId = profile.branch_id
+    if (!branchId) throw new AuthError('Tài khoản chưa gán chi nhánh', 403)
 
     // 1. Insert audit event
     await admin.from('audit_events').insert({
@@ -36,8 +38,12 @@ serve(async (req) => {
       status: 'pending',
     })
 
-    return new Response(JSON.stringify({ ok: true }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+    return new Response(
+      JSON.stringify({ ok: true }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+    )
   } catch (e: any) {
-    return new Response(JSON.stringify({ error: e.message }), { status: 400, headers: corsHeaders })
+    const status = e instanceof AuthError ? e.status : 400
+    return new Response(JSON.stringify({ error: e.message }), { status, headers: corsHeaders })
   }
 })

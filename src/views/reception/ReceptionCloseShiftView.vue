@@ -21,6 +21,30 @@
 
     <!-- Revenue by Type -->
     <div class="kawaii-card p-6">
+      <!-- Active shift notice — only show when one is open. Edge functions
+           require a real shiftId, so we surface this prominently. -->
+      <div
+        v-if="activeShift"
+        class="mb-5 rounded-xl border-2 border-green-200 bg-green-50 p-4 flex items-center justify-between"
+      >
+        <div>
+          <div class="text-xs font-bold text-green-700 uppercase tracking-wide">
+            Ca hiện tại đang mở
+          </div>
+          <div class="text-sm text-green-800 mt-1">
+            Mở lúc {{ new Date(activeShift.opened_at).toLocaleString('vi-VN') }}
+            — Tiền đầu ca: {{ Number(activeShift.opening_cash || 0).toLocaleString() }}đ
+          </div>
+        </div>
+        <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+      </div>
+      <div
+        v-else
+        class="mb-5 rounded-xl border-2 border-yellow-200 bg-yellow-50 p-4 text-sm text-yellow-800"
+      >
+        Chưa có ca nào đang mở tại chi nhánh này. Vào ca trước rồi quay lại đóng.
+      </div>
+
       <h3 class="font-bold text-base text-[hsl(var(--foreground))] mb-5">{{ t('auto_doanh_thu_theo_lo_i_h_nh______') }}</h3>
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <div class="rounded-2xl border-2 border-red-200 bg-red-50 p-4 text-center">
@@ -108,6 +132,10 @@ const loading = ref(false)
 
 const orders = ref<any[]>([])
 
+// Active shift currently open at this branch (auto-fetched on mount so the
+// user doesn't have to type the shiftId manually).
+const activeShift = ref<any | null>(null)
+
 const stats = ref({
   dinner: { revenue: 0, orders: 0, guests: 0 },
   lunch: { revenue: 0, orders: 0, guests: 0 },
@@ -121,7 +149,7 @@ const totalRevenue = computed(() => {
 
 async function fetchStats() {
   const today = new Date().toISOString().split('T')[0]
-  
+
   // Fetch today's closed orders
   const { data } = await supabase.from('orders')
     .select('*, reservations(guests, table_id, tables(code))')
@@ -129,16 +157,16 @@ async function fetchStats() {
     .eq('status', 'Paid')
     .gte('created_at', today)
     .order('created_at', { ascending: false })
-    
+
   if (data) {
     orders.value = data
-    
+
     // Aggregate stats
     data.forEach(o => {
       const type = (o.order_type || 'dinner').toLowerCase()
       const amt = o.total || 0
       const g = o.reservations?.guests || 0
-      
+
       if (type === 'lunch') {
         stats.value.lunch.revenue += amt
         stats.value.lunch.orders += 1
@@ -160,20 +188,71 @@ async function fetchStats() {
   }
 }
 
+/**
+ * Auto-fetch the open shift at this branch so we have a valid shiftId to
+ * pass to close-shift / export-shift-csv. Edge functions no longer accept
+ * a `branch_id` argument — they look up the shift by id and verify branch
+ * ownership against the caller's profile (admin bypasses).
+ */
+async function fetchActiveShift() {
+  const { data } = await supabase
+    .from('shifts')
+    .select('id, status, opening_cash, opened_at, user_id')
+    .eq('branch_id', branchId.value || DEFAULT_BRANCH_ID)
+    .eq('status', 'open')
+    .order('opened_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+  activeShift.value = data ?? null
+}
+
 onMounted(() => {
   fetchStats()
+  fetchActiveShift()
 })
 
 async function handleCloseShift() {
+  if (!activeShift.value) {
+    Swal.fire('Thông báo', 'Chưa có ca nào đang mở tại chi nhánh này.', 'info')
+    return
+  }
+  // Ask for closing cash + notes up front (the function requires them).
+  const { value: formValues } = await Swal.fire({
+    title: 'Đóng ca',
+    html:
+      '<input id="closing-cash" type="number" class="swal2-input" placeholder="Tiền mặt cuối ca (VND)">' +
+      '<textarea id="handover-notes" class="swal2-textarea" placeholder="Ghi chú bàn giao (tuỳ chọn)"></textarea>',
+    focusConfirm: false,
+    showCancelButton: true,
+    confirmButtonText: 'Xác nhận đóng ca',
+    cancelButtonText: 'Huỷ',
+    preConfirm: () => {
+      const cash = (document.getElementById('closing-cash') as HTMLInputElement).value
+      const notes = (document.getElementById('handover-notes') as HTMLTextAreaElement).value
+      if (!cash || Number(cash) < 0) {
+        Swal.showValidationMessage('Vui lòng nhập tiền mặt cuối ca (≥ 0)')
+        return false
+      }
+      return { closingCash: Number(cash), notes }
+    },
+  })
+  if (!formValues) return
+
   loading.value = true
   try {
+    // Contract: close-shift expects {shiftId, closingCash, notes}.
+    // Branch enforcement happens server-side (function checks profile.branch_id).
     const { error } = await supabase.functions.invoke('close-shift', {
       body: {
-        branch_id: branchId.value || DEFAULT_BRANCH_ID
-      }
+        shiftId: activeShift.value.id,
+        closingCash: formValues.closingCash,
+        notes: formValues.notes || undefined,
+      },
     })
     if (error) throw error
     Swal.fire('Thành công', 'Đóng ca thành công!', 'success')
+    activeShift.value = null
+    await fetchStats()
   } catch (err: any) {
     Swal.fire('Lỗi', 'Lỗi đóng ca: ' + err.message, 'error')
   } finally {
@@ -182,14 +261,29 @@ async function handleCloseShift() {
 }
 
 async function handleExportCSV() {
-  Swal.fire('Thông báo', 'Đang gọi Export CSV Edge Function...', 'info')
+  if (!activeShift.value) {
+    Swal.fire('Thông báo', 'Chưa có ca nào đang mở tại chi nhánh này để export.', 'info')
+    return
+  }
   try {
-    const { data, error } = await supabase.functions.invoke('export-shift-csv', {
-      body: { branch_id: branchId.value || DEFAULT_BRANCH_ID }
-    })
+    // Contract: export-shift-csv takes shiftId as a query param (GET-style).
+    // Calling .invoke() with no body hits the function URL and appends
+    // `?shiftId=<uuid>` so the function's resourceBranchId check matches.
+    const { data, error } = await supabase.functions.invoke(
+      `export-shift-csv?shiftId=${encodeURIComponent(activeShift.value.id)}`,
+    )
     if (error) throw error
-    console.log('CSV Data:', data)
-    Swal.fire('Thành công', 'Xuất CSV thành công (Check console)', 'success')
+    // Trigger a browser download of the CSV blob.
+    const blob = data instanceof Blob ? data : new Blob([String(data)], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `shift-${activeShift.value.id}.csv`
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+    URL.revokeObjectURL(url)
+    Swal.fire('Thành công', 'Đã tải file CSV.', 'success')
   } catch (err: any) {
     Swal.fire('Lỗi', 'Lỗi xuất CSV: ' + err.message, 'error')
   }

@@ -1,6 +1,6 @@
 // supabase/functions/issue-tax-invoice/index.ts
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
-import { getAdminClient, requireUser } from '../_shared/auth.ts'
+import { requireAppUser, AuthError } from '../_shared/auth.ts'
 import { corsHeaders } from '../_shared/cors.ts'
 
 interface TaxInvoicePayload {
@@ -14,8 +14,10 @@ interface TaxInvoicePayload {
 serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
   try {
-    const { user } = await requireUser(req)
-    const admin = getAdminClient()
+    // Manager / admin only — this calls a paid 3rd-party API (VNPT/VT).
+    const { profile, admin } = await requireAppUser(req, {
+      roles: ['manager', 'admin'],
+    })
     const body: TaxInvoicePayload = await req.json()
 
     // 1. Validate MST format (10 hoặc 13 số)
@@ -36,6 +38,11 @@ serve(async (req) => {
       .eq('id', body.invoiceId)
       .single()
     if (!invoice) throw new Error('Invoice not found')
+
+    // Branch ownership
+    if (profile.role !== 'admin' && profile.branch_id !== invoice.branch_id) {
+      throw new AuthError('Invoice thuộc chi nhánh khác — bạn không có quyền xuất HĐ', 403)
+    }
 
     // 3. Build XML theo chuẩn Nghị định 123/2020
     const xml = buildVNInvoiceXML({
@@ -107,9 +114,10 @@ serve(async (req) => {
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
     )
   } catch (e: any) {
+    const status = e instanceof AuthError ? e.status : 400
     return new Response(
       JSON.stringify({ error: e.message }),
-      { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      { status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
     )
   }
 })

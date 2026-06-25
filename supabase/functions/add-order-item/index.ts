@@ -1,6 +1,6 @@
 // supabase/functions/add-order-item/index.ts
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
-import { getAdminClient, requireUser } from '../_shared/auth.ts'
+import { requireAppUser, AuthError } from '../_shared/auth.ts'
 import { corsHeaders } from '../_shared/cors.ts'
 
 interface AddItemPayload {
@@ -15,8 +15,12 @@ serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
 
   try {
-    const { user } = await requireUser(req)
-    const admin = getAdminClient()
+    // Staff add items to orders; reception too (when reception helps guests).
+    // Branch consistency is enforced after we fetch the order so the admin
+    // client (which bypasses RLS) can't be tricked into cross-branch writes.
+    const { profile, admin } = await requireAppUser(req, {
+      roles: ['staff', 'reception', 'manager', 'admin'],
+    })
     const body: AddItemPayload = await req.json()
 
     // 1. Lấy order + menu_item song song (table_assignment cần order.table_id nên phải lấy sau)
@@ -30,6 +34,12 @@ serve(async (req) => {
     if (!order || !menu) throw new Error('Order hoặc menu item không tồn tại')
     if (order.status === 'Paid' || order.status === 'Cancelled') throw new Error('Order đã đóng')
     if (!menu.is_available) throw new Error('Món tạm hết')
+
+    // Branch ownership check — admin bypasses; staff/reception/manager must
+    // operate on resources inside their own branch.
+    if (profile.role !== 'admin' && profile.branch_id !== order.branch_id) {
+      throw new AuthError('Order thuộc chi nhánh khác — bạn không có quyền sửa', 403)
+    }
 
     // 2. Lấy table_assignment theo table_id
     const { data: assignment } = await admin
@@ -120,9 +130,10 @@ serve(async (req) => {
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
     )
   } catch (e: any) {
+    const status = e instanceof AuthError ? e.status : 400
     return new Response(
       JSON.stringify({ error: e.message }),
-      { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      { status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
     )
   }
 })

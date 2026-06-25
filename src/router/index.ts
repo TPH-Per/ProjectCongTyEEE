@@ -45,6 +45,7 @@ import StaffActiveTablesView from '@/views/staff/StaffActiveTablesView.vue'
 import ReceptionDashboardView from '@/views/reception/ReceptionDashboardView.vue'
 import ReceptionCheckoutView from '@/views/reception/ReceptionCheckoutView.vue'
 import ReceptionCloseShiftView from '@/views/reception/ReceptionCloseShiftView.vue'
+import ReceptionOrderView from '@/views/reception/ReceptionOrderView.vue'
 
 // ─── Kitchen Views ────────────────────────────────────────────────────────────
 import KitchenKDSView from '@/views/kitchen/KitchenKDSView.vue'
@@ -172,6 +173,11 @@ const routes: RouteRecordRaw[] = [
         path: 'floors',
         name: 'reception-floors',
         component: AdminFloorsView,
+      },
+      {
+        path: 'order',
+        name: 'reception-order',
+        component: ReceptionOrderView,
       },
     ],
   },

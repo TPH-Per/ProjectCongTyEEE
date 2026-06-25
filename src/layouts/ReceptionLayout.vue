@@ -23,6 +23,10 @@
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><line x1="9" x2="9" y1="3" y2="21"/><line x1="15" x2="15" y1="3" y2="21"/><line x1="3" x2="21" y1="9" y2="9"/><line x1="3" x2="21" y1="15" y2="15"/></svg>
           Sơ đồ bàn
         </RouterLink>
+        <RouterLink to="/reception/order" class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-sm font-semibold text-gray-600 hover:bg-gray-100" active-class="bg-red-50 text-red-600 hover:bg-red-50">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+          Chọn món
+        </RouterLink>
         <RouterLink to="/reception/close-shift" class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-sm font-semibold text-gray-600 hover:bg-gray-100" active-class="bg-red-50 text-red-600 hover:bg-red-50">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
           Tổng Kết Ca
@@ -77,6 +81,7 @@ const headerTitle = computed(() => {
   if (route.path.includes('/reception/dashboard')) return 'Bảng điều khiển'
   if (route.path.includes('/reception/close-shift')) return 'Tổng Kết Ca'
   if (route.path.includes('/reception/floors')) return 'Sơ đồ bàn & Đặt chỗ'
+  if (route.path.includes('/reception/order')) return 'Chọn món & Gọi đồ'
   if (route.path.includes('/reception/checkout')) return 'Thanh toán hóa đơn'
   return 'Bảng điều khiển'
 })

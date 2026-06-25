@@ -553,12 +553,18 @@
             </button>
           </div>
 
-          <div class="flex gap-3 pt-3.5 border-t border-gray-100 mt-4">
+          <div class="flex gap-2 pt-3.5 border-t border-gray-100 mt-4">
             <button 
               @click="closeTableModal"
               class="flex-1 py-2 rounded-xl border border-gray-250 bg-white hover:bg-gray-50 text-gray-700 text-[11px] font-bold transition-colors select-none"
             >
               Đóng
+            </button>
+            <button 
+              @click="goToOrderScreen(selectedTableForModal.code)"
+              class="flex-1 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-[11px] font-black transition-colors shadow-sm select-none"
+            >
+              🍽️ Chọn Món
             </button>
             <button 
               @click="saveTableModal"
@@ -981,6 +987,9 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { useRestaurantStore } from '@/stores/restaurantStore';
+import { storeToRefs } from 'pinia';
 
 interface TableInfo {
   code: string;
@@ -1091,275 +1100,9 @@ const monthNames = [
   'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'
 ];
 
-// Tables setup with checkInTime property initialized for Serving tables
-const areas = ref<AreaInfo[]>([
-  {
-    name: 'Khu A',
-    description: 'Khu chính trong nhà',
-    tables: [
-      { code: 'A01', status: 'Available', capacity: 4 },
-      { code: 'A02', status: 'Reserved', capacity: 4, customerName: 'Nguyễn Văn A' },
-      { code: 'A03', status: 'Serving', capacity: 2, customerName: 'Phạm Hùng', billAmount: '450.000đ', occupiedDuration: '30 phút', checkInTime: '17:45' },
-      { code: 'A04', status: 'Arrived', capacity: 6, customerName: 'Lê Thảo' },
-      { code: 'A05', status: 'Available', capacity: 4 },
-      { code: 'A06', status: 'Available', capacity: 4 },
-      { code: 'A07', status: 'Reserved', capacity: 4, customerName: 'Trần Bình' },
-      { code: 'A08', status: 'Serving', capacity: 8, customerName: 'Lê Văn C', billAmount: '1.850.000đ', occupiedDuration: '1h 20p', checkInTime: '16:55' },
-      { code: 'A09', status: 'Available', capacity: 4 },
-    ]
-  },
-  {
-    name: 'Khu B',
-    description: 'Khu VIP trong nhà',
-    tables: [
-      { code: 'B01', status: 'Available', capacity: 10 },
-      { code: 'B02', status: 'Reserved', capacity: 8, customerName: 'Bùi Lan' },
-      { code: 'B03', status: 'Serving', capacity: 10, customerName: 'Công ty ABC', billAmount: '4.200.000đ', occupiedDuration: '2h 10p', checkInTime: '16:05' },
-    ]
-  },
-  {
-    name: 'Khu C',
-    description: 'Ban công ngoài trời',
-    tables: [
-      { code: 'C01', status: 'Available', capacity: 2 },
-      { code: 'C02', status: 'Available', capacity: 2 },
-      { code: 'C03', status: 'Arrived', capacity: 4, customerName: 'Trần Thị B' },
-      { code: 'C04', status: 'Available', capacity: 4 },
-      { code: 'C05', status: 'Reserved', capacity: 2, customerName: 'Hoàng Long' },
-      { code: 'C06', status: 'Serving', capacity: 4, customerName: 'Đức Huy', billAmount: '890.000đ', occupiedDuration: '50 phút', checkInTime: '17:25' },
-      { code: 'C07', status: 'Available', capacity: 2 },
-      { code: 'C08', status: 'Available', capacity: 4 },
-    ]
-  },
-  {
-    name: 'Khu R',
-    description: 'Phòng riêng đặc biệt',
-    tables: [
-      { code: 'R01', status: 'Available', capacity: 6 },
-      { code: 'R02', status: 'Reserved', capacity: 6, customerName: 'Vũ Nam' },
-      { code: 'R03', status: 'Serving', capacity: 6, customerName: 'Gia đình chị Vy', billAmount: '2.500.000đ', occupiedDuration: '1h 10p', checkInTime: '17:05' },
-      { code: 'R04', status: 'Available', capacity: 6 },
-      { code: 'R05', status: 'Reserved', capacity: 8, customerName: 'Phạm Minh Hoàng' },
-      { code: 'R06', status: 'Available', capacity: 6 },
-      { code: 'R07', status: 'Reserved', capacity: 6, customerName: 'Trần Hào' },
-      { code: 'R08', status: 'Serving', capacity: 12, customerName: 'Sinh nhật Minh', billAmount: '5.600.000đ', occupiedDuration: '1h 45p', checkInTime: '16:30' },
-    ]
-  },
-  {
-    name: 'Khu T',
-    description: 'Sân thượng ngắm cảnh',
-    tables: [
-      { code: 'T01', status: 'Available', capacity: 4 },
-      { code: 'T02', status: 'Reserved', capacity: 4, customerName: 'Đặng Thu Thảo' },
-      { code: 'T03', status: 'Reserved', capacity: 4 },
-      { code: 'T04', status: 'Serving', capacity: 4, customerName: 'Anh Trung', billAmount: '1.200.000đ', occupiedDuration: '45 phút', checkInTime: '17:30' },
-      { code: 'T05', status: 'Arrived', capacity: 4, customerName: 'Khánh Hà' },
-      { code: 'T06', status: 'Available', capacity: 4 },
-      { code: 'T07', status: 'Available', capacity: 4 },
-      { code: 'T08', status: 'Reserved', capacity: 4 },
-    ]
-  },
-  {
-    name: 'Khu Capichi',
-    description: 'Trực tuyến Capichi',
-    tables: [
-      { code: 'CP01', status: 'Available', capacity: 1 },
-      { code: 'CP02', status: 'Serving', capacity: 1, customerName: 'Capichi Order #1', billAmount: '150.000đ', occupiedDuration: '12 phút', checkInTime: '17:50' },
-      { code: 'CP03', status: 'Available', capacity: 1 },
-      { code: 'CP04', status: 'Reserved', capacity: 1, customerName: 'Capichi Order #2' },
-      { code: 'CP05', status: 'Arrived', capacity: 1, customerName: 'Capichi Order #3' },
-    ]
-  },
-  {
-    name: 'Khu Shopee',
-    description: 'ShopeeFood Orders',
-    tables: [
-      { code: 'Shopee01', status: 'Available', capacity: 1 },
-      { code: 'Shopee02', status: 'Available', capacity: 1 },
-      { code: 'Shopee03', status: 'Serving', capacity: 1, customerName: 'Shopee #452', billAmount: '320.000đ', occupiedDuration: '8 phút', checkInTime: '17:53' },
-      { code: 'Shopee04', status: 'Reserved', capacity: 1, customerName: 'Shopee #460' },
-      { code: 'Shopee05', status: 'Arrived', capacity: 1, customerName: 'Shopee #461' },
-    ]
-  },
-  {
-    name: 'Khu BE',
-    description: 'beFood Orders',
-    tables: [
-      { code: 'BE01', status: 'Available', capacity: 1 },
-      { code: 'BE02', status: 'Reserved', capacity: 1, customerName: 'beFood #11' },
-      { code: 'BE03', status: 'Serving', capacity: 1, customerName: 'beFood #12', billAmount: '180.000đ', occupiedDuration: '15 phút', checkInTime: '17:47' },
-      { code: 'BE04', status: 'Available', capacity: 1 },
-      { code: 'BE05', status: 'Arrived', capacity: 1, customerName: 'beFood #14' },
-    ]
-  },
-  {
-    name: 'Khu Grab',
-    description: 'GrabFood Orders',
-    tables: [
-      { code: 'Grab01', status: 'Available', capacity: 1 },
-      { code: 'Grab02', status: 'Serving', capacity: 1, customerName: 'Grab #90', billAmount: '240.000đ', occupiedDuration: '20 phút', checkInTime: '17:42' },
-      { code: 'Grab03', status: 'Reserved', capacity: 1, customerName: 'Grab #91' },
-      { code: 'Grab04', status: 'Available', capacity: 1 },
-      { code: 'Grab05', status: 'Arrived', capacity: 1, customerName: 'Grab #95' },
-    ]
-  },
-  {
-    name: 'Khu Catalog',
-    description: 'Đơn Take-away trực tiếp',
-    tables: [
-      { code: 'Catalog', status: 'Available', capacity: 1 },
-    ]
-  }
-]);
-
-// Expanded mock reservations with adult, child count, and date properties
-const bookings = ref<Booking[]>([
-  {
-    id: 'b1',
-    bookingNumber: 'NC-20260624-001',
-    customerName: 'Nguyễn Văn A',
-    phone: '0901234567',
-    adults: 4,
-    children: 0,
-    reservationTime: '18:30', // Evening
-    assignedTable: 'A02',
-    notes: 'Khách hàng thân thiết, cần bàn thoáng rộng rãi.',
-    status: 'Waiting',
-    date: '2026-06-24'
-  },
-  {
-    id: 'b2',
-    bookingNumber: 'NC-20260624-002',
-    customerName: 'Trần Thị B',
-    phone: '0987654321',
-    adults: 2,
-    children: 1,
-    reservationTime: '12:00', // Lunch
-    assignedTable: 'C03',
-    notes: 'Đặt tiệc sinh nhật nhẹ cho bé gái.',
-    status: 'Arrived',
-    date: '2026-06-24'
-  },
-  {
-    id: 'b3',
-    bookingNumber: 'NC-20260624-003',
-    customerName: 'Lê Văn C',
-    phone: '0912345678',
-    adults: 6,
-    children: 2,
-    reservationTime: '17:30', // Evening
-    assignedTable: 'A08',
-    notes: 'Khách gia đình dùng bữa tối.',
-    status: 'Seated',
-    date: '2026-06-24'
-  },
-  {
-    id: 'b4',
-    bookingNumber: 'NC-20260624-004',
-    customerName: 'Phạm Minh Hoàng',
-    phone: '0934567890',
-    adults: 8,
-    children: 0,
-    reservationTime: '20:00', // Evening
-    assignedTable: 'R05',
-    notes: 'Đặt phòng VIP ăn tối gặp gỡ đối tác.',
-    status: 'Waiting',
-    date: '2026-06-24'
-  },
-  {
-    id: 'b5',
-    bookingNumber: 'NC-20260624-005',
-    customerName: 'Đặng Thu Thảo',
-    phone: '0978123456',
-    adults: 3,
-    children: 1,
-    reservationTime: '19:30', // Evening
-    assignedTable: 'T02',
-    notes: 'Khách ngắm cảnh sân thượng đẹp.',
-    status: 'Waiting',
-    date: '2026-06-24'
-  },
-  
-  // Bookings on other dates
-  {
-    id: 'b6',
-    bookingNumber: 'NC-20260625-001',
-    customerName: 'Vũ Thị Minh',
-    phone: '0943210987',
-    adults: 2,
-    children: 0,
-    reservationTime: '11:30', // Lunch
-    assignedTable: 'C01',
-    notes: 'Khách đặt ăn trưa nhẹ.',
-    status: 'Waiting',
-    date: '2026-06-25'
-  },
-  {
-    id: 'b7',
-    bookingNumber: 'NC-20260625-002',
-    customerName: 'Đỗ Hữu Nam',
-    phone: '0956789012',
-    adults: 5,
-    children: 2,
-    reservationTime: '18:00', // Evening
-    assignedTable: 'R02',
-    notes: 'Khách họp gia đình liên hoan.',
-    status: 'Waiting',
-    date: '2026-06-23'
-  },
-  {
-    id: 'b9',
-    bookingNumber: 'NC-20260624-009',
-    customerName: 'Anh Huy (Ăn sáng)',
-    phone: '0911222333',
-    adults: 3,
-    children: 0,
-    reservationTime: '08:45',
-    assignedTable: 'A01',
-    notes: 'Đặt bàn ăn sáng họp nhóm.',
-    status: 'Waiting',
-    date: '2026-06-24'
-  },
-  {
-    id: 'b10',
-    bookingNumber: 'NC-20260624-010',
-    customerName: 'Đoàn khách họp chiều 1',
-    phone: '0933444555',
-    adults: 4,
-    children: 0,
-    reservationTime: '14:30',
-    assignedTable: 'A05',
-    notes: 'Khách họp bàn công việc.',
-    status: 'Waiting',
-    date: '2026-06-24'
-  },
-  {
-    id: 'b11',
-    bookingNumber: 'NC-20260624-011',
-    customerName: 'Đoàn khách họp chiều 2',
-    phone: '0955666777',
-    adults: 6,
-    children: 0,
-    reservationTime: '14:45',
-    assignedTable: 'A06',
-    notes: 'Ăn nhẹ buổi chiều.',
-    status: 'Waiting',
-    date: '2026-06-24'
-  },
-  {
-    id: 'b12',
-    bookingNumber: 'NC-20260624-012',
-    customerName: 'Đoàn khách họp chiều 3',
-    phone: '0977888999',
-    adults: 7,
-    children: 0,
-    reservationTime: '15:00',
-    assignedTable: 'B01',
-    notes: 'Họp trà chiều.',
-    status: 'Waiting',
-    date: '2026-06-24'
-  }
-]);
+const router = useRouter();
+const restaurantStore = useRestaurantStore();
+const { areas, bookings } = storeToRefs(restaurantStore);
 
 // ----------------------------------------------------
 // CALENDAR COMPUTED & NAVIGATION
@@ -1836,6 +1579,9 @@ function openTableFromBooking(booking: Booking) {
       
       const now = new Date();
       table.checkInTime = now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+
+      // Automatically open the order screen (Chọn món) for this table
+      goToOrderScreen(table.code);
     }
   }
 }
@@ -2057,6 +1803,29 @@ function openQuickOpenModal() {
   isQuickOpenModalOpen.value = true;
 }
 
+function goToOrderScreen(tableCode: string) {
+  // If editing in modal, apply those values first
+  if (isTableModalOpen.value && selectedTableForModal.value && selectedTableForModal.value.code === tableCode) {
+    tableModalForm.value.status = 'Serving';
+    saveTableModal();
+  }
+
+  const table = getTableByCode(tableCode);
+  if (table) {
+    if (table.status !== 'Serving') {
+      table.status = 'Serving';
+      table.customerName = table.customerName || 'Khách vãng lai';
+      table.billAmount = table.billAmount || '0đ';
+      table.occupiedDuration = table.occupiedDuration || '1 phút';
+      const now = new Date();
+      table.checkInTime = table.checkInTime || now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+    }
+    
+    restaurantStore.setSelectedTable(table.code);
+    router.push({ name: 'reception-order' });
+  }
+}
+
 function saveQuickOpen() {
   if (!quickOpenForm.value.tableCode) {
     alert('Vui lòng chọn bàn cần mở.');
@@ -2071,6 +1840,9 @@ function saveQuickOpen() {
     table.occupiedDuration = '1 phút';
     const now = new Date();
     table.checkInTime = now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+    
+    // Auto redirect to order page
+    goToOrderScreen(table.code);
   }
 
   isQuickOpenModalOpen.value = false;

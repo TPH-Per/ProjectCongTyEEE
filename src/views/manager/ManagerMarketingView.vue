@@ -1,7 +1,8 @@
 <template>
   <div class="min-h-screen bg-gray-50 p-6">
+
     <div v-if="loading" class="flex h-64 items-center justify-center text-gray-500 font-semibold">
-      Đang tải dữ liệu...
+      {{ t('auto_ang_t_i_d_li_u', 'Đang tải dữ liệu...') }}
     </div>
     <div v-else>
       <!-- Page Header -->
@@ -57,7 +58,7 @@
                 class="kawaii-input w-full text-sm pr-6"
                 @input="recalc"
               />
-              <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400">đ</span>
+              <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400">{{ t('auto_', 'đ') }}</span>
             </div>
           </div>
         </div>
@@ -73,7 +74,7 @@
           </div>
         </div>
         <button class="kawaii-btn-primary w-full py-2.5 text-sm font-semibold">
-          💾 Lưu Chi Phí
+          {{ t('auto_l_u_chi_ph', '💾 Lưu Chi Phí') }}
         </button>
       </div>
 
@@ -138,7 +139,7 @@
           class="kawaii-btn-ghost px-4 py-2.5 text-sm"
           @click="showResult = false"
         >
-          Xóa
+          {{ t('auto_x_a', 'Xóa') }}
         </button>
       </div>
       <!-- Result display -->
@@ -148,7 +149,7 @@
           <div class="flex flex-wrap gap-8 items-center">
             <div>
               <p class="text-xs text-gray-500">{{ t('auto_ng_y_15_16_06_2026') }}</p>
-              <p class="text-2xl font-extrabold text-gray-800 mt-1">34,200,000<span class="text-base font-normal text-gray-500">đ</span></p>
+              <p class="text-2xl font-extrabold text-gray-800 mt-1">34,200,000<span class="text-base font-normal text-gray-500">{{ t('auto_', 'đ') }}</span></p>
               <p class="text-xs text-green-600 font-medium mt-0.5">{{ t('auto___t_ng_doanh_thu_k__ch_n') }}</p>
             </div>
             <div class="w-px h-12 bg-pink-200"></div>
@@ -160,7 +161,7 @@
             <div class="w-px h-12 bg-pink-200"></div>
             <div>
               <p class="text-xs text-gray-500">{{ t('auto_chi_ti_u_tb___kh_ch') }}</p>
-              <p class="text-2xl font-extrabold text-pink-600 mt-1">183,871<span class="text-base font-normal text-pink-400">đ</span></p>
+              <p class="text-2xl font-extrabold text-pink-600 mt-1">183,871<span class="text-base font-normal text-pink-400">{{ t('auto_', 'đ') }}</span></p>
             </div>
           </div>
         </div>
@@ -328,3 +329,4 @@ onMounted(async () => {
 .fade-enter-active, .fade-leave-active { transition: opacity 0.3s, transform 0.3s; }
 .fade-enter-from, .fade-leave-to { opacity: 0; transform: translateY(-8px); }
 </style>
+

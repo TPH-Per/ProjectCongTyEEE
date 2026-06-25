@@ -1,7 +1,8 @@
 <template>
   <div class="min-h-screen bg-gray-50 p-6">
+
     <div v-if="loading" class="flex h-64 items-center justify-center text-gray-500 font-semibold">
-      Đang tải dữ liệu...
+      {{ t('auto_ang_t_i_d_li_u', 'Đang tải dữ liệu...') }}
     </div>
     <div v-else>
       <!-- Page Header -->
@@ -14,12 +15,12 @@
     <div class="grid grid-cols-3 gap-4 mb-6">
       <div class="kawaii-card p-5">
         <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Doanh Thu</p>
-        <p class="text-2xl font-bold text-gray-800">{{ revenue.toLocaleString('vi-VN') }}<span class="text-base font-normal text-gray-500">đ</span></p>
+        <p class="text-2xl font-bold text-gray-800">{{ revenue.toLocaleString('vi-VN') }}<span class="text-base font-normal text-gray-500">{{ t('auto_', 'đ') }}</span></p>
         <p class="text-xs text-green-500 mt-1 font-medium">{{ t('auto_h_m_nay') }}</p>
       </div>
       <div class="kawaii-card p-5">
         <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">{{ t('auto_t_ng_cogs') }}</p>
-        <p class="text-2xl font-bold text-gray-800">69,300,000<span class="text-base font-normal text-gray-500">đ</span></p>
+        <p class="text-2xl font-bold text-gray-800">69,300,000<span class="text-base font-normal text-gray-500">{{ t('auto_', 'đ') }}</span></p>
         <p class="text-xs text-gray-400 mt-1 font-medium">{{ t('auto_chi_ph__nguy_n_li_u_thu_n') }}</p>
       </div>
       <div class="kawaii-card p-5">
@@ -46,7 +47,7 @@
           <p class="text-xs text-gray-400 mt-0.5">{{ t('auto_click_ti_u____c_t____s_p_x_p') }}</p>
         </div>
         <button class="kawaii-btn-primary text-sm px-4 py-2 flex items-center gap-1.5">
-          <span class="text-lg leading-none">+</span> Thêm Món
+          <span class="text-lg leading-none">+</span> {{ t('auto_th_m_m_n', 'Thêm Món') }}
         </button>
       </div>
       <div class="overflow-x-auto">
@@ -143,7 +144,7 @@
             <div>
               <p class="text-sm font-bold text-red-700 mb-1">{{ t('auto_c_nh_b_o_cogs_cao') }}</p>
               <p class="text-sm text-red-600 leading-relaxed">
-                Món <strong>{{ t('auto_r__u_sake_ch_n') }}</strong> có COGS vượt 50% (56.2%), cần kiểm tra lại định giá hoặc thương lượng lại giá nhập.
+                {{ t('auto_m_n', 'Món') }} <strong>{{ t('auto_r__u_sake_ch_n') }}</strong> {{ t('auto_c_cogs_v_t_50_56_2_c_n', 'có COGS vượt 50% (56.2%), cần kiểm tra lại định giá hoặc thương lượng lại giá nhập.') }}
               </p>
             </div>
           </div>
@@ -151,7 +152,7 @@
         <div class="kawaii-card p-5 bg-blue-50 border-l-4 border-blue-300">
           <p class="text-xs font-bold text-blue-700 mb-1">{{ t('auto____g_i__') }}</p>
           <p class="text-xs text-blue-600 leading-relaxed">
-            Tỷ lệ COGS tổng thể <strong>35%</strong> đang trong ngưỡng an toàn. Mục tiêu dưới 38% cho quý này.
+            {{ t('auto_t_l_cogs_t_ng_th', 'Tỷ lệ COGS tổng thể') }} <strong>35%</strong> {{ t('auto_ang_trong_ng_ng_an_to_n_m_c', 'đang trong ngưỡng an toàn. Mục tiêu dưới 38% cho quý này.') }}
           </p>
         </div>
       </div>
@@ -273,3 +274,4 @@ onMounted(async () => {
   }
 })
 </script>
+

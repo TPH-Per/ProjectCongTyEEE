@@ -1,15 +1,12 @@
 <template>
   <div class="flex h-screen overflow-hidden bg-[hsl(var(--background))]">
     <!-- Sidebar -->
-    <aside class="w-64 border-r border-[hsl(var(--border))] bg-white flex flex-col shrink-0">
+    <div v-if="isMobileMenuOpen" class="fixed inset-0 bg-black/50 z-40 lg:hidden" @click="isMobileMenuOpen = false"></div>
+    <aside :class="['border-r border-[hsl(var(--border))] bg-white flex flex-col shrink-0 w-64 fixed inset-y-0 left-0 z-50 transform transition-transform duration-300 lg:relative lg:translate-x-0', isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full']">
       <div class="p-5 border-b border-[hsl(var(--border))]">
         <div class="flex items-center gap-2.5">
-          <div class="w-10 h-10 rounded-2xl bg-gray-900 flex items-center justify-center text-white font-black text-base shadow-md">
-            NC
-          </div>
-          <div>
-            <h1 class="text-sm font-black text-[hsl(var(--foreground))] tracking-tight">NGƯU CÁT</h1>
-            <p class="text-[10px] text-[hsl(var(--muted-foreground))] font-bold uppercase tracking-wider">Admin Portal</p>
+          <div class="flex items-center gap-2.5">
+            <img src="/images/nguucat-logo.png" alt="Ngưu Cát Logo" class="h-10 w-auto object-contain" />
           </div>
         </div>
       </div>
@@ -74,7 +71,7 @@
 
         <!-- User Profile Card -->
         <div @click="isDropdownOpen = !isDropdownOpen" class="flex items-center gap-2.5 px-3 py-2 rounded-2xl bg-gray-900 cursor-pointer select-none">
-          <div class="w-9 h-9 rounded-full bg-white flex items-center justify-center text-gray-900 text-sm font-black">AD</div>
+          <img :src="stickerUrl" alt="Avatar" class="w-10 h-10 object-contain drop-shadow-sm bg-white/10 rounded-full" />
           <div class="flex-1 min-w-0">
             <div class="text-xs font-extrabold text-white truncate">System Admin</div>
             <div class="text-[10px] text-gray-400 font-semibold">Super User</div>
@@ -86,14 +83,20 @@
     <main class="flex-1 flex flex-col overflow-hidden">
       <header class="h-16 border-b border-[hsl(var(--border))] bg-white flex items-center justify-between px-6 shrink-0">
         <div class="flex items-center gap-3">
+          <button @click="isMobileMenuOpen = true" class="lg:hidden mr-3 p-2 rounded-lg hover:bg-gray-100"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
           <h2 class="text-lg font-bold text-gray-800">Quản Trị Hệ Thống</h2>
         </div>
+        <!-- Logos in Header -->
+        <div class="flex items-center gap-4 ml-auto mr-4">
+        </div>
+
         <div class="flex items-center gap-3">
           <button class="relative p-2 rounded-2xl hover:bg-[hsl(var(--muted))] transition-colors">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
           </button>
         </div>
-      </header>
+      <LanguageSwitcher />
+        </header>
       <section class="flex-1 overflow-auto p-6 bg-gray-50/50">
         <RouterView />
       </section>
@@ -102,13 +105,18 @@
 </template>
 
 <script setup lang="ts">
+import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
+const isMobileMenuOpen = ref(false)
+
 import { ref } from 'vue'
 import { RouterView, RouterLink, useRoute, useRouter } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'
+import { useUserSticker } from '@/composables/useUserSticker'
 
 const $route = useRoute()
 const router = useRouter()
 const { signOut } = useAuth()
+const { stickerUrl } = useUserSticker()
 const isDropdownOpen = ref(false)
 
 async function handleSignOut() {

@@ -12,23 +12,17 @@ export function useMenu() {
     loading.value = true
     error.value = null
     const { data, error: err } = await supabase
-      .from('menu_items')
-      .select('category')
+      .from('menu_categories')
+      .select('*')
       .eq('branch_id', activeBranchId.value!)
-      .eq('is_available', true)
+      .eq('is_active', true)
+      .order('sort_order')
     loading.value = false
     if (err) {
       error.value = err.message
       throw err
     }
-    const unique = [...new Set((data || []).map((i: any) => i.category))]
-    return unique.map(c => ({
-      id: c,
-      branch_id: activeBranchId.value!,
-      name: c,
-      is_active: true,
-      sort_order: 1
-    })) as MenuCategory[]
+    return (data ?? []) as MenuCategory[]
   }
 
   async function getItems(categoryId?: string): Promise<MenuItem[]> {
@@ -36,11 +30,11 @@ export function useMenu() {
     error.value = null
     let q = supabase
       .from('menu_items')
-      .select('*')
+      .select('*, menu_categories(name)')
       .eq('branch_id', activeBranchId.value!)
       .eq('is_available', true)
       .order('name')
-    if (categoryId) q = q.eq('category', categoryId)
+    if (categoryId) q = q.eq('category_id', categoryId)
     const { data, error: err } = await q
     loading.value = false
     if (err) {

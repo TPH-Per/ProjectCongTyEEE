@@ -1,7 +1,8 @@
 <template>
   <div class="min-h-screen bg-gray-50 p-6">
+
     <div v-if="loading" class="flex h-64 items-center justify-center text-gray-500 font-semibold">
-      Đang tải dữ liệu...
+      {{ t('auto_ang_t_i_d_li_u', 'Đang tải dữ liệu...') }}
     </div>
     <div v-else>
       <!-- Page Header -->
@@ -50,11 +51,11 @@
         <div class="mt-4 flex gap-4 text-xs text-gray-500">
           <div class="flex items-center gap-1.5">
             <span class="w-3 h-3 rounded-full inline-block" style="background:#FF7B89"></span>
-            Quay lại
+            {{ t('auto_quay_l_i', 'Quay lại') }}
           </div>
           <div class="flex items-center gap-1.5">
             <span class="w-3 h-3 rounded-full inline-block bg-gray-200"></span>
-            Lần đầu
+            {{ t('auto_l_n_u', 'Lần đầu') }}
           </div>
         </div>
       </div>
@@ -113,7 +114,7 @@
             <input
               v-model="searchQuery"
               type="text"
-              placeholder="Tìm theo SĐT hoặc tên..."
+              :placeholder="t('auto_t_m_theo_s_t_ho_c_t_n', 'Tìm theo SĐT hoặc tên...')"
               class="kawaii-input pl-8 text-sm w-64"
             />
           </div>
@@ -351,3 +352,4 @@ const filteredCustomers = computed(() => {
   return list
 })
 </script>
+

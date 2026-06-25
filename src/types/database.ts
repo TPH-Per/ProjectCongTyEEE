@@ -121,7 +121,8 @@ export interface CustomerRow {
 export interface MenuItemRow {
   id: string
   branch_id: string
-  category: string
+  category_id: string
+  menu_categories?: { name: string }
   name: string
   i18n_name: I18nString
   description: string | null

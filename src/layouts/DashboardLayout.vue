@@ -4,13 +4,7 @@
     <aside class="w-60 border-r border-[hsl(var(--border))] bg-white flex flex-col shrink-0">
       <div class="p-5 border-b border-[hsl(var(--border))]">
         <div class="flex items-center gap-2.5">
-          <div class="w-10 h-10 rounded-2xl kawaii-gradient flex items-center justify-center text-white font-black text-base shadow-md">
-            🐂
-          </div>
-          <div>
-            <h1 class="text-sm font-black text-[hsl(var(--foreground))] tracking-tight">NGƯU CÁT</h1>
-            <p class="text-[10px] text-[hsl(var(--muted-foreground))] font-bold uppercase tracking-wider">{{ t('app.subtitle') }}</p>
-          </div>
+          <img src="/images/nguucat-logo.png" alt="Ngưu Cát Logo" class="h-10 w-auto object-contain" />
         </div>
       </div>
 
@@ -82,9 +76,6 @@
 
       <div class="p-3 border-t border-[hsl(var(--border))] space-y-1">
         <div class="flex items-center gap-2.5 px-3 py-2 rounded-2xl bg-[hsl(var(--muted))]">
-          <div class="w-9 h-9 rounded-full kawaii-gradient flex items-center justify-center text-white text-sm font-black">
-            NA
-          </div>
           <div class="flex-1 min-w-0">
             <div class="text-xs font-extrabold text-[hsl(var(--foreground))] truncate">{{ t('header.profile_name') }}</div>
             <div class="text-[10px] text-[hsl(var(--muted-foreground))] font-semibold">{{ t('header.profile_role') }}</div>
@@ -156,13 +147,11 @@
           </button>
           <div class="w-px h-6 bg-[hsl(var(--border))]" />
           <div class="flex items-center gap-2">
-            <div class="w-9 h-9 rounded-full kawaii-gradient flex items-center justify-center text-white text-xs font-black">
-              NA
-            </div>
             <ChevronDown :size="14" class="text-[hsl(var(--muted-foreground))]" />
           </div>
         </div>
-      </header>
+      <LanguageSwitcher />
+        </header>
 
       <!-- Scrollable Content -->
       <section class="flex-1 overflow-auto p-6">
@@ -173,6 +162,7 @@
 </template>
 
 <script setup lang="ts">
+import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute, RouterView, RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'

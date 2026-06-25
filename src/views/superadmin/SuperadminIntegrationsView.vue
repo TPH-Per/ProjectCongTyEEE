@@ -1,5 +1,6 @@
 <template>
   <div class="space-y-6 max-w-4xl mx-auto">
+
     <div>
       <h2 class="text-2xl font-bold text-gray-800 mb-2">{{ t('auto_t_ch_h_p_h__th_ng__api___erp_') }}</h2>
       <p class="text-sm text-gray-500">{{ t('auto_c_u_h_nh_k_t_n_i_v_i_c_c___i_t') }}</p>
@@ -31,7 +32,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">App ID</label>
-            <input type="text" v-model="integrations.misa.appId" class="kawaii-input w-full" placeholder="Nhập App ID" />
+            <input type="text" v-model="integrations.misa.appId" class="kawaii-input w-full" :placeholder="t('auto_nh_p_app_id', 'Nhập App ID')" />
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Secret Key</label>
@@ -73,7 +74,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Client ID</label>
-            <input type="text" class="kawaii-input w-full" placeholder="Nhập Client ID" />
+            <input type="text" class="kawaii-input w-full" :placeholder="t('auto_nh_p_client_id', 'Nhập Client ID')" />
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Client Secret</label>
@@ -117,7 +118,7 @@
       <div v-if="integrations.basehr.enabled" class="space-y-4 pt-4 border-t border-gray-100">
          <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Access Token</label>
-          <input type="password" class="kawaii-input w-full" placeholder="Nhập mã Access Token từ Base.vn" />
+          <input type="password" class="kawaii-input w-full" :placeholder="t('auto_nh_p_m_access_token_t_base_v', 'Nhập mã Access Token từ Base.vn')" />
         </div>
         <div class="flex justify-end pt-2">
           <button class="kawaii-btn-primary">{{ t('auto_l_u_c_u_h_nh') }}</button>
@@ -151,3 +152,4 @@ const integrations = reactive({
   }
 })
 </script>
+

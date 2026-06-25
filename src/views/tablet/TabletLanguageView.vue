@@ -1,5 +1,6 @@
 <template>
   <div class="flex-1 flex flex-col items-center justify-center bg-[#111111] p-8">
+
     <h1 class="text-4xl font-bold mb-12 text-center text-white">Please Select Your Language<br><span class="text-2xl text-gray-400 font-medium mt-2 block">{{ t('auto_______________vui_l_ng_ch_n_ng') }}</span></h1>
     
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-4xl">
@@ -25,3 +26,4 @@
 import { useI18n } from 'vue-i18n';
 const { t } = useI18n();
 </script>
+

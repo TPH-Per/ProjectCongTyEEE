@@ -1,5 +1,6 @@
 <template>
   <div class="space-y-6">
+
     <!-- Page Header -->
     <div class="flex items-start justify-between">
       <div>
@@ -9,11 +10,11 @@
       <div class="flex gap-2">
         <button class="kawaii-btn-ghost px-4 py-2 text-sm font-bold flex items-center gap-2">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
-          Xuất CSV
+          {{ t('auto_xu_t_csv', 'Xuất CSV') }}
         </button>
         <button class="kawaii-btn-primary px-4 py-2 text-sm font-bold flex items-center gap-2">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-          Gửi Hóa Đơn Đỏ
+          {{ t('auto_g_i_h_a_n', 'Gửi Hóa Đơn Đỏ') }}
         </button>
       </div>
     </div>
@@ -125,7 +126,7 @@
     <div class="kawaii-card p-6">
       <h3 class="font-bold text-base text-[hsl(var(--foreground))] mb-4 flex items-center gap-2">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-red-500"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-        Tổng Kết Xuất Hóa Đơn Đỏ — Ngày 20/06/2026
+        {{ t('auto_t_ng_k_t_xu_t_h_a_n_ng', 'Tổng Kết Xuất Hóa Đơn Đỏ — Ngày 20/06/2026') }}
       </h3>
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <div class="bg-red-50 border border-red-100 rounded-xl p-3 text-center">
@@ -154,10 +155,10 @@
       </div>
       <div class="flex gap-3 mt-4">
         <button class="kawaii-btn-ghost px-4 py-2 text-sm font-bold flex-1">
-          Tải Mẫu XML (Cục Thuế)
+          {{ t('auto_t_i_m_u_xml_c_c_thu', 'Tải Mẫu XML (Cục Thuế)') }}
         </button>
         <button class="kawaii-btn-primary px-6 py-2 text-sm font-bold flex-1">
-          Gửi Dữ Liệu Lên Cục Thuế
+          {{ t('auto_g_i_d_li_u_l_n_c_c_thu', 'Gửi Dữ Liệu Lên Cục Thuế') }}
         </button>
       </div>
     </div>
@@ -180,3 +181,4 @@ const beverageItems = [
   { name: 'Nước Ngọt Assorted', openStock: 200, used: 145, closeStock: 55, price: 15000 },
 ]
 </script>
+

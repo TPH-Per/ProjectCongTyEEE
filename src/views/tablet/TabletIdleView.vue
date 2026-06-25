@@ -1,5 +1,6 @@
 <template>
   <div class="flex-1 flex flex-col items-center justify-center relative p-8">
+
     <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1541535882678-578f44ce2f5c?auto=format&fit=crop&q=80')] bg-cover bg-center opacity-20"></div>
     
     <div class="relative z-10 flex flex-col items-center max-w-lg w-full">
@@ -29,3 +30,4 @@
 import { useI18n } from 'vue-i18n';
 const { t } = useI18n();
 </script>
+

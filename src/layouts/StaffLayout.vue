@@ -4,13 +4,7 @@
     <aside class="w-64 border-r border-[hsl(var(--border))] bg-white flex flex-col shrink-0">
       <div class="p-5 border-b border-[hsl(var(--border))]">
         <div class="flex items-center gap-2.5">
-          <div class="w-10 h-10 rounded-2xl kawaii-gradient flex items-center justify-center text-white font-black text-base shadow-md">
-            NC
-          </div>
-          <div>
-            <h1 class="text-sm font-black text-[hsl(var(--foreground))] tracking-tight">NGƯU CÁT</h1>
-            <p class="text-[10px] text-[hsl(var(--muted-foreground))] font-bold uppercase tracking-wider">Nhân viên Phục vụ</p>
-          </div>
+          <img src="/images/nguucat-logo.png" alt="Ngưu Cát Logo" class="h-10 w-auto object-contain" />
         </div>
       </div>
 
@@ -46,7 +40,7 @@
 
         <!-- User Profile Card -->
         <div @click="isDropdownOpen = !isDropdownOpen" class="flex items-center gap-2.5 px-3 py-2 rounded-2xl bg-[hsl(var(--muted))] cursor-pointer select-none">
-          <div class="w-9 h-9 rounded-full kawaii-gradient flex items-center justify-center text-white text-sm font-black">NV</div>
+          <img :src="stickerUrl" alt="Avatar" class="w-9 h-9 object-contain drop-shadow-sm rounded-full" />
           <div class="flex-1 min-w-0">
             <div class="text-xs font-extrabold text-[hsl(var(--foreground))] truncate">Nguyễn Văn A</div>
             <div class="text-[10px] text-[hsl(var(--muted-foreground))] font-semibold">Nhân viên phục vụ (NV01)</div>
@@ -69,7 +63,8 @@
             <span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-[hsl(var(--primary))]" />
           </button>
         </div>
-      </header>
+      <LanguageSwitcher />
+        </header>
       <section class="flex-1 overflow-auto p-6">
         <RouterView />
       </section>
@@ -78,13 +73,16 @@
 </template>
 
 <script setup lang="ts">
+import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
 import { ref } from 'vue'
 import { RouterView, RouterLink, useRoute, useRouter } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'
+import { useUserSticker } from '@/composables/useUserSticker'
 
 const $route = useRoute()
 const router = useRouter()
 const { signOut } = useAuth()
+const { stickerUrl } = useUserSticker()
 const isDropdownOpen = ref(false)
 
 async function handleSignOut() {

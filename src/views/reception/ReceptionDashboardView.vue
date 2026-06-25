@@ -1,5 +1,6 @@
 <template>
   <div>
+
     <div class="mb-6 flex items-center justify-between">
       <div>
         <h2 class="text-2xl font-bold text-gray-900">{{ t('auto_t_ng_quan_ca_l_m_vi_c') }}</h2>
@@ -37,12 +38,12 @@
         <div class="text-3xl font-black text-gray-900 mb-1">Bàn {{ table.code }}</div>
         <div class="text-sm text-gray-600 mb-6">{{ table.capacity || 4 }} Khách</div>
         <RouterLink :to="`/reception/checkout/${table.id}`" class="block w-full bg-red-600 hover:bg-red-700 text-white text-center font-bold py-3 rounded-xl transition-colors">
-          Tiến Hành Thanh Toán
+          {{ t('auto_ti_n_h_nh_thanh_to_n', 'Tiến Hành Thanh Toán') }}
         </RouterLink>
       </div>
 
       <div v-if="checkoutTables.length === 0" class="col-span-full text-sm text-gray-400">
-        Không có yêu cầu thanh toán nào.
+        {{ t('auto_kh_ng_c_y_u_c_u_thanh_to_n_n', 'Không có yêu cầu thanh toán nào.') }}
       </div>
     </div>
 
@@ -120,3 +121,4 @@ onMounted(() => {
   })
 })
 </script>
+

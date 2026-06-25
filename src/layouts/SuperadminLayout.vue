@@ -3,7 +3,7 @@
     <!-- Sidebar -->
     <aside class="w-64 bg-white kawaii-shadow flex flex-col z-20">
       <div class="h-16 flex items-center justify-center border-b border-gray-100 kawaii-gradient">
-        <h1 class="text-xl font-bold text-white tracking-wide">Ngưu Cát Portal</h1>
+        <img src="/images/nguucat-logo.png" alt="Ngưu Cát Logo" class="h-8 w-auto object-contain" />
       </div>
       <nav class="flex-1 overflow-y-auto py-4">
         <ul class="space-y-1 px-3">
@@ -38,10 +38,8 @@
             <!-- Backdrop to close dropdown on click outside -->
             <div v-if="isDropdownOpen" class="fixed inset-0 z-40" @click="isDropdownOpen = false"></div>
 
-            <div @click="isDropdownOpen = !isDropdownOpen" class="flex items-center space-x-2 cursor-pointer p-1 rounded-xl hover:bg-gray-50 transition-colors select-none z-50 relative">
-              <div class="w-8 h-8 rounded-full bg-rose-200 flex items-center justify-center text-[#FF7B89] font-bold">
-                SA
-              </div>
+            <div @click="isDropdownOpen = !isDropdownOpen" class="flex items-center gap-2 cursor-pointer p-1 rounded-xl hover:bg-gray-50 transition-colors select-none z-50 relative">
+              <img :src="stickerUrl" alt="Avatar" class="w-8 h-8 object-contain drop-shadow-sm rounded-full" />
               <span class="text-sm font-medium hidden md:block">Superadmin</span>
               <ChevronDownIcon class="w-4 h-4 text-gray-400" />
             </div>
@@ -55,7 +53,8 @@
             </div>
           </div>
         </div>
-      </header>
+      <LanguageSwitcher />
+        </header>
 
       <!-- Page Content -->
       <main class="flex-1 overflow-y-auto p-6">
@@ -72,9 +71,11 @@
 </template>
 
 <script setup lang="ts">
+import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
 import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'
+import { useUserSticker } from '@/composables/useUserSticker'
 import { 
   LayoutDashboardIcon, 
   StoreIcon, 
@@ -88,6 +89,7 @@ import {
 const route = useRoute()
 const router = useRouter()
 const { signOut } = useAuth()
+const { stickerUrl } = useUserSticker()
 const isDropdownOpen = ref(false)
 
 const menuItems = [

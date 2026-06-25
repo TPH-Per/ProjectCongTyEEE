@@ -1,8 +1,9 @@
 <template>
   <div class="p-6 max-w-7xl mx-auto">
+
     <div class="mb-8">
       <h1 class="text-3xl font-bold text-gray-800 mb-2 flex items-center gap-2">
-        <span class="text-[#FF7B89]">🎯</span> Quản Lý KPI / KGI
+        <span class="text-[#FF7B89]">🎯</span> {{ t('auto_qu_n_l_kpi_kgi', 'Quản Lý KPI / KGI') }}
       </h1>
       <p class="text-gray-500">{{ t('auto_c_u_h_nh_v__theo_d_i_m_c_ti_u_') }}</p>
     </div>
@@ -11,7 +12,7 @@
       <!-- Cấu hình KPI Form -->
       <div class="kawaii-card lg:col-span-1 p-6">
         <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-          <span class="text-[#FF7B89]">⚙️</span> Thiết Lập Mục Tiêu
+          <span class="text-[#FF7B89]">⚙️</span> {{ t('auto_thi_t_l_p_m_c_ti_u', 'Thiết Lập Mục Tiêu') }}
         </h2>
         
         <form @submit.prevent="saveKPI" class="space-y-4">
@@ -22,27 +23,27 @@
           
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('auto_m_c_ti_u_doanh_thu__vn__') }}</label>
-            <input type="number" v-model="form.revenue" placeholder="Ví dụ: 500000000" class="kawaii-input w-full" />
+            <input type="number" v-model="form.revenue" :placeholder="t('auto_v_d_500000000', 'Ví dụ: 500000000')" class="kawaii-input w-full" />
           </div>
 
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('auto_m_c_ti_u_s__kh_ch') }}</label>
-            <input type="number" v-model="form.guests" placeholder="Ví dụ: 1500" class="kawaii-input w-full" />
+            <input type="number" v-model="form.guests" :placeholder="t('auto_v_d_1500', 'Ví dụ: 1500')" class="kawaii-input w-full" />
           </div>
 
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('auto_t__l__cogs_t_i__a____') }}</label>
-            <input type="number" v-model="form.cogsRatio" placeholder="Ví dụ: 30" class="kawaii-input w-full" />
+            <input type="number" v-model="form.cogsRatio" :placeholder="t('auto_v_d_30', 'Ví dụ: 30')" class="kawaii-input w-full" />
           </div>
 
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('auto_t__l__l_p___y_b_n____') }}</label>
-            <input type="number" v-model="form.fillRate" placeholder="Ví dụ: 80" class="kawaii-input w-full" />
+            <input type="number" v-model="form.fillRate" :placeholder="t('auto_v_d_80', 'Ví dụ: 80')" class="kawaii-input w-full" />
           </div>
 
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('auto_gi__tr__tb_h_a___n__vn__') }}</label>
-            <input type="number" v-model="form.avgCheck" placeholder="Ví dụ: 350000" class="kawaii-input w-full" />
+            <input type="number" v-model="form.avgCheck" :placeholder="t('auto_v_d_350000', 'Ví dụ: 350000')" class="kawaii-input w-full" />
           </div>
 
           <button type="submit" :disabled="loading" class="kawaii-btn-primary w-full mt-4 flex justify-center items-center gap-2 py-3 rounded-xl font-bold">
@@ -56,7 +57,7 @@
         <div class="kawaii-card p-6">
           <div class="flex justify-between items-center mb-6">
             <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
-              <span class="text-[#FF7B89]">📊</span> Hiện Trạng vs Mục Tiêu (Tháng này)
+              <span class="text-[#FF7B89]">📊</span> {{ t('auto_hi_n_tr_ng_vs_m_c_ti_u_th_ng', 'Hiện Trạng vs Mục Tiêu (Tháng này)') }}
             </h2>
           </div>
           
@@ -110,7 +111,7 @@
 
         <div class="kawaii-card p-6">
           <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-            <span class="text-[#FF7B89]">📋</span> Lịch Sử Cấu Hình
+            <span class="text-[#FF7B89]">📋</span> {{ t('auto_l_ch_s_c_u_h_nh', 'Lịch Sử Cấu Hình') }}
           </h2>
           <div class="overflow-x-auto rounded-2xl border border-gray-100">
             <table class="w-full text-left border-collapse">
@@ -128,7 +129,7 @@
               <tbody>
                 <tr v-if="kpiHistory.length === 0" class="border-b border-gray-50">
                   <td colspan="7" class="py-6 px-4 text-center text-sm text-gray-500">
-                    Chưa có dữ liệu KPI nào
+                    {{ t('auto_ch_a_c_d_li_u_kpi_n_o', 'Chưa có dữ liệu KPI nào') }}
                   </td>
                 </tr>
                 <tr v-for="kpi in kpiHistory" :key="kpi.month" class="border-b border-gray-50 hover:bg-pink-50/30 transition-colors">
@@ -154,6 +155,7 @@
 </template>
 
 <script setup lang="ts">
+import Swal from 'sweetalert2';
 import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
 import { ref, onMounted } from 'vue'
@@ -232,10 +234,10 @@ const saveKPI = async () => {
         scope: 'branch'
       })
     }
-    alert('Đã lưu cấu hình KPI!')
+    Swal.fire('Thông báo', 'Đã lưu cấu hình KPI!', 'info')
     await fetchKPIs()
   } catch (err) {
-    alert('Có lỗi xảy ra: ' + (error.value || err))
+    Swal.fire('Lỗi', 'Có lỗi xảy ra: ' + (error.value || err), 'error')
   }
 }
 
@@ -250,3 +252,4 @@ const editKPI = (kpi: any) => {
   }
 }
 </script>
+

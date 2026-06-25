@@ -4,13 +4,7 @@
     <aside class="w-64 border-r bg-white flex flex-col shrink-0 shadow-sm">
       <div class="p-5 border-b">
         <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-xl bg-red-600 flex items-center justify-center text-white font-black text-lg shadow-md">
-            🐂
-          </div>
-          <div>
-            <h1 class="text-base font-black text-gray-900 tracking-tight">NGƯU CÁT</h1>
-            <p class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Thu Ngân POS</p>
-          </div>
+          <img src="/images/nguucat-logo.png" alt="Ngưu Cát Logo" class="h-10 w-auto object-contain" />
         </div>
       </div>
       <nav class="flex-1 px-4 space-y-2 py-6 overflow-y-auto">
@@ -42,7 +36,7 @@
 
         <!-- User Profile Card -->
         <div @click="isDropdownOpen = !isDropdownOpen" class="flex items-center gap-3 px-3 py-2 rounded-xl bg-gray-100 cursor-pointer select-none">
-          <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-xs font-bold text-gray-700">TN</div>
+          <img :src="stickerUrl" alt="Avatar" class="w-8 h-8 object-contain drop-shadow-sm rounded-full" />
           <div class="flex-1 min-w-0">
             <div class="text-xs font-bold text-gray-900 truncate">Thu Ngân 01</div>
           </div>
@@ -55,7 +49,8 @@
         <div class="flex items-center gap-2">
            <span class="text-sm font-semibold text-gray-500">Chi nhánh 1</span>
         </div>
-      </header>
+      <LanguageSwitcher />
+        </header>
       <section class="flex-1 overflow-auto bg-gray-50 p-6">
         <RouterView />
       </section>
@@ -64,13 +59,16 @@
 </template>
 
 <script setup lang="ts">
+import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
 import { ref, computed } from 'vue'
 import { RouterView, RouterLink, useRouter, useRoute } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'
+import { useUserSticker } from '@/composables/useUserSticker'
 
 const router = useRouter()
 const route = useRoute()
 const { signOut } = useAuth()
+const { stickerUrl } = useUserSticker()
 const isDropdownOpen = ref(false)
 
 const headerTitle = computed(() => {

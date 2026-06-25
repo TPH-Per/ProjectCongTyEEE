@@ -1,5 +1,6 @@
 <template>
   <div class="space-y-6">
+
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
       <div>
         <h2 class="text-2xl font-bold text-gray-800">{{ t('auto_qu_n_l__chi_nh_nh') }}</h2>
@@ -7,7 +8,7 @@
       </div>
       <button class="kawaii-btn-primary flex items-center shadow-lg shadow-rose-200">
         <PlusIcon class="w-5 h-5 mr-2" />
-        Thêm chi nhánh mới
+        {{ t('auto_th_m_chi_nh_nh_m_i', 'Thêm chi nhánh mới') }}
       </button>
     </div>
 
@@ -17,7 +18,7 @@
         <SearchIcon class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
         <input 
           type="text" 
-          placeholder="Tìm kiếm chi nhánh, quản lý..." 
+          :placeholder="t('auto_t_m_ki_m_chi_nh_nh_qu_n_l', 'Tìm kiếm chi nhánh, quản lý...')" 
           class="kawaii-input pl-10 w-full"
         />
       </div>
@@ -81,7 +82,7 @@
         </div>
       </div>
       <div v-if="loading" class="col-span-full text-center py-8 text-gray-500">
-        Đang tải...
+        {{ t('auto_ang_t_i', 'Đang tải...') }}
       </div>
     </div>
   </div>
@@ -126,3 +127,4 @@ onMounted(async () => {
   }
 })
 </script>
+

@@ -5,7 +5,7 @@
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-gray-200/80 pb-3">
       <div>
         <h1 class="text-2xl font-black text-gray-900 tracking-tight flex items-center gap-2">
-          <span>🖥️</span> Trung Tâm Điều Phối & Sơ Đồ Bàn
+          <span>🖥️</span> {{ t('auto_trung_t_m_i_u_ph_i_s_b', 'Trung Tâm Điều Phối & Sơ Đồ Bàn') }}
         </h1>
         <p class="text-xs text-gray-500 font-medium mt-0.5">{{ t('auto_m_n_h_nh_ki_m_so_t_v_n_h_nh_th') }}</p>
       </div>
@@ -14,19 +14,19 @@
       <div class="flex items-center gap-2 text-[10px] font-black uppercase tracking-wider">
         <div class="flex items-center gap-1 bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-xl border border-emerald-100/50">
           <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-          Trống
+          {{ t('auto_tr_ng', 'Trống') }}
         </div>
         <div class="flex items-center gap-1 bg-amber-50 text-amber-700 px-2.5 py-1 rounded-xl border border-amber-100/50">
           <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-          Đặt trước
+          {{ t('auto_t_tr_c', 'Đặt trước') }}
         </div>
         <div class="flex items-center gap-1 bg-blue-50 text-blue-700 px-2.5 py-1 rounded-xl border border-blue-100/50">
           <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
-          Đã đến
+          {{ t('auto_n', 'Đã đến') }}
         </div>
         <div class="flex items-center gap-1 bg-rose-50 text-rose-700 px-2.5 py-1 rounded-xl border border-rose-100/50">
           <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
-          Phục vụ
+          {{ t('auto_ph_c_v', 'Phục vụ') }}
         </div>
       </div>
     </div>
@@ -81,7 +81,7 @@
           @click="resetToRealTimeOnly"
           class="px-3 py-1 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-[10px] font-black shadow-sm active:scale-95 transition-all"
         >
-          Đặt về Hiện tại
+          {{ t('auto_t_v_hi_n_t_i', 'Đặt về Hiện tại') }}
         </button>
       </div>
     </div>
@@ -133,6 +133,25 @@
           </span>
         </div>
       </div>
+
+      <div class="ml-auto flex items-center gap-2">
+        <button 
+          @click="isEditModeEnabled = !isEditModeEnabled"
+          :class="[
+            'px-3 py-1.5 rounded-xl text-xs font-black transition-all shadow-sm flex items-center gap-1.5 active:scale-95',
+            isEditModeEnabled ? 'bg-amber-100 text-amber-700 border border-amber-200' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
+          ]"
+        >
+          <span>{{ isEditModeEnabled ? '🔓 Chế độ Sắp Xếp' : '🔒 Sắp xếp' }}</span>
+        </button>
+        <button 
+          v-if="isEditModeEnabled"
+          @click="openCreateTableModal"
+          class="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-xs font-black shadow-sm active:scale-95 transition-all flex items-center gap-1.5"
+        >
+          <span>{{ t('auto_th_m_b_n', '+ Thêm Bàn') }}</span>
+        </button>
+      </div>
     </div>
 
     <!-- 2. REORGANIZED MAIN CONTENT AREA -->
@@ -144,7 +163,7 @@
           
           <div class="flex justify-between items-center mb-3.5 border-b border-gray-100 pb-2">
             <h2 class="text-sm font-black text-gray-800 uppercase tracking-wider flex items-center gap-1.5">
-              🪑 Bản đồ phân khu: 
+              {{ t('auto_b_n_ph_n_khu', '🪑 Bản đồ phân khu:') }} 
               <span class="text-[#FF7B89] font-black text-sm">{{ selectedZoneLabel }}</span>
             </h2>
             <span class="text-[10px] text-gray-400 font-bold">{{ t('auto_l__i_b_n_t____ng_c_n_ch_nh') }}</span>
@@ -177,9 +196,12 @@
                   <!-- Card Header: Code & Badge -->
                   <div class="flex justify-between items-start gap-1">
                     <span class="font-black text-base text-gray-900 leading-none">{{ table.code }}</span>
-                    <span :class="['text-[8px] font-black uppercase px-1.5 py-0.5 rounded leading-none border', getBadgeColorClass(table.status)]">
-                      {{ translateTableStatus(table.status) }}
-                    </span>
+                    <div class="flex items-center gap-1">
+                      <button v-if="isEditModeEnabled" @click.stop="deleteTable(table.code)" class="text-[8px] px-1.5 py-0.5 bg-red-100 text-red-600 rounded hover:bg-red-200 border border-red-200" :title="t('auto_x_a_b_n', 'Xóa bàn')">✕</button>
+                      <span :class="['text-[8px] font-black uppercase px-1.5 py-0.5 rounded leading-none border', getBadgeColorClass(table.status)]">
+                        {{ translateTableStatus(table.status) }}
+                      </span>
+                    </div>
                   </div>
 
                   <!-- Card Body: Custom contents based on status -->
@@ -224,7 +246,7 @@
             </div>
             
             <div v-if="filteredAreas.length === 0" class="py-12 text-center text-gray-400 font-medium text-xs">
-              Không tìm thấy bàn nào thuộc phân khu này.
+              {{ t('auto_kh_ng_t_m_th_y_b_n_n_o_thu_c_p', 'Không tìm thấy bàn nào thuộc phân khu này.') }}
             </div>
           </div>
         </div>
@@ -237,7 +259,7 @@
           <!-- Calendar Title -->
           <div class="flex justify-between items-center mb-2 pb-1 border-b border-gray-100">
             <h3 class="text-xs font-black text-gray-800 uppercase tracking-wider flex items-center gap-1">
-              📅 Lịch Trình Đặt Bàn
+              {{ t('auto_l_ch_tr_nh_t_b_n', '📅 Lịch Trình Đặt Bàn') }}
             </h3>
             <span class="text-[9px] text-gray-400 font-bold">{{ t('auto_th_ng_tr_c_quan') }}</span>
           </div>
@@ -362,11 +384,11 @@
               <div class="flex justify-between items-center border-t border-gray-100 pt-2 mt-1 shrink-0">
                 <span class="text-[8px] text-gray-400 font-extrabold uppercase">{{ t('auto_thao_t_c_') }}</span>
                 <div class="flex items-center gap-1">
-                  <button @click="showBookingDetails(booking)" class="p-1 bg-gray-50 hover:bg-gray-150 text-gray-600 rounded border border-gray-200 text-[10px]" title="Chi tiết">👁️</button>
-                  <button @click="openEditBookingModal(booking)" v-if="booking.status !== 'Cancelled' && booking.status !== 'Completed'" class="p-1 bg-gray-50 hover:bg-gray-150 text-gray-600 rounded border border-gray-200 text-[10px]" title="Chỉnh sửa">✏️</button>
-                  <button @click="openAssignTableModal(booking)" v-if="booking.status !== 'Cancelled' && booking.status !== 'Completed' && booking.status !== 'Seated'" class="p-1 bg-pink-50 hover:bg-pink-100 text-[#FF7B89] rounded border border-pink-100 text-[10px]" title="Xếp bàn">🪑</button>
-                  <button @click="markBookingArrived(booking)" v-if="booking.status === 'Waiting'" class="p-1 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded border border-blue-200 text-[10px]" title="Đón khách">🚶</button>
-                  <button @click="openTableFromBooking(booking)" v-if="booking.status === 'Arrived'" class="p-1 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded border border-rose-250 text-[10px] animate-pulse" title="Mở bàn">🍽️</button>
+                  <button @click="showBookingDetails(booking)" class="p-1 bg-gray-50 hover:bg-gray-150 text-gray-600 rounded border border-gray-200 text-[10px]" :title="t('auto_chi_ti_t', 'Chi tiết')">👁️</button>
+                  <button @click="openEditBookingModal(booking)" v-if="booking.status !== 'Cancelled' && booking.status !== 'Completed'" class="p-1 bg-gray-50 hover:bg-gray-150 text-gray-600 rounded border border-gray-200 text-[10px]" :title="t('auto_ch_nh_s_a', 'Chỉnh sửa')">✏️</button>
+                  <button @click="openAssignTableModal(booking)" v-if="booking.status !== 'Cancelled' && booking.status !== 'Completed' && booking.status !== 'Seated'" class="p-1 bg-pink-50 hover:bg-pink-100 text-[#FF7B89] rounded border border-pink-100 text-[10px]" :title="t('auto_x_p_b_n', 'Xếp bàn')">🪑</button>
+                  <button @click="markBookingArrived(booking)" v-if="booking.status === 'Waiting'" class="p-1 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded border border-blue-200 text-[10px]" :title="t('auto_n_kh_ch', 'Đón khách')">🚶</button>
+                  <button @click="openTableFromBooking(booking)" v-if="booking.status === 'Arrived'" class="p-1 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded border border-rose-250 text-[10px] animate-pulse" :title="t('auto_m_b_n', 'Mở bàn')">🍽️</button>
                 </div>
               </div>
 
@@ -407,7 +429,7 @@
       <!-- Left Section (Operational stats) -->
       <div class="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[10px] font-black border-r border-gray-150 pr-4 select-none">
         <div class="flex items-center gap-1 text-gray-500">
-          🕒 HỆ THỐNG: <span class="bg-gray-100 border border-gray-150 px-2 py-0.5 rounded text-gray-700 font-mono tracking-wider">{{ currentTime }}</span>
+          {{ t('auto_h_th_ng', '🕒 HỆ THỐNG:') }} <span class="bg-gray-100 border border-gray-150 px-2 py-0.5 rounded text-gray-700 font-mono tracking-wider">{{ currentTime }}</span>
         </div>
         <div class="flex items-center gap-2">
           <span>{{ t('auto_b_n_') }}</span>
@@ -438,16 +460,16 @@
       <!-- Right Section (Primary Actions) -->
       <div class="flex gap-2.5 justify-end w-full">
         <button @click="resetToCurrentState" class="flex-1 text-center py-2.5 rounded-xl border border-gray-250 bg-white hover:bg-gray-50 text-gray-700 font-extrabold text-xs transition-colors shadow-sm select-none flex items-center justify-center gap-1 active:scale-95">
-          🕒 Hiện tại
+          {{ t('auto_hi_n_t_i', '🕒 Hiện tại') }}
         </button>
         <button @click="openQuickArrivedModal" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-black text-xs py-2.5 rounded-xl transition-all shadow-sm flex items-center justify-center gap-1 active:scale-95">
-          🚶 Đón Khách Đến
+          {{ t('auto_n_kh_ch_n', '🚶 Đón Khách Đến') }}
         </button>
         <button @click="openQuickOpenModal" class="flex-1 bg-rose-600 hover:bg-rose-700 text-white font-black text-xs py-2.5 rounded-xl transition-all shadow-sm flex items-center justify-center gap-1 active:scale-95 animate-pulse">
-          🍽️ Khai Bàn Nhanh
+          {{ t('auto_khai_b_n_nhanh', '🍽️ Khai Bàn Nhanh') }}
         </button>
         <button @click="openCreateBookingModal" class="flex-1 bg-[#FF7B89] hover:bg-[#FF5A6E] text-white font-black text-xs py-2.5 rounded-xl transition-all shadow-sm flex items-center justify-center gap-1 active:scale-95">
-          + Đặt Bàn
+          {{ t('auto_t_b_n', '+ Đặt Bàn') }}
         </button>
       </div>
 
@@ -492,7 +514,7 @@
               <input 
                 type="text" 
                 v-model="tableModalForm.customerName" 
-                placeholder="Nhập tên khách dùng bàn"
+                :placeholder="t('auto_nh_p_t_n_kh_ch_d_ng_b_n', 'Nhập tên khách dùng bàn')"
                 class="w-full bg-white border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
               />
             </div>
@@ -503,7 +525,7 @@
                 <input 
                   type="text" 
                   v-model="tableModalForm.billAmount" 
-                  placeholder="0đ"
+                  :placeholder="t('auto_0', '0đ')"
                   class="w-full bg-white border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
                 />
               </div>
@@ -512,7 +534,7 @@
                 <input 
                   type="text" 
                   v-model="tableModalForm.occupiedDuration" 
-                  placeholder="Ví dụ: 17:15"
+                  :placeholder="t('auto_v_d_17_15', 'Ví dụ: 17:15')"
                   class="w-full bg-white border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
                 />
               </div>
@@ -528,28 +550,28 @@
               @click="setTableModalStatus('Available')"
               :class="['py-2 px-3 rounded-xl border text-[10px] font-black transition-all', tableModalForm.status === 'Available' ? 'bg-emerald-500 border-emerald-600 text-white shadow-sm' : 'bg-emerald-50 text-emerald-800 border-emerald-100 hover:bg-emerald-100']"
             >
-              🟢 Thiết lập Trống
+              {{ t('auto_thi_t_l_p_tr_ng', '🟢 Thiết lập Trống') }}
             </button>
             
             <button 
               @click="setTableModalStatus('Reserved')"
               :class="['py-2 px-3 rounded-xl border text-[10px] font-black transition-all', tableModalForm.status === 'Reserved' ? 'bg-amber-500 border-amber-600 text-white shadow-sm' : 'bg-amber-50 text-amber-800 border-amber-100 hover:bg-amber-100']"
             >
-              📅 Thiết lập Đặt Trước
+              {{ t('auto_thi_t_l_p_t_tr_c', '📅 Thiết lập Đặt Trước') }}
             </button>
             
             <button 
               @click="setTableModalStatus('Arrived')"
               :class="['py-2 px-3 rounded-xl border text-[10px] font-black transition-all', tableModalForm.status === 'Arrived' ? 'bg-blue-600 border-blue-700 text-white shadow-sm' : 'bg-blue-50 text-blue-800 border-blue-100 hover:bg-blue-100']"
             >
-              🚶 Đón Check-in
+              {{ t('auto_n_check_in', '🚶 Đón Check-in') }}
             </button>
             
             <button 
               @click="setTableModalStatus('Serving')"
               :class="['py-2 px-3 rounded-xl border text-[10px] font-black transition-all', tableModalForm.status === 'Serving' ? 'bg-rose-600 border-rose-700 text-white shadow-sm' : 'bg-rose-50 text-rose-800 border-rose-100 hover:bg-rose-100']"
             >
-              🔥 Mở Phục Vụ
+              {{ t('auto_m_ph_c_v', '🔥 Mở Phục Vụ') }}
             </button>
           </div>
 
@@ -558,13 +580,13 @@
               @click="closeTableModal"
               class="flex-1 py-2 rounded-xl border border-gray-250 bg-white hover:bg-gray-50 text-gray-700 text-[11px] font-bold transition-colors select-none"
             >
-              Đóng
+              {{ t('auto_ng', 'Đóng') }}
             </button>
             <button 
               @click="saveTableModal"
               class="flex-1 py-2 rounded-xl bg-[#FF7B89] hover:bg-[#FF5A6E] text-white text-[11px] font-black transition-colors shadow-sm select-none"
             >
-              Lưu Lại
+              {{ t('auto_l_u_l_i', 'Lưu Lại') }}
             </button>
           </div>
         </div>
@@ -590,7 +612,7 @@
             <input 
               type="text" 
               v-model="newBookingForm.customerName"
-              placeholder="Nhập tên khách hàng"
+              :placeholder="t('auto_nh_p_t_n_kh_ch_h_ng', 'Nhập tên khách hàng')"
               class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
             />
           </div>
@@ -601,7 +623,7 @@
               <input 
                 type="text" 
                 v-model="newBookingForm.phone"
-                placeholder="Nhập số điện thoại"
+                :placeholder="t('auto_nh_p_s_i_n_tho_i', 'Nhập số điện thoại')"
                 class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
               />
             </div>
@@ -610,7 +632,7 @@
               <input 
                 type="text" 
                 v-model="newBookingForm.reservationTime"
-                placeholder="Ví dụ: 19:30"
+                :placeholder="t('auto_v_d_19_30', 'Ví dụ: 19:30')"
                 class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
               />
             </div>
@@ -622,7 +644,7 @@
               <input 
                 type="number" 
                 v-model="newBookingForm.guestCount"
-                placeholder="Ví dụ: 4"
+                :placeholder="t('auto_v_d_4', 'Ví dụ: 4')"
                 class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
               />
             </div>
@@ -651,7 +673,7 @@
             <label class="text-[9px] font-black text-gray-400 uppercase">{{ t('auto_ghi_ch____c_bi_t') }}</label>
             <textarea 
               v-model="newBookingForm.notes"
-              placeholder="Ghi chú thêm: bàn gần cửa sổ, ăn buffet chay, cốc nến trang trí..."
+              :placeholder="t('auto_ghi_ch_th_m_b_n_g_n_c_a_s', 'Ghi chú thêm: bàn gần cửa sổ, ăn buffet chay, cốc nến trang trí...')"
               class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89] h-16 resize-none"
             ></textarea>
           </div>
@@ -662,7 +684,7 @@
             @click="isCreateBookingModalOpen = false"
             class="flex-1 py-2 rounded-xl border border-gray-250 bg-white hover:bg-gray-50 text-gray-700 text-[11px] font-bold transition-colors"
           >
-            Hủy Bỏ
+            {{ t('auto_h_y_b', 'Hủy Bỏ') }}
           </button>
           <button 
             @click="saveNewBooking"
@@ -684,7 +706,7 @@
         </button>
 
         <h3 class="text-lg font-black text-gray-900 tracking-tight mb-4 flex items-center gap-1.5 select-none border-b border-gray-100 pb-2">
-          <span>🍽️</span> Khai Bàn Khách Vãng Lai (Walk-in)
+          <span>🍽️</span> {{ t('auto_khai_b_n_kh_ch_v_ng_lai_walk', 'Khai Bàn Khách Vãng Lai (Walk-in)') }}
         </h3>
 
         <div class="space-y-4 mb-5">
@@ -713,7 +735,7 @@
             <input 
               type="text" 
               v-model="quickOpenForm.customerName"
-              placeholder="Ví dụ: Khách vãng lai / Anh Nam"
+              :placeholder="t('auto_v_d_kh_ch_v_ng_lai_anh_na', 'Ví dụ: Khách vãng lai / Anh Nam')"
               class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
             />
           </div>
@@ -724,7 +746,7 @@
               <input 
                 type="number" 
                 v-model="quickOpenForm.guestCount"
-                placeholder="Ví dụ: 4"
+                :placeholder="t('auto_v_d_4', 'Ví dụ: 4')"
                 class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
               />
             </div>
@@ -733,7 +755,7 @@
               <input 
                 type="text" 
                 v-model="quickOpenForm.billAmount"
-                placeholder="0đ"
+                :placeholder="t('auto_0', '0đ')"
                 class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
               />
             </div>
@@ -745,13 +767,13 @@
             @click="isQuickOpenModalOpen = false"
             class="flex-1 py-2 rounded-xl border border-gray-250 bg-white hover:bg-gray-50 text-gray-700 text-[11px] font-bold transition-colors"
           >
-            Đóng Lại
+            {{ t('auto_ng_l_i', 'Đóng Lại') }}
           </button>
           <button 
             @click="saveQuickOpen"
             class="flex-1 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-[11px] font-black transition-colors shadow-sm"
           >
-            Khai Bàn Phục Vụ
+            {{ t('auto_khai_b_n_ph_c_v', 'Khai Bàn Phục Vụ') }}
           </button>
         </div>
       </div>
@@ -767,7 +789,7 @@
         </button>
 
         <h3 class="text-lg font-black text-gray-900 tracking-tight mb-4 flex items-center gap-1.5 select-none border-b border-gray-100 pb-2">
-          <span>🚶</span> Nhận Khách Đã Đến (Check-in)
+          <span>🚶</span> {{ t('auto_nh_n_kh_ch_n_check_in', 'Nhận Khách Đã Đến (Check-in)') }}
         </h3>
 
         <div class="space-y-4 mb-5">
@@ -794,13 +816,13 @@
             @click="isQuickArrivedModalOpen = false"
             class="flex-1 py-2 rounded-xl border border-gray-250 bg-white hover:bg-gray-50 text-gray-700 text-[11px] font-bold transition-colors"
           >
-            Hủy Bỏ
+            {{ t('auto_h_y_b', 'Hủy Bỏ') }}
           </button>
           <button 
             @click="saveQuickArrived"
             class="flex-1 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-black transition-colors shadow-sm"
           >
-            Đón Khách Đến
+            {{ t('auto_n_kh_ch_n', 'Đón Khách Đến') }}
           </button>
         </div>
       </div>
@@ -815,7 +837,7 @@
           <!-- Header -->
           <div class="flex items-center justify-between border-b border-gray-100 pb-3 mb-5 select-none">
             <h3 class="text-lg font-black text-gray-900 flex items-center gap-1.5">
-              <span>📋</span> Nhật Ký Đặt Bàn Chi Tiết
+              <span>📋</span> {{ t('auto_nh_t_k_t_b_n_chi_ti_t', 'Nhật Ký Đặt Bàn Chi Tiết') }}
             </h3>
             <button @click="isBookingDetailsOpen = false" class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 flex items-center justify-center font-bold text-sm">
               ✕
@@ -891,7 +913,7 @@
             @click="markBookingArrived(selectedBookingForDetails); isBookingDetailsOpen = false;"
             class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black text-sm py-2.5 rounded-xl transition-all shadow-sm flex items-center justify-center gap-1 active:scale-95"
           >
-            Đón Khách Đến (Check-in)
+            {{ t('auto_n_kh_ch_n_check_in', 'Đón Khách Đến (Check-in)') }}
           </button>
           
           <button 
@@ -899,7 +921,7 @@
             @click="openTableFromBooking(selectedBookingForDetails); isBookingDetailsOpen = false;"
             class="w-full bg-rose-600 hover:bg-rose-700 text-white font-black text-sm py-2.5 rounded-xl transition-all shadow-sm flex items-center justify-center gap-1 active:scale-95 animate-pulse"
           >
-            Khai Bàn Mở Phục Vụ (Serving)
+            {{ t('auto_khai_b_n_m_ph_c_v_serving', 'Khai Bàn Mở Phục Vụ (Serving)') }}
           </button>
 
           <div class="flex gap-2">
@@ -907,15 +929,80 @@
               @click="cancelBooking(selectedBookingForDetails.id)"
               class="flex-1 py-2 rounded-xl border border-red-200 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-bold transition-all flex items-center justify-center gap-1 active:scale-95"
             >
-              🗑️ Hủy Đặt
+              {{ t('auto_h_y_t', '🗑️ Hủy Đặt') }}
             </button>
             <button 
               @click="isBookingDetailsOpen = false"
               class="flex-1 py-2 rounded-xl border border-gray-250 bg-white hover:bg-gray-50 text-gray-700 text-xs font-bold transition-colors"
             >
-              Đóng Lại
+              {{ t('auto_ng_l_i', 'Đóng Lại') }}
             </button>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL 7: CREATE NEW TABLE -->
+    <div v-if="isCreateTableModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm" @click="isCreateTableModalOpen = false"></div>
+      
+      <div class="bg-white border-2 border-pink-100 rounded-3xl w-full max-w-sm shadow-2xl p-6 z-10 relative animate-fade-in text-xs font-bold text-gray-700">
+        <button @click="isCreateTableModalOpen = false" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 hover:text-gray-800 flex items-center justify-center transition-colors font-bold text-sm select-none">
+          ✕
+        </button>
+
+        <h3 class="text-base font-black text-gray-900 tracking-tight mb-3 flex items-center gap-1 border-b border-gray-100 pb-2 select-none">
+          <span>🪑</span> {{ t('auto_th_m_b_n_m_i', 'Thêm Bàn Mới') }}
+        </h3>
+
+        <div class="space-y-4 mb-5">
+          <div class="space-y-1">
+            <label class="text-[9px] font-black text-gray-400 uppercase select-none">{{ t('auto_m_b_n_t_n_b_n', 'Mã Bàn / Tên Bàn') }}</label>
+            <input 
+              type="text" 
+              v-model="createTableForm.code"
+              placeholder="VD: A01, B02..."
+              class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-850 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
+            />
+          </div>
+          <div class="space-y-1">
+            <label class="text-[9px] font-black text-gray-400 uppercase select-none">{{ t('auto_ph_n_khu_t_ng', 'Phân Khu / Tầng') }}</label>
+            <input 
+              type="text" 
+              v-model="createTableForm.zone"
+              :placeholder="t('auto_vd_t_ng_1_t_ng_2', 'VD: Tầng 1, Tầng 2...')"
+              class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-850 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
+              list="zone-datalist"
+            />
+            <datalist id="zone-datalist">
+              <option v-for="zone in zoneOptions" :key="zone.value" :value="zone.value !== 'All' ? zone.value : ''" />
+            </datalist>
+          </div>
+          <div class="space-y-1">
+            <label class="text-[9px] font-black text-gray-400 uppercase select-none">{{ t('auto_s_c_ch_a_s_ng_i', 'Sức Chứa (Số Người)') }}</label>
+            <input 
+              type="number" 
+              v-model="createTableForm.capacity"
+              placeholder="VD: 4"
+              min="1"
+              class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-850 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
+            />
+          </div>
+        </div>
+
+        <div class="flex gap-3 select-none">
+          <button 
+            @click="isCreateTableModalOpen = false"
+            class="flex-1 py-2 rounded-xl border border-gray-250 bg-white hover:bg-gray-50 text-gray-700 text-xs font-bold transition-colors"
+          >
+            {{ t('auto_h_y', 'Hủy') }}
+          </button>
+          <button 
+            @click="saveNewTable"
+            class="flex-1 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-black transition-colors shadow-sm active:scale-95"
+          >
+            {{ t('auto_t_o_b_n_m_i', 'Tạo Bàn Mới') }}
+          </button>
         </div>
       </div>
     </div>
@@ -930,11 +1017,11 @@
         </button>
 
         <h3 class="text-base font-black text-gray-900 tracking-tight mb-3 flex items-center gap-1 border-b border-gray-100 pb-2 select-none">
-          <span>🪑</span> Gán Chỉ Định Bàn Cho Lượt Đặt
+          <span>🪑</span> {{ t('auto_g_n_ch_nh_b_n_cho_l_t_t', 'Gán Chỉ Định Bàn Cho Lượt Đặt') }}
         </h3>
         
         <p class="text-xs text-gray-500 font-semibold mb-4 select-none">
-          Khách hàng: <strong>{{ selectedBookingForAssign.customerName }}</strong> (Khung giờ hẹn: {{ selectedBookingForAssign.reservationTime }})
+          {{ t('auto_kh_ch_h_ng', 'Khách hàng:') }} <strong>{{ selectedBookingForAssign.customerName }}</strong> (Khung giờ hẹn: {{ selectedBookingForAssign.reservationTime }})
         </p>
 
         <div class="space-y-4 mb-5">
@@ -964,13 +1051,13 @@
             @click="isAssignTableModalOpen = false"
             class="flex-1 py-2 rounded-xl border border-gray-250 bg-white hover:bg-gray-50 text-gray-700 text-xs font-bold transition-colors"
           >
-            Đóng Lại
+            {{ t('auto_ng_l_i', 'Đóng Lại') }}
           </button>
           <button 
             @click="saveAssignTable"
             class="flex-1 py-2 rounded-xl bg-[#FF7B89] hover:bg-[#FF5A6E] text-white text-xs font-black transition-colors shadow-sm active:scale-95"
           >
-            Xác Nhận Xếp
+            {{ t('auto_x_c_nh_n_x_p', 'Xác Nhận Xếp') }}
           </button>
         </div>
       </div>
@@ -980,9 +1067,12 @@
 </template>
 
 <script setup lang="ts">
+import Swal from 'sweetalert2';
 import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
 import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/composables/useAuth';
 
 interface TableInfo {
   code: string;
@@ -1015,35 +1105,22 @@ interface Booking {
   guestCount?: number;
 }
 
+// Base dynamic zones
+const areas = ref<AreaInfo[]>([]);
+
 // System Zone options
-const zoneOptions = [
-  { label: 'Tất cả', value: 'All' },
-  { label: 'Khu A', value: 'Khu A' },
-  { label: 'Khu B', value: 'Khu B' },
-  { label: 'Khu C', value: 'Khu C' },
-  { label: 'Khu VIP R', value: 'Khu R' },
-  { label: 'Sân thượng T', value: 'Khu T' },
-  { label: 'Capichi', value: 'Khu Capichi' },
-  { label: 'Shopee', value: 'Khu Shopee' },
-  { label: 'beFood', value: 'Khu BE' },
-  { label: 'GrabFood', value: 'Khu Grab' },
-  { label: 'Mang đi', value: 'Khu Catalog' },
-];
+const zoneOptions = computed(() => {
+  const base = [{ label: 'Tất cả', value: 'All' }];
+  const dynamicZones = areas.value.map(a => ({ label: a.name, value: a.name }));
+  return [...base, ...dynamicZones];
+});
 
 // Bottom Dashboard Zone list order
-const dashboardZoneList = [
-  { label: 'Tất cả', value: 'All' },
-  { label: 'Mang đi', value: 'Khu Catalog' },
-  { label: 'Khu A', value: 'Khu A' },
-  { label: 'Khu B', value: 'Khu B' },
-  { label: 'Khu C', value: 'Khu C' },
-  { label: 'Khu R', value: 'Khu R' },
-  { label: 'Khu T', value: 'Khu T' },
-  { label: 'Capichi', value: 'Khu Capichi' },
-  { label: 'Shopee', value: 'Khu Shopee' },
-  { label: 'beFood', value: 'Khu BE' },
-  { label: 'GrabFood', value: 'Khu Grab' }
-];
+const dashboardZoneList = computed(() => {
+  const base = [{ label: 'Tất cả', value: 'All' }];
+  const dynamicZones = areas.value.map(a => ({ label: a.name, value: a.name }));
+  return [...base, ...dynamicZones];
+});
 
 // Active layout state refs
 const selectedZone = ref('All');
@@ -1094,274 +1171,10 @@ const monthNames = [
 ];
 
 // Tables setup with checkInTime property initialized for Serving tables
-const areas = ref<AreaInfo[]>([
-  {
-    name: 'Khu A',
-    description: 'Khu chính trong nhà',
-    tables: [
-      { code: 'A01', status: 'Available', capacity: 4 },
-      { code: 'A02', status: 'Reserved', capacity: 4, customerName: 'Nguyễn Văn A' },
-      { code: 'A03', status: 'Serving', capacity: 2, customerName: 'Phạm Hùng', billAmount: '450.000đ', occupiedDuration: '30 phút', checkInTime: '17:45' },
-      { code: 'A04', status: 'Arrived', capacity: 6, customerName: 'Lê Thảo' },
-      { code: 'A05', status: 'Available', capacity: 4 },
-      { code: 'A06', status: 'Available', capacity: 4 },
-      { code: 'A07', status: 'Reserved', capacity: 4, customerName: 'Trần Bình' },
-      { code: 'A08', status: 'Serving', capacity: 8, customerName: 'Lê Văn C', billAmount: '1.850.000đ', occupiedDuration: '1h 20p', checkInTime: '16:55' },
-      { code: 'A09', status: 'Available', capacity: 4 },
-    ]
-  },
-  {
-    name: 'Khu B',
-    description: 'Khu VIP trong nhà',
-    tables: [
-      { code: 'B01', status: 'Available', capacity: 10 },
-      { code: 'B02', status: 'Reserved', capacity: 8, customerName: 'Bùi Lan' },
-      { code: 'B03', status: 'Serving', capacity: 10, customerName: 'Công ty ABC', billAmount: '4.200.000đ', occupiedDuration: '2h 10p', checkInTime: '16:05' },
-    ]
-  },
-  {
-    name: 'Khu C',
-    description: 'Ban công ngoài trời',
-    tables: [
-      { code: 'C01', status: 'Available', capacity: 2 },
-      { code: 'C02', status: 'Available', capacity: 2 },
-      { code: 'C03', status: 'Arrived', capacity: 4, customerName: 'Trần Thị B' },
-      { code: 'C04', status: 'Available', capacity: 4 },
-      { code: 'C05', status: 'Reserved', capacity: 2, customerName: 'Hoàng Long' },
-      { code: 'C06', status: 'Serving', capacity: 4, customerName: 'Đức Huy', billAmount: '890.000đ', occupiedDuration: '50 phút', checkInTime: '17:25' },
-      { code: 'C07', status: 'Available', capacity: 2 },
-      { code: 'C08', status: 'Available', capacity: 4 },
-    ]
-  },
-  {
-    name: 'Khu R',
-    description: 'Phòng riêng đặc biệt',
-    tables: [
-      { code: 'R01', status: 'Available', capacity: 6 },
-      { code: 'R02', status: 'Reserved', capacity: 6, customerName: 'Vũ Nam' },
-      { code: 'R03', status: 'Serving', capacity: 6, customerName: 'Gia đình chị Vy', billAmount: '2.500.000đ', occupiedDuration: '1h 10p', checkInTime: '17:05' },
-      { code: 'R04', status: 'Available', capacity: 6 },
-      { code: 'R05', status: 'Reserved', capacity: 8, customerName: 'Phạm Minh Hoàng' },
-      { code: 'R06', status: 'Available', capacity: 6 },
-      { code: 'R07', status: 'Reserved', capacity: 6, customerName: 'Trần Hào' },
-      { code: 'R08', status: 'Serving', capacity: 12, customerName: 'Sinh nhật Minh', billAmount: '5.600.000đ', occupiedDuration: '1h 45p', checkInTime: '16:30' },
-    ]
-  },
-  {
-    name: 'Khu T',
-    description: 'Sân thượng ngắm cảnh',
-    tables: [
-      { code: 'T01', status: 'Available', capacity: 4 },
-      { code: 'T02', status: 'Reserved', capacity: 4, customerName: 'Đặng Thu Thảo' },
-      { code: 'T03', status: 'Reserved', capacity: 4 },
-      { code: 'T04', status: 'Serving', capacity: 4, customerName: 'Anh Trung', billAmount: '1.200.000đ', occupiedDuration: '45 phút', checkInTime: '17:30' },
-      { code: 'T05', status: 'Arrived', capacity: 4, customerName: 'Khánh Hà' },
-      { code: 'T06', status: 'Available', capacity: 4 },
-      { code: 'T07', status: 'Available', capacity: 4 },
-      { code: 'T08', status: 'Reserved', capacity: 4 },
-    ]
-  },
-  {
-    name: 'Khu Capichi',
-    description: 'Trực tuyến Capichi',
-    tables: [
-      { code: 'CP01', status: 'Available', capacity: 1 },
-      { code: 'CP02', status: 'Serving', capacity: 1, customerName: 'Capichi Order #1', billAmount: '150.000đ', occupiedDuration: '12 phút', checkInTime: '17:50' },
-      { code: 'CP03', status: 'Available', capacity: 1 },
-      { code: 'CP04', status: 'Reserved', capacity: 1, customerName: 'Capichi Order #2' },
-      { code: 'CP05', status: 'Arrived', capacity: 1, customerName: 'Capichi Order #3' },
-    ]
-  },
-  {
-    name: 'Khu Shopee',
-    description: 'ShopeeFood Orders',
-    tables: [
-      { code: 'Shopee01', status: 'Available', capacity: 1 },
-      { code: 'Shopee02', status: 'Available', capacity: 1 },
-      { code: 'Shopee03', status: 'Serving', capacity: 1, customerName: 'Shopee #452', billAmount: '320.000đ', occupiedDuration: '8 phút', checkInTime: '17:53' },
-      { code: 'Shopee04', status: 'Reserved', capacity: 1, customerName: 'Shopee #460' },
-      { code: 'Shopee05', status: 'Arrived', capacity: 1, customerName: 'Shopee #461' },
-    ]
-  },
-  {
-    name: 'Khu BE',
-    description: 'beFood Orders',
-    tables: [
-      { code: 'BE01', status: 'Available', capacity: 1 },
-      { code: 'BE02', status: 'Reserved', capacity: 1, customerName: 'beFood #11' },
-      { code: 'BE03', status: 'Serving', capacity: 1, customerName: 'beFood #12', billAmount: '180.000đ', occupiedDuration: '15 phút', checkInTime: '17:47' },
-      { code: 'BE04', status: 'Available', capacity: 1 },
-      { code: 'BE05', status: 'Arrived', capacity: 1, customerName: 'beFood #14' },
-    ]
-  },
-  {
-    name: 'Khu Grab',
-    description: 'GrabFood Orders',
-    tables: [
-      { code: 'Grab01', status: 'Available', capacity: 1 },
-      { code: 'Grab02', status: 'Serving', capacity: 1, customerName: 'Grab #90', billAmount: '240.000đ', occupiedDuration: '20 phút', checkInTime: '17:42' },
-      { code: 'Grab03', status: 'Reserved', capacity: 1, customerName: 'Grab #91' },
-      { code: 'Grab04', status: 'Available', capacity: 1 },
-      { code: 'Grab05', status: 'Arrived', capacity: 1, customerName: 'Grab #95' },
-    ]
-  },
-  {
-    name: 'Khu Catalog',
-    description: 'Đơn Take-away trực tiếp',
-    tables: [
-      { code: 'Catalog', status: 'Available', capacity: 1 },
-    ]
-  }
-]);
+// const areas = ref<AreaInfo[]>([]);
 
 // Expanded mock reservations with adult, child count, and date properties
-const bookings = ref<Booking[]>([
-  {
-    id: 'b1',
-    bookingNumber: 'NC-20260624-001',
-    customerName: 'Nguyễn Văn A',
-    phone: '0901234567',
-    adults: 4,
-    children: 0,
-    reservationTime: '18:30', // Evening
-    assignedTable: 'A02',
-    notes: 'Khách hàng thân thiết, cần bàn thoáng rộng rãi.',
-    status: 'Waiting',
-    date: '2026-06-24'
-  },
-  {
-    id: 'b2',
-    bookingNumber: 'NC-20260624-002',
-    customerName: 'Trần Thị B',
-    phone: '0987654321',
-    adults: 2,
-    children: 1,
-    reservationTime: '12:00', // Lunch
-    assignedTable: 'C03',
-    notes: 'Đặt tiệc sinh nhật nhẹ cho bé gái.',
-    status: 'Arrived',
-    date: '2026-06-24'
-  },
-  {
-    id: 'b3',
-    bookingNumber: 'NC-20260624-003',
-    customerName: 'Lê Văn C',
-    phone: '0912345678',
-    adults: 6,
-    children: 2,
-    reservationTime: '17:30', // Evening
-    assignedTable: 'A08',
-    notes: 'Khách gia đình dùng bữa tối.',
-    status: 'Seated',
-    date: '2026-06-24'
-  },
-  {
-    id: 'b4',
-    bookingNumber: 'NC-20260624-004',
-    customerName: 'Phạm Minh Hoàng',
-    phone: '0934567890',
-    adults: 8,
-    children: 0,
-    reservationTime: '20:00', // Evening
-    assignedTable: 'R05',
-    notes: 'Đặt phòng VIP ăn tối gặp gỡ đối tác.',
-    status: 'Waiting',
-    date: '2026-06-24'
-  },
-  {
-    id: 'b5',
-    bookingNumber: 'NC-20260624-005',
-    customerName: 'Đặng Thu Thảo',
-    phone: '0978123456',
-    adults: 3,
-    children: 1,
-    reservationTime: '19:30', // Evening
-    assignedTable: 'T02',
-    notes: 'Khách ngắm cảnh sân thượng đẹp.',
-    status: 'Waiting',
-    date: '2026-06-24'
-  },
-  
-  // Bookings on other dates
-  {
-    id: 'b6',
-    bookingNumber: 'NC-20260625-001',
-    customerName: 'Vũ Thị Minh',
-    phone: '0943210987',
-    adults: 2,
-    children: 0,
-    reservationTime: '11:30', // Lunch
-    assignedTable: 'C01',
-    notes: 'Khách đặt ăn trưa nhẹ.',
-    status: 'Waiting',
-    date: '2026-06-25'
-  },
-  {
-    id: 'b7',
-    bookingNumber: 'NC-20260625-002',
-    customerName: 'Đỗ Hữu Nam',
-    phone: '0956789012',
-    adults: 5,
-    children: 2,
-    reservationTime: '18:00', // Evening
-    assignedTable: 'R02',
-    notes: 'Khách họp gia đình liên hoan.',
-    status: 'Waiting',
-    date: '2026-06-23'
-  },
-  {
-    id: 'b9',
-    bookingNumber: 'NC-20260624-009',
-    customerName: 'Anh Huy (Ăn sáng)',
-    phone: '0911222333',
-    adults: 3,
-    children: 0,
-    reservationTime: '08:45',
-    assignedTable: 'A01',
-    notes: 'Đặt bàn ăn sáng họp nhóm.',
-    status: 'Waiting',
-    date: '2026-06-24'
-  },
-  {
-    id: 'b10',
-    bookingNumber: 'NC-20260624-010',
-    customerName: 'Đoàn khách họp chiều 1',
-    phone: '0933444555',
-    adults: 4,
-    children: 0,
-    reservationTime: '14:30',
-    assignedTable: 'A05',
-    notes: 'Khách họp bàn công việc.',
-    status: 'Waiting',
-    date: '2026-06-24'
-  },
-  {
-    id: 'b11',
-    bookingNumber: 'NC-20260624-011',
-    customerName: 'Đoàn khách họp chiều 2',
-    phone: '0955666777',
-    adults: 6,
-    children: 0,
-    reservationTime: '14:45',
-    assignedTable: 'A06',
-    notes: 'Ăn nhẹ buổi chiều.',
-    status: 'Waiting',
-    date: '2026-06-24'
-  },
-  {
-    id: 'b12',
-    bookingNumber: 'NC-20260624-012',
-    customerName: 'Đoàn khách họp chiều 3',
-    phone: '0977888999',
-    adults: 7,
-    children: 0,
-    reservationTime: '15:00',
-    assignedTable: 'B01',
-    notes: 'Họp trà chiều.',
-    status: 'Waiting',
-    date: '2026-06-24'
-  }
-]);
+const bookings = ref<Booking[]>([]);
 
 // ----------------------------------------------------
 // CALENDAR COMPUTED & NAVIGATION
@@ -1483,11 +1296,81 @@ const getShiftCount = (shift: string) => {
 };
 
 // ----------------------------------------------------
+// FLOOR PLAN EDITING STATE & METHODS
+// ----------------------------------------------------
+
+const isEditModeEnabled = ref(false);
+const isCreateTableModalOpen = ref(false);
+const createTableForm = ref({ code: '', zone: '', capacity: 4 });
+
+function openCreateTableModal() {
+  createTableForm.value = { code: '', zone: selectedZone.value !== 'All' ? selectedZone.value : '', capacity: 4 };
+  isCreateTableModalOpen.value = true;
+}
+
+async function saveNewTable() {
+  const { code, zone, capacity } = createTableForm.value;
+  if (!code || !zone || !capacity) {
+    Swal.fire('Lỗi', 'Vui lòng nhập đầy đủ Mã bàn, Phân khu và Sức chứa.', 'error');
+    return;
+  }
+  const { branchId } = useAuth();
+  const bid = branchId.value;
+  if (!bid) {
+    Swal.fire('Lỗi', 'Không tìm thấy thông tin Chi nhánh.', 'error');
+    return;
+  }
+
+  const { error } = await supabase.from('tables').insert([{
+    branch_id: bid,
+    code,
+    zone,
+    capacity,
+    status: 'AVAILABLE'
+  }]);
+
+  if (error) {
+    console.error(error);
+    Swal.fire('Lỗi', 'Không thể tạo bàn mới: ' + error.message, 'error');
+    return;
+  }
+
+  Swal.fire('Thành công', 'Đã tạo bàn mới', 'success');
+  isCreateTableModalOpen.value = false;
+  await loadTables();
+}
+
+async function deleteTable(code: string) {
+  const result = await Swal.fire({
+    title: 'Xóa bàn?',
+    text: `Bạn có chắc chắn muốn xóa bàn ${code}?`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Xóa',
+    cancelButtonText: 'Hủy',
+    confirmButtonColor: '#e3342f'
+  });
+
+  if (result.isConfirmed) {
+    const { branchId } = useAuth();
+    const bid = branchId.value;
+    if (!bid) return;
+    const { error } = await supabase.from('tables').delete().eq('code', code).eq('branch_id', bid);
+    if (error) {
+      Swal.fire('Lỗi', 'Không thể xóa bàn: ' + error.message, 'error');
+    } else {
+      Swal.fire('Thành công', 'Đã xóa bàn', 'success');
+      await loadTables();
+    }
+  }
+}
+
+// ----------------------------------------------------
 // DYNAMIC STATISTICS & SEARCH CO-ORDINATION
 // ----------------------------------------------------
 
 const selectedZoneLabel = computed(() => {
-  const zone = zoneOptions.find(o => o.value === selectedZone.value);
+  const zone = zoneOptions.value.find((o: any) => o.value === selectedZone.value);
   return zone ? zone.label : '';
 });
 
@@ -1854,10 +1737,54 @@ const updateSystemClock = () => {
   });
 };
 
-onMounted(() => {
+async function loadTables() {
+  const { session, branchId } = useAuth();
+  const bid = branchId.value || session.value?.user.user_metadata?.branch_id;
+  if (!bid) return;
+  const { data: tablesData } = await supabase.from('tables').select('*').eq('branch_id', bid).order('code', { ascending: true });
+  if (tablesData) {
+    const zones = [...new Set(tablesData.map((t: any) => t.zone))];
+    areas.value = zones.map((z: any) => ({
+      name: z,
+      description: z,
+      tables: tablesData.filter((t: any) => t.zone === z).map((t: any) => ({
+        code: t.code,
+        status: t.status === 'AVAILABLE' ? 'Available' : t.status === 'OCCUPIED' ? 'Serving' : t.status === 'RESERVED' ? 'Reserved' : 'Available',
+        capacity: t.capacity
+      }))
+    }));
+  }
+}
+
+onMounted(async () => {
   updateSystemClock();
   systemClockInterval = setInterval(updateSystemClock, 1000) as unknown as number;
   resetToRealTimeOnly();
+
+  const { session, branchId } = useAuth();
+  if (session.value) {
+    const bid = branchId.value || session.value.user.user_metadata?.branch_id;
+    if (bid) {
+      await loadTables();
+
+      const { data: resData } = await supabase.from('reservations').select('*, customers(name, phone)').eq('branch_id', bid);
+      if (resData) {
+        bookings.value = resData.map(r => ({
+          id: r.id,
+          bookingNumber: r.booking_code,
+          customerName: r.customers?.name || 'Khách',
+          phone: r.customers?.phone || '',
+          adults: r.guests || 0,
+          children: r.children_count || 0,
+          reservationTime: r.reservation_time,
+          assignedTable: r.table_id || '',
+          notes: (r.booking_info as any)?.notes || '',
+          status: r.status === 'PENDING' ? 'Waiting' : r.status === 'CONFIRMED' ? 'Waiting' : r.status === 'CHECKED_IN' ? 'Arrived' : r.status === 'SEATED' ? 'Seated' : r.status === 'COMPLETED' ? 'Completed' : 'Cancelled',
+          date: r.reservation_date
+        }));
+      }
+    }
+  }
 });
 
 onUnmounted(() => {
@@ -1964,7 +1891,7 @@ function openEditBookingModal(booking: Booking) {
 
 function saveNewBooking() {
   if (!newBookingForm.value.customerName || !newBookingForm.value.phone || !newBookingForm.value.reservationTime) {
-    alert('Vui lòng nhập đầy đủ thông tin: Tên khách, SĐT và Giờ hẹn.');
+    Swal.fire('Thông báo', 'Vui lòng nhập đầy đủ thông tin: Tên khách, SĐT và Giờ hẹn.', 'info');
     return;
   }
 
@@ -2061,7 +1988,7 @@ function openQuickOpenModal() {
 
 function saveQuickOpen() {
   if (!quickOpenForm.value.tableCode) {
-    alert('Vui lòng chọn bàn cần mở.');
+    Swal.fire('Thông báo', 'Vui lòng chọn bàn cần mở.', 'info');
     return;
   }
 
@@ -2093,7 +2020,7 @@ function openQuickArrivedModal() {
 
 function saveQuickArrived() {
   if (!quickArrivedForm.value.bookingId) {
-    alert('Vui lòng chọn khách hàng.');
+    Swal.fire('Thông báo', 'Vui lòng chọn khách hàng.', 'info');
     return;
   }
 
@@ -2152,8 +2079,16 @@ function updateBookingStatus(id: string, newStatus: 'Waiting' | 'Arrived' | 'Sea
   }
 }
 
-function cancelBooking(id: string) {
-  if (confirm('Bạn có chắc chắn muốn hủy lượt đặt bàn này không?')) {
+async function cancelBooking(id: string) {
+  const result = await Swal.fire({
+      title: 'Xác nhận',
+      text: 'Bạn có chắc chắn muốn hủy lượt đặt bàn này không?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Đồng ý',
+      cancelButtonText: 'Hủy'
+    });
+  if (result.isConfirmed) {
     updateBookingStatus(id, 'Cancelled');
   }
 }
@@ -2261,3 +2196,4 @@ const resetToCurrentState = () => {
   display: none;
 }
 </style>
+

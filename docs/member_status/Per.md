@@ -1,0 +1,35 @@
+# Báo Cáo Công Việc Hàng Ngày - Per
+
+**Ngày báo cáo:** 25/06/2026
+
+## Các chức năng và công việc đã hoàn thành
+
+1. **Sửa Giao Diện (UI/UX)**
+   - Cập nhật theme chủ đạo thành **Trắng và Cam** theo yêu cầu nhận diện thương hiệu của NGƯU CÁT.
+   - Chỉnh sửa trang Login: Xóa bỏ chữ text cũ, thay thế bằng logo `nguucat-logo.png` vào vị trí trung tâm.
+   - Tối ưu hóa **User Avatar**: Xóa logo cũ trên các sidebar/header, sử dụng avatar ngẫu nhiên (sticker) cho mỗi user (`useUserSticker`) dựa trên mã ID để tạo điểm nhấn thân thiện và trực quan. 
+   - Đã thay thế toàn bộ hệ thống thông báo `alert()`, `confirm()` mặc định của trình duyệt sang giao diện đẹp và chỉn chu bằng **SweetAlert2**.
+
+2. **Hoàn thiện API và Chức năng Backend**
+   - Đã review và build API (Supabase) hoàn chỉnh cho tất cả các tính năng quan trọng.
+   - Sửa sơ đồ bàn: Cho phép tuỳ chỉnh (setup) bàn tự động, hỗ trợ phân khu (Tầng 1, Tầng 2, Tầng 3).
+   - Xây dựng **Dashboard Admin**: Thống kê doanh thu thực tế dựa trên hóa đơn, chi phí chi trả (nhân sự/kho) trực tiếp từ database thay vì dữ liệu mô phỏng.
+
+3. **Chuyển Ngữ (i18n)**
+   - Đã review toàn bộ các trang, loại bỏ text cứng và áp dụng chuyển ngữ i18n cho 3 ngôn ngữ: **Tiếng Việt, Tiếng Anh, Tiếng Nhật**.
+
+## Thông tin Triển Khai (Deployment)
+
+Dự án đã được deploy lên Firebase Hosting (quản lý qua tài khoản Google Workspace).
+
+- **Domain truy cập chính thức:** 
+  - `https://nguucat-qvn.web.app`
+  - `https://nguucat-qvn.firebaseapp.com`
+
+- **Tài khoản Đăng nhập (Admin Demo):**
+  - **Email:** `admin@nguucat.vn`
+  - **Mật khẩu:** (sử dụng mật khẩu mặc định của Supabase Auth đã cung cấp trước đó)
+  - _Lưu ý:_ Toàn bộ tài khoản Supabase Auth, Firebase Deploy đều đang được giữ nguyên quyền theo cấu hình Workspace ban đầu.
+
+## Github
+- Toàn bộ code đã được push lên nhánh `main` của Github.

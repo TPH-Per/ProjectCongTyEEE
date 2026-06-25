@@ -575,12 +575,18 @@
             </button>
           </div>
 
-          <div class="flex gap-3 pt-3.5 border-t border-gray-100 mt-4">
+          <div class="flex gap-2 pt-3.5 border-t border-gray-100 mt-4">
             <button 
               @click="closeTableModal"
               class="flex-1 py-2 rounded-xl border border-gray-250 bg-white hover:bg-gray-50 text-gray-700 text-[11px] font-bold transition-colors select-none"
             >
               {{ t('auto_ng', 'Đóng') }}
+            </button>
+            <button 
+              @click="goToOrderScreen(selectedTableForModal.code)"
+              class="flex-1 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-[11px] font-black transition-colors shadow-sm select-none"
+            >
+              🍽️ Chọn Món
             </button>
             <button 
               @click="saveTableModal"
@@ -1071,8 +1077,9 @@ import Swal from 'sweetalert2';
 import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { supabase } from '@/lib/supabase';
-import { useAuth } from '@/composables/useAuth';
+import { useRouter } from 'vue-router';
+import { useRestaurantStore } from '@/stores/restaurantStore';
+import { storeToRefs } from 'pinia';
 
 interface TableInfo {
   code: string;
@@ -1170,11 +1177,9 @@ const monthNames = [
   'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'
 ];
 
-// Tables setup with checkInTime property initialized for Serving tables
-// const areas = ref<AreaInfo[]>([]);
-
-// Expanded mock reservations with adult, child count, and date properties
-const bookings = ref<Booking[]>([]);
+const router = useRouter();
+const restaurantStore = useRestaurantStore();
+const { areas, bookings } = storeToRefs(restaurantStore);
 
 // ----------------------------------------------------
 // CALENDAR COMPUTED & NAVIGATION
@@ -1721,6 +1726,9 @@ function openTableFromBooking(booking: Booking) {
       
       const now = new Date();
       table.checkInTime = now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+
+      // Automatically open the order screen (Chọn món) for this table
+      goToOrderScreen(table.code);
     }
   }
 }
@@ -1986,6 +1994,29 @@ function openQuickOpenModal() {
   isQuickOpenModalOpen.value = true;
 }
 
+function goToOrderScreen(tableCode: string) {
+  // If editing in modal, apply those values first
+  if (isTableModalOpen.value && selectedTableForModal.value && selectedTableForModal.value.code === tableCode) {
+    tableModalForm.value.status = 'Serving';
+    saveTableModal();
+  }
+
+  const table = getTableByCode(tableCode);
+  if (table) {
+    if (table.status !== 'Serving') {
+      table.status = 'Serving';
+      table.customerName = table.customerName || 'Khách vãng lai';
+      table.billAmount = table.billAmount || '0đ';
+      table.occupiedDuration = table.occupiedDuration || '1 phút';
+      const now = new Date();
+      table.checkInTime = table.checkInTime || now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+    }
+    
+    restaurantStore.setSelectedTable(table.code);
+    router.push({ name: 'reception-order' });
+  }
+}
+
 function saveQuickOpen() {
   if (!quickOpenForm.value.tableCode) {
     Swal.fire('Thông báo', 'Vui lòng chọn bàn cần mở.', 'info');
@@ -2000,6 +2031,9 @@ function saveQuickOpen() {
     table.occupiedDuration = '1 phút';
     const now = new Date();
     table.checkInTime = now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+    
+    // Auto redirect to order page
+    goToOrderScreen(table.code);
   }
 
   isQuickOpenModalOpen.value = false;

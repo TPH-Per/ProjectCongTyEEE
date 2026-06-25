@@ -1746,14 +1746,15 @@ import Swal from 'sweetalert2';
 import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-<<<<<<< HEAD
 import { useRouter } from 'vue-router';
 import { useRestaurantStore } from '@/stores/restaurantStore';
 import { storeToRefs } from 'pinia';
-=======
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/composables/useAuth';
->>>>>>> main
+
+const router = useRouter();
+const restaurantStore = useRestaurantStore();
+const { areas, bookings } = storeToRefs(restaurantStore);
 
 interface TableInfo {
   code: string;
@@ -1787,7 +1788,6 @@ interface Booking {
 }
 
 // Base dynamic zones
-const areas = ref<AreaInfo[]>([]);
 
 // System Zone options
 const zoneOptions = computed(() => {
@@ -1851,9 +1851,7 @@ const monthNames = [
   'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'
 ];
 
-const router = useRouter();
-const restaurantStore = useRestaurantStore();
-const { areas, bookings } = storeToRefs(restaurantStore);
+
 
 // ----------------------------------------------------
 // CALENDAR COMPUTED & NAVIGATION

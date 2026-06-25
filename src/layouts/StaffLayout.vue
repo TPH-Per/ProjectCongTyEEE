@@ -80,11 +80,17 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
 import { RouterView, RouterLink, useRoute, useRouter } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'
+import { useUserSticker } from '@/composables/useUserSticker'
+
 const $route = useRoute()
 const $router = useRouter()
 const { signOut, profile } = useAuth()
+const { stickerUrl } = useUserSticker()
+
+const isDropdownOpen = ref(false)
 
 async function handleSignOut() {
   await signOut()

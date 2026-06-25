@@ -201,12 +201,15 @@
 </template>
 
 <script setup lang="ts">
-import { RouterView, RouterLink, useRouter } from "vue-router";
+import { ref, computed } from 'vue'
+import { RouterView, RouterLink, useRouter, useRoute } from "vue-router";
 import { useAuth } from "@/composables/useAuth";
+import { useUserSticker } from '@/composables/useUserSticker'
 
 const router = useRouter();
 const route = useRoute();
-const { signOut } = useAuth();
+const { signOut, profile } = useAuth();
+const { stickerUrl } = useUserSticker();
 const isDropdownOpen = ref(false);
 
 const headerTitle = computed(() => {
@@ -220,7 +223,7 @@ const headerTitle = computed(() => {
 
 async function handleSignOut() {
   await signOut();
-  await $router.push({ name: "login" });
+  await router.push({ name: "login" });
 }
 
 void profile;

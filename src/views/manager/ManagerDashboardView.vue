@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-gray-50 p-6">
 
     <div v-if="loading" class="flex h-64 items-center justify-center text-gray-500 font-semibold">
-      {{ t('auto_ang_t_i_d_li_u', 'Đang tải dữ liệu...') }}
+      {{ t('auto_ang_t_i_d_li_u') }}
     </div>
     <div v-else>
       <!-- Page Header -->
@@ -14,7 +14,7 @@
       <div class="flex items-center gap-3">
         <span class="inline-flex items-center gap-1.5 rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
           <span class="h-2 w-2 rounded-full bg-green-500 animate-pulse"></span>
-          {{ t('auto_ang_ho_t_ng', 'Đang hoạt động') }}
+          {{ t('auto_ang_ho_t_ng') }}
         </span>
         <button class="kawaii-btn-ghost text-sm">{{ t('auto___c_i___t') }}</button>
       </div>
@@ -28,7 +28,7 @@
         <p class="text-xs text-orange-600 mt-0.5">{{ t('auto_doanh_thu_tu_n_n_y_th_p_h_n_m_') }}</p>
       </div>
       <button class="rounded-xl bg-orange-100 px-4 py-1.5 text-xs font-semibold text-orange-700 hover:bg-orange-200 transition-colors">
-        {{ t('auto_xem_chi_ti_t', 'Xem Chi Tiết') }}
+        {{ t('auto_xem_chi_ti_t') }}
       </button>
     </div>
 
@@ -177,7 +177,7 @@
             +8.3%
           </span>
         </div>
-        <p class="text-2xl font-bold text-gray-800 mt-2">{{ revenue.toLocaleString('vi-VN') }}<span class="text-base text-gray-500">{{ t('auto_', 'đ') }}</span></p>
+        <p class="text-2xl font-bold text-gray-800 mt-2">{{ revenue.toLocaleString('vi-VN') }}<span class="text-base text-gray-500">{{ t('auto_') }}</span></p>
         <p class="text-xs font-medium text-gray-400 mt-0.5">{{ t('auto_doanh_thu_h_m_nay') }}</p>
         <div class="mt-3">
           <div class="h-1 w-full rounded-full bg-gray-100">
@@ -198,7 +198,7 @@
             ─ 0%
           </span>
         </div>
-        <p class="text-2xl font-bold text-gray-800 mt-2">{{ Math.round(avgCheck).toLocaleString('vi-VN') }}<span class="text-base text-gray-500">{{ t('auto_', 'đ') }}</span></p>
+        <p class="text-2xl font-bold text-gray-800 mt-2">{{ Math.round(avgCheck).toLocaleString('vi-VN') }}<span class="text-base text-gray-500">{{ t('auto_') }}</span></p>
         <p class="text-xs font-medium text-gray-400 mt-0.5">{{ t('auto_trung_b_nh___kh_ch') }}</p>
         <div class="mt-3">
           <p class="text-xs text-gray-400">{{ t('auto_m_c_ti_u__55_000__kh_ch') }}</p>

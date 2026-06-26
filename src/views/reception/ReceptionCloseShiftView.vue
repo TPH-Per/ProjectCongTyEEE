@@ -10,7 +10,7 @@
       <div class="flex gap-2">
         <button @click="handleExportCSV" class="kawaii-btn-ghost px-4 py-2 text-sm font-bold flex items-center gap-2">
           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
-          {{ t('auto_xu_t_csv', 'Xuất CSV') }}
+          {{ t('auto_xu_t_csv') }}
         </button>
         <button @click="handleCloseShift" :disabled="loading" class="kawaii-btn-primary px-5 py-2 text-sm font-bold flex items-center gap-2 disabled:opacity-50">
           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
@@ -28,7 +28,7 @@
         class="mb-5 rounded-xl border-2 border-green-200 bg-green-50 p-4 flex items-center justify-between"
       >
         <div>
-          <div class="text-xs font-bold text-green-700 uppercase tracking-wide">{{ $t('auto_ca_hien_tai_dang_mo', 'Ca hiện tại đang mở') }}</div>
+          <div class="text-xs font-bold text-green-700 uppercase tracking-wide">{{ $t('auto_ca_hien_tai_dang_mo') }}</div>
           <div class="text-sm text-green-800 mt-1">
             Mở lúc {{ new Date(activeShift.opened_at).toLocaleString('vi-VN') }}
             — Tiền đầu ca: {{ Number(activeShift.opening_cash || 0).toLocaleString() }}đ
@@ -39,7 +39,7 @@
       <div
         v-else
         class="mb-5 rounded-xl border-2 border-yellow-200 bg-yellow-50 p-4 text-sm text-yellow-800"
-      >{{ $t('auto_chua_co_ca_nao_dang_mo_tai_chi', 'Chưa có ca nào đang mở tại chi nhánh này. Vào ca trước rồi quay lại đóng.') }}</div>
+      >{{ $t('auto_chua_co_ca_nao_dang_mo_tai_chi') }}</div>
 
       <h3 class="font-bold text-base text-[hsl(var(--foreground))] mb-5">{{ t('auto_doanh_thu_theo_lo_i_h_nh______') }}</h3>
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
@@ -88,8 +88,8 @@
               <th class="text-left py-2 px-4 font-bold text-gray-500 text-[11px] uppercase">{{ t('auto_b_n') }}</th>
               <th class="text-left py-2 px-4 font-bold text-gray-500 text-[11px] uppercase">{{ t('auto_lo_i') }}</th>
               <th class="text-right py-2 px-4 font-bold text-gray-500 text-[11px] uppercase">{{ t('auto_kh_ch') }}</th>
-              <th class="text-left py-2 px-4 font-bold text-gray-500 text-[11px] uppercase">{{ t('auto_tr_ng_th_i', 'Trạng Thái') }}</th>
-              <th class="text-right py-2 px-4 font-bold text-gray-500 text-[11px] uppercase">Doanh Thu</th>
+              <th class="text-left py-2 px-4 font-bold text-gray-500 text-[11px] uppercase">{{ t('auto_tr_ng_th_i') }}</th>
+              <th class="text-right py-2 px-4 font-bold text-gray-500 text-[11px] uppercase">{{ t('auto_doanh_thu') }}</th>
               <th class="text-left py-2 px-4 font-bold text-gray-500 text-[11px] uppercase">{{ t('auto_tg_thanh_to_n') }}</th>
             </tr>
           </thead>
@@ -105,7 +105,7 @@
               <td class="py-2.5 px-4 text-gray-500 text-xs">{{ new Date(order.created_at).toLocaleTimeString() }}</td>
             </tr>
             <tr v-if="orders.length === 0">
-              <td colspan="7" class="py-4 text-center text-gray-500">{{ t('auto_ch_a_c_d_li_u', 'Chưa có dữ liệu') }}</td>
+              <td colspan="7" class="py-4 text-center text-gray-500">{{ t('auto_ch_a_c_d_li_u') }}</td>
             </tr>
           </tbody>
         </table>
@@ -216,8 +216,8 @@ async function handleCloseShift() {
   const { value: formValues } = await Swal.fire({
     title: 'Đóng ca',
     html:
-      `<input id="closing-cash" type="number" class="swal2-input" placeholder="${t('auto_tien_mat_cuoi_ca_vnd', 'Tiền mặt cuối ca (VND)')}">` +
-      `<textarea id="handover-notes" class="swal2-textarea" placeholder="${t('auto_ghi_chu_ban_giao_tuy_chon', 'Ghi chú bàn giao (tuỳ chọn)')}"></textarea>`,
+      `<input id="closing-cash" type="number" class="swal2-input" placeholder="${t('auto_tien_mat_cuoi_ca_vnd')}">` +
+      `<textarea id="handover-notes" class="swal2-textarea" placeholder="${t('auto_ghi_chu_ban_giao_tuy_chon')}"></textarea>`,
     focusConfirm: false,
     showCancelButton: true,
     confirmButtonText: 'Xác nhận đóng ca',

@@ -34,9 +34,9 @@
         <div class="bg-white border rounded-2xl p-6 shadow-sm">
           <h3 class="text-base font-bold text-gray-900 mb-4 border-b pb-3">{{ t('auto_1____nh_danh_kh_ch_h_ng__membe') }}</h3>
           <div class="flex gap-3 mb-6">
-            <input v-model="customerPhone" type="text" :placeholder="$t('auto_placeholder_fix', 'Nhập số điện thoại khách hàng...')" class="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-base focus:outline-none focus:border-red-500 font-semibold" />
+            <input v-model="customerPhone" type="text" :placeholder="$t('auto_placeholder_fix')" class="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-base focus:outline-none focus:border-red-500 font-semibold" />
             <button @click="findCustomer" class="bg-gray-900 text-white px-6 py-3 rounded-xl font-bold hover:bg-black transition-colors">
-              {{ t('auto_tra_c_u', 'Tra Cứu') }}
+              {{ t('auto_tra_c_u') }}
             </button>
           </div>
           <!-- Member Found State -->
@@ -51,7 +51,7 @@
                   <div class="text-sm text-gray-600 mb-2">SĐT: {{ customerInfo.phone }}</div>
                 </div>
                 <div class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-bold border border-red-200">
-                  {{ t('auto_th_nh_vi_n', 'Thành Viên') }}
+                  {{ t('auto_th_nh_vi_n') }}
                 </div>
               </div>
             </div>
@@ -75,7 +75,7 @@
               <div class="flex gap-2">
                 <input v-model="voucherCode" type="text" placeholder="VD: TET2024..." class="flex-1 w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-base focus:outline-none focus:border-red-500 uppercase font-semibold text-gray-900" />
                 <button @click="applyVoucher" class="bg-gray-200 text-gray-700 px-4 py-3 rounded-xl font-bold hover:bg-gray-300 transition-colors shrink-0">
-                  {{ t('auto_p_d_ng', 'Áp Dụng') }}
+                  {{ t('auto_p_d_ng') }}
                 </button>
               </div>
             </div>
@@ -97,7 +97,7 @@
               <span class="font-bold text-gray-700">{{ item.quantity }} x {{ item.name_snapshot }}</span>
               <span class="font-bold text-gray-900">{{ (item.unit_price * item.quantity).toLocaleString('vi-VN') }}đ</span>
             </div>
-            <div v-if="orderItems.length === 0" class="text-center text-gray-500">{{ t('auto_ch_a_c_m_n_n_o', 'Chưa có món nào') }}</div>
+            <div v-if="orderItems.length === 0" class="text-center text-gray-500">{{ t('auto_ch_a_c_m_n_n_o') }}</div>
           </div>
 
           <div class="space-y-3 pt-4 border-t" v-if="orderItems.length > 0">
@@ -106,7 +106,7 @@
               <span class="font-semibold text-gray-900">{{ subTotal.toLocaleString('vi-VN') }}đ</span>
             </div>
             <div class="flex justify-between items-center text-green-600" v-if="discount > 0">
-              <span class="font-bold">{{ t('auto_gi_m_gi', 'Giảm giá') }}</span>
+              <span class="font-bold">{{ t('auto_gi_m_gi') }}</span>
               <span class="font-bold">-{{ discount.toLocaleString('vi-VN') }}đ</span>
             </div>
             <div class="flex justify-between items-center text-gray-500">

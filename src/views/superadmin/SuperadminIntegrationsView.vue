@@ -32,7 +32,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">App ID</label>
-            <input type="text" v-model="integrations.misa.appId" class="kawaii-input w-full" :placeholder="$t('auto_placeholder_fix', 'Nhập App ID')" />
+            <input type="text" v-model="integrations.misa.appId" class="kawaii-input w-full" :placeholder="$t('auto_placeholder_fix')" />
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Secret Key</label>
@@ -74,7 +74,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Client ID</label>
-            <input type="text" class="kawaii-input w-full" :placeholder="$t('auto_placeholder_fix', 'Nhập Client ID')" />
+            <input type="text" class="kawaii-input w-full" :placeholder="$t('auto_placeholder_fix')" />
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Client Secret</label>
@@ -118,7 +118,7 @@
       <div v-if="integrations.basehr.enabled" class="space-y-4 pt-4 border-t border-gray-100">
          <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Access Token</label>
-          <input type="password" class="kawaii-input w-full" :placeholder="$t('auto_placeholder_fix', 'Nhập mã Access Token từ Base.vn')" />
+          <input type="password" class="kawaii-input w-full" :placeholder="$t('auto_placeholder_fix')" />
         </div>
         <div class="flex justify-end pt-2">
           <button class="kawaii-btn-primary">{{ t('auto_l_u_c_u_h_nh') }}</button>

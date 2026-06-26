@@ -6,7 +6,7 @@
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
       </RouterLink>
       <div>
-        <h2 class="text-xl font-bold text-gray-900">{{ $t('auto_mo_ban', 'Mở bàn:') }} {{ tableCode }}</h2>
+        <h2 class="text-xl font-bold text-gray-900">{{ $t('auto_mo_ban') }} {{ tableCode }}</h2>
         <p class="text-xs text-gray-500">{{ t('auto_scan_qr___profile_kh_ch') }}</p>
       </div>
     </div>
@@ -15,10 +15,10 @@
     <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-200 mb-4">
       <div class="text-sm font-bold text-gray-800 mb-3 flex items-center gap-2">
         <div class="w-5 h-5 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-xs">1</div>
-        {{ t('auto_qu_t_qr_tr_n_tablet', 'Quét QR trên Tablet') }}
+        {{ t('auto_qu_t_qr_tr_n_tablet') }}
       </div>
       <div class="flex gap-2">
-        <input type="text" :placeholder="$t('auto_placeholder_fix', 'Nhập mã hoặc quét...')" class="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-red-500" :value="tableCode" />
+        <input type="text" :placeholder="$t('auto_placeholder_fix')" class="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-red-500" :value="tableCode" />
         <button class="bg-gray-800 text-white p-2 rounded-xl">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><rect width="5" height="5" x="7" y="7" rx="1"/><rect width="5" height="5" x="12" y="12" rx="1"/></svg>
         </button>
@@ -29,7 +29,7 @@
     <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-200 mb-4">
       <div class="text-sm font-bold text-gray-800 mb-4 flex items-center gap-2">
         <div class="w-5 h-5 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-xs">2</div>
-        {{ t('auto_th_ng_tin_kh_ch_h_ng', 'Thông tin khách hàng') }}
+        {{ t('auto_th_ng_tin_kh_ch_h_ng') }}
       </div>
       
       <div class="space-y-4">
@@ -80,7 +80,7 @@
     <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-200 mb-6">
       <div class="text-sm font-bold text-gray-800 mb-4 flex items-center gap-2">
         <div class="w-5 h-5 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-xs">3</div>
-        {{ t('auto_ch_n_g_i_course_selection', 'Chọn Gói (Course Selection)') }}
+        {{ t('auto_ch_n_g_i_course_selection') }}
       </div>
 
       <div class="space-y-3">
@@ -108,11 +108,11 @@
           <div class="grid grid-cols-2 gap-2">
             <button type="button" @click="flowMode = 'one_way'" :class="flowMode === 'one_way' ? 'bg-red-50 border-2 border-red-500 text-red-700' : 'bg-gray-50 border border-gray-200 text-gray-600'" class="font-bold py-2 rounded-xl text-xs flex flex-col items-center gap-1">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-              {{ t('auto_kh_a_course_1_chi_u', 'Khóa Course (1 Chiều)') }}
+              {{ t('auto_kh_a_course_1_chi_u') }}
             </button>
             <button type="button" @click="flowMode = 'free'" :class="flowMode === 'free' ? 'bg-red-50 border-2 border-red-500 text-red-700' : 'bg-gray-50 border border-gray-200 text-gray-600'" class="font-bold py-2 rounded-xl text-xs flex flex-col items-center gap-1">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
-              {{ t('auto_lu_ng_t_do_buffet', 'Luồng Tự Do (Buffet)') }}
+              {{ t('auto_lu_ng_t_do_buffet') }}
             </button>
           </div>
         </div>
@@ -120,7 +120,7 @@
     </div>
 
     <button @click="handleCheckIn" :disabled="loading || !selectedPackageId" class="mt-auto w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-2xl shadow-lg transition-colors text-lg disabled:opacity-50">
-      {{ loading ? $t('auto_dang_xu_ly', 'Đang xử lý...') : $t('auto_mo_ban_kich_hoat', 'Mở Bàn & Kích Hoạt Tablet') }}
+      {{ loading ? $t('auto_dang_xu_ly') : $t('auto_mo_ban_kich_hoat') }}
     </button>
   </div>
 </template>

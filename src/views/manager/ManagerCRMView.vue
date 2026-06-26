@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-gray-50 p-6">
 
     <div v-if="loading" class="flex h-64 items-center justify-center text-gray-500 font-semibold">
-      {{ t('auto_ang_t_i_d_li_u', 'Đang tải dữ liệu...') }}
+      {{ t('auto_ang_t_i_d_li_u') }}
     </div>
     <div v-else>
       <!-- Page Header -->
@@ -51,11 +51,11 @@
         <div class="mt-4 flex gap-4 text-xs text-gray-500">
           <div class="flex items-center gap-1.5">
             <span class="w-3 h-3 rounded-full inline-block" style="background:#FF7B89"></span>
-            {{ t('auto_quay_l_i', 'Quay lại') }}
+            {{ t('auto_quay_l_i') }}
           </div>
           <div class="flex items-center gap-1.5">
             <span class="w-3 h-3 rounded-full inline-block bg-gray-200"></span>
-            {{ t('auto_l_n_u', 'Lần đầu') }}
+            {{ t('auto_l_n_u') }}
           </div>
         </div>
       </div>
@@ -114,7 +114,7 @@
             <input
               v-model="searchQuery"
               type="text"
-              :placeholder="$t('auto_placeholder_fix', 'Tìm theo SĐT hoặc tên...')"
+              :placeholder="$t('auto_placeholder_fix')"
               class="kawaii-input pl-8 text-sm w-64"
             />
           </div>

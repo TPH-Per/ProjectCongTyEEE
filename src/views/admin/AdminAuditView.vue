@@ -4,17 +4,17 @@
     <div class="mb-6 flex flex-col md:flex-row justify-between md:items-end gap-4">
       <div>
         <h1 class="text-3xl font-bold text-gray-800 mb-2 flex items-center gap-2">
-          <span class="text-[#FF7B89]">🕵️</span> {{ t('auto_nh_t_k_ho_t_ng_audit_log', 'Nhật Ký Hoạt Động (Audit Log)') }}
+          <span class="text-[#FF7B89]">🕵️</span> {{ t('auto_nh_t_k_ho_t_ng_audit_log') }}
         </h1>
         <p class="text-gray-500">{{ t('auto_gi_m_s_t_m_i_thao_t_c_v__thay_') }}</p>
       </div>
       
       <div class="flex gap-2">
         <button class="kawaii-btn-ghost flex items-center gap-2" @click="fetchLogs">
-          <span>🔄</span> {{ t('auto_l_m_m_i', 'Làm mới') }}
+          <span>🔄</span> {{ t('auto_l_m_m_i') }}
         </button>
         <button class="kawaii-btn-ghost flex items-center gap-2">
-          <span>⬇️</span> {{ t('auto_xu_t_b_o_c_o', 'Xuất báo cáo') }}
+          <span>⬇️</span> {{ t('auto_xu_t_b_o_c_o') }}
         </button>
       </div>
     </div>
@@ -23,7 +23,7 @@
     <div class="kawaii-card p-4 mb-6 grid grid-cols-1 md:grid-cols-5 gap-4 shadow-sm border border-gray-50">
       <div class="md:col-span-2 relative">
         <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
-        <input type="text" v-model="searchQuery" :placeholder="$t('auto_placeholder_fix', 'Tìm kiếm theo ID, payload...')" class="kawaii-input w-full pl-11" />
+        <input type="text" v-model="searchQuery" :placeholder="$t('auto_placeholder_fix')" class="kawaii-input w-full pl-11" />
       </div>
       <div>
         <select v-model="filterTime" class="kawaii-input w-full bg-white appearance-none cursor-pointer">
@@ -48,7 +48,7 @@
           <option value="orders">{{ t('auto___n_h_ng') }}</option>
           <option value="users">{{ t('auto_ng__i_d_ng') }}</option>
           <option value="menu_items">{{ t('auto_th_c___n') }}</option>
-          <option value="tables">{{ t('auto_b_n', 'Bàn') }}</option>
+          <option value="tables">{{ t('auto_b_n') }}</option>
         </select>
       </div>
     </div>
@@ -70,41 +70,51 @@
           </thead>
           <tbody>
             <tr v-if="loading" class="border-b border-gray-50">
-              <td colspan="7" class="py-8 text-center text-gray-500">{{ t('auto_ang_t_i_d_li_u', 'Đang tải dữ liệu...') }}</td>
+              <td colspan="7" class="py-8 text-center text-gray-500">{{ t('auto_ang_t_i_d_li_u') }}</td>
             </tr>
             <tr v-else-if="filteredLogs.length === 0" class="border-b border-gray-50">
-              <td colspan="7" class="py-8 text-center text-gray-500">{{ t('auto_kh_ng_t_m_th_y_b_n_ghi_n_o', 'Không tìm thấy bản ghi nào.') }}</td>
+              <td colspan="7" class="py-8 text-center text-gray-500">{{ t('auto_kh_ng_t_m_th_y_b_n_ghi_n_o') }}</td>
             </tr>
             <tr v-for="log in filteredLogs" :key="log.id" class="border-b border-gray-50 hover:bg-pink-50/20 transition-colors">
               <td class="py-3 px-6 text-sm text-gray-500 whitespace-nowrap">{{ new Date(log.created_at).toLocaleString('vi-VN') }}</td>
               <td class="py-3 px-6 text-sm text-gray-800 font-medium">
-                <span class="px-2.5 py-1 bg-gray-100/80 rounded-lg text-xs border border-gray-200/50">{{ log.branches?.name || 'Hệ thống' }}</span>
+                <span class="px-2.5 py-1 bg-gray-100/80 rounded-lg text-xs border border-gray-200/50">{{ log.branches?.name || t('auto_he_thong') }}</span>
               </td>
               <td class="py-3 px-6 text-sm">
                 <div class="flex items-center gap-2.5">
                   <div class="w-7 h-7 rounded-xl bg-gradient-to-br from-pink-100 to-pink-200 text-[#FF7B89] flex items-center justify-center font-bold text-xs shadow-sm">
                     {{ (log.users?.full_name || 'H').charAt(0).toUpperCase() }}
                   </div>
-                  <span class="font-medium text-gray-700">{{ log.users?.full_name || 'Hệ thống' }}</span>
+                  <span class="font-medium text-gray-700">{{ log.users?.full_name || t('auto_he_thong') }}</span>
                 </div>
               </td>
               <td class="py-3 px-6">
+                
                 <span :class="{
                   'px-3 py-1 rounded-full text-[11px] font-bold tracking-wide uppercase': true,
-                  'bg-green-100/80 text-green-700 border border-green-200': log.action === 'CREATE' || log.action === 'INSERT',
-                  'bg-blue-100/80 text-blue-700 border border-blue-200': log.action === 'UPDATE',
-                  'bg-red-100/80 text-red-700 border border-red-200': log.action === 'DELETE',
-                  'bg-purple-100/80 text-purple-700 border border-purple-200': log.action === 'LOGIN' || log.action === 'SELECT'
+                  'bg-green-100/80 text-green-700 border border-green-200': formatActionColor(log.action) === 'green',
+                  'bg-blue-100/80 text-blue-700 border border-blue-200': formatActionColor(log.action) === 'blue',
+                  'bg-red-100/80 text-red-700 border border-red-200': formatActionColor(log.action) === 'red',
+                  'bg-purple-100/80 text-purple-700 border border-purple-200': formatActionColor(log.action) === 'purple'
                 }">
-                  {{ log.action }}
+                  {{ formatActionText(log.action) }}
                 </span>
+
               </td>
               <td class="py-3 px-6 text-sm text-gray-700 font-medium">{{ log.entity_type || 'N/A' }}</td>
               <td class="py-3 px-6 text-sm text-gray-500 font-mono bg-gray-50/50 rounded">{{ log.entity_id || 'N/A' }}</td>
               <td class="py-3 px-6 max-w-xs">
+                
                 <div class="bg-gray-50/80 p-2.5 rounded-xl text-xs text-gray-600 max-h-32 overflow-y-auto border border-gray-200/60 shadow-inner">
-                  <pre class="whitespace-pre-wrap break-words font-mono text-[10px]">{{ JSON.stringify(log.payload, null, 2) }}</pre>
+                  <div v-if="log.payload && typeof log.payload === 'object'">
+                    <div v-for="(val, key) in flattenPayload(log.payload)" :key="key" class="mb-1 border-b border-gray-100/50 pb-1 last:border-0 last:pb-0">
+                      <span class="font-bold text-gray-700">{{ key }}:</span>
+                      <span class="ml-1 text-gray-500">{{ val }}</span>
+                    </div>
+                  </div>
+                  <pre v-else class="whitespace-pre-wrap break-words font-mono text-[10px]">{{ log.payload }}</pre>
                 </div>
+
               </td>
             </tr>
           </tbody>
@@ -157,6 +167,50 @@ const fetchLogs = async () => {
 onMounted(() => {
   fetchLogs();
 });
+
+
+const formatActionColor = (action: string) => {
+  const act = action.toLowerCase();
+  if (act.includes('create') || act.includes('insert')) return 'green';
+  if (act.includes('update')) return 'blue';
+  if (act.includes('delete')) return 'red';
+  return 'purple';
+};
+
+const formatActionText = (action: string) => {
+  // Convert 'table_assignment.created' to 'Tạo table_assignment' 
+  // Normally we'd fully translate, but for audit let's make it look cleaner.
+  if (!action) return 'UNKNOWN';
+  if (action.includes('.')) {
+    const parts = action.split('.');
+    const entity = parts[0].replace(/_/g, ' ');
+    const verb = parts[1];
+    
+    let translatedVerb = verb;
+    if (verb === 'created' || verb === 'insert') translatedVerb = t('auto_t_o_m_i__create_');
+    else if (verb === 'updated') translatedVerb = t('auto_c_p_nh_t__update_');
+    else if (verb === 'deleted') translatedVerb = t('auto_x_a__delete_');
+    
+    return `${translatedVerb} ${entity}`;
+  }
+  return action;
+};
+
+const flattenPayload = (payload: any) => {
+  if (!payload) return {};
+  // if payload has 'after', use that instead
+  const data = payload.after ? payload.after : payload;
+  const result: Record<string, string> = {};
+  for (const key in data) {
+    if (typeof data[key] === 'object' && data[key] !== null) {
+      result[key] = JSON.stringify(data[key]);
+    } else {
+      result[key] = String(data[key] ?? 'null');
+    }
+  }
+  return result;
+};
+
 
 const filteredLogs = computed(() => {
   return auditLogs.value.filter(log => {

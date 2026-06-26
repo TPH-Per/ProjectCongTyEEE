@@ -308,7 +308,7 @@
                         >{{ t("auto____s_n_s_ng_ph_c_v_") }}</span
                       >
                       <span class="text-[9px] text-gray-400 font-medium mt-0.5"
-                        >Sức chứa: {{ table.capacity }} ghế</span
+                        >{{ t('auto_suc_chua') }} {{ table.capacity }} {{ t('auto_ghe', 'ghế') }}</span
                       >
                     </template>
 
@@ -322,7 +322,7 @@
                       <div
                         class="flex items-center justify-between text-[9px] text-gray-400 font-bold mt-1"
                       >
-                        <span>👥 {{ table.capacity }} khách</span>
+                        <span>👥 {{ table.capacity }} {{ t('auto_khach', 'khách') }}</span>
                         <span class="text-amber-600 font-extrabold"
                           >🕒
                           {{
@@ -381,7 +381,7 @@
               {{
                 t(
                   "auto_kh_ng_t_m_th_y_b_n_n_o_thu_c_p",
-                  "Không tìm thấy bàn nào thuộc phân khu này.",
+                  t('auto_khong_tim_thay_ban', 'Không tìm thấy bàn nào thuộc phân khu này.'),
                 )
               }}
             </div>
@@ -771,14 +771,14 @@
           <span>{{ t("auto_b_n_") }}</span>
           <span
             class="text-emerald-600 bg-emerald-50 border border-emerald-100 px-1.5 py-0.5 rounded"
-            >{{ stats.availableTables }}/{{ stats.totalTables }} trống</span
+            >{{ stats.availableTables }}/{{ stats.totalTables }} {{ t('auto_trong_nho', 'trống') }}</span
           >
         </div>
         <div class="flex items-center gap-2">
           <span>{{ t("auto_gh__") }}</span>
           <span
             class="text-blue-600 bg-blue-50 border border-blue-100 px-1.5 py-0.5 rounded"
-            >{{ stats.availableSeats }}/{{ stats.totalSeats }} trống</span
+            >{{ stats.availableSeats }}/{{ stats.totalSeats }} {{ t('auto_trong_nho', 'trống') }}</span
           >
         </div>
       </div>
@@ -869,10 +869,10 @@
           </div>
           <div>
             <h3 class="text-lg font-black text-gray-900 tracking-tight">
-              Chi Tiết Bàn {{ selectedTableForModal.code }}
+              {{ t('auto_chi_tiet_ban', 'Chi Tiết Bàn') }} {{ selectedTableForModal.code }}
             </h3>
             <p class="text-[10px] text-gray-400 font-bold uppercase">
-              Phân khu: {{ selectedTableForModal.areaName }}
+              {{ t('auto_phan_khu', 'Phân khu') }}: {{ selectedTableForModal.areaName }}
             </p>
           </div>
         </div>
@@ -885,7 +885,7 @@
                 >{{ t("auto_s_c_ch_a") }}</span
               >
               <span class="font-extrabold text-xs text-gray-800"
-                >{{ selectedTableForModal.capacity }} ghế ngồi</span
+                >{{ selectedTableForModal.capacity }} {{ t('auto_ghe_ngoi', 'ghế ngồi') }}</span
               >
             </div>
             <div class="bg-gray-50 p-3 rounded-xl border border-gray-100">
@@ -1130,7 +1130,7 @@
                       tbl.code !== newBookingForm.assignedTable
                     "
                   >
-                    {{ tbl.code }} (Sức chứa: {{ tbl.capacity }} chỗ)
+                    {{ tbl.code }} ({{ t('auto_suc_chua') }} {{ tbl.capacity }} {{ t('auto_cho', 'chỗ') }})
                   </option>
                 </optgroup>
               </select>
@@ -1221,7 +1221,7 @@
                   :value="tbl.code"
                   v-show="tbl.status === 'Available'"
                 >
-                  Bàn {{ tbl.code }} ({{ tbl.capacity }} ghế)
+                  {{ t('auto_ban') }} {{ tbl.code }} ({{ tbl.capacity }} {{ t('auto_ghe', 'ghế') }})
                 </option>
               </optgroup>
             </select>
@@ -1700,7 +1700,7 @@
                     tbl.code !== selectedBookingForAssign.assignedTable
                   "
                 >
-                  Bàn {{ tbl.code }} (Chỗ ngồi: {{ tbl.capacity }} ghế) -
+                  {{ t('auto_ban') }} {{ tbl.code }} ({{ t('auto_cho_ngoi', 'Chỗ ngồi') }}: {{ tbl.capacity }} {{ t('auto_ghe', 'ghế') }}) -
                   {{ translateTableStatus(tbl.status) }}
                 </option>
               </optgroup>
@@ -2305,21 +2305,23 @@ function getBadgeColorClass(status: 'Available' | 'Reserved' | 'Arrived' | 'Serv
 
 function translateTableStatus(status: string) {
   switch (status) {
-    case 'Available': return 'Trống'
-    case 'Reserved': return 'Đặt trước'
-    case 'Arrived': return 'Đã đến'
-    case 'Serving': return 'Phục vụ'
+    case 'Available': return t('auto_trong', 'Trống')
+    case 'Reserved': return t('auto_dat_truoc', 'Đặt trước')
+    case 'Arrived': return t('auto_da_den', 'Đã đến')
+    case 'Serving': return t('auto_phuc_vu', 'Phục vụ')
+    case 'Maintenance': return t('auto_bao_tri', 'Bảo trì')
     default: return status
   }
 }
 
 function translateReservationStatus(status: 'Waiting' | 'Arrived' | 'Seated' | 'Completed' | 'Cancelled') {
   switch (status) {
-    case 'Waiting': return 'Chờ xếp'
-    case 'Arrived': return 'Đã đến'
-    case 'Seated': return 'Đã ngồi'
-    case 'Completed': return 'Hoàn tất'
-    case 'Cancelled': return 'Đã hủy'
+    case 'Waiting': return t('auto_cho_xep', 'Chờ xếp')
+    case 'Arrived': return t('auto_da_den', 'Đã đến')
+    case 'Seated': return t('auto_dang_dung', 'Đã ngồi')
+    case 'Completed': return t('auto_da_xong', 'Hoàn tất')
+    case 'Cancelled': return t('auto_da_huy', 'Đã hủy')
+    default: return status
   }
 }
 

@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-gray-50 p-6">
 
     <div v-if="loading" class="flex h-64 items-center justify-center text-gray-500 font-semibold">
-      {{ t('auto_ang_t_i_d_li_u', 'Đang tải dữ liệu...') }}
+      {{ t('auto_ang_t_i_d_li_u') }}
     </div>
     <div v-else>
       <!-- Page Header -->
@@ -14,11 +14,11 @@
       <div class="flex items-center gap-2">
         <button class="kawaii-btn-ghost text-sm flex items-center gap-1.5">
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-          {{ t('auto_xu_t_csv', 'Xuất CSV') }}
+          {{ t('auto_xu_t_csv') }}
         </button>
         <button class="kawaii-btn-primary text-sm flex items-center gap-1.5">
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-          {{ t('auto_xu_t_excel', 'Xuất Excel') }}
+          {{ t('auto_xu_t_excel') }}
         </button>
       </div>
     </div>
@@ -52,10 +52,10 @@
       </div>
       <button class="kawaii-btn-primary text-sm flex items-center gap-1.5 py-2 px-4">
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z"/></svg>
-        {{ t('auto_l_c', 'Lọc') }}
+        {{ t('auto_l_c') }}
       </button>
       <button class="kawaii-btn-ghost text-sm flex items-center gap-1 py-2 px-3 ml-auto">
-        <span>🔁</span> {{ t('auto_t_l_i', 'Đặt lại') }}
+        <span>🔁</span> {{ t('auto_t_l_i') }}
       </button>
     </div>
 
@@ -65,7 +65,7 @@
       <div class="kawaii-card kawaii-shadow p-5 relative overflow-hidden">
         <div class="absolute -right-2 -top-2 text-5xl opacity-5">💵</div>
         <p class="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3">{{ t('auto_t_ng_doanh_thu') }}</p>
-        <p class="text-2xl font-bold text-gray-900">{{ revenue.toLocaleString('vi-VN') }}<span class="text-sm text-gray-400">{{ t('auto_', 'đ') }}</span></p>
+        <p class="text-2xl font-bold text-gray-900">{{ revenue.toLocaleString('vi-VN') }}<span class="text-sm text-gray-400">{{ t('auto_') }}</span></p>
         <div class="mt-2 flex items-center gap-1.5">
           <span class="inline-flex items-center gap-0.5 text-xs font-bold text-green-600 bg-green-50 rounded-full px-2 py-0.5">
             <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
@@ -98,10 +98,10 @@
       <div class="kawaii-card kawaii-shadow p-5 relative overflow-hidden">
         <div class="absolute -right-2 -top-2 text-5xl opacity-5">🧾</div>
         <p class="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3">{{ t('auto_trung_b_nh___kh_ch') }}</p>
-        <p class="text-2xl font-bold text-gray-900">{{ Math.round(avgCheck).toLocaleString('vi-VN') }}<span class="text-sm text-gray-400">{{ t('auto_', 'đ') }}</span></p>
+        <p class="text-2xl font-bold text-gray-900">{{ Math.round(avgCheck).toLocaleString('vi-VN') }}<span class="text-sm text-gray-400">{{ t('auto_') }}</span></p>
         <div class="mt-2 flex items-center gap-1.5">
           <span class="inline-flex items-center text-xs font-bold text-gray-500 bg-gray-100 rounded-full px-2 py-0.5">
-            {{ t('auto_n_nh', '─ Ổn định') }}
+            {{ t('auto_n_nh') }}
           </span>
         </div>
         <p class="text-xs text-gray-400 mt-3">{{ t('auto_m_c_ti_u__55_000__kh_ch') }}</p>
@@ -111,7 +111,7 @@
       <div class="kawaii-card kawaii-shadow p-5 relative overflow-hidden">
         <div class="absolute -right-2 -top-2 text-5xl opacity-5">🍽</div>
         <p class="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3">{{ t('auto_doanh_thu___b_n') }}</p>
-        <p class="text-2xl font-bold text-gray-900">1,033,333<span class="text-sm text-gray-400">{{ t('auto_', 'đ') }}</span></p>
+        <p class="text-2xl font-bold text-gray-900">1,033,333<span class="text-sm text-gray-400">{{ t('auto_') }}</span></p>
         <div class="mt-2 flex items-center gap-1.5">
           <span class="inline-flex items-center gap-0.5 text-xs font-bold text-green-600 bg-green-50 rounded-full px-2 py-0.5">
             <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
@@ -310,7 +310,7 @@
             </div>
             <p class="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">{{ t('auto_ng_y_th__ng') }}</p>
             <p class="text-xs text-gray-400 mb-3">{{ t('auto_th__2___th__6') }}</p>
-            <p class="text-2xl font-bold text-gray-800">11,200,000<span class="text-sm text-gray-500">{{ t('auto_', 'đ') }}</span></p>
+            <p class="text-2xl font-bold text-gray-800">11,200,000<span class="text-sm text-gray-500">{{ t('auto_') }}</span></p>
             <p class="text-xs text-gray-400 mt-1">{{ t('auto_m_i_ng_y') }}</p>
             <div class="mt-4 flex items-center justify-center gap-1.5 text-xs">
               <div class="h-2 w-2 rounded-full bg-gray-400"></div>
@@ -326,7 +326,7 @@
             </div>
             <p class="text-xs font-semibold uppercase tracking-wider text-pink-400 mb-1">{{ t('auto_cu_i_tu_n') }}</p>
             <p class="text-xs text-pink-300 mb-3">{{ t('auto_th__7___cn') }}</p>
-            <p class="text-2xl font-bold text-pink-600">18,600,000<span class="text-sm text-pink-400">{{ t('auto_', 'đ') }}</span></p>
+            <p class="text-2xl font-bold text-pink-600">18,600,000<span class="text-sm text-pink-400">{{ t('auto_') }}</span></p>
             <p class="text-xs text-pink-400 mt-1">{{ t('auto_m_i_ng_y') }}</p>
             <div class="mt-4 flex items-center justify-center gap-1.5 text-xs">
               <div class="h-2 w-2 rounded-full bg-pink-400"></div>

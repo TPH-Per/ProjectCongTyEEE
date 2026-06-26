@@ -158,10 +158,6 @@
         >{{ $t('auto_bang_dieu_khien', 'Bảng điều khiển') }}</div>
         <div class="flex items-center gap-3">
           <span class="text-sm font-semibold text-gray-500">{{ $t('auto_chi_nhanh_1', 'Chi nhánh 1') }}</span>
-          <button
-            class="px-3 py-2 rounded-lg text-sm font-semibold text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors"
-            @click="handleSignOut"
-          >{{ $t('auto_dang_xuat', 'Đăng xuất') }}</button>
         </div>
         <!-- Header User Avatar -->
         <div class="flex items-center gap-2 ml-4">

@@ -8,7 +8,7 @@
       </div>
       <button @click="openCreateModal" class="bg-gray-900 hover:bg-black text-white px-5 py-2.5 rounded-xl font-bold transition-colors flex items-center gap-2 text-sm shadow-md">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="5" y2="19"/><line x1="5" x2="19" y1="12" y2="12"/></svg>
-        {{ t('auto_t_o_t_i_kho_n', 'Tạo Tài Khoản') }}
+        {{ t('auto_t_o_t_i_kho_n') }}
       </button>
     </div>
 
@@ -16,7 +16,7 @@
     <div class="bg-white rounded-2xl border border-gray-200 p-4 shadow-sm flex items-center gap-4">
       <div class="flex-1 relative">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-        <input type="text" :placeholder="$t('auto_placeholder_fix', 'Tìm tên, mã nhân viên...')" class="w-full bg-gray-50 border border-gray-200 rounded-xl pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:border-gray-400 font-medium" />
+        <input type="text" :placeholder="$t('auto_placeholder_fix')" class="w-full bg-gray-50 border border-gray-200 rounded-xl pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:border-gray-400 font-medium" />
       </div>
       <select class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-gray-400 font-medium">
         <option value="all">{{ t('auto_t_t_c__vai_tr_') }}</option>
@@ -53,16 +53,16 @@
             </td>
             <td class="px-5 py-3">
               <span class="flex items-center gap-1.5 text-green-600 font-medium text-xs" v-if="user.is_active">
-                <span class="w-2 h-2 rounded-full bg-green-500"></span> {{ t('auto_ang_ho_t_ng', 'Đang hoạt động') }}
+                <span class="w-2 h-2 rounded-full bg-green-500"></span> {{ t('auto_ang_ho_t_ng') }}
               </span>
               <span class="flex items-center gap-1.5 text-red-600 font-medium text-xs" v-else>
-                <span class="w-2 h-2 rounded-full bg-red-500"></span> {{ t('auto_ng_ng_ho_t_ng', 'Ngừng hoạt động') }}
+                <span class="w-2 h-2 rounded-full bg-red-500"></span> {{ t('auto_ng_ng_ho_t_ng') }}
               </span>
             </td>
             <td class="px-5 py-3">
               <div class="flex gap-2">
                 <button @click="openEditModal(user)" class="text-blue-600 hover:text-blue-800 font-medium">{{ t('auto_s_a') }}</button>
-                <button @click="openPasswordModal(user)" class="text-orange-600 hover:text-orange-800 font-medium ml-2">{{ t('auto_i_mk', 'Đổi MK') }}</button>
+                <button @click="openPasswordModal(user)" class="text-orange-600 hover:text-orange-800 font-medium ml-2">{{ t('auto_i_mk') }}</button>
               </div>
             </td>
           </tr>
@@ -80,7 +80,7 @@
         
         <div class="space-y-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('auto_h_t_n', 'Họ Tên') }}</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('auto_h_t_n') }}</label>
             <input v-model="form.full_name" type="text" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900" />
           </div>
           <div v-if="modalMode === 'create'">
@@ -88,11 +88,11 @@
             <input v-model="form.email" type="email" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900" />
           </div>
           <div v-if="modalMode === 'create'">
-            <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('auto_m_t_kh_u', 'Mật Khẩu') }}</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('auto_m_t_kh_u') }}</label>
             <input v-model="form.password" type="password" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('auto_vai_tr', 'Vai Trò') }}</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('auto_vai_tr') }}</label>
             <select v-model="form.role" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900">
               <option value="admin">Admin</option>
               <option value="manager">Manager</option>
@@ -102,18 +102,18 @@
             </select>
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('auto_chi_nh_nh_branch_id', 'Chi nhánh (Branch ID)') }}</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('auto_chi_nh_nh_branch_id') }}</label>
             <input v-model="form.branch_id" type="text" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900" />
           </div>
           <div v-if="modalMode === 'edit'" class="flex items-center gap-2 mt-4">
             <input type="checkbox" id="isActive" v-model="form.is_active" class="rounded text-gray-900 focus:ring-gray-900 w-4 h-4" />
-            <label for="isActive" class="text-sm font-medium text-gray-700">{{ t('auto_t_i_kho_n_ang_ho_t_ng', 'Tài khoản đang hoạt động') }}</label>
+            <label for="isActive" class="text-sm font-medium text-gray-700">{{ t('auto_t_i_kho_n_ang_ho_t_ng') }}</label>
           </div>
         </div>
 
         <div class="mt-6 flex justify-end gap-3">
           <button @click="isModalOpen = false" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
-            {{ t('auto_h_y', 'Hủy') }}
+            {{ t('auto_h_y') }}
           </button>
           <button @click="saveUser" :disabled="saving" class="px-4 py-2 text-sm font-bold text-white bg-gray-900 hover:bg-black rounded-lg transition-colors disabled:opacity-50">
             {{ saving ? 'Đang lưu...' : 'Lưu Tài Khoản' }}
@@ -125,18 +125,18 @@
     <!-- Password Modal -->
     <div v-if="isPwdModalOpen" class="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
       <div class="bg-white rounded-2xl w-full max-w-sm p-6 shadow-xl">
-        <h3 class="text-lg font-bold mb-4">{{ t('auto_i_m_t_kh_u', 'Đổi Mật Khẩu') }}</h3>
+        <h3 class="text-lg font-bold mb-4">{{ t('auto_i_m_t_kh_u') }}</h3>
         
         <div class="space-y-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('auto_m_t_kh_u_m_i', 'Mật khẩu mới') }}</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('auto_m_t_kh_u_m_i') }}</label>
             <input v-model="newPassword" type="password" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900" />
           </div>
         </div>
 
         <div class="mt-6 flex justify-end gap-3">
           <button @click="isPwdModalOpen = false" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
-            {{ t('auto_h_y', 'Hủy') }}
+            {{ t('auto_h_y') }}
           </button>
           <button @click="resetPassword" :disabled="saving" class="px-4 py-2 text-sm font-bold text-white bg-orange-600 hover:bg-orange-700 rounded-lg transition-colors disabled:opacity-50">
             {{ saving ? 'Đang lưu...' : 'Cập Nhật' }}

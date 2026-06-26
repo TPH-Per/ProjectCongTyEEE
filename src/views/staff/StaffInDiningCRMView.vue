@@ -20,7 +20,7 @@
         <div class="text-sm font-bold text-gray-800">{{ t('auto_g_i_hi_n_t_i') }}</div>
         <button class="text-xs text-blue-600 font-bold">{{ t('auto_s_a') }}</button>
       </div>
-      <div class="text-sm font-medium text-gray-600">{{ $t('auto_khach', 'Khách:') }} {{ orderInfo.guests_count }} {{ $t('auto_nguoi', 'người') }}</div>
+      <div class="text-sm font-medium text-gray-600">{{ $t('auto_khach') }} {{ orderInfo.guests_count }} {{ $t('auto_nguoi') }}</div>
       <div class="text-xs text-gray-500 mt-1">Order ID: {{ orderInfo.id.substring(0,8) }}</div>
     </div>
 
@@ -28,7 +28,7 @@
     <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-200 mb-4 flex-1">
       <div class="text-sm font-bold text-gray-800 mb-4 flex items-center gap-2">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-red-500"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
-        {{ t('auto_crm_t_i_b_n_in_dining', 'CRM Tại Bàn (In-Dining)') }}
+        {{ t('auto_crm_t_i_b_n_in_dining') }}
       </div>
       
       <div class="space-y-5">
@@ -69,7 +69,7 @@
     </div>
 
     <button @click="saveCRM" :disabled="saving" class="mt-auto w-full bg-gray-900 hover:bg-black text-white font-bold py-4 rounded-2xl shadow-lg transition-colors text-lg disabled:opacity-50">
-      {{ saving ? $t('auto_dang_luu', 'Đang lưu...') : $t('auto_cap_nhat_tt', 'Cập nhật Thông tin') }}
+      {{ saving ? $t('auto_dang_luu') : $t('auto_cap_nhat_tt') }}
     </button>
   </div>
 </template>

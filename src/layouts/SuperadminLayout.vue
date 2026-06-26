@@ -21,7 +21,7 @@
       </nav>
       <div class="p-4 border-t border-gray-100">
         <button class="flex items-center text-sm text-gray-500 hover:text-red-500 transition-colors w-full px-4 py-2" @click="handleSignOut">
-          <LogOutIcon class="w-4 h-4 mr-2" />{{ $t('auto_dang_xuat', 'Đăng xuất') }}</button>
+          <LogOutIcon class="w-4 h-4 mr-2" />{{ $t('auto_dang_xuat') }}</button>
       </div>
     </aside>
 
@@ -50,7 +50,7 @@
             <!-- Dropdown Menu -->
             <div v-if="isDropdownOpen" class="absolute right-0 top-full mt-2 w-48 bg-white border border-gray-100 rounded-xl shadow-lg py-1.5 z-50">
               <button @click="handleSignOut" class="w-full flex items-center px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors">
-                <LogOutIcon class="w-4 h-4 mr-2" />{{ $t('auto_dang_xuat', 'Đăng xuất') }}</button>
+                <LogOutIcon class="w-4 h-4 mr-2" />{{ $t('auto_dang_xuat') }}</button>
             </div>
           </div>
         
@@ -76,6 +76,8 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
 import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -99,15 +101,15 @@ const { stickerUrl } = useUserSticker()
 const isDropdownOpen = ref(false)
 
 const menuItems = [
-  { name: 'Tổng quan', path: '/superadmin/dashboard', icon: LayoutDashboardIcon },
-  { name: 'Quản lý chi nhánh', path: '/superadmin/brands', icon: StoreIcon },
-  { name: 'Tích hợp', path: '/superadmin/integrations', icon: PuzzleIcon },
-  { name: 'Cài đặt hệ thống', path: '/superadmin/settings', icon: SettingsIcon },
+  { name: t('auto_tong_quan'), path: '/superadmin/dashboard', icon: LayoutDashboardIcon },
+  { name: t('auto_quan_ly_chi_nhanh'), path: '/superadmin/brands', icon: StoreIcon },
+  { name: t('auto_tich_hop'), path: '/superadmin/integrations', icon: PuzzleIcon },
+  { name: t('auto_cai_dat_he_thong'), path: '/superadmin/settings', icon: SettingsIcon },
 ]
 
 const currentRouteName = computed(() => {
   const current = menuItems.find(item => route.path.includes(item.path))
-  return current ? current.name : 'Quản lý'
+  return current ? current.name : t('auto_quan_ly')
 })
 
 async function handleSignOut() {

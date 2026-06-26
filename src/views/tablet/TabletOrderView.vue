@@ -19,7 +19,7 @@
           <span class="text-white font-bold"><span class="text-red-500">3</span> {{ t('auto___10_m_n') }}</span>
         </div>
         <button @click="submitOrder" :disabled="submitting" class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-full text-lg shadow-[0_0_15px_rgba(220,38,38,0.5)] transition-all disabled:opacity-50 disabled:cursor-not-allowed">
-          {{ submitting ? $t('auto_dang_gui', 'Đang gửi...') : $t('auto_gui_bep', 'Gửi Bếp') }}
+          {{ submitting ? $t('auto_dang_gui') : $t('auto_gui_bep') }}
         </button>
       </div>
     </header>
@@ -87,12 +87,12 @@
     <footer class="bg-black border-t border-gray-800 p-4 flex justify-between items-center shrink-0">
       <button class="text-gray-400 hover:text-white px-6 py-2 flex items-center gap-2 font-medium">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-        {{ t('auto_c_n_h_tr', 'Cần Hỗ Trợ') }}
+        {{ t('auto_c_n_h_tr') }}
       </button>
       
       <button class="bg-gray-800 hover:bg-gray-700 text-white px-8 py-3 rounded-xl font-bold flex items-center gap-2 border border-gray-700 transition-colors">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>
-        {{ t('auto_y_u_c_u_thanh_to_n', 'Yêu Cầu Thanh Toán') }}
+        {{ t('auto_y_u_c_u_thanh_to_n') }}
       </button>
     </footer>
   </div>

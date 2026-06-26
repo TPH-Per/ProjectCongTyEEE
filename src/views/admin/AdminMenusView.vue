@@ -38,9 +38,9 @@
         <div>
           <h1 class="text-2xl font-black text-gray-900 tracking-tight flex items-center gap-2">
             <span class="text-2xl">🍱</span>
-            {{ t('auto_th_c___n___g_i_menu', 'Thực Đơn & Gói Menu') }}
+            {{ t('auto_th_c___n___g_i_menu') }}
           </h1>
-          <p class="text-xs text-gray-500 font-medium mt-1">{{ $t('auto_quan_ly_danh_muc_mon_an_va_cac', 'Quản lý danh mục, món ăn và các gói buffet / set menu của chi nhánh.') }}</p>
+          <p class="text-xs text-gray-500 font-medium mt-1">{{ $t('auto_quan_ly_danh_muc_mon_an_va_cac') }}</p>
         </div>
 
         <!-- Stats strip -->
@@ -67,7 +67,7 @@
           <input
             v-model="searchQuery"
             type="text"
-            :placeholder="$t('auto_tim_mon_goi_danh_muc', 'Tìm món, gói, danh mục…')"
+            :placeholder="$t('auto_tim_mon_goi_danh_muc')"
             class="w-full pl-9 pr-3 py-2 text-sm rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-rose-200 focus:border-rose-400 placeholder:text-gray-400"
           />
         </div>
@@ -76,12 +76,12 @@
             @click="editMenuItem()"
             class="inline-flex items-center gap-1.5 px-4 py-2 bg-white border border-gray-200 hover:bg-gray-50 text-gray-800 rounded-xl text-sm font-bold shadow-sm transition-colors"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>{{ $t('auto_them_mon', 'Thêm Món') }}</button>
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>{{ $t('auto_them_mon') }}</button>
           <button
             @click="editPackage()"
             class="inline-flex items-center gap-1.5 px-4 py-2 bg-gray-900 hover:bg-black text-white rounded-xl text-sm font-bold shadow-md transition-colors"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12c0 1.1.9 2 2 2h14v-4"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>{{ $t('auto_them_goi_menu', 'Thêm Gói Menu') }}</button>
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12c0 1.1.9 2 2 2h14v-4"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>{{ $t('auto_them_goi_menu') }}</button>
         </div>
       </div>
     </header>
@@ -110,7 +110,7 @@
         <div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
           <header class="px-4 py-3 border-b border-gray-100 bg-gray-50/60 flex items-center justify-between">
             <h3 class="text-xs font-black text-gray-800 uppercase tracking-wider flex items-center gap-1.5">
-              <span class="w-1.5 h-3 bg-rose-500 rounded-full"></span>{{ $t('auto_goi_menu', 'Gói Menu') }}</h3>
+              <span class="w-1.5 h-3 bg-rose-500 rounded-full"></span>{{ $t('auto_goi_menu') }}</h3>
             <span class="text-[10px] text-gray-400 font-bold">
               {{ packages.length }} gói
             </span>
@@ -118,11 +118,11 @@
 
           <div v-if="filteredPackages.length === 0" class="px-4 py-10 text-center text-xs text-gray-400 font-medium">
             <div class="text-3xl mb-2 opacity-40">📦</div>
-            <p>{{ $t('auto_chua_co_goi_menu_nao', 'Chưa có gói menu nào.') }}</p>
+            <p>{{ $t('auto_chua_co_goi_menu_nao') }}</p>
             <button
               @click="editPackage()"
               class="mt-3 text-rose-600 hover:text-rose-700 text-xs font-bold underline"
-            >{{ $t('auto_tao_goi_dau_tien', 'Tạo gói đầu tiên') }}</button>
+            >{{ $t('auto_tao_goi_dau_tien') }}</button>
           </div>
 
           <div v-else class="p-3 space-y-2 max-h-[calc(100vh-280px)] overflow-y-auto">
@@ -168,8 +168,8 @@
                   <button
                     @click="editPackage(pkg)"
                     class="text-[10px] font-bold text-blue-600 hover:text-blue-800 px-2 py-1 rounded hover:bg-blue-50"
-                    :title="$t('auto_sua_goi_menu', 'Sửa gói menu')"
-                  >{{ $t('auto_sua', 'Sửa') }}</button>
+                    :title="$t('auto_sua_goi_menu')"
+                  >{{ $t('auto_sua') }}</button>
                 </div>
               </div>
             </article>
@@ -178,7 +178,7 @@
 
         <!-- Category legend -->
         <div class="bg-white border border-gray-200 rounded-2xl shadow-sm p-4">
-          <h4 class="text-[10px] font-black text-gray-800 uppercase tracking-wider mb-2">{{ $t('auto_chu_thich_danh_muc', 'Chú thích danh mục') }}</h4>
+          <h4 class="text-[10px] font-black text-gray-800 uppercase tracking-wider mb-2">{{ $t('auto_chu_thich_danh_muc') }}</h4>
           <div class="grid grid-cols-2 gap-1.5">
             <div
               v-for="cat in categories"
@@ -204,7 +204,7 @@
         <div class="bg-white border border-gray-200 rounded-2xl shadow-sm p-3">
           <div class="flex items-center justify-between mb-2">
             <h3 class="text-xs font-black text-gray-800 uppercase tracking-wider flex items-center gap-1.5">
-              <span class="w-1.5 h-3 bg-emerald-500 rounded-full"></span>{{ $t('auto_mon_an', 'Món Ăn') }}</h3>
+              <span class="w-1.5 h-3 bg-emerald-500 rounded-full"></span>{{ $t('auto_mon_an') }}</h3>
             <span class="text-[10px] text-gray-400 font-bold">
               {{ filteredMenuItems.length }} / {{ menuItems.length }} món
             </span>
@@ -219,7 +219,7 @@
                   ? 'bg-gray-900 text-white border-gray-900'
                   : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
               ]"
-            >{{ $t('auto_tat_ca', 'Tất cả') }}</button>
+            >{{ $t('auto_tat_ca') }}</button>
             <button
               v-for="cat in categories"
               :key="cat.id"
@@ -256,7 +256,7 @@
                     ? 'bg-rose-100 text-rose-700'
                     : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
                 ]"
-              >{{ $t('auto_moi_nhom_con', 'Mọi nhóm con') }}</button>
+              >{{ $t('auto_moi_nhom_con') }}</button>
               <button
                 v-for="sub in subcategoriesForSelectedCategory"
                 :key="sub.id"
@@ -299,7 +299,7 @@
             <button
               @click="editMenuItem(undefined, cat.id)"
               class="text-[10px] font-bold text-blue-600 hover:text-blue-800 hover:bg-blue-50 px-2 py-1 rounded transition-colors"
-            >{{ $t('auto_them_mon', '+ Thêm món') }}</button>
+            >{{ $t('auto_them_mon') }}</button>
           </header>
 
           <!-- Items directly under category (no subcategory) -->
@@ -310,11 +310,11 @@
             <table class="w-full text-left text-sm">
               <thead class="bg-gray-50/40 text-[10px] font-black uppercase tracking-wider text-gray-500 border-b border-gray-100">
                 <tr>
-                  <th class="px-4 py-2 w-16">{{ $t('auto_bat', 'Bật') }}</th>
-                  <th class="px-4 py-2">{{ $t('auto_ten_mon', 'Tên món') }}</th>
-                  <th class="px-4 py-2 w-24">{{ $t('auto_don_vi', 'Đơn vị') }}</th>
-                  <th class="px-4 py-2 text-right w-28">{{ $t('auto_gia', 'Giá') }}</th>
-                  <th class="px-4 py-2 text-right w-16">{{ $t('auto_sua', 'Sửa') }}</th>
+                  <th class="px-4 py-2 w-16">{{ $t('auto_bat') }}</th>
+                  <th class="px-4 py-2">{{ $t('auto_ten_mon') }}</th>
+                  <th class="px-4 py-2 w-24">{{ $t('auto_don_vi') }}</th>
+                  <th class="px-4 py-2 text-right w-28">{{ $t('auto_gia') }}</th>
+                  <th class="px-4 py-2 text-right w-16">{{ $t('auto_sua') }}</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-gray-100">
@@ -352,7 +352,7 @@
                     <button
                       @click="editMenuItem(item)"
                       class="text-blue-600 hover:text-blue-800 p-1"
-                      :title="$t('auto_sua_mon', 'Sửa món')"
+                      :title="$t('auto_sua_mon')"
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
                     </button>
@@ -375,7 +375,7 @@
               <button
                 @click="editMenuItem(undefined, cat.id, sub.id)"
                 class="text-[10px] font-bold text-blue-600 hover:text-blue-800 hover:bg-blue-50 px-2 py-0.5 rounded transition-colors"
-              >{{ $t('auto_them', '+ Thêm') }}</button>
+              >{{ $t('auto_them') }}</button>
             </header>
 
             <div v-if="(itemsBySubcategoryId.get(sub.id) ?? []).length > 0" class="overflow-x-auto">
@@ -412,7 +412,7 @@
                       <button
                         @click="editMenuItem(item)"
                         class="text-blue-600 hover:text-blue-800 p-1"
-                        :title="$t('auto_sua_mon', 'Sửa món')"
+                        :title="$t('auto_sua_mon')"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
                       </button>
@@ -422,14 +422,14 @@
               </table>
             </div>
 
-            <div v-else class="px-8 py-3 text-[11px] text-gray-400 italic">{{ $t('auto_chua_co_mon_nao_trong_nhom_nay', 'Chưa có món nào trong nhóm này.') }}</div>
+            <div v-else class="px-8 py-3 text-[11px] text-gray-400 italic">{{ $t('auto_chua_co_mon_nao_trong_nhom_nay') }}</div>
           </div>
 
           <!-- Category empty -->
           <div
             v-if="(itemsByCategoryId.get(cat.id) ?? []).length === 0"
             class="px-4 py-6 text-center text-xs text-gray-400 font-medium"
-          >{{ $t('auto_chua_co_mon_nao_trong_danh_muc', 'Chưa có món nào trong danh mục này.') }}</div>
+          >{{ $t('auto_chua_co_mon_nao_trong_danh_muc') }}</div>
         </div>
 
         <!-- Empty state -->
@@ -439,7 +439,7 @@
         >
           <div class="text-4xl mb-2 opacity-40">🍽️</div>
           <p v-if="searchQuery">Không tìm thấy món phù hợp với "{{ searchQuery }}".</p>
-          <p v-else>{{ $t('auto_chua_co_danh_muc_mon_an_nao', 'Chưa có danh mục món ăn nào.') }}</p>
+          <p v-else>{{ $t('auto_chua_co_danh_muc_mon_an_nao') }}</p>
         </div>
       </section>
     </div>
@@ -458,24 +458,24 @@
         </div>
         <form @submit.prevent="savePackage" class="p-6 space-y-4">
           <div>
-            <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">{{ $t('auto_ten_goi', 'Tên gói *') }}</label>
+            <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">{{ $t('auto_ten_goi') }}</label>
             <input v-model="editingPackage.name" required type="text" placeholder="VD: Set Biz 1200K"
               class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-200 focus:border-rose-400" />
           </div>
 
           <div class="grid grid-cols-2 gap-3">
             <div>
-              <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">{{ $t('auto_loai_goi', 'Loại gói *') }}</label>
+              <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">{{ $t('auto_loai_goi') }}</label>
               <select v-model="editingPackage.type" required
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-200 focus:border-rose-400">
                 <option value="buffet">Buffet</option>
                 <option value="set">Set Menu</option>
                 <option value="drink">Drink</option>
-                <option value="other">{{ $t('auto_khac', 'Khác') }}</option>
+                <option value="other">{{ $t('auto_khac') }}</option>
               </select>
             </div>
             <div>
-              <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">{{ $t('auto_gia_vnd', 'Giá (VNĐ) *') }}</label>
+              <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">{{ $t('auto_gia_vnd') }}</label>
               <input v-model.number="editingPackage.price" required type="number" min="0"
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-200 focus:border-rose-400" />
             </div>
@@ -483,16 +483,16 @@
 
           <div class="grid grid-cols-2 gap-3">
             <div>
-              <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">{{ $t('auto_gioi_han_mon', 'Giới hạn món') }}</label>
+              <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">{{ $t('auto_gioi_han_mon') }}</label>
               <input v-model.number="editingPackage.item_limit" type="number" min="1" placeholder="VD: 20"
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-200 focus:border-rose-400" />
-              <p class="text-[10px] text-gray-400 mt-1">{{ $t('auto_de_trong_neu_khong_gioi_han', 'Để trống nếu không giới hạn.') }}</p>
+              <p class="text-[10px] text-gray-400 mt-1">{{ $t('auto_de_trong_neu_khong_gioi_han') }}</p>
             </div>
             <div>
-              <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">{{ $t('auto_thoi_luong_phut', 'Thời lượng (phút)') }}</label>
+              <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">{{ $t('auto_thoi_luong_phut') }}</label>
               <input v-model.number="editingPackage.duration_minutes" type="number" min="1" placeholder="VD: 120"
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-200 focus:border-rose-400" />
-              <p class="text-[10px] text-gray-400 mt-1">{{ $t('auto_ap_dung_cho_buffet', 'Áp dụng cho buffet.') }}</p>
+              <p class="text-[10px] text-gray-400 mt-1">{{ $t('auto_ap_dung_cho_buffet') }}</p>
             </div>
           </div>
 
@@ -501,12 +501,12 @@
               :model-value="!!editingPackage.is_active"
               @update:model-value="(v: boolean) => editingPackage.is_active = v"
             />
-            <span class="text-sm font-medium text-gray-700">{{ $t('auto_dang_hoat_dong', 'Đang hoạt động') }}</span>
+            <span class="text-sm font-medium text-gray-700">{{ $t('auto_dang_hoat_dong') }}</span>
           </div>
 
           <div class="pt-4 flex justify-end gap-2 border-t border-gray-100">
             <button type="button" @click="showPackageModal = false"
-              class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">{{ $t('auto_huy', 'Hủy') }}</button>
+              class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">{{ $t('auto_huy') }}</button>
             <button type="submit"
               :disabled="saving"
               class="px-4 py-2 text-sm font-bold text-white bg-gray-900 rounded-lg hover:bg-black disabled:opacity-50">
@@ -531,24 +531,24 @@
         </div>
         <form @submit.prevent="saveMenuItem" class="p-6 space-y-4">
           <div>
-            <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">{{ $t('auto_ten_mon', 'Tên món *') }}</label>
+            <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">{{ $t('auto_ten_mon') }}</label>
             <input v-model="editingMenuItem.name" required type="text" placeholder="VD: Wagyu A5"
               class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-200 focus:border-rose-400" />
           </div>
 
           <div class="grid grid-cols-2 gap-3">
             <div>
-              <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">{{ $t('auto_danh_muc', 'Danh mục *') }}</label>
+              <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">{{ $t('auto_danh_muc') }}</label>
               <select v-model="editingMenuItem.category_id" required
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-200 focus:border-rose-400">
                 <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
               </select>
             </div>
             <div>
-              <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">{{ $t('auto_nhom_con', 'Nhóm con') }}</label>
+              <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">{{ $t('auto_nhom_con') }}</label>
               <select v-model="editingMenuItem.subcategory_id"
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-200 focus:border-rose-400">
-                <option :value="null">{{ $t('auto_khong_co', '— Không có —') }}</option>
+                <option :value="null">{{ $t('auto_khong_co') }}</option>
                 <option v-for="sub in subcategoriesForCategory(editingMenuItem.category_id)" :key="sub.id" :value="sub.id">
                   {{ sub.name }}
                 </option>
@@ -558,12 +558,12 @@
 
           <div class="grid grid-cols-3 gap-3">
             <div class="col-span-2">
-              <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">{{ $t('auto_gia_vnd', 'Giá (VNĐ) *') }}</label>
+              <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">{{ $t('auto_gia_vnd') }}</label>
               <input v-model.number="editingMenuItem.price" required type="number" min="0"
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-200 focus:border-rose-400" />
             </div>
             <div>
-              <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">{{ $t('auto_don_vi', 'Đơn vị *') }}</label>
+              <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">{{ $t('auto_don_vi') }}</label>
               <input v-model="editingMenuItem.unit" required type="text" list="unit-suggestions"
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-200 focus:border-rose-400" />
               <datalist id="unit-suggestions">
@@ -573,15 +573,15 @@
           </div>
 
           <div>
-            <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">{{ $t('auto_hien_thi_gia', 'Hiển thị giá') }}</label>
+            <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">{{ $t('auto_hien_thi_gia') }}</label>
             <input v-model="editingMenuItem.price_display" type="text" placeholder="VD: 1.380K"
               class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-200 focus:border-rose-400" />
-            <p class="text-[10px] text-gray-400 mt-1">{{ $t('auto_tuy_chon_chi_de_hien_thi_khong', 'Tùy chọn — chỉ để hiển thị, không dùng để tính toán.') }}</p>
+            <p class="text-[10px] text-gray-400 mt-1">{{ $t('auto_tuy_chon_chi_de_hien_thi_khong') }}</p>
           </div>
 
           <div>
-            <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">{{ $t('auto_mo_ta', 'Mô tả') }}</label>
-            <textarea v-model="editingMenuItem.description" rows="2" :placeholder="$t('auto_mo_ta_ngan', 'Mô tả ngắn…')"
+            <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">{{ $t('auto_mo_ta') }}</label>
+            <textarea v-model="editingMenuItem.description" rows="2" :placeholder="$t('auto_mo_ta_ngan')"
               class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-200 focus:border-rose-400"></textarea>
           </div>
 
@@ -590,12 +590,12 @@
               :model-value="!!editingMenuItem.is_available"
               @update:model-value="(v: boolean) => editingMenuItem.is_available = v"
             />
-            <span class="text-sm font-medium text-gray-700">{{ $t('auto_dang_ban_con_mon', 'Đang bán / còn món') }}</span>
+            <span class="text-sm font-medium text-gray-700">{{ $t('auto_dang_ban_con_mon') }}</span>
           </div>
 
           <div class="pt-4 flex justify-end gap-2 border-t border-gray-100">
             <button type="button" @click="showMenuItemModal = false"
-              class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">{{ $t('auto_huy', 'Hủy') }}</button>
+              class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">{{ $t('auto_huy') }}</button>
             <button type="submit"
               :disabled="saving"
               class="px-4 py-2 text-sm font-bold text-white bg-gray-900 rounded-lg hover:bg-black disabled:opacity-50">

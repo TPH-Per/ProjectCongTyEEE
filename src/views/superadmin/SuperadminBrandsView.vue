@@ -8,7 +8,7 @@
       </div>
       <button class="kawaii-btn-primary flex items-center shadow-lg shadow-rose-200">
         <PlusIcon class="w-5 h-5 mr-2" />
-        {{ t('auto_th_m_chi_nh_nh_m_i', 'Thêm chi nhánh mới') }}
+        {{ t('auto_th_m_chi_nh_nh_m_i') }}
       </button>
     </div>
 
@@ -18,7 +18,7 @@
         <SearchIcon class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
         <input 
           type="text" 
-          :placeholder="$t('auto_placeholder_fix', 'Tìm kiếm chi nhánh, quản lý...')" 
+          :placeholder="$t('auto_placeholder_fix')" 
           class="kawaii-input pl-10 w-full"
         />
       </div>
@@ -47,7 +47,7 @@
               'px-2.5 py-1 text-xs font-semibold rounded-full shadow-sm',
               branch.status === 'active' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
             ]">
-              {{ branch.status === 'active' ? $t('auto_hoat_dong', 'Hoạt động') : $t('auto_tam_ngung', 'Tạm ngưng') }}
+              {{ branch.status === 'active' ? $t('auto_hoat_dong') : $t('auto_tam_ngung') }}
             </span>
           </div>
         </div>
@@ -72,7 +72,7 @@
             </div>
             <div>
               <p class="text-xs text-gray-400 mb-1">{{ t('auto_s_c_ch_a') }}</p>
-              <p class="text-sm font-medium text-gray-700">{{ branch.capacity }} {{ $t('auto_ban', 'bàn') }}</p>
+              <p class="text-sm font-medium text-gray-700">{{ branch.capacity }} {{ $t('auto_ban') }}</p>
             </div>
           </div>
         </div>
@@ -82,7 +82,7 @@
         </div>
       </div>
       <div v-if="loading" class="col-span-full text-center py-8 text-gray-500">
-        {{ t('auto_ang_t_i', 'Đang tải...') }}
+        {{ t('auto_ang_t_i') }}
       </div>
     </div>
   </div>

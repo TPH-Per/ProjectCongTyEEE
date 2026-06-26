@@ -46,7 +46,7 @@
             
             <div class="mt-5 pt-4 border-t border-gray-600 flex justify-end">
               <button class="kawaii-btn-primary w-full py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-bold text-lg transition-colors" @click="moveToPreparing(order)">
-                {{ t('auto_b_t_u_l_m', 'Bắt đầu làm') }}
+                {{ t('auto_b_t_u_l_m') }}
               </button>
             </div>
           </div>
@@ -95,7 +95,7 @@
             
             <div class="mt-5 pt-4 border-t border-gray-600 flex justify-end">
               <button class="kawaii-btn-primary w-full py-3 bg-green-600 hover:bg-green-500 text-white rounded-lg font-bold text-lg transition-colors" @click="moveToDone(order)">
-                {{ t('auto_ho_n_t_t_n', 'Hoàn tất Đơn') }}
+                {{ t('auto_ho_n_t_t_n') }}
               </button>
             </div>
            </div>

@@ -38,9 +38,7 @@ onMounted(async () => {
     await checkout({
       orderId: orderId,
       revenueType: 'dinner',
-      payments: [
-        { method: 'cash', amount: 500000 },
-      ],
+      payments: [{ method: 'cash', amount: 0 }]
     })
   } catch (e) {
     console.error('Checkout error:', e)

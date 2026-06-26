@@ -1,6 +1,12 @@
 import { ref } from 'vue'
 import { callEdgeFunction } from '@/utils/edge'
 
+// NOTE: payload keys MUST match the Edge Function `checkout` contract
+// which uses camelCase (`orderId`, `revenueType`, `voucherCode`, ...).
+// See `supabase/functions/checkout/index.ts`.
+//
+// `receivedAmount` is required for cash payments so the function can compute
+// the change; `reference` is free-text (card last-4 / transfer ref / etc).
 export interface CheckoutPayload {
   orderId: string
   revenueType: 'lunch' | 'dinner' | 'wine' | 'delivery' | 'other'
@@ -19,11 +25,11 @@ export interface CheckoutPayload {
 }
 
 export interface CheckoutResponse {
-  ok: boolean
   invoiceId: string
   invoiceNumber: string
   total: number
   change: number
+  ok?: boolean
 }
 
 export function useCheckout() {

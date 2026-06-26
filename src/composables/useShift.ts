@@ -1,22 +1,29 @@
 import { ref } from 'vue'
+import { supabase } from '@/lib/supabase'
 import { callEdgeFunction } from '@/utils/edge'
 
+// NOTE: payload keys MUST match the Edge Function contract (camelCase):
+// `supabase/functions/close-shift/index.ts` takes `{ shiftId, closingCash, notes }`
+// and `supabase/functions/export-shift-csv/index.ts` reads `?shiftId=<uuid>` from
+// the URL (returns raw CSV text, not JSON).
 export interface CloseShiftPayload {
-  shift_id: string
-  closing_cash: number
+  shiftId: string
+  closingCash: number
   notes?: string
 }
 
 export interface CloseShiftResponse {
-  shift_id: string
-  cash_difference: number
-  total_revenue: number
-  total_cash: number
+  ok?: boolean
+  shift?: { id: string; closed_at: string }
+  summary?: Record<string, { count: number; total: number }>
+  expectedCash?: number
+  closingCash?: number
+  cashDifference?: number
 }
 
 export interface ExportShiftCsvResponse {
   csv: string
-  row_count: number
+  rowCount: number
 }
 
 export function useShift() {
@@ -41,14 +48,33 @@ export function useShift() {
     }
   }
 
-  async function exportCsv(shiftId: string): Promise<ExportShiftCsvResponse> {
+  async function exportCsv(shiftId: string): Promise<string> {
+    // The Edge Function returns the CSV body directly (text/csv), not JSON.
+    // `supabase.functions.invoke` would try to JSON-parse it and fail, so we
+    // call the raw REST endpoint via fetch with the user's access token. The
+    // Edge Function's CORS layer allows `GET` (see _shared/cors.ts).
+    const { data: sessionData } = await supabase.auth.getSession()
+    const token = sessionData.session?.access_token
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+    if (!token || !supabaseUrl) {
+      throw new Error('Không có session — vui lòng đăng nhập lại.')
+    }
     loading.value = true
     error.value = null
     try {
-      return await callEdgeFunction<{ shift_id: string }, ExportShiftCsvResponse>(
-        'export-shift-csv',
-        { shift_id: shiftId },
-      )
+      const url = `${supabaseUrl}/functions/v1/export-shift-csv?shiftId=${encodeURIComponent(shiftId)}`
+      const res = await fetch(url, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ?? '',
+        },
+      })
+      if (!res.ok) {
+        const text = await res.text().catch(() => '')
+        throw new Error(text || `Export CSV thất bại (HTTP ${res.status})`)
+      }
+      return await res.text()
     } catch (e) {
       error.value = e instanceof Error ? e.message : String(e)
       throw e

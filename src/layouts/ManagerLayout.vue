@@ -77,8 +77,12 @@
         <div @click="isDropdownOpen = !isDropdownOpen" class="flex items-center gap-2.5 px-3 py-2 rounded-2xl bg-[hsl(var(--muted))] cursor-pointer select-none">
           <img :src="stickerUrl" alt="Avatar" class="w-10 h-10 object-contain drop-shadow-sm bg-white/10 rounded-full" />
           <div class="flex-1 min-w-0">
-            <div class="text-xs font-extrabold text-[hsl(var(--foreground))] truncate">{{ $t('auto_quan_ly_ca') }}</div>
-            <div class="text-[10px] text-[hsl(var(--muted-foreground))] font-semibold">Manager</div>
+            <div class="text-xs font-extrabold text-[hsl(var(--foreground))] truncate">
+              {{ profile?.full_name || $t('auto_quan_ly', 'Quản lý') }}
+            </div>
+            <div class="text-[10px] text-[hsl(var(--muted-foreground))] font-semibold">
+              {{ roleLabel }}
+            </div>
           </div>
         </div>
       </div>
@@ -87,31 +91,22 @@
     <main class="flex-1 flex flex-col overflow-hidden">
       <header class="h-16 border-b border-[hsl(var(--border))] bg-white flex items-center justify-between px-6 shrink-0">
         <div class="flex items-center gap-3">
-          <div class="flex items-center gap-2 px-3 py-1.5 bg-[hsl(var(--muted))] border border-[hsl(var(--border))] rounded-2xl text-sm">
+          <div v-if="branchLabel" class="flex items-center gap-2 px-3 py-1.5 bg-[hsl(var(--muted))] border border-[hsl(var(--border))] rounded-2xl text-sm">
             <div class="w-2 h-2 rounded-full bg-[hsl(var(--primary))] animate-pulse" />
-            <span class="font-extrabold text-[hsl(var(--foreground))]">{{ $t('auto_chi_nhanh_nguu_cat_q_1') }}</span>
+            <span class="font-extrabold text-[hsl(var(--foreground))]">{{ branchLabel }}</span>
           </div>
         </div>
         <div class="flex items-center gap-3">
-          <div class="flex gap-2">
-            <button class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border-2 border-[hsl(var(--border))] bg-white text-sm font-bold text-gray-700 hover:bg-[hsl(var(--muted))]">
-              <span>🇻🇳</span> <span>VI</span>
-            </button>
-            <button class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[hsl(var(--border))] bg-white text-sm font-semibold text-gray-500 hover:bg-[hsl(var(--muted))]">
-              <span>🇯🇵</span> <span>JA</span>
-            </button>
-          </div>
-          <button class="relative p-2 rounded-2xl hover:bg-[hsl(var(--muted))] transition-colors">
+          <button class="relative p-2 rounded-2xl hover:bg-[hsl(var(--muted))] transition-colors" aria-label="notifications">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
             <span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-[hsl(var(--primary))]" />
           </button>
-
-        
-        <div class="flex items-center gap-2 ml-4 border-l pl-4 border-[hsl(var(--border))]">
-          <LanguageSwitcher />
-          <img :src="stickerUrl" alt="User Avatar" class="w-8 h-8 rounded-full border border-[hsl(var(--border))] object-contain bg-[hsl(var(--muted))]" />
+          <!-- Single LanguageSwitcher + avatar pair -->
+          <div class="flex items-center gap-2 ml-2 border-l pl-4 border-[hsl(var(--border))]">
+            <LanguageSwitcher />
+            <img :src="stickerUrl" alt="User Avatar" class="w-8 h-8 rounded-full border border-[hsl(var(--border))] object-contain bg-[hsl(var(--muted))]" />
+          </div>
         </div>
-      </div>
       </header>
       <section class="flex-1 overflow-auto p-6">
         <RouterView />
@@ -122,7 +117,7 @@
 
 <script setup lang="ts">
 import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { RouterView, RouterLink, useRoute, useRouter } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'
 import { useUserSticker } from '@/composables/useUserSticker'
@@ -130,16 +125,33 @@ import TextLogo from '@/components/TextLogo.vue'
 
 const $route = useRoute()
 const $router = useRouter()
-const { signOut, profile } = useAuth()
+const { signOut, profile, role } = useAuth()
 const { stickerUrl } = useUserSticker()
 
 const isMobileMenuOpen = ref(false)
 const isDropdownOpen = ref(false)
 
+const ROLE_LABELS: Record<string, string> = {
+  admin: 'Quản trị',
+  manager: 'Quản lý',
+  reception: 'Thu ngân',
+  staff: 'Phục vụ',
+  kitchen: 'Bếp',
+}
+const roleLabel = computed(() => {
+  const r = role.value ?? profile.value?.role
+  if (!r) return 'Manager'
+  return ROLE_LABELS[r] ?? r
+})
+
+const branchLabel = computed(() => {
+  const bid = profile.value?.branch_id
+  if (!bid) return ''
+  return `Chi nhánh ${bid.slice(0, 8)}`
+})
+
 async function handleSignOut() {
   await signOut()
   await $router.push({ name: 'login' })
 }
-
-void profile
 </script>

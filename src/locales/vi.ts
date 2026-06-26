@@ -893,4 +893,12 @@ export default {
     sat: 'Thứ 7',
     dows: ['CN', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'],
   },
+  auto_doanh_thu_t_ng: 'Tổng Doanh Thu',
+  auto_t_h_a_n: 'Từ hóa đơn',
+  auto_t_ng_chi: 'Tổng Chi Trả',
+  auto_ph_i_tr_ncc: 'Phí trả NCC',
+  auto_l_ng_nh_n_s_: 'Chi Phí Nhân Sự',
+  auto_t_m_t_nh_theo_ca: 'Tạm tính theo ca',
+  auto_l_i_nhu_n: 'Lợi Nhuận Ước Tính',
+  auto_doanh_thu_chi_ph_: 'Doanh thu - Chi phí',
 }

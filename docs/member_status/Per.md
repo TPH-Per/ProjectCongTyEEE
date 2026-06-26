@@ -36,6 +36,7 @@ Dự án đã được deploy lên Firebase Hosting (quản lý qua tài khoản
 
 - Sửa lỗi tràn bảng (vỡ giao diện) trong trang `AdminAuditView` bằng cách định dạng lại trường Payload để hiển thị dưới dạng JSON wrap-word.
 - Thay thế các ảnh avatar `sticker` bằng API DiceBear SVG (`api.dicebear.com/7.x/notionists/svg`) để tránh việc hình ảnh lỗi do không tải được tài nguyên tĩnh.
+- Triệt để soát toàn bộ UI và tự động trích xuất các text bị thiếu vào các file i18n (`vi.ts`, `en.ts`, `ja.ts`) sử dụng script translate qua Google API để đảm bảo app hỗ trợ 100% 3 ngôn ngữ (Tiếng Việt, Tiếng Anh, Tiếng Nhật).
 - Build và deploy lại toàn bộ dự án cập nhật lên Firebase Hosting: `https://nguucat-qvn.web.app`
 
 ## Github

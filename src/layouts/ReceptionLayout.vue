@@ -171,7 +171,12 @@
             alt="User Avatar"
             class="w-8 h-8 rounded-full border border-[hsl(var(--border))] object-contain bg-[hsl(var(--muted))]"
           />
+        
+        <div class="flex items-center gap-2 ml-4 border-l pl-4 border-[hsl(var(--border))]">
+          <LanguageSwitcher />
+          <img :src="stickerUrl" alt="User Avatar" class="w-8 h-8 rounded-full border border-[hsl(var(--border))] object-contain bg-[hsl(var(--muted))]" />
         </div>
+      </div>
       </header>
       <section class="flex-1 overflow-auto bg-gray-50 p-6">
         <RouterView />

@@ -5,6 +5,7 @@ import { useI18n } from 'vue-i18n'
 import { useAuth } from '@/composables/useAuth'
 import { getHomeRouteForRole } from '@/utils/route'
 import { Eye, EyeOff } from 'lucide-vue-next'
+import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
 
 const router = useRouter()
 const { t } = useI18n()
@@ -96,7 +97,10 @@ void t
 </script>
 
 <template>
-  <div class="login-shell">
+  <div class="login-shell relative">
+    <div class="absolute top-6 right-6">
+      <LanguageSwitcher />
+    </div>
     <div class="login-card relative">
 
       <!--

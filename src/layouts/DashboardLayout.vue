@@ -149,12 +149,12 @@
           <div class="flex items-center gap-2">
             <ChevronDown :size="14" class="text-[hsl(var(--muted-foreground))]" />
           </div>
-        </div>
-        <!-- Header User Avatar -->
-        <div class="flex items-center gap-2 ml-4">
+        
+        <div class="flex items-center gap-2 ml-4 border-l pl-4 border-[hsl(var(--border))]">
           <LanguageSwitcher />
           <img :src="stickerUrl" alt="User Avatar" class="w-8 h-8 rounded-full border border-[hsl(var(--border))] object-contain bg-[hsl(var(--muted))]" />
         </div>
+      </div>
       </header>
 
       <!-- Scrollable Content -->

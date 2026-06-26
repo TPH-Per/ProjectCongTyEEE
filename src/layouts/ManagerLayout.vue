@@ -106,12 +106,12 @@
             <span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-[hsl(var(--primary))]" />
           </button>
           <button class="px-3 py-2 rounded-2xl text-sm font-semibold text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors" @click="handleSignOut">{{ $t('auto_dang_xuat', 'Đăng xuất') }}</button>
-        </div>
-        <!-- Header User Avatar -->
-        <div class="flex items-center gap-2 ml-4">
+        
+        <div class="flex items-center gap-2 ml-4 border-l pl-4 border-[hsl(var(--border))]">
           <LanguageSwitcher />
           <img :src="stickerUrl" alt="User Avatar" class="w-8 h-8 rounded-full border border-[hsl(var(--border))] object-contain bg-[hsl(var(--muted))]" />
         </div>
+      </div>
       </header>
       <section class="flex-1 overflow-auto p-6">
         <RouterView />

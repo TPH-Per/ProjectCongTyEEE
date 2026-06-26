@@ -89,12 +89,12 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
           </button>
           <button class="px-3 py-2 rounded-2xl text-sm font-semibold text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors" @click="handleSignOut">{{ $t('auto_dang_xuat', 'Đăng xuất') }}</button>
-        </div>
-        <!-- Header User Avatar -->
-        <div class="flex items-center gap-2 ml-4">
+        
+        <div class="flex items-center gap-2 ml-4 border-l pl-4 border-[hsl(var(--border))]">
           <LanguageSwitcher />
           <img :src="stickerUrl" alt="User Avatar" class="w-8 h-8 rounded-full border border-[hsl(var(--border))] object-contain bg-[hsl(var(--muted))]" />
         </div>
+      </div>
       </header>
       <section class="flex-1 overflow-auto p-6 bg-gray-50/50">
         <RouterView />

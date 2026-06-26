@@ -19,7 +19,7 @@
           <span class="text-white font-bold"><span class="text-red-500">3</span> {{ t('auto___10_m_n') }}</span>
         </div>
         <button @click="submitOrder" :disabled="submitting" class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-full text-lg shadow-[0_0_15px_rgba(220,38,38,0.5)] transition-all disabled:opacity-50 disabled:cursor-not-allowed">
-          {{ submitting ? 'Đang gửi...' : 'Gửi Bếp' }}
+          {{ submitting ? $t('auto_dang_gui', 'Đang gửi...') : $t('auto_gui_bep', 'Gửi Bếp') }}
         </button>
       </div>
     </header>

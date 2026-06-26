@@ -216,8 +216,8 @@ async function handleCloseShift() {
   const { value: formValues } = await Swal.fire({
     title: 'Đóng ca',
     html:
-      '<input id="closing-cash" type="number" class="swal2-input" placeholder="Tiền mặt cuối ca (VND)">' +
-      '<textarea id="handover-notes" class="swal2-textarea" placeholder="Ghi chú bàn giao (tuỳ chọn)"></textarea>',
+      `<input id="closing-cash" type="number" class="swal2-input" placeholder="${t('auto_tien_mat_cuoi_ca_vnd', 'Tiền mặt cuối ca (VND)')}">` +
+      `<textarea id="handover-notes" class="swal2-textarea" placeholder="${t('auto_ghi_chu_ban_giao_tuy_chon', 'Ghi chú bàn giao (tuỳ chọn)')}"></textarea>`,
     focusConfirm: false,
     showCancelButton: true,
     confirmButtonText: 'Xác nhận đóng ca',

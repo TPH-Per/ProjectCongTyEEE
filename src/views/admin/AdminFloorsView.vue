@@ -282,7 +282,7 @@
                         v-if="isEditModeEnabled"
                         @click.stop="deleteTable(table.code)"
                         class="text-[8px] px-1.5 py-0.5 bg-red-100 text-red-600 rounded hover:bg-red-200 border border-red-200"
-                        :title="t('auto_x_a_b_n', 'Xóa bàn')"
+                        :title="$t('auto_title_fix', 'Xóa bàn')"
                       >
                         ✕
                       </button>
@@ -655,7 +655,7 @@
                   <button
                     @click="showBookingDetails(booking)"
                     class="p-1 bg-gray-50 hover:bg-gray-150 text-gray-600 rounded border border-gray-200 text-[10px]"
-                    :title="t('auto_chi_ti_t', 'Chi tiết')"
+                    :title="$t('auto_title_fix', 'Chi tiết')"
                   >
                     👁️
                   </button>
@@ -666,7 +666,7 @@
                       booking.status !== 'Completed'
                     "
                     class="p-1 bg-gray-50 hover:bg-gray-150 text-gray-600 rounded border border-gray-200 text-[10px]"
-                    :title="t('auto_ch_nh_s_a', 'Chỉnh sửa')"
+                    :title="$t('auto_title_fix', 'Chỉnh sửa')"
                   >
                     ✏️
                   </button>
@@ -678,7 +678,7 @@
                       booking.status !== 'Seated'
                     "
                     class="p-1 bg-pink-50 hover:bg-pink-100 text-[#FF7B89] rounded border border-pink-100 text-[10px]"
-                    :title="t('auto_x_p_b_n', 'Xếp bàn')"
+                    :title="$t('auto_title_fix', 'Xếp bàn')"
                   >
                     🪑
                   </button>
@@ -686,7 +686,7 @@
                     @click="markBookingArrived(booking)"
                     v-if="booking.status === 'Waiting'"
                     class="p-1 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded border border-blue-200 text-[10px]"
-                    :title="t('auto_n_kh_ch', 'Đón khách')"
+                    :title="$t('auto_title_fix', 'Đón khách')"
                   >
                     🚶
                   </button>
@@ -694,7 +694,7 @@
                     @click="openTableFromBooking(booking)"
                     v-if="booking.status === 'Arrived'"
                     class="p-1 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded border border-rose-250 text-[10px] animate-pulse"
-                    :title="t('auto_m_b_n', 'Mở bàn')"
+                    :title="$t('auto_title_fix', 'Mở bàn')"
                   >
                     🍽️
                   </button>
@@ -918,9 +918,7 @@
               <input
                 type="text"
                 v-model="tableModalForm.customerName"
-                :placeholder="
-                  t('auto_nh_p_t_n_kh_ch_d_ng_b_n', 'Nhập tên khách dùng bàn')
-                "
+                :placeholder="$t('auto_placeholder_fix_1', 'Nhập tên khách dùng bàn')"
                 class="w-full bg-white border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
               />
             </div>
@@ -933,7 +931,7 @@
                 <input
                   type="text"
                   v-model="tableModalForm.billAmount"
-                  :placeholder="t('auto_0', '0đ')"
+                  :placeholder="$t('auto_placeholder_fix', '0đ')"
                   class="w-full bg-white border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
                 />
               </div>
@@ -944,7 +942,7 @@
                 <input
                   type="text"
                   v-model="tableModalForm.occupiedDuration"
-                  :placeholder="t('auto_v_d_17_15', 'Ví dụ: 17:15')"
+                  :placeholder="$t('auto_placeholder_fix', 'Ví dụ: 17:15')"
                   class="w-full bg-white border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
                 />
               </div>
@@ -1067,9 +1065,7 @@
             <input
               type="text"
               v-model="newBookingForm.customerName"
-              :placeholder="
-                t('auto_nh_p_t_n_kh_ch_h_ng', 'Nhập tên khách hàng')
-              "
+              :placeholder="$t('auto_placeholder_fix_2', 'Nhập tên khách hàng')"
               class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
             />
           </div>
@@ -1082,7 +1078,7 @@
               <input
                 type="text"
                 v-model="newBookingForm.phone"
-                :placeholder="t('auto_nh_p_s_i_n_tho_i', 'Nhập số điện thoại')"
+                :placeholder="$t('auto_placeholder_fix', 'Nhập số điện thoại')"
                 class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
               />
             </div>
@@ -1093,7 +1089,7 @@
               <input
                 type="text"
                 v-model="newBookingForm.reservationTime"
-                :placeholder="t('auto_v_d_19_30', 'Ví dụ: 19:30')"
+                :placeholder="$t('auto_placeholder_fix', 'Ví dụ: 19:30')"
                 class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
               />
             </div>
@@ -1107,7 +1103,7 @@
               <input
                 type="number"
                 v-model="newBookingForm.guestCount"
-                :placeholder="t('auto_v_d_4', 'Ví dụ: 4')"
+                :placeholder="$t('auto_placeholder_fix', 'Ví dụ: 4')"
                 class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
               />
             </div>
@@ -1147,12 +1143,7 @@
             }}</label>
             <textarea
               v-model="newBookingForm.notes"
-              :placeholder="
-                t(
-                  'auto_ghi_ch_th_m_b_n_g_n_c_a_s',
-                  'Ghi chú thêm: bàn gần cửa sổ, ăn buffet chay, cốc nến trang trí...',
-                )
-              "
+              :placeholder="$t('auto_placeholder_fix_3', 'Ghi chú thêm: bàn gần cửa sổ...')"
               class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89] h-16 resize-none"
             ></textarea>
           </div>
@@ -1243,12 +1234,7 @@
             <input
               type="text"
               v-model="quickOpenForm.customerName"
-              :placeholder="
-                t(
-                  'auto_v_d_kh_ch_v_ng_lai_anh_na',
-                  'Ví dụ: Khách vãng lai / Anh Nam',
-                )
-              "
+              :placeholder="$t('auto_placeholder_fix_4', 'Ví dụ: Khách vãng lai / Anh Nam')"
               class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
             />
           </div>
@@ -1261,7 +1247,7 @@
               <input
                 type="number"
                 v-model="quickOpenForm.guestCount"
-                :placeholder="t('auto_v_d_4', 'Ví dụ: 4')"
+                :placeholder="$t('auto_placeholder_fix', 'Ví dụ: 4')"
                 class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
               />
             </div>
@@ -1272,7 +1258,7 @@
               <input
                 type="text"
                 v-model="quickOpenForm.billAmount"
-                :placeholder="t('auto_0', '0đ')"
+                :placeholder="$t('auto_placeholder_fix', '0đ')"
                 class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
               />
             </div>
@@ -1608,7 +1594,7 @@
             <input
               type="text"
               v-model="createTableForm.zone"
-              :placeholder="t('auto_vd_t_ng_1_t_ng_2', 'VD: Tầng 1, Tầng 2...')"
+              :placeholder="$t('auto_placeholder_fix', 'VD: Tầng 1, Tầng 2...')"
               class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-850 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
               list="zone-datalist"
             />

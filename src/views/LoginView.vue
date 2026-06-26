@@ -137,8 +137,8 @@ void t
             <button
               type="button"
               class="login-password-toggle"
-              :aria-label="showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'"
-              ::title="$t('auto_showpassword_an_mat_khau_hien', 'showPassword ? \'Ẩn mật khẩu\' : \'Hiện mật khẩu\'')"
+              :aria-label="showPassword ? $t('auto_an_mat_khau', 'Ẩn mật khẩu') : $t('auto_hien_mat_khau', 'Hiện mật khẩu')"
+              :title="showPassword ? $t('auto_an_mat_khau', 'Ẩn mật khẩu') : $t('auto_hien_mat_khau', 'Hiện mật khẩu')"
               @click="showPassword = !showPassword"
             >
               <EyeOff v-if="showPassword" :size="18" />

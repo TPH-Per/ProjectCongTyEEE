@@ -4,7 +4,7 @@
     <div class="flex items-center justify-between mb-6">
       <h2 class="text-xl font-bold text-gray-800">{{ t('auto_s_____b_n') }}</h2>
       <div class="bg-red-50 text-red-600 px-3 py-1 rounded-full text-xs font-bold">
-        {{ activeCount }} Đang phục vụ
+        {{ activeCount }} {{ $t('auto_dang_phuc_vu', 'Đang phục vụ') }}
       </div>
     </div>
 
@@ -17,7 +17,7 @@
             <span class="font-bold text-lg text-gray-900">{{ table.code }}</span>
             <span class="bg-red-100 text-red-700 text-[10px] font-bold px-2 py-0.5 rounded">{{ t('auto_ang_d_ng_b_a', 'Đang dùng bữa') }}</span>
           </div>
-          <div class="text-xs text-gray-500 font-medium mt-auto">Sức chứa: {{ table.capacity }}</div>
+          <div class="text-xs text-gray-500 font-medium mt-auto">{{ $t('auto_suc_chua', 'Sức chứa:') }} {{ table.capacity }}</div>
         </RouterLink>
 
         <!-- Needs Cleaning Table -->
@@ -26,7 +26,7 @@
             <span class="font-bold text-lg text-yellow-900">{{ table.code }}</span>
             <span class="bg-yellow-200 text-yellow-800 text-[10px] font-bold px-2 py-0.5 rounded">{{ t('auto_d_n_b_n', 'Dọn bàn') }}</span>
           </div>
-          <div class="text-xs text-gray-500 font-medium mt-auto">Sức chứa: {{ table.capacity }}</div>
+          <div class="text-xs text-gray-500 font-medium mt-auto">{{ $t('auto_suc_chua', 'Sức chứa:') }} {{ table.capacity }}</div>
         </RouterLink>
 
         <!-- Reserved Table -->
@@ -35,7 +35,7 @@
             <span class="font-bold text-lg text-blue-900">{{ table.code }}</span>
             <span class="bg-blue-200 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded">{{ t('auto_t', 'Đã đặt') }}</span>
           </div>
-          <div class="text-xs text-gray-500 font-medium mt-auto">Sức chứa: {{ table.capacity }}</div>
+          <div class="text-xs text-gray-500 font-medium mt-auto">{{ $t('auto_suc_chua', 'Sức chứa:') }} {{ table.capacity }}</div>
         </RouterLink>
 
         <!-- Maintenance Table -->
@@ -44,7 +44,7 @@
             <span class="font-bold text-lg text-gray-600">{{ table.code }}</span>
             <span class="bg-gray-200 text-gray-700 text-[10px] font-bold px-2 py-0.5 rounded">{{ t('auto_b_o_tr', 'Bảo trì') }}</span>
           </div>
-          <div class="text-xs text-gray-500 font-medium mt-auto">Sức chứa: {{ table.capacity }}</div>
+          <div class="text-xs text-gray-500 font-medium mt-auto">{{ $t('auto_suc_chua', 'Sức chứa:') }} {{ table.capacity }}</div>
         </RouterLink>
 
         <!-- Idle Table (available) -->
@@ -53,7 +53,7 @@
             <span class="font-bold text-lg text-gray-900">{{ table.code }}</span>
             <span class="bg-gray-100 text-gray-500 text-[10px] font-bold px-2 py-0.5 rounded">{{ t('auto_tr_ng') }}</span>
           </div>
-          <div class="text-xs text-gray-500 font-medium mt-auto">Sức chứa: {{ table.capacity }}</div>
+          <div class="text-xs text-gray-500 font-medium mt-auto">{{ $t('auto_suc_chua', 'Sức chứa:') }} {{ table.capacity }}</div>
           <div class="mt-2 flex justify-center">
             <div class="text-xs font-bold text-red-600 flex items-center gap-1">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>

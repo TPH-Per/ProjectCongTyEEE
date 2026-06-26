@@ -54,9 +54,9 @@
             </div>
           </div>
         </div>
-      <LanguageSwitcher />
         <!-- Header User Avatar -->
         <div class="flex items-center gap-2 ml-4">
+          <LanguageSwitcher />
           <img :src="stickerUrl" alt="User Avatar" class="w-8 h-8 rounded-full border border-[hsl(var(--border))] object-contain bg-[hsl(var(--muted))]" />
         </div>
       </header>

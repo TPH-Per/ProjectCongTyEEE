@@ -6,7 +6,7 @@
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
       </RouterLink>
       <div>
-        <h2 class="text-xl font-bold text-gray-900">Mở bàn: {{ tableCode }}</h2>
+        <h2 class="text-xl font-bold text-gray-900">{{ $t('auto_mo_ban', 'Mở bàn:') }} {{ tableCode }}</h2>
         <p class="text-xs text-gray-500">{{ t('auto_scan_qr___profile_kh_ch') }}</p>
       </div>
     </div>
@@ -18,7 +18,7 @@
         {{ t('auto_qu_t_qr_tr_n_tablet', 'Quét QR trên Tablet') }}
       </div>
       <div class="flex gap-2">
-        <input type="text" :placeholder="t('auto_nh_p_m_ho_c_qu_t', 'Nhập mã hoặc quét...')" class="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-red-500" :value="tableCode" />
+        <input type="text" :placeholder="$t('auto_placeholder_fix', 'Nhập mã hoặc quét...')" class="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-red-500" :value="tableCode" />
         <button class="bg-gray-800 text-white p-2 rounded-xl">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><rect width="5" height="5" x="7" y="7" rx="1"/><rect width="5" height="5" x="12" y="12" rx="1"/></svg>
         </button>
@@ -120,7 +120,7 @@
     </div>
 
     <button @click="handleCheckIn" :disabled="loading || !selectedPackageId" class="mt-auto w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-2xl shadow-lg transition-colors text-lg disabled:opacity-50">
-      {{ loading ? 'Đang xử lý...' : 'Mở Bàn & Kích Hoạt Tablet' }}
+      {{ loading ? $t('auto_dang_xu_ly', 'Đang xử lý...') : $t('auto_mo_ban_kich_hoat', 'Mở Bàn & Kích Hoạt Tablet') }}
     </button>
   </div>
 </template>

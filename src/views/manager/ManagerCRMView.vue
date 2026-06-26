@@ -114,7 +114,7 @@
             <input
               v-model="searchQuery"
               type="text"
-              :placeholder="t('auto_t_m_theo_s_t_ho_c_t_n', 'Tìm theo SĐT hoặc tên...')"
+              :placeholder="$t('auto_placeholder_fix', 'Tìm theo SĐT hoặc tên...')"
               class="kawaii-input pl-8 text-sm w-64"
             />
           </div>

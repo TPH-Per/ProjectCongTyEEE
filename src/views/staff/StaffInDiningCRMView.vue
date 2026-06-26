@@ -20,7 +20,7 @@
         <div class="text-sm font-bold text-gray-800">{{ t('auto_g_i_hi_n_t_i') }}</div>
         <button class="text-xs text-blue-600 font-bold">{{ t('auto_s_a') }}</button>
       </div>
-      <div class="text-sm font-medium text-gray-600">Khách: {{ orderInfo.guests_count }} người</div>
+      <div class="text-sm font-medium text-gray-600">{{ $t('auto_khach', 'Khách:') }} {{ orderInfo.guests_count }} {{ $t('auto_nguoi', 'người') }}</div>
       <div class="text-xs text-gray-500 mt-1">Order ID: {{ orderInfo.id.substring(0,8) }}</div>
     </div>
 
@@ -69,7 +69,7 @@
     </div>
 
     <button @click="saveCRM" :disabled="saving" class="mt-auto w-full bg-gray-900 hover:bg-black text-white font-bold py-4 rounded-2xl shadow-lg transition-colors text-lg disabled:opacity-50">
-      {{ saving ? 'Đang lưu...' : 'Cập nhật Thông tin' }}
+      {{ saving ? $t('auto_dang_luu', 'Đang lưu...') : $t('auto_cap_nhat_tt', 'Cập nhật Thông tin') }}
     </button>
   </div>
 </template>

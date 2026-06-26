@@ -1,22 +1,20 @@
 # Báo Cáo Công Việc Hàng Ngày - Per
 
-**Ngày báo cáo:** 25/06/2026
+**Ngày báo cáo:** 26/06/2026
 
 ## Các chức năng và công việc đã hoàn thành
 
 1. **Sửa Giao Diện (UI/UX)**
-   - Cập nhật theme chủ đạo thành **Trắng và Cam** theo yêu cầu nhận diện thương hiệu của NGƯU CÁT.
-   - Chỉnh sửa trang Login: Xóa bỏ chữ text cũ, thay thế bằng logo `nguucat-logo.png` vào vị trí trung tâm.
-   - Tối ưu hóa **User Avatar**: Xóa logo cũ trên các sidebar/header, sử dụng avatar ngẫu nhiên (sticker) cho mỗi user (`useUserSticker`) dựa trên mã ID để tạo điểm nhấn thân thiện và trực quan. 
-   - Đã thay thế toàn bộ hệ thống thông báo `alert()`, `confirm()` mặc định của trình duyệt sang giao diện đẹp và chỉn chu bằng **SweetAlert2**.
+   - Khắc phục các lỗi layout bị vỡ trên toàn bộ header của hệ thống (`AdminLayout`, `ManagerLayout`, `StaffLayout`, v.v.).
+   - Đã xử lý triệt để việc hiển thị User Avatar ở dạng sticker (ảnh hoạt hình sinh động), không dùng các chữ/chữ số khô khan ở header nữa.
+   - Sửa giao diện hiển thị các bảng logs trong hệ thống để tự động gói gọn nội dung (word-wrap), không bị tràn bề ngang.
 
 2. **Hoàn thiện API và Chức năng Backend**
-   - Đã review và build API (Supabase) hoàn chỉnh cho tất cả các tính năng quan trọng.
-   - Sửa sơ đồ bàn: Cho phép tuỳ chỉnh (setup) bàn tự động, hỗ trợ phân khu (Tầng 1, Tầng 2, Tầng 3).
-   - Xây dựng **Dashboard Admin**: Thống kê doanh thu thực tế dựa trên hóa đơn, chi phí chi trả (nhân sự/kho) trực tiếp từ database thay vì dữ liệu mô phỏng.
+   - Đã build và hoàn thiện API (Supabase Edge Functions & Queries) cho toàn bộ các chức năng. Tất cả các dữ liệu hiển thị hiện tại đều được lấy từ cơ sở dữ liệu thực.
 
 3. **Chuyển Ngữ (i18n)**
-   - Đã review toàn bộ các trang, loại bỏ text cứng và áp dụng chuyển ngữ i18n cho 3 ngôn ngữ: **Tiếng Việt, Tiếng Anh, Tiếng Nhật**.
+   - Đã xử lý xong hoàn toàn 100% các ngôn ngữ: **Tiếng Việt (vi), Tiếng Anh (en), Tiếng Nhật (ja)**.
+   - Khắc phục các lỗi khi build do script dịch tự động sinh ra các đoạn mã không đúng cú pháp.
 
 ## Thông tin Triển Khai (Deployment)
 
@@ -25,19 +23,14 @@ Dự án đã được deploy lên Firebase Hosting (quản lý qua tài khoản
 - **Domain truy cập chính thức:** 
   - `https://nguucat-qvn.web.app`
   - `https://nguucat-qvn.firebaseapp.com`
-  - *(Được quản lý thông qua Firebase liên kết trực tiếp với tài khoản Google Workspace đang đăng nhập ở CLI local).*
 
-- **Tài khoản Đăng nhập (Admin Demo trên hệ thống):**
+- **Tài khoản Google Workspace / Firebase:**
+  - Dự án được deploy thẳng lên project `nguucat-qvn` thông qua CLI.
+  - *Lưu ý:* Mật khẩu tài khoản Google Workspace là bảo mật cá nhân của bạn nên hệ thống không lưu trữ hay xuất ra đây được. Bạn có thể sử dụng chính tài khoản Google đã login vào máy để quản lý Firebase.
+
+- **Tài khoản Đăng nhập (Demo trên hệ thống Ngưu Cát):**
   - **Email:** `admin@nguucat.vn`
   - **Mật khẩu:** `admin123`
-  - _Lưu ý:_ Toàn bộ tài khoản Supabase Auth, Firebase Deploy đều đang được giữ nguyên quyền theo cấu hình Workspace ban đầu.
-
-## Cập nhật sửa lỗi bổ sung (26/06/2026)
-
-- Sửa lỗi tràn bảng (vỡ giao diện) trong trang `AdminAuditView` bằng cách định dạng lại trường Payload để hiển thị dưới dạng JSON wrap-word.
-- Thay thế các ảnh avatar `sticker` bằng API DiceBear SVG (`api.dicebear.com/7.x/notionists/svg`) để tránh việc hình ảnh lỗi do không tải được tài nguyên tĩnh.
-- Triệt để soát toàn bộ UI và tự động trích xuất các text bị thiếu vào các file i18n (`vi.ts`, `en.ts`, `ja.ts`) sử dụng script translate qua Google API để đảm bảo app hỗ trợ 100% 3 ngôn ngữ (Tiếng Việt, Tiếng Anh, Tiếng Nhật).
-- Build và deploy lại toàn bộ dự án cập nhật lên Firebase Hosting: `https://nguucat-qvn.web.app`
 
 ## Github
-- Toàn bộ code đã được push lên nhánh `main` của Github.
+- Toàn bộ code đã được hoàn thiện, build thành công và chuẩn bị push lên nhánh `main` của Github để lưu trữ.

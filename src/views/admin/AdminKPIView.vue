@@ -23,27 +23,27 @@
           
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('auto_m_c_ti_u_doanh_thu__vn__') }}</label>
-            <input type="number" v-model="form.revenue" :placeholder="t('auto_v_d_500000000', 'Ví dụ: 500000000')" class="kawaii-input w-full" />
+            <input type="number" v-model="form.revenue" :placeholder="$t('auto_placeholder_fix', 'Ví dụ: 500000000')" class="kawaii-input w-full" />
           </div>
 
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('auto_m_c_ti_u_s__kh_ch') }}</label>
-            <input type="number" v-model="form.guests" :placeholder="t('auto_v_d_1500', 'Ví dụ: 1500')" class="kawaii-input w-full" />
+            <input type="number" v-model="form.guests" :placeholder="$t('auto_placeholder_fix', 'Ví dụ: 1500')" class="kawaii-input w-full" />
           </div>
 
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('auto_t__l__cogs_t_i__a____') }}</label>
-            <input type="number" v-model="form.cogsRatio" :placeholder="t('auto_v_d_30', 'Ví dụ: 30')" class="kawaii-input w-full" />
+            <input type="number" v-model="form.cogsRatio" :placeholder="$t('auto_placeholder_fix', 'Ví dụ: 30')" class="kawaii-input w-full" />
           </div>
 
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('auto_t__l__l_p___y_b_n____') }}</label>
-            <input type="number" v-model="form.fillRate" :placeholder="t('auto_v_d_80', 'Ví dụ: 80')" class="kawaii-input w-full" />
+            <input type="number" v-model="form.fillRate" :placeholder="$t('auto_placeholder_fix', 'Ví dụ: 80')" class="kawaii-input w-full" />
           </div>
 
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('auto_gi__tr__tb_h_a___n__vn__') }}</label>
-            <input type="number" v-model="form.avgCheck" :placeholder="t('auto_v_d_350000', 'Ví dụ: 350000')" class="kawaii-input w-full" />
+            <input type="number" v-model="form.avgCheck" :placeholder="$t('auto_placeholder_fix', 'Ví dụ: 350000')" class="kawaii-input w-full" />
           </div>
 
           <button type="submit" :disabled="loading" class="kawaii-btn-primary w-full mt-4 flex justify-center items-center gap-2 py-3 rounded-xl font-bold">

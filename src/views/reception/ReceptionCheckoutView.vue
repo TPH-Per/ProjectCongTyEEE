@@ -34,7 +34,7 @@
         <div class="bg-white border rounded-2xl p-6 shadow-sm">
           <h3 class="text-base font-bold text-gray-900 mb-4 border-b pb-3">{{ t('auto_1____nh_danh_kh_ch_h_ng__membe') }}</h3>
           <div class="flex gap-3 mb-6">
-            <input v-model="customerPhone" type="text" :placeholder="t('auto_nh_p_s_i_n_tho_i_kh_ch_h_ng', 'Nhập số điện thoại khách hàng...')" class="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-base focus:outline-none focus:border-red-500 font-semibold" />
+            <input v-model="customerPhone" type="text" :placeholder="$t('auto_placeholder_fix', 'Nhập số điện thoại khách hàng...')" class="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-base focus:outline-none focus:border-red-500 font-semibold" />
             <button @click="findCustomer" class="bg-gray-900 text-white px-6 py-3 rounded-xl font-bold hover:bg-black transition-colors">
               {{ t('auto_tra_c_u', 'Tra Cứu') }}
             </button>

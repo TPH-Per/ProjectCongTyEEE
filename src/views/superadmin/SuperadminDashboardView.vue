@@ -27,7 +27,7 @@
             <p class="text-sm font-medium text-gray-500 mb-1">{{ t('auto_t_ng_b_n__ang_ph_c_v_') }}</p>
             <h3 class="text-2xl font-bold text-gray-800">{{ activeTables }} / {{ totalTables }}</h3>
             <p class="text-xs text-blue-500 mt-2 flex items-center">
-              <ActivityIcon class="w-3 h-3 mr-1" /> Công suất {{ totalTables > 0 ? Math.round((activeTables / totalTables) * 100) : 0 }}%
+              <ActivityIcon class="w-3 h-3 mr-1" /> {{ $t('auto_cong_suat', 'Công suất') }} {{ totalTables > 0 ? Math.round((activeTables / totalTables) * 100) : 0 }}%
             </p>
           </div>
           <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-500">

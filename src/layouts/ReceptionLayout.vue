@@ -163,9 +163,9 @@
             @click="handleSignOut"
           >{{ $t('auto_dang_xuat', 'Đăng xuất') }}</button>
         </div>
-        <LanguageSwitcher />
         <!-- Header User Avatar -->
         <div class="flex items-center gap-2 ml-4">
+          <LanguageSwitcher />
           <img
             :src="stickerUrl"
             alt="User Avatar"

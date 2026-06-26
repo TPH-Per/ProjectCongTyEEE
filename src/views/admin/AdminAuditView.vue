@@ -23,7 +23,7 @@
     <div class="kawaii-card p-4 mb-6 grid grid-cols-1 md:grid-cols-5 gap-4 shadow-sm border border-gray-50">
       <div class="md:col-span-2 relative">
         <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
-        <input type="text" v-model="searchQuery" :placeholder="t('auto_t_m_ki_m_theo_id_payload', 'Tìm kiếm theo ID, payload...')" class="kawaii-input w-full pl-11" />
+        <input type="text" v-model="searchQuery" :placeholder="$t('auto_placeholder_fix', 'Tìm kiếm theo ID, payload...')" class="kawaii-input w-full pl-11" />
       </div>
       <div>
         <select v-model="filterTime" class="kawaii-input w-full bg-white appearance-none cursor-pointer">

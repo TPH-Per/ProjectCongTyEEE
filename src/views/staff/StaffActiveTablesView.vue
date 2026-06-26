@@ -5,7 +5,7 @@
     <header class="bg-white border-b sticky top-0 z-30 px-4 py-3 flex items-center justify-between">
       <div>
         <h1 class="text-xl font-bold text-gray-900">{{ t('auto_b_n__ang_ph_c_v_') }}</h1>
-        <p class="text-sm text-gray-500">{{ activeOrders.length }} bàn đang hoạt động</p>
+        <p class="text-sm text-gray-500">{{ activeOrders.length }} {{ $t('auto_ban_dang_hd', 'bàn đang hoạt động') }}</p>
       </div>
       <div class="flex gap-2">
         <button class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-600">
@@ -26,7 +26,7 @@
               {{ order.tables?.code || (order.table_id ? order.table_id.substring(0,4) : 'N/A') }}
             </div>
             <div>
-              <div class="font-bold text-gray-900">Khách: {{ order.guests }} người</div>
+              <div class="font-bold text-gray-900">{{ $t('auto_khach', 'Khách:') }} {{ order.guests }} {{ $t('auto_nguoi', 'người') }}</div>
               <div class="text-xs font-medium text-red-600 bg-red-50 px-2 py-0.5 rounded-md inline-flex items-center gap-1 mt-1">
                 <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
                 {{ t('auto_ang_d_ng_b_a', 'Đang dùng bữa') }}
@@ -104,7 +104,7 @@ function formatTime(isoString: string) {
 function timeElapsed(isoString: string) {
   const d = new Date(isoString)
   const diff = Math.floor((Date.now() - d.getTime()) / 60000)
-  if (diff < 60) return `${diff} phút trước`
+  if (diff < 60) return `${diff} phút trước` // no translation for simplicity or use $t if i18n is configured
   return `${Math.floor(diff/60)}h ${diff%60}p trước`
 }
 

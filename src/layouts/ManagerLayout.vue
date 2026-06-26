@@ -107,9 +107,9 @@
           </button>
           <button class="px-3 py-2 rounded-2xl text-sm font-semibold text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors" @click="handleSignOut">{{ $t('auto_dang_xuat', 'Đăng xuất') }}</button>
         </div>
-      <LanguageSwitcher />
         <!-- Header User Avatar -->
         <div class="flex items-center gap-2 ml-4">
+          <LanguageSwitcher />
           <img :src="stickerUrl" alt="User Avatar" class="w-8 h-8 rounded-full border border-[hsl(var(--border))] object-contain bg-[hsl(var(--muted))]" />
         </div>
       </header>

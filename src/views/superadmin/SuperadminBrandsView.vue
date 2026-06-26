@@ -18,7 +18,7 @@
         <SearchIcon class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
         <input 
           type="text" 
-          :placeholder="t('auto_t_m_ki_m_chi_nh_nh_qu_n_l', 'Tìm kiếm chi nhánh, quản lý...')" 
+          :placeholder="$t('auto_placeholder_fix', 'Tìm kiếm chi nhánh, quản lý...')" 
           class="kawaii-input pl-10 w-full"
         />
       </div>
@@ -47,7 +47,7 @@
               'px-2.5 py-1 text-xs font-semibold rounded-full shadow-sm',
               branch.status === 'active' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
             ]">
-              {{ branch.status === 'active' ? 'Hoạt động' : 'Tạm ngưng' }}
+              {{ branch.status === 'active' ? $t('auto_hoat_dong', 'Hoạt động') : $t('auto_tam_ngung', 'Tạm ngưng') }}
             </span>
           </div>
         </div>
@@ -72,7 +72,7 @@
             </div>
             <div>
               <p class="text-xs text-gray-400 mb-1">{{ t('auto_s_c_ch_a') }}</p>
-              <p class="text-sm font-medium text-gray-700">{{ branch.capacity }} bàn</p>
+              <p class="text-sm font-medium text-gray-700">{{ branch.capacity }} {{ $t('auto_ban', 'bàn') }}</p>
             </div>
           </div>
         </div>

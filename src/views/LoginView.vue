@@ -108,8 +108,8 @@ void t
         renders identically in every browser.
       -->
       <div class="brand-header">
-        <h1 class="brand-title">Ngưu Cát</h1>
-        <p class="brand-subtitle">Hệ thống quản lý nhà hàng</p>
+        <h1 class="brand-title">{{ $t('auto_nguu_cat', 'Ngưu Cát') }}</h1>
+        <p class="brand-subtitle">{{ $t('auto_he_thong_quan_ly_nha_hang', 'Hệ thống quản lý nhà hàng') }}</p>
       </div>
 
       <form @submit.prevent="onSubmit" class="login-form">
@@ -138,7 +138,7 @@ void t
               type="button"
               class="login-password-toggle"
               :aria-label="showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'"
-              :title="showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'"
+              ::title="$t('auto_showpassword_an_mat_khau_hien', 'showPassword ? \'Ẩn mật khẩu\' : \'Hiện mật khẩu\'')"
               @click="showPassword = !showPassword"
             >
               <EyeOff v-if="showPassword" :size="18" />
@@ -153,7 +153,7 @@ void t
             type="checkbox"
             class="login-remember-checkbox"
           />
-          <span>Ghi nhớ đăng nhập</span>
+          <span>{{ $t('auto_ghi_nho_dang_nhap', 'Ghi nhớ đăng nhập') }}</span>
         </label>
 
         <p v-if="errorMsg" class="login-error">{{ errorMsg }}</p>
@@ -166,9 +166,7 @@ void t
           {{ submitting ? 'Signing in…' : 'Sign in' }}
         </button>
 
-        <p class="login-hint">
-          Tài khoản được cấp bởi quản lý. Liên hệ admin nếu chưa có.
-        </p>
+        <p class="login-hint">{{ $t('auto_tai_khoan_duoc_cap_boi_quan_ly', 'Tài khoản được cấp bởi quản lý. Liên hệ admin nếu chưa có.') }}</p>
       </form>
     </div>
   </div>

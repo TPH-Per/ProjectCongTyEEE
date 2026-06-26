@@ -34,15 +34,13 @@
       <div class="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center text-3xl mb-4 text-[#c62828] animate-bounce">
         ⚠️
       </div>
-      <h2 class="text-lg font-bold text-gray-900 tracking-tight">Quyền truy cập bị từ chối</h2>
-      <p class="text-sm text-gray-500 font-medium max-w-sm mt-1 mb-6">
-        Vui lòng chọn một bàn ăn đang mở từ Sơ đồ bàn trước khi thực hiện chọn món.
-      </p>
+      <h2 class="text-lg font-bold text-gray-900 tracking-tight">{{ $t('auto_quyen_truy_cap_bi_tu_choi', 'Quyền truy cập bị từ chối') }}</h2>
+      <p class="text-sm text-gray-500 font-medium max-w-sm mt-1 mb-6">{{ $t('auto_vui_long_chon_mot_ban_an_dang', 'Vui lòng chọn một bàn ăn đang mở từ Sơ đồ bàn trước khi thực hiện chọn món.') }}</p>
       <router-link 
         to="/reception/floors" 
         class="px-5 py-3 bg-[#c62828] hover:bg-[#b71c1c] text-white font-bold text-xs rounded-lg shadow-sm transition-all active:scale-95 flex items-center gap-2"
       >
-        <span>🗺️ Đi tới Sơ đồ bàn</span>
+        <span>{{ $t('auto_di_toi_so_do_ban', '🗺️ Đi tới Sơ đồ bàn') }}</span>
       </router-link>
     </div>
 
@@ -60,19 +58,19 @@
           
           <!-- Order Number -->
           <div class="flex flex-col gap-0.5 border-l border-[#4a4a4a] pl-4">
-            <span class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Hóa đơn</span>
+            <span class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">{{ $t('auto_hoa_don', 'Hóa đơn') }}</span>
             <span class="text-xs font-bold font-mono text-gray-200">{{ activeOrder.orderNumber || 'WB_00001843' }}</span>
           </div>
 
           <!-- Customer Name -->
           <div class="flex flex-col gap-0.5 border-l border-[#4a4a4a] pl-4">
-            <span class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Khách hàng</span>
+            <span class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">{{ $t('auto_khach_hang', 'Khách hàng') }}</span>
             <span class="text-xs font-bold text-gray-200 truncate max-w-[120px]">{{ activeOrder.customerName || 'Ngoc' }}</span>
           </div>
 
           <!-- Open Time -->
           <div class="flex flex-col gap-0.5 border-l border-[#4a4a4a] pl-4">
-            <span class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Giờ mở</span>
+            <span class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">{{ $t('auto_gio_mo', 'Giờ mở') }}</span>
             <span class="text-xs font-mono text-gray-300">{{ activeOrder.openedTime || '11:30 24/06/2026' }}</span>
           </div>
 
@@ -95,7 +93,7 @@
         <div class="flex items-center gap-3">
           <!-- Session countdown timer -->
           <div class="flex items-center gap-2 bg-[#3a3a3a] border border-[#4a4a4a] px-3 py-1 rounded-lg text-xs font-semibold">
-            <span class="text-gray-400 uppercase tracking-wide text-[10px]">Thời gian:</span>
+            <span class="text-gray-400 uppercase tracking-wide text-[10px]">{{ $t('auto_thoi_gian', 'Thời gian:') }}</span>
             <span 
               :class="[
                 'font-mono font-bold px-1 rounded text-xs',
@@ -114,7 +112,7 @@
             <input 
               v-model="searchQuery" 
               type="text" 
-              placeholder="Tìm kiếm..." 
+              :placeholder="$t('auto_tim_kiem', 'Tìm kiếm...')" 
               class="bg-transparent border-none text-xs text-white placeholder-gray-500 focus:outline-none w-full"
             />
             <button v-if="searchQuery" @click="searchQuery = ''" class="text-gray-400 hover:text-white text-xs ml-1">✕</button>
@@ -125,14 +123,14 @@
             <button 
               @click="printDraftBill" 
               class="p-1.5 bg-[#3a3a3a] hover:bg-[#4a4a4a] border border-[#4a4a4a] rounded-lg transition-colors" 
-              title="Xem hóa đơn tạm tính"
+              :title="$t('auto_xem_hoa_don_tam_tinh', 'Xem hóa đơn tạm tính')"
             >
               🖨️
             </button>
             <button 
               @click="openSettingsConfig" 
               class="p-1.5 bg-[#3a3a3a] hover:bg-[#4a4a4a] border border-[#4a4a4a] rounded-lg transition-colors" 
-              title="Cấu hình gói/Ngôn ngữ"
+              :title="$t('auto_cau_hinh_goi_ngon_ngu', 'Cấu hình gói/Ngôn ngữ')"
             >
               ⚙️
             </button>
@@ -160,9 +158,9 @@
         >
           <div class="flex items-center gap-2">
             <span>⏰</span>
-            <span>Thời gian đồ uống premium đã kết thúc. Chỉ có thể gọi nước ngọt nhóm A.</span>
+            <span>{{ $t('auto_thoi_gian_do_uong_premium_da_k', 'Thời gian đồ uống premium đã kết thúc. Chỉ có thể gọi nước ngọt nhóm A.') }}</span>
           </div>
-          <button @click="openPinModal" class="px-2.5 py-1 bg-amber-700 text-white text-[10px] rounded hover:bg-amber-600 font-bold transition-all">Mở khóa PIN</button>
+          <button @click="openPinModal" class="px-2.5 py-1 bg-amber-700 text-white text-[10px] rounded hover:bg-amber-600 font-bold transition-all">{{ $t('auto_mo_khoa_pin', 'Mở khóa PIN') }}</button>
         </div>
       </transition>
 
@@ -184,9 +182,7 @@
                 @click="clearCart" 
                 :disabled="activeOrder.items.length === 0"
                 class="px-2.5 py-1 text-[11px] font-bold bg-red-950/40 hover:bg-red-900/40 border border-red-900/50 text-red-400 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-              >
-                🗑️ Xóa hết
-              </button>
+              >{{ $t('auto_xoa_het', '🗑️ Xóa hết') }}</button>
             </div>
           </div>
 
@@ -195,17 +191,17 @@
             <div class="w-full text-left text-xs">
               <!-- Columns headers -->
               <div class="grid grid-cols-[45%_22%_13%_20%] font-bold text-gray-500 uppercase tracking-wider pb-2 border-b border-[#3a3a3a] px-1 select-none">
-                <div>Tên món</div>
-                <div class="text-right">Đơn giá</div>
+                <div>{{ $t('auto_ten_mon', 'Tên món') }}</div>
+                <div class="text-right">{{ $t('auto_don_gia', 'Đơn giá') }}</div>
                 <div class="text-center">VAT</div>
-                <div class="text-right">Thành tiền</div>
+                <div class="text-right">{{ $t('auto_thanh_tien', 'Thành tiền') }}</div>
               </div>
 
               <!-- Cart Empty state -->
               <div v-if="activeOrder.items.length === 0" class="py-20 text-center text-gray-500 select-none">
                 <div class="text-4xl mb-3">🛒</div>
-                <p class="font-bold text-gray-400">Hóa đơn trống</p>
-                <p class="text-[10px] text-gray-500 mt-1 max-w-[200px] mx-auto leading-relaxed">Vui lòng chọn món ăn từ thực đơn bên phải để order</p>
+                <p class="font-bold text-gray-400">{{ $t('auto_hoa_don_trong', 'Hóa đơn trống') }}</p>
+                <p class="text-[10px] text-gray-500 mt-1 max-w-[200px] mx-auto leading-relaxed">{{ $t('auto_vui_long_chon_mon_an_tu_thuc_d', 'Vui lòng chọn món ăn từ thực đơn bên phải để order') }}</p>
               </div>
 
               <!-- Cart items rows -->
@@ -237,7 +233,7 @@
                       <button 
                         @click="removeItem(item.id)" 
                         class="text-red-500 hover:text-red-400 text-xs ml-2.5 opacity-0 group-hover:opacity-100 transition-opacity"
-                        title="Xóa món khỏi giỏ"
+                        :title="$t('auto_xoa_mon_khoi_gio', 'Xóa món khỏi giỏ')"
                       >
                         ✕
                       </button>
@@ -245,14 +241,14 @@
                   </div>
 
                   <div class="text-right font-mono font-bold text-gray-300 mt-0.5">
-                    <span v-if="isItemInPackage(item, activeSettings.package)" class="text-emerald-500 text-[10px] block leading-tight">Trong gói</span>
+                    <span v-if="isItemInPackage(item, activeSettings.package)" class="text-emerald-500 text-[10px] block leading-tight">{{ $t('auto_trong_goi', 'Trong gói') }}</span>
                     <span v-else>{{ formatVND(item.price) }}</span>
                   </div>
 
                   <div class="text-center font-mono text-gray-400 mt-0.5">10%</div>
 
                   <div class="text-right font-mono font-bold text-[#ff8f00] mt-0.5">
-                    <span v-if="isItemInPackage(item, activeSettings.package)" class="text-emerald-500 text-xs">0đ</span>
+                    <span v-if="isItemInPackage(item, activeSettings.package)" class="text-emerald-500 text-xs">{{ $t('auto_0d', '0đ') }}</span>
                     <span v-else>{{ formatVND(item.price * item.quantity) }}</span>
                   </div>
                 </div>
@@ -263,20 +259,20 @@
           <!-- Sticky summary footer -->
           <div class="border-t border-[#3a3a3a] bg-[#1e1e1e] p-4 text-xs font-semibold text-gray-300 space-y-2 select-none shrink-0">
             <div class="flex justify-between items-center">
-              <span class="text-gray-400">Tạm tính (món + gói):</span>
+              <span class="text-gray-400">{{ $t('auto_tam_tinh_mon_goi', 'Tạm tính (món + gói):') }}</span>
               <span class="font-mono text-gray-200">{{ formatVND(summary.subtotal) }}</span>
             </div>
             <div class="flex justify-between items-center text-gray-400">
-              <span>Phí dịch vụ (5%):</span>
+              <span>{{ $t('auto_phi_dich_vu_5', 'Phí dịch vụ (5%):') }}</span>
               <span class="font-mono">{{ formatVND(summary.serviceCharge) }}</span>
             </div>
             <div class="flex justify-between items-center text-gray-400">
-              <span>Thuế GTGT (VAT 10%):</span>
+              <span>{{ $t('auto_thue_gtgt_vat_10', 'Thuế GTGT (VAT 10%):') }}</span>
               <span class="font-mono">{{ formatVND(summary.vat) }}</span>
             </div>
             
             <div class="flex justify-between items-center pt-2 border-t border-[#3a3a3a]">
-              <span class="text-gray-400 flex items-center gap-1.5">Tổng số lượng món:</span>
+              <span class="text-gray-400 flex items-center gap-1.5">{{ $t('auto_tong_so_luong_mon', 'Tổng số lượng món:') }}</span>
               <span class="bg-[#ff8f00] text-white font-mono px-2 py-0.5 rounded-full text-[10px] font-bold">
                 {{ activeOrder.items.reduce((sum, item) => sum + item.quantity, 0) }} món
               </span>
@@ -291,16 +287,12 @@
               <button 
                 @click="holdOrder"
                 class="py-2 bg-[#2d2d2d] hover:bg-[#333333] border border-[#4a4a4a] text-white text-xs font-bold rounded-lg transition-all"
-              >
-                ⏸️ Tạm lưu
-              </button>
+              >{{ $t('auto_tam_luu', '⏸️ Tạm lưu') }}</button>
               <button 
                 @click="sendToKitchen"
                 :disabled="activeOrder.items.length === 0"
                 class="py-2 bg-[#1976d2] hover:bg-[#1565c0] text-white text-xs font-bold rounded-lg disabled:opacity-40 disabled:cursor-not-allowed transition-all"
-              >
-                🍳 Gửi Bếp
-              </button>
+              >{{ $t('auto_gui_bep', '🍳 Gửi Bếp') }}</button>
             </div>
             
             <button 
@@ -347,9 +339,9 @@
                     v-model="activeStatusFilter" 
                     class="bg-[#3a3a3a] text-xs text-gray-200 border border-[#4a4a4a] rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-[#ff8f00] cursor-pointer"
                   >
-                    <option value="all">Tất cả món</option>
-                    <option value="available">Còn món</option>
-                    <option value="unavailable">Hết món</option>
+                    <option value="all">{{ $t('auto_tat_ca_mon', 'Tất cả món') }}</option>
+                    <option value="available">{{ $t('auto_con_mon', 'Còn món') }}</option>
+                    <option value="unavailable">{{ $t('auto_het_mon', 'Hết món') }}</option>
                   </select>
 
                   <!-- Price Sort -->
@@ -357,9 +349,9 @@
                     v-model="priceSort" 
                     class="bg-[#3a3a3a] text-xs text-gray-200 border border-[#4a4a4a] rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-[#ff8f00] cursor-pointer"
                   >
-                    <option value="">Không sắp xếp</option>
-                    <option value="asc">Giá thấp → cao</option>
-                    <option value="desc">Giá cao → thấp</option>
+                    <option value="">{{ $t('auto_khong_sap_xep', 'Không sắp xếp') }}</option>
+                    <option value="asc">{{ $t('auto_gia_thap_cao', 'Giá thấp → cao') }}</option>
+                    <option value="desc">{{ $t('auto_gia_cao_thap', 'Giá cao → thấp') }}</option>
                   </select>
                 </div>
               </div>
@@ -387,14 +379,14 @@
             <!-- Loading Spinner -->
             <div v-if="isGridLoading" class="h-64 flex flex-col items-center justify-center text-gray-400 select-none">
               <div class="w-8 h-8 border-4 border-[#ff8f00] border-t-transparent rounded-full animate-spin"></div>
-              <p class="text-xs font-bold mt-4">Đang lọc danh mục sản phẩm...</p>
+              <p class="text-xs font-bold mt-4">{{ $t('auto_dang_loc_danh_muc_san_pham', 'Đang lọc danh mục sản phẩm...') }}</p>
             </div>
 
             <!-- Empty Items layout -->
             <div v-else-if="finalFilteredItems.length === 0" class="h-64 flex flex-col items-center justify-center text-gray-500 text-center border border-dashed border-[#4a4a4a] rounded-2xl p-6 select-none">
               <div class="text-4xl mb-2">🍽️</div>
-              <h4 class="font-bold text-gray-400 text-xs">Không tìm thấy món ăn nào khớp</h4>
-              <p class="text-[10px] text-gray-500 mt-1 max-w-[280px]">Thực đơn hiện tại không có món này. Thử tắt các bộ lọc hoặc tìm kiếm tên khác.</p>
+              <h4 class="font-bold text-gray-400 text-xs">{{ $t('auto_khong_tim_thay_mon_an_nao_khop', 'Không tìm thấy món ăn nào khớp') }}</h4>
+              <p class="text-[10px] text-gray-500 mt-1 max-w-[280px]">{{ $t('auto_thuc_don_hien_tai_khong_co_mon', 'Thực đơn hiện tại không có món này. Thử tắt các bộ lọc hoặc tìm kiếm tên khác.') }}</p>
             </div>
 
             <!-- Responsive Product Card Grid -->
@@ -432,7 +424,7 @@
                 <button 
                   @click.stop="toggleFavorite(product.id)"
                   class="absolute top-2 right-2 w-6 h-6 rounded-full bg-[#3a3a3a] hover:bg-[#4a4a4a] text-gray-400 flex items-center justify-center text-xs transition-colors shrink-0 z-10"
-                  :title="favoriteIds.includes(product.id) ? 'Bỏ đánh dấu món yêu thích' : 'Đánh dấu món yêu thích'"
+                  ::title="$t('auto_favoriteids_includes_product_i', 'favoriteIds.includes(product.id) ? \'Bỏ đánh dấu món yêu thích\' : \'Đánh dấu món yêu thích\'')"
                 >
                   <span :class="favoriteIds.includes(product.id) ? 'text-[#ff8f00] font-black' : 'text-gray-400'">⭐</span>
                 </button>
@@ -460,7 +452,7 @@
                   <div class="flex flex-col">
                     <span class="text-[8px] text-gray-500 font-bold uppercase leading-none">ĐVT: {{ product.unit }}</span>
                     <span class="text-xs font-mono font-bold mt-1">
-                      <span v-if="isItemInPackage(product, activeSettings.package) || product.price === 0" class="text-emerald-400">Trong gói</span>
+                      <span v-if="isItemInPackage(product, activeSettings.package) || product.price === 0" class="text-emerald-400">{{ $t('auto_trong_goi', 'Trong gói') }}</span>
                       <span v-else class="text-[#ff8f00] font-bold text-sm">{{ product.price_display }}</span>
                     </span>
                   </div>
@@ -469,7 +461,7 @@
                   <button 
                     @click.stop="openDetailPanel(product)"
                     class="w-6 h-6 rounded bg-[#3a3a3a] hover:bg-[#4a4a4a] flex items-center justify-center text-gray-400 hover:text-white transition-colors border border-[#4a4a4a]"
-                    title="Xem chi tiết & Tùy chọn"
+                    :title="$t('auto_xem_chi_tiet_tuy_chon', 'Xem chi tiết & Tùy chọn')"
                   >
                     ℹ️
                   </button>
@@ -490,9 +482,7 @@
                   border: activeSubCategoryId === 'all' ? '2px solid white' : '2px solid transparent'
                 }"
                 class="px-4 py-2 rounded-xl text-xs font-bold text-white transition-all shrink-0 active:scale-95 shadow-sm"
-              >
-                Tất cả
-              </button>
+              >{{ $t('auto_tat_ca', 'Tất cả') }}</button>
               
               <button 
                 v-for="sub in activeSubcategoriesList"
@@ -551,7 +541,7 @@
             
             <!-- Header Modal with Clean Colors -->
             <header class="bg-gradient-to-r from-[#1976d2] to-[#1565c0] text-white px-6 py-4 flex justify-between items-center shrink-0">
-              <h3 class="text-base font-bold tracking-tight select-none">ℹ️ Chi tiết món ăn</h3>
+              <h3 class="text-base font-bold tracking-tight select-none">{{ $t('auto_chi_tiet_mon_an', 'ℹ️ Chi tiết món ăn') }}</h3>
               <button 
                 @click="isDetailPanelOpen = false"
                 class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center font-bold text-sm transition-all select-none active:scale-90"
@@ -573,9 +563,7 @@
                     <span 
                       v-if="!getEnrichedItem(selectedProductForDetail).isAvailable"
                       class="absolute inset-0 bg-red-950/20 backdrop-blur-xs flex items-center justify-center font-black text-white text-xs uppercase"
-                    >
-                      Hết hàng
-                    </span>
+                    >{{ $t('auto_het_hang', 'Hết hàng') }}</span>
                   </div>
                   
                   <span 
@@ -591,7 +579,7 @@
                 <!-- Column Right (60% width -> 6 cols) -->
                 <div class="md:col-span-6 space-y-4 font-bold text-xs text-gray-700">
                   <div class="space-y-1">
-                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">Tên món</label>
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('auto_ten_mon', 'Tên món') }}</label>
                     <input 
                       type="text" 
                       :value="selectedProductForDetail.name" 
@@ -602,7 +590,7 @@
 
                   <div class="grid grid-cols-2 gap-4">
                     <div class="space-y-1">
-                      <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">Mã món</label>
+                      <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('auto_ma_mon', 'Mã món') }}</label>
                       <input 
                         type="text" 
                         :value="selectedProductForDetail.id" 
@@ -611,7 +599,7 @@
                       />
                     </div>
                     <div class="space-y-1">
-                      <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">Đơn vị tính</label>
+                      <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('auto_don_vi_tinh', 'Đơn vị tính') }}</label>
                       <input 
                         type="text" 
                         :value="selectedProductForDetail.unit" 
@@ -624,7 +612,7 @@
                   <div class="grid grid-cols-2 gap-4">
                     <!-- Qty Editor -->
                     <div class="space-y-1">
-                      <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">Số lượng</label>
+                      <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('auto_so_luong', 'Số lượng') }}</label>
                       <div class="flex items-center gap-2">
                         <button 
                           @click="modalItemQty = Math.max(1, modalItemQty - 1)" 
@@ -644,7 +632,7 @@
                       </div>
                     </div>
                     <div class="space-y-1">
-                      <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">Đơn giá (VNĐ)</label>
+                      <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('auto_don_gia_vnd', 'Đơn giá (VNĐ)') }}</label>
                       <input 
                         type="text" 
                         :value="isItemInPackage(selectedProductForDetail, activeSettings.package) ? '0đ (Trong gói)' : formatVND(selectedProductForDetail.price)" 
@@ -657,25 +645,21 @@
                   <!-- VAT and Service charges (VAT default checked, Service unchecked) -->
                   <div class="flex items-center gap-6 py-1 select-none text-[#c62828]">
                     <label class="flex items-center gap-2 cursor-pointer font-bold">
-                      <input type="checkbox" v-model="modalVAT" class="w-4 h-4 accent-[#1976d2]" />
-                      Bao gồm VAT (%)
-                    </label>
+                      <input type="checkbox" v-model="modalVAT" class="w-4 h-4 accent-[#1976d2]" />{{ $t('auto_bao_gom_vat', 'Bao gồm VAT (%)') }}</label>
                     <label class="flex items-center gap-2 cursor-pointer font-bold">
-                      <input type="checkbox" v-model="modalPPV" class="w-4 h-4 accent-[#1976d2]" />
-                      Bao gồm PPV (%)
-                    </label>
+                      <input type="checkbox" v-model="modalPPV" class="w-4 h-4 accent-[#1976d2]" />{{ $t('auto_bao_gom_ppv', 'Bao gồm PPV (%)') }}</label>
                   </div>
 
                   <div class="grid grid-cols-2 gap-4">
                     <div class="space-y-1">
-                      <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">Loại tiền tệ</label>
+                      <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('auto_loai_tien_te', 'Loại tiền tệ') }}</label>
                       <select v-model="modalCurrency" class="w-full bg-gray-50 border border-[#e0e0e0] rounded-lg px-3 py-2 font-bold text-gray-800 focus:outline-none">
-                        <option value="VND">VND (Việt Nam Đồng)</option>
-                        <option value="USD">USD (Đô la Mỹ)</option>
+                        <option value="VND">{{ $t('auto_vnd_viet_nam_dong', 'VND (Việt Nam Đồng)') }}</option>
+                        <option value="USD">{{ $t('auto_usd_do_la_my', 'USD (Đô la Mỹ)') }}</option>
                       </select>
                     </div>
                     <div class="space-y-1">
-                      <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">Tỷ giá</label>
+                      <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('auto_ty_gia', 'Tỷ giá') }}</label>
                       <input 
                         type="text" 
                         v-model="modalRate" 
@@ -686,20 +670,20 @@
                   </div>
 
                   <div class="space-y-1">
-                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">Ghi chú</label>
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('auto_ghi_chu', 'Ghi chú') }}</label>
                     <textarea 
                       v-model="modalItemNote" 
-                      placeholder="Thêm ghi chú đặc thù (ít đá, nhiều nước, không hành...)..." 
+                      :placeholder="$t('auto_them_ghi_chu_dac_thu_it_da_nhi', 'Thêm ghi chú đặc thù (ít đá, nhiều nước, không hành...)...')" 
                       class="w-full border border-[#e0e0e0] rounded-lg p-2.5 font-bold text-gray-855 h-20 resize-none focus:outline-none focus:border-[#1976d2]"
                     ></textarea>
                   </div>
 
                   <!-- Menu Classification Info (Requirement) -->
                   <div class="border-t border-[#f0f0f0] pt-4 mt-2">
-                    <h5 class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Phân nhóm thực đơn (Hệ thống)</h5>
+                    <h5 class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">{{ $t('auto_phan_nhom_thuc_don_he_thong', 'Phân nhóm thực đơn (Hệ thống)') }}</h5>
                     <div class="grid grid-cols-2 gap-3 bg-gray-50 p-3 rounded-xl border border-[#e0e0e0] text-[11px]">
                       <div>
-                        <span class="text-gray-400 font-semibold">Nhóm sản phẩm:</span>
+                        <span class="text-gray-400 font-semibold">{{ $t('auto_nhom_san_pham', 'Nhóm sản phẩm:') }}</span>
                         <div class="text-gray-800 font-bold mt-0.5">
                           {{ translateCategoryId(selectedProductForDetail.category_id) }}
                           <span v-if="getItemSubcategoryId(selectedProductForDetail.id)">
@@ -708,15 +692,15 @@
                         </div>
                       </div>
                       <div>
-                        <span class="text-gray-400 font-semibold">Gói Buffet:</span>
+                        <span class="text-gray-400 font-semibold">{{ $t('auto_goi_buffet', 'Gói Buffet:') }}</span>
                         <div class="text-gray-800 font-bold mt-0.5">{{ getEligibleBuffetGroups(selectedProductForDetail) }}</div>
                       </div>
                       <div>
-                        <span class="text-gray-400 font-semibold">Gói Set Menu:</span>
+                        <span class="text-gray-400 font-semibold">{{ $t('auto_goi_set_menu', 'Gói Set Menu:') }}</span>
                         <div class="text-gray-800 font-bold mt-0.5">{{ getSetMenuGroup(selectedProductForDetail) }}</div>
                       </div>
                       <div>
-                        <span class="text-gray-400 font-semibold">Gói Đồ Uống:</span>
+                        <span class="text-gray-400 font-semibold">{{ $t('auto_goi_do_uong', 'Gói Đồ Uống:') }}</span>
                         <div class="text-gray-800 font-bold mt-0.5">{{ getDrinkGroup(selectedProductForDetail) }}</div>
                       </div>
                     </div>
@@ -744,7 +728,7 @@
                   <div class="grid grid-cols-2 gap-3">
                     <!-- Qty editor -->
                     <div class="space-y-1">
-                      <label class="block text-[9px] font-bold text-gray-400 uppercase tracking-wider">Số lượng</label>
+                      <label class="block text-[9px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('auto_so_luong', 'Số lượng') }}</label>
                       <div class="flex items-center gap-1">
                         <button 
                           @click="modalItemQty = Math.max(1, modalItemQty - 1)" 
@@ -764,7 +748,7 @@
                       </div>
                     </div>
                     <div class="space-y-1">
-                      <label class="block text-[9px] font-bold text-gray-400 uppercase tracking-wider">Đơn giá (VNĐ)</label>
+                      <label class="block text-[9px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('auto_don_gia_vnd', 'Đơn giá (VNĐ)') }}</label>
                       <input 
                         type="text" 
                         :value="isItemInPackage(selectedProductForDetail, activeSettings.package) ? '0đ (Trong gói)' : formatVND(selectedProductForDetail.price)" 
@@ -788,33 +772,33 @@
 
                   <div class="grid grid-cols-2 gap-3">
                     <div class="space-y-1">
-                      <label class="block text-[9px] font-bold text-gray-400 uppercase tracking-wider">Tiền tệ</label>
+                      <label class="block text-[9px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('auto_tien_te', 'Tiền tệ') }}</label>
                       <select v-model="modalCurrency" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2 py-1.5 font-bold text-gray-850 focus:outline-none text-[11px]">
                         <option value="VND">VND</option>
                         <option value="USD">USD</option>
                       </select>
                     </div>
                     <div class="space-y-1">
-                      <label class="block text-[9px] font-bold text-gray-400 uppercase tracking-wider">Tỷ giá</label>
+                      <label class="block text-[9px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('auto_ty_gia', 'Tỷ giá') }}</label>
                       <input type="text" v-model="modalRate" readonly class="w-full bg-gray-150 border border-gray-205 rounded-lg px-2 py-1.5 font-bold text-gray-800 focus:outline-none" />
                     </div>
                   </div>
 
                   <div class="space-y-1">
-                    <label class="block text-[9px] font-bold text-gray-400 uppercase tracking-wider">Ghi chú chung</label>
+                    <label class="block text-[9px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('auto_ghi_chu_chung', 'Ghi chú chung') }}</label>
                     <textarea 
                       v-model="modalItemNote" 
-                      placeholder="Thêm ghi chú cho cả món ăn..." 
+                      :placeholder="$t('auto_them_ghi_chu_cho_ca_mon_an', 'Thêm ghi chú cho cả món ăn...')" 
                       class="w-full border border-[#e0e0e0] rounded-lg p-2 font-bold text-gray-850 h-16 resize-none focus:outline-none focus:border-[#1976d2]"
                     ></textarea>
                   </div>
 
                   <!-- Menu Classification Info (Requirement) -->
                   <div class="border-t border-[#f0f0f0] pt-4 mt-2">
-                    <h5 class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Phân nhóm thực đơn (Hệ thống)</h5>
+                    <h5 class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">{{ $t('auto_phan_nhom_thuc_don_he_thong', 'Phân nhóm thực đơn (Hệ thống)') }}</h5>
                     <div class="grid grid-cols-2 gap-3 bg-gray-50 p-3 rounded-xl border border-[#e0e0e0] text-[11px]">
                       <div>
-                        <span class="text-gray-400 font-semibold">Nhóm sản phẩm:</span>
+                        <span class="text-gray-400 font-semibold">{{ $t('auto_nhom_san_pham', 'Nhóm sản phẩm:') }}</span>
                         <div class="text-gray-800 font-bold mt-0.5">
                           {{ translateCategoryId(selectedProductForDetail.category_id) }}
                           <span v-if="getItemSubcategoryId(selectedProductForDetail.id)">
@@ -823,15 +807,15 @@
                         </div>
                       </div>
                       <div>
-                        <span class="text-gray-400 font-semibold">Gói Buffet:</span>
+                        <span class="text-gray-400 font-semibold">{{ $t('auto_goi_buffet', 'Gói Buffet:') }}</span>
                         <div class="text-gray-800 font-bold mt-0.5">{{ getEligibleBuffetGroups(selectedProductForDetail) }}</div>
                       </div>
                       <div>
-                        <span class="text-gray-400 font-semibold">Gói Set Menu:</span>
+                        <span class="text-gray-400 font-semibold">{{ $t('auto_goi_set_menu', 'Gói Set Menu:') }}</span>
                         <div class="text-gray-800 font-bold mt-0.5">{{ getSetMenuGroup(selectedProductForDetail) }}</div>
                       </div>
                       <div>
-                        <span class="text-gray-400 font-semibold">Gói Đồ Uống:</span>
+                        <span class="text-gray-400 font-semibold">{{ $t('auto_goi_do_uong', 'Gói Đồ Uống:') }}</span>
                         <div class="text-gray-800 font-bold mt-0.5">{{ getDrinkGroup(selectedProductForDetail) }}</div>
                       </div>
                     </div>
@@ -928,7 +912,7 @@
                             <input 
                               type="text" 
                               v-model="option.note"
-                              placeholder="Thêm ghi chú riêng cho lựa chọn này (ví dụ: Không hành, Ít cay...)..."
+                              :placeholder="$t('auto_them_ghi_chu_rieng_cho_lua_cho', 'Thêm ghi chú riêng cho lựa chọn này (ví dụ: Không hành, Ít cay...)...')"
                               class="w-full bg-white border border-[#e0e0e0] rounded-lg px-2.5 py-1.5 text-[11px] font-semibold text-gray-800 focus:outline-none focus:border-[#ff8f00]"
                             />
                           </div>
@@ -974,9 +958,7 @@
               <button 
                 @click="isDetailPanelOpen = false"
                 class="px-5 py-2.5 bg-[#f5f5f5] hover:bg-[#e0e0e0] border border-[#e0e0e0] text-gray-700 text-xs font-bold rounded-xl active:scale-95 transition-all"
-              >
-                Hủy bỏ (Esc)
-              </button>
+              >{{ $t('auto_huy_bo_esc', 'Hủy bỏ (Esc)') }}</button>
               
               <button 
                 @click="saveDetailPanelQty"
@@ -987,7 +969,7 @@
                 ]"
               >
                 <span>➕</span>
-                <span>Thêm Vào Giỏ Hàng</span>
+                <span>{{ $t('auto_them_vao_gio_hang', 'Thêm Vào Giỏ Hàng') }}</span>
               </button>
             </footer>
 
@@ -1019,7 +1001,7 @@
 
           <!-- PACKAGE GRID (2 cols) -->
           <div class="mb-4">
-            <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2.5 select-none">1. Chọn Gói Ăn Phục Vụ (Course Pack):</h4>
+            <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2.5 select-none">{{ $t('auto_1_chon_goi_an_phuc_vu_course_p', '1. Chọn Gói Ăn Phục Vụ (Course Pack):') }}</h4>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 select-none">
               <div 
                 v-for="(price, name) in packagePrices" 
@@ -1056,7 +1038,7 @@
 
           <!-- DRINK GROUP SELECTOR CARDS -->
           <div class="mb-4 border-t border-[#f0f0f0] pt-3.5">
-            <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 select-none">2. Chọn Nhóm Đồ Uống Kèm Theo (Drink Group):</h4>
+            <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 select-none">{{ $t('auto_2_chon_nhom_do_uong_kem_theo_d', '2. Chọn Nhóm Đồ Uống Kèm Theo (Drink Group):') }}</h4>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 select-none">
               
               <div 
@@ -1070,8 +1052,8 @@
                 <div class="flex items-center gap-2">
                   <span class="text-lg">🥤</span>
                   <div>
-                    <h6 class="text-xs font-bold text-gray-800">Nhóm A - Soft Drink</h6>
-                    <p class="text-[9px] text-gray-400 font-medium">Nước ngọt uống không giới hạn (Free)</p>
+                    <h6 class="text-xs font-bold text-gray-800">{{ $t('auto_nhom_a_soft_drink', 'Nhóm A - Soft Drink') }}</h6>
+                    <p class="text-[9px] text-gray-400 font-medium">{{ $t('auto_nuoc_ngot_uong_khong_gioi_han', 'Nước ngọt uống không giới hạn (Free)') }}</p>
                   </div>
                 </div>
                 <span class="w-4 h-4 rounded-full border border-gray-300 flex items-center justify-center text-[8px] font-black" :class="tempSettings.drinkGroup === 'A' ? 'bg-[#ff8f00] text-white border-[#ff8f00]' : 'text-transparent'">✓</span>
@@ -1088,8 +1070,8 @@
                 <div class="flex items-center gap-2">
                   <span class="text-lg">🍺</span>
                   <div>
-                    <h6 class="text-xs font-bold text-gray-800">Nhóm B - Premium Drink</h6>
-                    <p class="text-[9px] text-gray-400 font-medium">Rượu bia cao cấp uống trong 2 giờ (Free)</p>
+                    <h6 class="text-xs font-bold text-gray-800">{{ $t('auto_nhom_b_premium_drink', 'Nhóm B - Premium Drink') }}</h6>
+                    <p class="text-[9px] text-gray-400 font-medium">{{ $t('auto_ruou_bia_cao_cap_uong_trong_2', 'Rượu bia cao cấp uống trong 2 giờ (Free)') }}</p>
                   </div>
                 </div>
                 <span class="w-4 h-4 rounded-full border border-gray-300 flex items-center justify-center text-[8px] font-black" :class="tempSettings.drinkGroup === 'B' ? 'bg-[#ff8f00] text-white border-[#ff8f00]' : 'text-transparent'">✓</span>
@@ -1106,8 +1088,8 @@
                 <div class="flex items-center gap-2">
                   <span class="text-lg">🍶</span>
                   <div>
-                    <h6 class="text-xs font-bold text-gray-800">Nhóm C - Premium Alt</h6>
-                    <p class="text-[9px] text-gray-400 font-medium">Rượu bia thay thế dùng 2 giờ (Free)</p>
+                    <h6 class="text-xs font-bold text-gray-800">{{ $t('auto_nhom_c_premium_alt', 'Nhóm C - Premium Alt') }}</h6>
+                    <p class="text-[9px] text-gray-400 font-medium">{{ $t('auto_ruou_bia_thay_the_dung_2_gio_f', 'Rượu bia thay thế dùng 2 giờ (Free)') }}</p>
                   </div>
                 </div>
                 <span class="w-4 h-4 rounded-full border border-gray-300 flex items-center justify-center text-[8px] font-black" :class="tempSettings.drinkGroup === 'C' ? 'bg-[#ff8f00] text-white border-[#ff8f00]' : 'text-transparent'">✓</span>
@@ -1124,8 +1106,8 @@
                 <div class="flex items-center gap-2">
                   <span class="text-lg">🍷</span>
                   <div>
-                    <h6 class="text-xs font-bold text-gray-800">Nhóm D - A La Carte</h6>
-                    <p class="text-[9px] text-gray-400 font-medium">Gọi đồ uống lẻ tính tiền riêng lẻ</p>
+                    <h6 class="text-xs font-bold text-gray-800">{{ $t('auto_nhom_d_a_la_carte', 'Nhóm D - A La Carte') }}</h6>
+                    <p class="text-[9px] text-gray-400 font-medium">{{ $t('auto_goi_do_uong_le_tinh_tien_rieng', 'Gọi đồ uống lẻ tính tiền riêng lẻ') }}</p>
                   </div>
                 </div>
                 <span class="w-4 h-4 rounded-full border border-gray-300 flex items-center justify-center text-[8px] font-black" :class="tempSettings.drinkGroup === 'D' ? 'bg-[#ff8f00] text-white border-[#ff8f00]' : 'text-transparent'">✓</span>
@@ -1136,7 +1118,7 @@
 
           <!-- LANGUAGES CHOICE -->
           <div class="mb-4 border-t border-[#f0f0f0] pt-3.5">
-            <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 select-none">3. Ngôn ngữ Giao diện hiển thị trên Máy tính bảng:</h4>
+            <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 select-none">{{ $t('auto_3_ngon_ngu_giao_dien_hien_thi', '3. Ngôn ngữ Giao diện hiển thị trên Máy tính bảng:') }}</h4>
             <div class="flex flex-wrap gap-2 select-none">
               <button 
                 v-for="lang in ['VI', 'EN', 'JP', 'KO', 'ZH']"
@@ -1150,7 +1132,7 @@
                     : 'bg-gray-50 border-gray-205 text-gray-600 hover:bg-gray-100'
                 ]"
               >
-                <span v-if="lang === 'VI'">🇻🇳 Tiếng Việt</span>
+                <span v-if="lang === 'VI'">{{ $t('auto_tieng_viet', '🇻🇳 Tiếng Việt') }}</span>
                 <span v-else-if="lang === 'EN'">🇺🇸 English</span>
                 <span v-else-if="lang === 'JP'">🇯🇵 日本語</span>
                 <span v-else-if="lang === 'KO'">🇰🇷 한국어</span>
@@ -1164,24 +1146,18 @@
             <button 
               @click="cancelPackageSelection"
               class="flex-1 py-2.5 bg-gray-50 border border-[#e0e0e0] hover:bg-gray-100 text-gray-700 text-xs font-bold rounded-xl transition-all"
-            >
-              Hủy bỏ / Quay lại
-            </button>
+            >{{ $t('auto_huy_bo_quay_lai', 'Hủy bỏ / Quay lại') }}</button>
             
             <button 
               v-if="activeSettings.isLocked"
               @click="openPinModal"
               class="flex-1 py-2.5 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-xl shadow-sm transition-all"
-            >
-              🔓 PIN sửa cấu hình
-            </button>
+            >{{ $t('auto_pin_sua_cau_hinh', '🔓 PIN sửa cấu hình') }}</button>
             <button 
               v-else
               @click="confirmPackageSelection"
               class="flex-1 py-2.5 bg-[#c62828] hover:bg-[#b71c1c] text-white text-xs font-bold rounded-xl shadow-sm transition-all"
-            >
-              🔒 Xác nhận & Khóa Course
-            </button>
+            >{{ $t('auto_xac_nhan_khoa_course', '🔒 Xác nhận & Khóa Course') }}</button>
           </div>
 
         </div>
@@ -1202,10 +1178,8 @@
           </button>
 
           <span class="text-3xl block mb-2">🔐</span>
-          <h4 class="text-sm font-bold text-gray-900 mb-1">Mã PIN xác thực Quản lý</h4>
-          <p class="text-[10px] text-gray-400 font-semibold mb-4 leading-normal">
-            Nhập mã PIN của Quản lý để mở khóa sửa đổi cấu hình gói Course ăn uống.
-          </p>
+          <h4 class="text-sm font-bold text-gray-900 mb-1">{{ $t('auto_ma_pin_xac_thuc_quan_ly', 'Mã PIN xác thực Quản lý') }}</h4>
+          <p class="text-[10px] text-gray-400 font-semibold mb-4 leading-normal">{{ $t('auto_nhap_ma_pin_cua_quan_ly_de_mo', 'Nhập mã PIN của Quản lý để mở khóa sửa đổi cấu hình gói Course ăn uống.') }}</p>
 
           <!-- Input dots -->
           <div class="flex justify-center gap-3.5 mb-5 select-none">

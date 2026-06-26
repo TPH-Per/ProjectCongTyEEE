@@ -28,9 +28,7 @@
         class="mb-5 rounded-xl border-2 border-green-200 bg-green-50 p-4 flex items-center justify-between"
       >
         <div>
-          <div class="text-xs font-bold text-green-700 uppercase tracking-wide">
-            Ca hiện tại đang mở
-          </div>
+          <div class="text-xs font-bold text-green-700 uppercase tracking-wide">{{ $t('auto_ca_hien_tai_dang_mo', 'Ca hiện tại đang mở') }}</div>
           <div class="text-sm text-green-800 mt-1">
             Mở lúc {{ new Date(activeShift.opened_at).toLocaleString('vi-VN') }}
             — Tiền đầu ca: {{ Number(activeShift.opening_cash || 0).toLocaleString() }}đ
@@ -41,9 +39,7 @@
       <div
         v-else
         class="mb-5 rounded-xl border-2 border-yellow-200 bg-yellow-50 p-4 text-sm text-yellow-800"
-      >
-        Chưa có ca nào đang mở tại chi nhánh này. Vào ca trước rồi quay lại đóng.
-      </div>
+      >{{ $t('auto_chua_co_ca_nao_dang_mo_tai_chi', 'Chưa có ca nào đang mở tại chi nhánh này. Vào ca trước rồi quay lại đóng.') }}</div>
 
       <h3 class="font-bold text-base text-[hsl(var(--foreground))] mb-5">{{ t('auto_doanh_thu_theo_lo_i_h_nh______') }}</h3>
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">

@@ -101,12 +101,9 @@
               </td>
               <td class="py-3 px-6 text-sm text-gray-700 font-medium">{{ log.entity_type || 'N/A' }}</td>
               <td class="py-3 px-6 text-sm text-gray-500 font-mono bg-gray-50/50 rounded">{{ log.entity_id || 'N/A' }}</td>
-              <td class="py-3 px-6">
-                <div class="bg-gray-50/80 p-2.5 rounded-xl text-xs text-gray-600 max-h-20 overflow-y-auto border border-gray-200/60 shadow-inner">
-                  <div v-for="(value, key) in log.payload" :key="key" class="mb-1 last:mb-0">
-                    <span class="font-medium text-gray-700">{{ key }}:</span> 
-                    <span class="text-gray-500">{{ typeof value === 'object' ? JSON.stringify(value) : value }}</span>
-                  </div>
+              <td class="py-3 px-6 max-w-xs">
+                <div class="bg-gray-50/80 p-2.5 rounded-xl text-xs text-gray-600 max-h-32 overflow-y-auto border border-gray-200/60 shadow-inner">
+                  <pre class="whitespace-pre-wrap break-words font-mono text-[10px]">{{ JSON.stringify(log.payload, null, 2) }}</pre>
                 </div>
               </td>
             </tr>

@@ -4,7 +4,7 @@
     <header class="bg-gray-800 border-b border-gray-700 px-6 py-4 flex items-center shadow-md kawaii-shadow z-10">
       <div class="flex items-center space-x-4">
         <TextLogo size="sm" gradient />
-        <span class="bg-gray-700 px-3 py-1 rounded-full text-sm font-medium text-gray-300">Chi nhánh Quận 1</span>
+        <span class="bg-gray-700 px-3 py-1 rounded-full text-sm font-medium text-gray-300">{{ $t('auto_chi_nhanh_quan_1', 'Chi nhánh Quận 1') }}</span>
       </div>
       <!-- Right cluster: time + manage + language + avatar + logout -->
       <div class="flex items-center gap-4 ml-auto">
@@ -14,17 +14,13 @@
         <button class="kawaii-btn-ghost text-red-400 hover:bg-red-500/20 px-4 py-2 rounded-lg border border-red-500/30 transition-colors flex items-center">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
-          </svg>
-          Quản lý Hết Món
-        </button>
+          </svg>{{ $t('auto_quan_ly_het_mon', 'Quản lý Hết Món') }}</button>
         <LanguageSwitcher />
         <img :src="stickerUrl" alt="User Avatar" class="w-8 h-8 rounded-full border border-[hsl(var(--border))] object-contain bg-[hsl(var(--muted))]" />
         <button class="px-3 py-2 rounded-lg text-sm font-semibold text-gray-200 hover:bg-red-500/20 hover:text-red-400 transition-colors flex items-center" @click="handleSignOut">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-          </svg>
-          Đăng xuất
-        </button>
+          </svg>{{ $t('auto_dang_xuat', 'Đăng xuất') }}</button>
       </div>
       </header>
 

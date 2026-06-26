@@ -32,5 +32,11 @@ Dự án đã được deploy lên Firebase Hosting (quản lý qua tài khoản
   - **Mật khẩu:** `admin123`
   - _Lưu ý:_ Toàn bộ tài khoản Supabase Auth, Firebase Deploy đều đang được giữ nguyên quyền theo cấu hình Workspace ban đầu.
 
+## Cập nhật sửa lỗi bổ sung (26/06/2026)
+
+- Sửa lỗi tràn bảng (vỡ giao diện) trong trang `AdminAuditView` bằng cách định dạng lại trường Payload để hiển thị dưới dạng JSON wrap-word.
+- Thay thế các ảnh avatar `sticker` bằng API DiceBear SVG (`api.dicebear.com/7.x/notionists/svg`) để tránh việc hình ảnh lỗi do không tải được tài nguyên tĩnh.
+- Build và deploy lại toàn bộ dự án cập nhật lên Firebase Hosting: `https://nguucat-qvn.web.app`
+
 ## Github
 - Toàn bộ code đã được push lên nhánh `main` của Github.

@@ -1,72 +1,92 @@
 const fs = require('fs');
 const path = require('path');
 
-function getFiles(dir, files_) {
-  files_ = files_ || [];
-  const files = fs.readdirSync(dir);
-  for (const i in files) {
-    const name = dir + '/' + files[i];
-    if (fs.statSync(name).isDirectory()) {
-      getFiles(name, files_);
-    } else {
-      if (name.endsWith('.vue')) files_.push(name);
-    }
+function walk(dir, fileList = []) {
+  for (const file of fs.readdirSync(dir)) {
+    const stat = fs.statSync(path.join(dir, file));
+    if (stat.isDirectory()) walk(path.join(dir, file), fileList);
+    else if (file.endsWith('.vue')) fileList.push(path.join(dir, file));
   }
-  return files_;
+  return fileList;
 }
 
-const allFiles = getFiles('src/views');
-const viPath = 'src/locales/vi.ts';
-let viContent = fs.readFileSync(viPath, 'utf8');
+const vueFiles = walk(path.join(__dirname, 'src', 'views')).concat(walk(path.join(__dirname, 'src', 'layouts')));
 
-const viRegex = />([^<\{\}]*[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđÀÁẠẢÃÂẦẤẬẨẪĂẰẮẶẲẴÈÉẸẺẼÊỀẾỆỂỄÌÍỊỈĨÒÓỌỎÕÔỒỐỘỔỖƠỜỚỢỞỠÙÚỤỦŨƯỪỨỰỬỮỲÝỴỶỸĐ]+[^<\{\}]*)</g;
-const attrRegex = /\b(placeholder|title|label|alt)="([^"]*[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđÀÁẠẢÃÂẦẤẬẨẪĂẰẮẶẲẴÈÉẸẺẼÊỀẾỆỂỄÌÍỊỈĨÒÓỌỎÕÔỒỐỘỔỖƠỜỚỢỞỠÙÚỤỦŨƯỪỨỰỬỮỲÝỴỶỸĐ]+[^"]*)"/g;
+const vnRegex = /([ \n\t]*)([^<]*[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹĐđ]+[^<]*)([ \n\t]*)/;
 
-function slugify(text) {
-  return 'auto_' + text.toLowerCase().replace(/[^a-z0-9]/g, '_').substring(0, 30).replace(/_+/g, '_').replace(/^_|_$/g, '');
+function generateKey(text) {
+  let key = text.trim()
+    .toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // remove accents
+    .replace(/đ/g, 'd')
+    .replace(/[^a-z0-9]/g, '_')
+    .replace(/_+/g, '_')
+    .substring(0, 30);
+  return 'auto_' + key.replace(/^_|_$/g, '');
 }
 
 const newKeys = {};
 
-for (const file of allFiles) {
+for (const file of vueFiles) {
   let content = fs.readFileSync(file, 'utf8');
-  let changed = false;
+  let modified = false;
 
-  content = content.replace(viRegex, (match, text) => {
-    let cleanText = text.trim();
-    if (cleanText.length === 0) return match;
-    let key = slugify(cleanText);
-    newKeys[key] = cleanText;
+  const templateMatch = content.match(/<template>([\s\S]*?)<\/template>/);
+  if (templateMatch) {
+    let template = templateMatch[1];
     
-    let leadingSpace = text.match(/^\s*/)[0];
-    let trailingSpace = text.match(/\s*$/)[0];
-    return `>${leadingSpace}{{ t('${key}', '${cleanText.replace(/'/g, "\\'")}') }}${trailingSpace}<`;
-  });
+    // Replace text nodes
+    template = template.replace(/>([^<]+)</g, (match, text) => {
+      if (text.includes('{{') || text.includes('t(')) return match; // skip if it already contains expressions
+      
+      const m = text.match(vnRegex);
+      if (m && m[2].trim().length > 0) {
+        const originalText = m[2].trim();
+        // Ignore single characters or very short non-word strings
+        if (originalText.length < 2) return match;
+        
+        const key = generateKey(originalText);
+        newKeys[key] = originalText;
+        
+        return `>${m[1]}{{ $t('${key}', '${originalText.replace(/'/g, "\\'")}') }}${m[3]}<`;
+      }
+      return match;
+    });
 
-  content = content.replace(attrRegex, (match, attrName, text) => {
-    let cleanText = text.trim();
-    if (cleanText.length === 0) return match;
-    let key = slugify(cleanText);
-    newKeys[key] = cleanText;
-    return `:${attrName}="t('${key}', '${cleanText.replace(/'/g, "\\'")}')"`;
-  });
+    // Replace attributes (not starting with :)
+    template = template.replace(/\bplaceholder="([^"]*)"/gi, (match, text) => {
+        if (text.includes('t(')) return match;
+        const m = text.match(vnRegex);
+        if(m) {
+            const key = generateKey(text);
+            newKeys[key] = text;
+            return `:placeholder="$t('${key}', '${text.replace(/'/g, "\\'")}')"`;
+        }
+        return match;
+    });
 
-  if (content !== fs.readFileSync(file, 'utf8')) {
-    fs.writeFileSync(file, content, 'utf8');
-    console.log(`Updated i18n in ${file}`);
+    template = template.replace(/\btitle="([^"]*)"/gi, (match, text) => {
+        if (text.includes('t(')) return match;
+        const m = text.match(vnRegex);
+        if(m) {
+            const key = generateKey(text);
+            newKeys[key] = text;
+            return `:title="$t('${key}', '${text.replace(/'/g, "\\'")}')"`;
+        }
+        return match;
+    });
+
+    if (template !== templateMatch[1]) {
+      content = content.replace(templateMatch[1], template);
+      modified = true;
+    }
+  }
+
+  if (modified) {
+    fs.writeFileSync(file, content);
+    console.log('Updated', file);
   }
 }
 
-// Ensure viContent has the new keys
-let viEntries = "";
-for (const [key, val] of Object.entries(newKeys)) {
-  if (!viContent.includes(`${key}:`)) {
-    viEntries += `  ${key}: ${JSON.stringify(val)},\n`;
-  }
-}
-
-if (viEntries) {
-  viContent = viContent.replace(/export default \{/, `export default {\n${viEntries}`);
-  fs.writeFileSync(viPath, viContent, 'utf8');
-  console.log(`Added ${Object.keys(newKeys).length} new keys to vi.ts`);
-}
+fs.writeFileSync('new_extracted_keys.json', JSON.stringify(newKeys, null, 2));
+console.log('Extracted', Object.keys(newKeys).length, 'new keys');

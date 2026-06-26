@@ -10,9 +10,7 @@
       <nav class="flex-1 px-4 space-y-2 py-6 overflow-y-auto">
         <div
           class="text-[11px] font-extrabold text-gray-400 uppercase tracking-wider mb-2"
-        >
-          Hoạt động
-        </div>
+        >{{ $t('auto_hoat_dong', 'Hoạt động') }}</div>
         <RouterLink
           to="/reception/dashboard"
           class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-sm font-semibold text-gray-600 hover:bg-gray-100"
@@ -33,9 +31,7 @@
             <rect width="7" height="5" x="14" y="3" rx="1" />
             <rect width="7" height="9" x="14" y="12" rx="1" />
             <rect width="7" height="5" x="3" y="16" rx="1" />
-          </svg>
-          Bảng điều khiển
-        </RouterLink>
+          </svg>{{ $t('auto_bang_dieu_khien', 'Bảng điều khiển') }}</RouterLink>
         <RouterLink
           to="/reception/floors"
           class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-sm font-semibold text-gray-600 hover:bg-gray-100"
@@ -57,9 +53,7 @@
             <line x1="15" x2="15" y1="3" y2="21" />
             <line x1="3" x2="21" y1="9" y2="9" />
             <line x1="3" x2="21" y1="15" y2="15" />
-          </svg>
-          Sơ đồ bàn
-        </RouterLink>
+          </svg>{{ $t('auto_so_do_ban', 'Sơ đồ bàn') }}</RouterLink>
         <RouterLink
           to="/reception/order"
           class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-sm font-semibold text-gray-600 hover:bg-gray-100"
@@ -81,9 +75,7 @@
             <path
               d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"
             />
-          </svg>
-          Chọn món
-        </RouterLink>
+          </svg>{{ $t('auto_chon_mon', 'Chọn món') }}</RouterLink>
         <RouterLink
           to="/reception/close-shift"
           class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-sm font-semibold text-gray-600 hover:bg-gray-100"
@@ -102,9 +94,7 @@
           >
             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
             <polyline points="22 4 12 14.01 9 11.01" />
-          </svg>
-          Tổng Kết Ca
-        </RouterLink>
+          </svg>{{ $t('auto_tong_ket_ca', 'Tổng Kết Ca') }}</RouterLink>
       </nav>
       <div class="p-4 border-t relative">
         <!-- Backdrop to close dropdown on click outside -->
@@ -138,7 +128,7 @@
               <polyline points="16 17 21 12 16 7" />
               <line x1="21" x2="9" y1="12" y2="12" />
             </svg>
-            <span>Đăng xuất</span>
+            <span>{{ $t('auto_dang_xuat', 'Đăng xuất') }}</span>
           </button>
         </div>
 
@@ -153,9 +143,7 @@
             class="w-8 h-8 object-contain drop-shadow-sm rounded-full"
           />
           <div class="flex-1 min-w-0">
-            <div class="text-xs font-bold text-gray-900 truncate">
-              Thu Ngân 01
-            </div>
+            <div class="text-xs font-bold text-gray-900 truncate">{{ $t('auto_thu_ngan_01', 'Thu Ngân 01') }}</div>
           </div>
         </div>
       </div>
@@ -167,17 +155,13 @@
         <div
           class="font-bold text-xl text-gray-800"
           id="reception-header-title"
-        >
-          Bảng điều khiển
-        </div>
+        >{{ $t('auto_bang_dieu_khien', 'Bảng điều khiển') }}</div>
         <div class="flex items-center gap-3">
-          <span class="text-sm font-semibold text-gray-500">Chi nhánh 1</span>
+          <span class="text-sm font-semibold text-gray-500">{{ $t('auto_chi_nhanh_1', 'Chi nhánh 1') }}</span>
           <button
             class="px-3 py-2 rounded-lg text-sm font-semibold text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors"
             @click="handleSignOut"
-          >
-            Đăng xuất
-          </button>
+          >{{ $t('auto_dang_xuat', 'Đăng xuất') }}</button>
         </div>
         <LanguageSwitcher />
         <!-- Header User Avatar -->

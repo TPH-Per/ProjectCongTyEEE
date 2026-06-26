@@ -179,6 +179,7 @@ const routes: RouteRecordRaw[] = [
         path: 'order',
         name: 'reception-order',
         component: ReceptionOrderView,
+        meta: { fullscreen: true },
       },
     ],
   },

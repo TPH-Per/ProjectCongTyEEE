@@ -1,0 +1,43 @@
+flowchart TD
+    classDef process fill:#e1f5fe,stroke:#01579b,stroke-width:2px;
+    classDef decision fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;
+    classDef alert fill:#ffcdd2,stroke:#c62828,stroke-width:2px;
+
+    subgraph "PHÂN CA LÀM VIỆC"
+        S1["Lập lịch ca tuần tới<br/>(Trước Chủ Nhật)"] --> S2["Xem Booking dự kiến<br/>& Doanh thu dự báo"]
+        S2 --> S3["Phân bổ nhân sự<br/>(Front/Bếp/Thu ngân)"]
+        S3 --> S4["Đăng lịch lên hệ thống"]
+        S4 --> S5["Nhân viên xác nhận<br/>(Accept/Request đổi)"]
+        S5 --> S6{"Có yêu cầu đổi ca?"}
+        S6 -- "Có" --> S7["Quản lý duyệt<br/>(Tìm người thay thế)"]
+        S7 --> S8{"Có người thay?"}
+        S8 -- "Có" --> S9["Cập nhật lịch mới"]
+        S8 -- "Không" --> S10["Từ chối yêu cầu<br/>& thông báo lý do"]
+        S6 -- "Không" --> S11["Chốt lịch chính thức"]
+        S9 --> S11
+        S10 --> S11
+    end
+
+    subgraph "CHẤM CÔNG HÀNG NGÀY"
+        S11 --> T1["Nhân viên check-in<br/>(Quét thẻ / Nhập PIN)"]
+        T1 --> T2["Hệ thống ghi nhận<br/>giờ vào ca"]
+        T2 --> T3["Nhân viên làm việc"]
+        T3 --> T4["Nhân viên check-out<br/>(Cuối ca)"]
+        T4 --> T5["Tính giờ công thực tế<br/>(Trừ giờ nghỉ)"]
+        T5 --> T6["Quản lý xác nhận<br/>bảng chấm công"]
+    end
+
+    subgraph "ĐÁNH GIÁ HIỆU SUẤT"
+        T6 --> P1["Hệ thống tổng hợp KPI<br/>(cuối tháng)"]
+        P1 --> P2["Các chỉ số:<br/>- Số đơn xử lý<br/>- Thời gian phục vụ<br/>- Tỷ lệ khiếu nại<br/>- Doanh thu phụ trách"]
+        P2 --> P3["Quản lý đánh giá<br/>& xếp loại"]
+        P3 --> P4{"Xếp loại?"}
+        P4 -- "Xuất sắc" --> P5["Thưởng + Đề xuất tăng lương"]
+        P4 -- "Tốt" --> P6["Thưởng theo chính sách"]
+        P4 -- "Trung bình" --> P7["Nhắc nhở & Đào tạo thêm"]
+        P4 -- "Yếu" --> P8["Cảnh cáo<br/>& Lên kế hoạch cải thiện"]
+    end
+
+    class S1,S2,S3,S4,S5,S7,S8,S9,S10,S11,T1,T2,T3,T4,T5,T6,P1,P2,P3,P5,P6,P7,P8 process;
+    class S6,S8,P4 decision;
+    class S10,P8 alert;

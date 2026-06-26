@@ -1,0 +1,41 @@
+flowchart TD
+    A["Nhận hóa đơn đỏ từ nhà cung cấp<br>仕入先から税務請求書を受領"] --> B{"Hóa đơn đã ký đủ 2 bên chưa?<br>双方の署名は完了しているか？"}
+    
+    B -- "Không" --> C["Trả lại nhà cung cấp để bổ sung chữ ký<br>署名不足のため仕入先へ返却"]
+    C --> A
+    
+    B -- "Có" --> D["Scan hóa đơn đỏ<br>税務請求書をスキャン"]
+    D --> E{"File scan có rõ nét không?<br>スキャン画像は鮮明か？"}
+    
+    E -- "Không" --> F["Scan lại<br>再スキャン"]
+    F --> E
+    
+    E -- "Có" --> G["Đọc thông tin hóa đơn<br>請求書情報を確認"]
+    G --> H{"Hóa đơn đã tồn tại trong Inventory chưa?<br>Inventoryに既に登録済みか？"}
+    
+    H -- "Có" --> I["Dừng xử lý - Hóa đơn trùng<br>処理停止 - 重複請求書"]
+    
+    H -- "Không" --> J{"Có mã định danh duy nhất không?<br>ユニークIDが存在するか？"}
+    
+    J -- "Không" --> K["Tạo mã thủ công<br>手動でユニークIDを作成"]
+    K --> L["Mở Inventory và tìm vị trí nhà cung cấp<br>Inventoryを開き仕入先の位置を検索"]
+    
+    J -- "Có" --> L
+    
+    L --> M["Nhập dữ liệu vào Inventory<br>Inventoryへデータ入力"]
+    M --> N{"Đúng nhóm nhà cung cấp chưa?<br>正しい仕入先グループか？"}
+    
+    N -- "Không" --> O["Di chuyển dòng dữ liệu<br>データ行を移動"]
+    O --> P{"Đã có dòng trống phân cách chưa?<br>区切り用の空白行があるか？"}
+    
+    N -- "Có" --> P
+    
+    P -- "Không" --> Q["Chèn dòng trống<br>空白行を挿入"]
+    Q --> R{"Tổng tiền có khớp không?<br>金額は一致しているか？"}
+    
+    P -- "Có" --> R
+    
+    R -- "Không" --> S["Sửa dữ liệu nhập sai<br>入力内容を修正"]
+    S --> R
+    
+    R -- "Có" --> T["Hoàn thành<br>完了"]

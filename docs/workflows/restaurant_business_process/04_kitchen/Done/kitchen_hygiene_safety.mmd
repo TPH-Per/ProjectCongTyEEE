@@ -1,0 +1,39 @@
+flowchart TD
+    classDef process fill:#e1f5fe,stroke:#01579b,stroke-width:2px;
+    classDef decision fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;
+    classDef alert fill:#ffcdd2,stroke:#c62828,stroke-width:2px;
+    classDef success fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px;
+
+    subgraph "KIỂM TRA ĐẦU NGÀY (PRE-SHIFT)"
+        H1["Nhân viên đến ca"] --> H2["Vệ sinh cá nhân<br/>(Rửa tay, đeo khẩu trang, tạp dề)"]
+        H2 --> H3["Kiểm tra nhiệt độ tủ lạnh<br/>(Tủ mát: 0-5°C, Tủ đông: <-18°C)"]
+        H3 --> H4{"Nhiệt độ đạt chuẩn?"}
+        H4 -- "Không" --> H5["Báo động khẩn<br/>& Chuyển nguyên liệu sang tủ dự phòng"]
+        H4 -- "Có" --> H6["Kiểm tra hạn sử dụng<br/>(FEFO - Sắp hết hạn dùng trước)"]
+    end
+
+    subgraph "GIÁM SÁT TRONG CA (MONITORING)"
+        H6 --> M1["Chế biến theo quy trình<br/>(Separate Raw/Cooked)"]
+        M1 --> M2{"Có sự cố vệ sinh?<br/>(Rơi thức ăn, đứt tay...)"}
+        M2 -- "Có" --> M3["Dừng thao tác<br/>& Xử lý y tế/vệ sinh"]
+        M2 -- "Không" --> M4["Tiếp tục vận hành"]
+    end
+
+    subgraph "KIỂM TRA CUỐI NGÀY (POST-SHIFT)"
+        M4 --> C1["Vệ sinh khu vực chế biến<br/>(Surface, Equipment)"]
+        C1 --> C2["Phân loại rác thải<br/>(Rác hữu cơ, Rác tái chế)"]
+        C2 --> C3["Bảo quản nguyên liệu thừa<br/>(Bọc màng co, dán nhãn ngày)"]
+        C3 --> C4["Ghi chép vào sổ/nhật ký HACCP<br/>(Digital Log trên POS)"]
+    end
+
+    subgraph "BÁO CÁO & CẢI THIỆN"
+        C4 --> R1["Bếp trưởng xem nhật ký<br/>& Ký xác nhận"]
+        R1 --> R2{"Có vi phạm<br/>nào không?"}
+        R2 -- "Có" --> R3["Họp rút kinh nghiệm<br/>& Đào tạo lại"]
+        R2 -- "Không" --> R4["Lưu hồ sơ<br/>(Sẵn sàng cho đoàn kiểm tra)"]
+    end
+
+    class H1,H2,H3,H5,H6,M1,M3,M4,C1,C2,C3,C4,R1,R3,R4 process;
+    class H4,M2,R2 decision;
+    class H5,M3 alert;
+    class R4 success;

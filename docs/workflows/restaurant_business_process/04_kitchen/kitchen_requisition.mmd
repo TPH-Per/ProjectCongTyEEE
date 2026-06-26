@@ -1,0 +1,44 @@
+flowchart TD
+    classDef process fill:#e1f5fe,stroke:#01579b,stroke-width:2px;
+    classDef decision fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;
+    classDef success fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px;
+    classDef alert fill:#ffcdd2,stroke:#c62828,stroke-width:2px;
+
+    subgraph "TẠO YÊU CẦU (BẾP)"
+        R1["Bếp trưởng kiểm tra<br/>tồn kho tại bếp"] --> R2["So sánh với Prep List<br/>& Dự báo doanh thu"]
+        R2 --> R3["Tạo Phiếu yêu cầu xuất kho<br/>(Internal Requisition) trên POS"]
+        R3 --> R4["Gửi yêu cầu đến<br/>Bộ phận Kho (Naka)"]
+    end
+
+    subgraph "XỬ LÝ TẠI KHO"
+        R4 --> K1["Thủ kho nhận yêu cầu"]
+        K1 --> K2{"Kho có đủ hàng?"}
+        
+        K2 -- "Không đủ" --> K3["Thông báo thiếu hụt<br/>& Đề xuất phương án thay thế"]
+        K3 --> K4["Bếp trưởng duyệt<br/>phương án thay thế"]
+        
+        K2 -- "Đủ hàng" --> K5["Soạn hàng (Picking)"]
+        K4 --> K5
+    end
+
+    subgraph "GIAO NHẬN"
+        K5 --> G1["Thủ kho giao hàng<br/>& In biên bản giao nhận"]
+        G1 --> G2["Bếp trưởng kiểm tra<br/>(Chất lượng, Số lượng, Nhiệt độ)"]
+        G2 --> G3{"Đạt yêu cầu?"}
+        
+        G3 -- "Không đạt<br/>(Hư hỏng, Sai SL)" --> G4["Từ chối nhận<br/>& Yêu cầu đổi trả"]
+        G4 --> K5
+        
+        G3 -- "Đạt" --> G5["Ký xác nhận<br/>(Digital Signature)"]
+    end
+
+    subgraph "CẬP NHẬT HỆ THỐNG"
+        G5 --> U1["Hệ thống tự động:<br/>1. Trừ tồn kho chính<br/>2. Cộng tồn kho bếp"]
+        U1 --> U2["Cập nhật giá vốn<br/>(COGS) cho bếp"]
+        U2 --> U3["Hoàn tất quy trình"]
+    end
+
+    class R1,R2,R3,R4,K1,K3,K4,K5,G1,G2,G4,G5,U1,U2,U3 process;
+    class K2,G3 decision;
+    class G4 alert;
+    class U3 success;

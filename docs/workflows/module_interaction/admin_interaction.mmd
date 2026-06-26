@@ -1,0 +1,11 @@
+graph TD
+    classDef interaction fill:#9f9,stroke:#333,stroke-width:2px;
+
+    subgraph "Admin Module Interaction"
+        M_Admin[Admin Config Portal] <--> M_RBAC[RBAC Role Management]
+        M_Admin <--> M_Menu[Menu & Package Management]
+        M_Admin <--> M_Floor[Floor Space & Table Config]
+        M_Admin <--> M_KPI[KPI & Target Dashboard]
+    end
+
+    class M_Admin,M_RBAC,M_Menu,M_Floor,M_KPI interaction;

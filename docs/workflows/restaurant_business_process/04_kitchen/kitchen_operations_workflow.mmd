@@ -1,0 +1,52 @@
+flowchart TD
+    classDef process fill:#fcc,stroke:#333,stroke-width:2px;
+    classDef decision fill:#ff9,stroke:#333,stroke-width:2px;
+    classDef special fill:#9f9,stroke:#333,stroke-width:2px;
+    classDef alert fill:#f99,stroke:#333,stroke-width:2px;
+
+    subgraph "QUY TRÌNH BẾP NGƯU CÁT (NGUUCAT KITCHEN FLOW)"
+        
+        %% Giai đoạn 1: Tiếp nhận & Phân công
+        A1["Nhận Ticket từ KDS<br/>(In ấn hoặc Màn hình)"] --> A2{"Phân loại khu vực<br/>(Nướng / Lẩu / Lạnh / Chiên)"}
+        A2 --> A3["Xác nhận đã nhận món<br/>(Acknowledge)"]
+        
+        %% Giai đoạn 2: Kiểm tra & Chuẩn bị
+        A3 --> A4{"Kiểm tra tồn kho<br/>tại bếp (Stock Check)"}
+        A4 -- "Hết hàng" --> B1["Báo 'Hết món' (86'd)<br/>trên KDS"]
+        B1 --> B2["Thông báo Staff<br/>để tư vấn khách đổi món"]
+        
+        A4 -- "Còn hàng" --> A5["Lấy nguyên liệu<br/>(FIFO - Hạn sử dụng)"]
+        A5 --> A6["Sơ chế / Tẩm ướp<br/>(Marination)"]
+        
+        %% Giai đoạn 3: Chế biến (Đặc thù Nướng/Lẩu)
+        A6 --> A7{"Khu vực Nướng?"}
+        A7 -- "Có" --> A8["Nướng trên than<br/>(Canh độ chín)"]
+        A8 --> A9{"Vỉ nướng có bẩn/hết than?"}
+        A9 -- "Có" --> A10["Yêu cầu thay vỉ/than<br/>(Grill Change)"]
+        A10 --> A8
+        A9 -- "Không" --> A11["Trình bày món"]
+        
+        A7 -- "Không (Lẩu/Lạnh)" --> A12["Chế biến/Lắp đặt<br/>(Plating)"]
+        A12 --> A11
+        
+        %% Giai đoạn 4: Kiểm soát chất lượng (QC)
+        A11 --> A13{"Kiểm tra QC (Expo)<br/>Hình thức/Định lượng"}
+        A13 -- "Đạt" --> A14["Đặt lên Pass<br/>(Khu vực ra món)"]
+        A13 -- "Không đạt" --> A15["Làm lại (Remake)<br/>Ưu tiên cao"]
+        A15 --> A6
+        
+        %% Giai đoạn 5: Hoàn tất
+        A14 --> A16["Bấm chuông/Thông báo<br/>Staff lấy món"]
+        A16 --> A17["Cập nhật trạng thái<br/>'Sẵn sàng' trên KDS"]
+        A17 --> A18["Hoàn tất Ticket"]
+
+        %% Giai đoạn 6: Xử lý sự cố (Trả món)
+        C1["Nhận yêu cầu Trả món<br/>từ Staff"] --> C2{"Lý do?"}
+        C2 -- "Do Bếp (Sống/Cháy/Sai)" --> C3["Ghi nhận lỗi<br/>Làm lại ngay (Remake)"]
+        C3 --> A6
+        C2 -- "Do Khách (Không thích)" --> C4["Báo quản lý<br/>Hủy món trên POS"]
+    end
+
+    class A1,A2,A3,A5,A6,A8,A10,A11,A12,A14,A16,A17,A18,B1,B2,C1,C3,C4 process;
+    class A4,A7,A9,A13,C2 decision;
+    class A15 special;

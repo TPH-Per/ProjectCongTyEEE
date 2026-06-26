@@ -1,0 +1,45 @@
+flowchart TD
+    classDef process fill:#e1f5fe,stroke:#01579b,stroke-width:2px;
+    classDef decision fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;
+    classDef alert fill:#ffcdd2,stroke:#c62828,stroke-width:2px;
+    classDef success fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px;
+
+    subgraph "PHÁT SINH HAO HỤT"
+        W1["Phát hiện nguyên liệu/món ăn<br/>cần hủy bỏ"] --> W2{"Nguyên nhân?"}
+        
+        W2 -- "Lỗi Bếp<br/>(Cháy, Sống, Sai món)" --> W3["Ghi nhận: Lỗi chế biến"]
+        W2 -- "Khách trả lại<br/>(Không thích, Dị ứng)" --> W4["Ghi nhận: Khách trả"]
+        W2 -- "Hết hạn sử dụng<br/>(FEFO)" --> W5["Ghi nhận: Hết hạn"]
+        W2 -- "Rơi đổ / Nhiễm bẩn" --> W6["Ghi nhận: Tai nạn/Sự cố"]
+        W2 -- "Khách Buffet ăn thừa<br/>(Food Waste Policy)" --> W7["Ghi nhận: Ăn thừa"]
+    end
+
+    subgraph "ĐỊNH LƯỢNG & GHI NHẬN"
+        W3 --> P1
+        W4 --> P1
+        W5 --> P1
+        W6 --> P1
+        W7 --> P1["Cân đo khối lượng thực tế<br/>(Gram/Kg)"]
+        
+        P1 --> P2["Chụp ảnh bằng chứng<br/>(Upload lên hệ thống)"]
+        P2 --> P3["Nhập vào Waste Log<br/>(Mã món, SL, Lý do, Nhân viên phụ trách)"]
+    end
+
+    subgraph "XỬ LÝ & BÁO CÁO"
+        P3 --> D1{"Giá trị hao hụt<br/>có lớn không?"}
+        
+        D1 -- "Nhỏ (< 200K)" --> D2["Bếp trưởng xác nhận<br/>& Hủy bỏ"]
+        D1 -- "Lớn (> 200K)" --> D3["Quản lý nhà hàng<br/>phê duyệt"]
+        
+        D2 --> E1["Cập nhật tồn kho bếp<br/>(Trừ kho thực tế)"]
+        D3 --> E1
+        
+        E1 --> E2["Tính toán chi phí<br/>Food Cost Impact"]
+        E2 --> E3["Báo cáo Hao hụt<br/>(Cuối ngày/Tuần)"]
+        E3 --> E4["Phân tích xu hướng<br/>& Đề xuất cải thiện"]
+    end
+
+    class W1,W3,W4,W5,W6,W7,P1,P2,P3,D2,D3,E1,E2,E3,E4 process;
+    class W2,D1 decision;
+    class W3,W4,W5,W6,W7 alert;
+    class E4 success;

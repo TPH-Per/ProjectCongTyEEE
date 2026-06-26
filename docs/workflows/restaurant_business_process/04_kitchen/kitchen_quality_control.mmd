@@ -1,0 +1,42 @@
+flowchart TD
+    classDef process fill:#e1f5fe,stroke:#01579b,stroke-width:2px;
+    classDef decision fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;
+    classDef success fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px;
+    classDef fail fill:#ffcdd2,stroke:#c62828,stroke-width:2px;
+
+    subgraph "KIỂM TRA CHẤT LƯỢNG (Expo / QC)"
+        A1["Món ăn tại khu vực Pass"] --> A2["Bếp trưởng / Expo kiểm tra"]
+        
+        A2 --> A3{"Kiểm tra tiêu chí?"}
+        A3 -- "1. Hình thức & Nhiệt độ" --> A4{"Đạt chuẩn?"}
+        A3 -- "2. Định lượng (Portion)" --> A4
+        A3 -- "3. Ghi chú đặc biệt<br/>(Dị ứng, Không hành...)" --> A4
+    end
+
+    subgraph "XỬ LÝ KẾT QUẢ"
+        A4 -- "KHÔNG ĐẠT" --> B1["Gán nhãn: Cần làm lại<br/>(Remake)"]
+        B1 --> B2["Ưu tiên: CAO<br/>(Quay lại quy trình chế biến)"]
+        B2 --> A1
+        
+        A4 -- "ĐẠT" --> C1["Cập nhật trạng thái:<br/>'Sẵn sàng' (Ready)"]
+    end
+
+    subgraph "PHỤC VỤ (Service Handoff)"
+        C1 --> C2["Bấm chuông / Thông báo<br/>Call Runner (Staff)"]
+        C2 --> C3["Staff đến nhận món<br/>& Kiểm tra lại lần cuối"]
+        C3 --> C4["Mang món ra bàn khách"]
+        C4 --> C5["Cập nhật KDS:<br/>'Đã phục vụ' (Served)"]
+        C5 --> C6["Đóng Ticket<br/>(Hoàn tất)"]
+    end
+
+    subgraph "XỬ LÝ SỰ CỐ (Exception - Trả món)"
+        E1["Khách trả món<br/>(Sống/Cháy/Sai order)"] --> E2{"Lý do?"}
+        E2 -- "Lỗi Bếp" --> E3["Ghi nhận Waste/Lỗi<br/>& Remake ngay lập tức"]
+        E3 --> B1
+        E2 -- "Lỗi Khách/Thay đổi" --> E4["Hủy món trên POS<br/>& Ghi nhận lý do"]
+    end
+
+    class A1,A2,A4,B1,B2,C1,C2,C3,C4,C5,C6,E1,E2,E3,E4 process;
+    class A3 decision;
+    class C1,C2,C3,C4,C5,C6 success;
+    class B1,B2,E3 fail;

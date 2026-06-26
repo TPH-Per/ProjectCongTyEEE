@@ -209,9 +209,8 @@ export function useAuth() {
     if (isMockAuthAllowed()) {
       // Dev / placeholder mode: try to restore a previous mock session,
       // otherwise the user starts logged out and must call signIn().
-      if (!restoreMockSession()) {
-        loading.value = false
-      }
+      restoreMockSession()
+      loading.value = false
       return
     }
 

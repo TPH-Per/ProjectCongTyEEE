@@ -1,0 +1,11 @@
+graph TD
+    classDef system fill:#bbf,stroke:#333,stroke-width:2px;
+
+    subgraph "POS Inventory Processing Workflow"
+        B1[Cập nhật số lượng tồn kho và thông tin hạn sử dụng lô hàng] --> B2[Tính toán định lượng trừ kho tự động dựa trên hóa đơn bán hàng]
+        B2 --> B3[Cảnh báo mức tồn kho thấp dưới ngưỡng tối thiểu an toàn]
+        B3 --> B4[Cảnh báo sớm các lô hàng nguyên liệu sắp hết hạn dùng]
+        B4 --> B5[Tính toán tỷ lệ thất thoát và chênh lệch giữa tồn kho thực tế & lý thuyết]
+    end
+
+    class B1,B2,B3,B4,B5 system;

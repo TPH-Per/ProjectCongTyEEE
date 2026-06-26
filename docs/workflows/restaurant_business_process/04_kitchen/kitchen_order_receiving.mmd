@@ -1,0 +1,46 @@
+flowchart TD
+    classDef process fill:#e1f5fe,stroke:#01579b,stroke-width:2px;
+    classDef decision fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;
+    classDef alert fill:#ffcdd2,stroke:#c62828,stroke-width:2px;
+    classDef priority fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+
+    subgraph "TIẾP NHẬN ORDER (Order Receiving)"
+        A1["Nhận Ticket mới từ KDS<br/>(POS / Tablet / Delivery)"] --> A2{"Loại Order?"}
+        
+        A2 -- "Buffet Vòng 1" --> A3["Đánh dấu: Round 1<br/>(Ưu tiên chuẩn bị set)"]
+        A2 -- "Buffet Gọi thêm" --> A4["Đánh dấu: Round N<br/>(Theo dõi số lượng)"]
+        A2 -- "A La Carte / Set" --> A5["Xử lý đơn lẻ"]
+        A2 -- "Khách Trả món (Remake)" --> A6["CẢNH BÁO: Ưu tiên CAO NHẤT<br/>(Bỏ qua hàng đợi)"]
+
+        A3 --> B1
+        A4 --> B1
+        A5 --> B1
+        A6 --> B1["Kiểm tra tồn kho tại bếp<br/>(Stock Check)"]
+    end
+
+    subgraph "KIỂM TRA & ĐỊNH TUYẾN (Routing)"
+        B1 --> B2{"Đủ nguyên liệu?"}
+        
+        B2 -- "Không (Hết hàng)" --> B3["Báo trạng thái '86'd'<br/>(Hết món trên KDS)"]
+        B3 --> B4["Thông báo Staff<br/>để tư vấn khách đổi món"]
+        
+        B2 -- "Có" --> B5{"Định tuyến tự động<br/>(Auto-Routing)"}
+        
+        B5 -- "Món Nướng" --> C1["Station: Bếp Nướng<br/>(Grill Station)"]
+        B5 -- "Món Lẩu/Súp" --> C2["Station: Bếp Lẩu<br/>(Hotpot Station)"]
+        B5 -- "Món Lạnh/Khai vị" --> C3["Station: Bếp Lạnh<br/>(Cold Station)"]
+        B5 -- "Món Chiên/Rán" --> C4["Station: Bếp Chiên<br/>(Fry Station)"]
+    end
+
+    subgraph "XÁC NHẬN (Acknowledgement)"
+        C1 --> D1["Đầu bếp xác nhận<br/>(Acknowledge Ticket)"]
+        C2 --> D1
+        C3 --> D1
+        C4 --> D1
+        D1 --> D2["Cập nhật trạng thái:<br/>'Đang chế biến' (In Progress)"]
+    end
+
+    class A1,A3,A4,A5,A6,B1,B3,B4,C1,C2,C3,C4,D1,D2 process;
+    class A2,B2,B5 decision;
+    class A6,B3 alert;
+    class A6 priority;

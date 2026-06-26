@@ -1,0 +1,11 @@
+graph TD
+    classDef system fill:#bbf,stroke:#333,stroke-width:2px;
+
+    subgraph "POS Table Management Workflow"
+        B1[Cập nhật trạng thái bàn sang Trống trên Seat Map] --> B2[Chuyển trạng thái bàn sang Đặt trước, liên kết thông tin đặt bàn]
+        B2 --> B3[Chuyển trạng thái bàn sang Đang phục vụ, kích hoạt Table Session & QR]
+        B3 --> B4[Khách thanh toán -> Chuyển trạng thái bàn sang Cần dọn dẹp, hủy QR]
+        B4 --> B5[Chuyển trạng thái bàn sang Bảo trì, khóa không cho phép khai bàn]
+    end
+
+    class B1,B2,B3,B4,B5 system;

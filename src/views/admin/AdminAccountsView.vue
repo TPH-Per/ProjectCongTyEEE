@@ -102,8 +102,11 @@
             </select>
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('auto_chi_nh_nh_branch_id') }}</label>
-            <input v-model="form.branch_id" type="text" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900" />
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('auto_chi_nhanh_branch') }}</label>
+            <select v-model="form.branch_id" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 bg-white">
+              <option value="" disabled>{{ t('auto_chon_chi_nhanh', 'Chọn chi nhánh') }}</option>
+              <option v-for="b in branches" :key="b.id" :value="b.id">{{ b.name }}</option>
+            </select>
           </div>
           <div v-if="modalMode === 'edit'" class="flex items-center gap-2 mt-4">
             <input type="checkbox" id="isActive" v-model="form.is_active" class="rounded text-gray-900 focus:ring-gray-900 w-4 h-4" />
@@ -176,6 +179,8 @@ const form = ref({
   branch_id: branchId.value || DEFAULT_BRANCH_ID,
   is_active: true
 })
+const branches = ref<any[]>([])
+
 
 const newPassword = ref('')
 const selectedUserId = ref('')
@@ -195,9 +200,22 @@ async function fetchUsers() {
   loading.value = false
 }
 
+
+const fetchBranches = async () => {
+  try {
+    const { data, error: err } = await supabase.from('branches').select('id, name').order('name')
+    if (err) throw err
+    branches.value = data || []
+  } catch (e: any) {
+    console.error('Error fetching branches:', e.message)
+  }
+}
+
 onMounted(() => {
   fetchUsers()
+  fetchBranches()
 })
+
 
 function openCreateModal() {
   modalMode.value = 'create'
@@ -245,7 +263,7 @@ async function saveUser() {
             password: form.value.password,
             full_name: form.value.full_name,
             role: form.value.role,
-            branch_id: form.value.branch_id
+            branch_id: form.value.branch_id || null
           }
         }
       })
@@ -257,8 +275,8 @@ async function saveUser() {
           payload: {
             userId: form.value.id,
             role: form.value.role,
-            branch_id: form.value.branch_id,
-            is_active: form.value.is_active
+            branch_id: form.value.branch_id || null,
+              is_active: form.value.is_active
           }
         }
       })

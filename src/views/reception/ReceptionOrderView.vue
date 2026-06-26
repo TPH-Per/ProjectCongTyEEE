@@ -288,11 +288,11 @@
                 @click="holdOrder"
                 class="py-2 bg-[#2d2d2d] hover:bg-[#333333] border border-[#4a4a4a] text-white text-xs font-bold rounded-lg transition-all"
               >{{ $t('auto_tam_luu', '⏸️ Tạm lưu') }}</button>
-              <button 
+              <button
                 @click="sendToKitchen"
-                :disabled="activeOrder.items.length === 0"
+                :disabled="activeOrder.items.length === 0 || kitchenLoading"
                 class="py-2 bg-[#1976d2] hover:bg-[#1565c0] text-white text-xs font-bold rounded-lg disabled:opacity-40 disabled:cursor-not-allowed transition-all"
-              >{{ $t('auto_gui_bep', '🍳 Gửi Bếp') }}</button>
+              >{{ kitchenLoading ? '...' : $t('auto_gui_bep', '🍳 Gửi Bếp') }}</button>
             </div>
             
             <button 
@@ -1236,7 +1236,11 @@ import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useRestaurantStore } from '@/stores/restaurantStore';
 import { storeToRefs } from 'pinia';
-import { menuData, type MenuItem } from '@/data/menuData';
+import { menuData, type MenuItem } from '@/data/menuData'
+import { supabase } from '@/lib/supabase'
+import { useAuth } from '@/composables/useAuth'
+import { useOrder } from '@/composables/useOrder'
+import Swal from 'sweetalert2'
 
 const router = useRouter();
 const restaurantStore = useRestaurantStore();
@@ -2477,10 +2481,35 @@ function printDraftBill() {
   triggerToast('info', 'Đã gửi lệnh in tạm tính hóa đơn.');
 }
 
-function checkoutTable() {
-  if (confirm(`Xác nhận thanh toán và đóng bàn ${selectedTableCode.value}? Tổng tiền: ${formatVND(summary.value.grandTotal)}`)) {
-    // Navigate to checkout screen
-    router.push(`/reception/checkout/${selectedTableCode.value}`);
+async function checkoutTable() {
+  const code = selectedTableCode.value
+  if (!code) return
+  const ok = await Swal.fire({
+    title: 'Xác nhận thanh toán',
+    text: `Đóng bàn ${code}? Tổng tạm tính: ${formatVND(summary.value.grandTotal)}`,
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonText: 'Tiến hành thanh toán',
+    cancelButtonText: 'Huỷ',
+  })
+  if (!ok.isConfirmed) return
+  try {
+    // Resolve the mock table code to the real DB UUID — the checkout route
+    // expects `tables.id` (UUID), not the human-readable code (e.g. 'A01').
+    const { branchId } = useAuth()
+    if (!branchId.value) throw new Error('Tài khoản chưa gán chi nhánh.')
+    const { data: tableRow, error: tErr } = await supabase
+      .from('tables')
+      .select('id')
+      .eq('branch_id', branchId.value)
+      .eq('code', code)
+      .maybeSingle()
+    if (tErr) throw tErr
+    if (!tableRow) throw new Error(`Không tìm thấy bàn ${code} trong DB.`)
+    router.push(`/reception/checkout/${(tableRow as { id: string }).id}`)
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    Swal.fire('Lỗi', msg, 'error')
   }
 }
 
@@ -2496,12 +2525,156 @@ function holdOrder() {
   router.push('/reception/floors');
 }
 
-function sendToKitchen() {
-  if (activeOrder.value.items.length === 0) {
-    triggerToast('error', 'Chưa có món ăn nào để gửi nhà bếp nấu.');
-    return;
+// Loading flag for the kitchen-send action — we still keep the local mock
+// cart untouched so the POS UI doesn't desync. The Edge Function `add-order-item`
+// is called once per cart item against the real `orders` row that backs this
+// table.
+const kitchenLoading = ref(false)
+
+// menuData items carry slugs like 'set1390_ticket' — these are NOT UUIDs and
+// the Edge Function `add-order-item` rejects them at the UUID regex check.
+// We resolve the slug → DB UUID lazily from the live `menu_items` table
+// (matched by `metadata.slug` first, then by `name` as a fallback).
+const menuDbIdCache = ref<Record<string, string>>({})
+
+function isUuid(value: string): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value)
+}
+
+async function ensureMenuDbIds(branch: string, items: { id: string; name: string }[]) {
+  // Only resolve IDs that aren't already UUIDs AND aren't already cached.
+  const missing = items.filter((it) => !isUuid(it.id) && !menuDbIdCache.value[it.id])
+  if (missing.length === 0) return
+  const slugs = missing.map((it) => it.id)
+  const names = missing.map((it) => it.name)
+  // Try matching by metadata.slug first (set during seed).
+  const { data: bySlug } = await supabase
+    .from('menu_items')
+    .select('id, name, metadata')
+    .eq('branch_id', branch)
+    .eq('is_active', true)
+    .in('metadata->>slug', slugs)
+  for (const row of (bySlug ?? []) as Array<{ id: string; metadata: Record<string, unknown> | null }>) {
+    const slug = (row.metadata as { slug?: string } | null)?.slug
+    if (slug) menuDbIdCache.value[slug] = row.id
   }
-  triggerToast('success', 'Đã gửi yêu cầu chế biến món ăn đến màn hình Bếp KDS.');
+  // Fallback: match remaining slugs by exact name (i18n-blind; demo data is VI).
+  const stillMissing = missing.filter((it) => !menuDbIdCache.value[it.id])
+  if (stillMissing.length > 0) {
+    const { data: byName } = await supabase
+      .from('menu_items')
+      .select('id, name')
+      .eq('branch_id', branch)
+      .eq('is_active', true)
+      .in('name', names)
+    for (const row of (byName ?? []) as Array<{ id: string; name: string }>) {
+      const match = stillMissing.find((it) => it.name === row.name)
+      if (match) menuDbIdCache.value[match.id] = row.id
+    }
+  }
+}
+
+async function sendToKitchen() {
+  if (activeOrder.value.items.length === 0) {
+    triggerToast('error', 'Chưa có món ăn nào để gửi nhà bếp nấu.')
+    return
+  }
+  const code = selectedTableCode.value
+  if (!code) {
+    triggerToast('error', 'Chưa chọn bàn.')
+    return
+  }
+  kitchenLoading.value = true
+  try {
+    const { branchId } = useAuth()
+    if (!branchId.value) throw new Error('Tài khoản chưa gán chi nhánh.')
+    const { addItem } = useOrder()
+    // 1. Resolve the real `tables.id` from the mock table code.
+    const { data: tableRow, error: tableErr } = await supabase
+      .from('tables')
+      .select('id')
+      .eq('branch_id', branchId.value)
+      .eq('code', code)
+      .maybeSingle()
+    if (tableErr) throw tableErr
+    if (!tableRow) throw new Error(`Không tìm thấy bàn với mã ${code} trong DB.`)
+    const tableId: string = (tableRow as { id: string }).id
+
+    // 2. Find-or-create the in-progress order for this table.
+    //    DB enum order_status is 'Pending' | 'Preparing' | 'Served' | 'Paid'
+    //    | 'Cancelled'. We must use one of the first three for in-progress
+    //    orders — 'Open' / 'Serving' are NOT in the enum and would be
+    //    rejected by Postgres (22P02).
+    let orderId: string | null = null
+    const { data: existing } = await supabase
+      .from('orders')
+      .select('id')
+      .eq('table_id', tableId)
+      .in('status', ['Pending', 'Preparing', 'Served'])
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+    if (existing) {
+      orderId = (existing as { id: string }).id
+    } else {
+      const { data: created, error: createErr } = await supabase
+        .from('orders')
+        .insert({
+          branch_id: branchId.value,
+          table_id: tableId,
+          // 'Pending' = order exists but kitchen hasn't acknowledged yet.
+          status: 'Pending',
+          subtotal: 0,
+          vat: 0,
+          vat_rate: 0.08,
+          discount: 0,
+          total: 0,
+        })
+        .select('id')
+        .single()
+      if (createErr) throw createErr
+      orderId = (created as { id: string }).id
+    }
+
+    // 3. Send each cart line through the Edge Function. The function validates
+    // the menu item, computes the price snapshot, and inserts an `order_items`
+    // row that the KDS realtime channel picks up.
+    await ensureMenuDbIds(
+      branchId.value,
+      activeOrder.value.items.map((it) => ({ id: it.id, name: it.name })),
+    )
+    let sent = 0
+    const skipped: string[] = []
+    for (const line of activeOrder.value.items) {
+      const dbId = isUuid(line.id) ? line.id : menuDbIdCache.value[line.id]
+      if (!dbId) {
+        // Mock item with no DB equivalent — the Edge Function would 400 it,
+        // so we skip rather than send garbage. UI surfaces a clear toast.
+        skipped.push(line.name)
+        continue
+      }
+      await addItem({
+        orderId,
+        menuItemId: dbId,
+        quantity: line.quantity,
+        // CartItem doesn't carry a note field; pass undefined so the Edge
+        // Function uses the default (no special instructions).
+      })
+      sent++
+    }
+    if (sent > 0) triggerToast('success', `Đã gửi ${sent} món đến KDS.`)
+    if (skipped.length > 0) {
+      triggerToast(
+        'warning',
+        `Bỏ qua ${skipped.length} món chưa map DB (${skipped.slice(0, 3).join(', ')}${skipped.length > 3 ? '…' : ''}).`,
+      )
+    }
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    triggerToast('error', `Gửi bếp thất bại: ${msg}`)
+  } finally {
+    kitchenLoading.value = false
+  }
 }
 
 function saveOrder() {

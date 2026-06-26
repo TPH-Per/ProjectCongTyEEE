@@ -51,8 +51,9 @@
       </div>
     </div>
 
-    <!-- 1.5 TIME SIMULATION DASHBOARD CONTROL -->
+    <!-- 1.5 TIME SIMULATION DASHBOARD CONTROL (hidden in /reception mode) -->
     <div
+      v-if="!isReceptionMode"
       class="bg-white border border-gray-200 rounded-2xl p-3 shadow-sm shrink-0 flex flex-col md:flex-row md:items-center justify-between gap-4"
     >
       <div class="flex items-center gap-3 select-none font-sans">
@@ -1732,11 +1733,19 @@ import Swal from 'sweetalert2';
 import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { useRestaurantStore } from '@/stores/restaurantStore';
 import { storeToRefs } from 'pinia';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/composables/useAuth';
+
+// The simulated-time controls and the entire `simulatedAreas` overlay are
+// only useful when the page is being run in /admin/floors (or any non-reception
+// path). For /reception/floors we want the operator to see REAL current time —
+// a receptionist must not be able to silently drag the timeline to make a
+// reservation appear "overdue" and skip a service step.
+const route = useRoute()
+const isReceptionMode = computed(() => route.path.startsWith('/reception'))
 
 const router = useRouter();
 const restaurantStore = useRestaurantStore();
@@ -2427,6 +2436,7 @@ function openTableFromBooking(booking: Booking) {
 // System Time Clock
 const currentTime = ref('');
 let systemClockInterval: number | null = null;
+let receptionClockInterval: number | null = null;
 const updateSystemClock = () => {
   const now = new Date();
   currentTime.value = now.toLocaleTimeString('vi-VN', {
@@ -2500,6 +2510,16 @@ onMounted(async () => {
   updateSystemClock();
   systemClockInterval = setInterval(updateSystemClock, 1000) as unknown as number;
   resetToRealTimeOnly();
+  // In /reception mode the operator MUST NOT be able to drag the simulated
+  // time. We re-sync `simulatedMinutes` to real time every 30 s so even if
+  // they had touched the slider before navigating here, the view corrects
+  // itself to real time on the next tick.
+  if (isReceptionMode.value) {
+    receptionClockInterval = setInterval(() => {
+      const now = new Date();
+      simulatedMinutes.value = now.getHours() * 60 + now.getMinutes();
+    }, 30_000) as unknown as number;
+  }
 
   const { session, branchId } = useAuth();
   if (session.value) {
@@ -2531,6 +2551,7 @@ onMounted(async () => {
 
 onUnmounted(() => {
   if (systemClockInterval) clearInterval(systemClockInterval);
+  if (receptionClockInterval) clearInterval(receptionClockInterval);
 });
 
 // ----------------------------------------------------

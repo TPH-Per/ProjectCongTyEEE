@@ -1,9 +1,12 @@
 import { ref } from 'vue'
 import { callEdgeFunction } from '@/utils/edge'
 
+// NOTE: payload keys MUST match the Edge Function `add-order-item` contract
+// which uses camelCase (`orderId`, `menuItemId`). See
+// `supabase/functions/add-order-item/index.ts`.
 export interface AddOrderItemPayload {
-  order_id: string
-  menu_item_id: string
+  orderId: string
+  menuItemId: string
   quantity: number
   modifiers?: Record<string, unknown>[]
   note?: string

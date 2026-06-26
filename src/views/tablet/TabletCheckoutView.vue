@@ -36,7 +36,8 @@ onMounted(async () => {
   const orderId = 'mock-order-id-checkout'
   try {
     await checkout({
-      order_id: orderId,
+      orderId: orderId,
+      revenueType: 'dinner',
       payments: [{ method: 'cash', amount: 0 }]
     })
   } catch (e) {

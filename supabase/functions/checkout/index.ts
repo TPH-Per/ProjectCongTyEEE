@@ -54,9 +54,12 @@ serve(async (req) => {
     }
 
     // 1. Lấy order + items
+    //    IMPORTANT: `table_id` MUST be selected — the table-release branch
+    //    (step 8 below) calls `order.table_id` and would fail silently if
+    //    it were missing from the SELECT.
     const { data: order } = await admin
       .from('orders')
-      .select('id, branch_id, reservation_id, status, subtotal, vat, total, discount')
+      .select('id, branch_id, reservation_id, table_id, status, subtotal, vat, total, discount')
       .eq('id', body.orderId)
       .single()
     if (!order) throw new Error('Order not found')

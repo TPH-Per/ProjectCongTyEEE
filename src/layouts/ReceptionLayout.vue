@@ -181,6 +181,7 @@
 </template>
 
 <script setup lang="ts">
+import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
 import { ref, computed } from 'vue'
 import { RouterView, RouterLink, useRouter, useRoute } from "vue-router";
 import { useAuth } from "@/composables/useAuth";

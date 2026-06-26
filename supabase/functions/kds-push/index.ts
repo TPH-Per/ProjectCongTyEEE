@@ -48,7 +48,7 @@ serve(async (req) => {
       .from('order_items')
       .select(`
         id, order_id, name_snapshot, quantity, note, modifiers, status, created_at,
-        order:orders!inner(order_number, table_id, branch_id, tables(code, zone_id))
+        order:orders!inner(order_number, branch_id, reservation:reservations(table:tables(code, zone)))
       `)
       .in('id', body.itemIds)
       .eq('order_id', body.orderId)
@@ -85,8 +85,8 @@ serve(async (req) => {
         template: 'new_order_item',
         variables: {
           order_number: (item as any).order?.order_number,
-          table_code: (item as any).order?.tables?.code,
-          zone: (item as any).order?.tables?.zone_id,
+          table_code: (item as any).order?.reservation?.table?.code,
+          zone: (item as any).order?.reservation?.table?.zone,
           item_name: item.name_snapshot,
           quantity: item.quantity,
           note: item.note,
@@ -102,9 +102,9 @@ serve(async (req) => {
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
     )
   } catch (e: any) {
-    const status = e instanceof AuthError ? e.status : 400
+    const status = e.name === 'AuthError' ? e.status : (e.status || 400)
     return new Response(
-      JSON.stringify({ error: e.message }),
+      JSON.stringify({ error: e.message, errorName: e.name }),
       { status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
     )
   }

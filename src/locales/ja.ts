@@ -1,4 +1,5 @@
 export default {
+  auto_khach_vang_lai: 'ウォークインゲスト',
 
   auto_khong_tim_thay_ban: 'このゾーンにはテーブルがありません。',
   auto_phan_khu: 'ゾーン',
@@ -896,7 +897,7 @@ export default {
   auto_nh_p_m_access_token_t_base_v: 'Base.vn からアクセス トークン コードを入力します',
   auto_ang_th_ng_b_o_cho_thu_ng_n: 'レジ係に知らせる...',
   auto_c_n_h_tr: 'サポートが必要です',
-  auto_showpassword_an_mat_khau_hien_: 'Fixed',
+  auto_showpassword_an_mat_khau_hien_: 'Toggle Password',
   auto_tien_mat_cuoi_ca_vnd: 'シフト終了時の現金 (VND)',
   auto_ghi_chu_ban_giao_tuy_chon: '引き継ぎメモ (オプション)',
   'auto_placeholder_fix': '入力してください...',
@@ -904,7 +905,6 @@ export default {
   'auto_khach': 'ゲスト:',
   'auto_nguoi': '人',
   'auto_suc_chua': '容量:',
-  'auto_dang_luu': '保存しています...',
   'auto_cap_nhat_tt': 'アップデート情報',
   'auto_mo_ban': '開いているテーブル:',
   'auto_dang_xu_ly': '処理中...',
@@ -927,4 +927,7 @@ export default {
   auto_super_user: 'Super User',
   auto_trong_nho: '空席',
   auto_luu_thiet_lap: '設定を保存',
+  auto_dang_luu: '保存中...',
+  auto_chi_nhanh_branch: 'ブランチ (Branch)',
+  auto_chon_chi_nhanh: 'ブランチを選択 (Select Branch)'
 }

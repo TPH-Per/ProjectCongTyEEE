@@ -35,6 +35,7 @@
             <th class="px-5 py-3">ID</th>
             <th class="px-5 py-3">{{ t('auto_h__t_n') }}</th>
             <th class="px-5 py-3">Email</th>
+            <th class="px-5 py-3">{{ t('auto_chi_nhanh_branch') }}</th>
             <th class="px-5 py-3">{{ t('auto_vai_tr___role_') }}</th>
             <th class="px-5 py-3">{{ t('auto_tr_ng_th_i') }}</th>
             <th class="px-5 py-3">{{ t('auto_h_nh___ng') }}</th>
@@ -45,6 +46,9 @@
             <td class="px-5 py-3 font-bold text-gray-900">{{ user.id.slice(0, 8) }}</td>
             <td class="px-5 py-3 font-medium text-gray-900">{{ user.full_name }}</td>
             <td class="px-5 py-3 text-gray-500">{{ user.email }}</td>
+            <td class="px-5 py-3 text-gray-500 font-medium">
+              {{ branches.find(b => b.id === user.branch_id)?.name || '-' }}
+            </td>
             <td class="px-5 py-3">
               <span v-if="user.role === 'admin'" class="px-2.5 py-1 rounded-md text-xs font-bold bg-gray-900 text-white">Admin</span>
               <span v-else-if="user.role === 'manager'" class="px-2.5 py-1 rounded-md text-xs font-bold bg-blue-100 text-blue-700 border border-blue-200">Manager</span>
@@ -67,7 +71,7 @@
             </td>
           </tr>
           <tr v-if="loading">
-            <td colspan="6" class="px-5 py-4 text-center text-gray-500">{{ t('auto__ang_t_i___') }}</td>
+            <td colspan="7" class="px-5 py-4 text-center text-gray-500">{{ t('auto__ang_t_i___') }}</td>
           </tr>
         </tbody>
       </table>
@@ -89,7 +93,7 @@
           </div>
           <div v-if="modalMode === 'create'">
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('auto_m_t_kh_u') }}</label>
-            <input v-model="form.password" type="password" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900" />
+            <input v-model="form.password" type="password" minlength="6" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900" />
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('auto_vai_tr') }}</label>
@@ -133,7 +137,7 @@
         <div class="space-y-4">
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('auto_m_t_kh_u_m_i') }}</label>
-            <input v-model="newPassword" type="password" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900" />
+            <input v-model="newPassword" type="password" minlength="6" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900" />
           </div>
         </div>
 
@@ -276,7 +280,8 @@ async function saveUser() {
             userId: form.value.id,
             role: form.value.role,
             branch_id: form.value.branch_id || null,
-              is_active: form.value.is_active
+            is_active: form.value.is_active,
+            full_name: form.value.full_name
           }
         }
       })

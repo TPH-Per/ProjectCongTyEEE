@@ -77,7 +77,7 @@ async function fetchActiveOrders() {
     .from('reservations')
     .select('*, tables(code), orders(id, order_items(id))')
     .eq('branch_id', branchId.value || DEFAULT_BRANCH_ID)
-    .eq('status', 'Dining')
+    .in('status', ['CheckedIn', 'Seated'])
     .order('created_at', { ascending: false })
   
   if (data) activeOrders.value = data

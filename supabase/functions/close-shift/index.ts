@@ -104,9 +104,9 @@ serve(async (req) => {
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
     )
   } catch (e: any) {
-    const status = e instanceof AuthError ? e.status : 400
+    const status = e.name === 'AuthError' ? e.status : (e.status || 400)
     return new Response(
-      JSON.stringify({ error: e.message }),
+      JSON.stringify({ error: e.message, errorName: e.name }),
       { status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
     )
   }

@@ -95,7 +95,7 @@
           </thead>
           <tbody class="divide-y divide-[hsl(var(--border))]">
             <tr v-for="order in orders" :key="order.id" class="hover:bg-[hsl(var(--muted))]/50">
-              <td class="py-2.5 px-4 font-bold text-[hsl(var(--foreground))]">{{ order.reservations?.tables?.code || (order.reservations?.table_id ? order.reservations?.table_id.substring(0,4) : 'N/A') }}</td>
+              <td class="py-2.5 px-4 font-bold text-[hsl(var(--foreground))]">{{ order.tables?.code || (order.table_id ? order.table_id.substring(0,4) : 'N/A') }}</td>
               <td class="py-2.5 px-4">
                 <span class="kawaii-pill bg-gray-100">{{ order.order_type || 'Dinner' }}</span>
               </td>
@@ -148,7 +148,7 @@ async function fetchStats() {
 
   // Fetch today's closed orders
   const { data } = await supabase.from('orders')
-    .select('*, reservations(guests, table_id, tables(code))')
+    .select('*, reservations(guests), tables(code)')
     .eq('branch_id', branchId.value || DEFAULT_BRANCH_ID)
     .eq('status', 'Paid')
     .gte('created_at', today)

@@ -46,9 +46,10 @@ serve(async (req) => {
       throw new AuthError(`packageId không phải UUID`, 400)
     }
 
-    // 1. Resolve customer
+    // 1. Resolve customer & reservation
     let customerId: string
     let customerSnapshot: any
+    let finalResvId = body.reservationId
 
     if (body.reservationId) {
       // Có reservation → lấy customer_id sẵn. BRANCH CHECK: the reservation
@@ -110,6 +111,23 @@ serve(async (req) => {
         customerId = created!.id
         customerSnapshot = { name: body.walkIn.customerName, phone: body.walkIn.customerPhone }
       }
+
+      // Create reservation for walk-in
+      const { data: newResv, error: resvErr } = await admin
+        .from('reservations')
+        .insert({
+          branch_id: branchId,
+          customer_id: customerId,
+          customer_snapshot: customerSnapshot,
+          guests: body.walkIn.guests,
+          status: 'Dining',
+          source: 'walk_in',
+          table_id: body.tableIds[0],
+        })
+        .select('id')
+        .single()
+      if (resvErr) throw resvErr
+      finalResvId = newResv!.id
     }
 
     // 2. Validate tables available AND in our branch
@@ -152,30 +170,20 @@ serve(async (req) => {
       }
     }
 
-    // 4. Tạo table_assignments (branch_id explicit)
-    const assignments = body.tableIds.map((tableId) => ({
-      branch_id: branchId,
-      reservation_id: body.reservationId ?? null,
-      table_id: tableId,
-      assigned_by: user.id,
-      metadata: {
-        ...packageMeta,
-        flow_mode: body.flowMode,
-        party_size: body.partySize,
-        demographics_capture: body.partySize, // {male, female, children, age_bucket, gender, nationality}
-      },
-    }))
-
-    const { data: createdAssignments, error: assignErr } = await admin
-      .from('table_assignments')
-      .insert(assignments)
-      .select('id, table_id')
-    if (assignErr) throw assignErr
-
-    // 5. Update tables.status = occupied (filter by branch — defence in depth)
+    // 4. Update tables.status = occupied and metadata (filter by branch)
+    const tableMetadata = { 
+      ...packageMeta, 
+      flow_mode: body.flowMode, 
+      party_size: body.partySize, 
+      demographics_capture: body.partySize, 
+      reservation_id: finalResvId, 
+      assigned_by: user.id, 
+      assigned_at: new Date().toISOString() 
+    }
+    
     await admin
       .from('tables')
-      .update({ status: 'occupied' })
+      .update({ status: 'occupied', metadata: tableMetadata })
       .in('id', body.tableIds)
       .eq('branch_id', branchId)
 
@@ -193,15 +201,15 @@ serve(async (req) => {
       JSON.stringify({
         ok: true,
         customerId,
-        assignments: createdAssignments,
+        reservationId: finalResvId,
         package: packageMeta,
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
     )
   } catch (e: any) {
-    const status = e instanceof AuthError ? e.status : 400
+    const status = e.name === 'AuthError' ? e.status : (e.status || 400)
     return new Response(
-      JSON.stringify({ error: e.message ?? 'Internal error' }),
+      JSON.stringify({ error: e.message ?? 'Internal error', errorName: e.name }),
       { status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
     )
   }

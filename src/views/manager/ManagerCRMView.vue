@@ -203,14 +203,14 @@ const { listVip } = useCustomer()
 
 const loading = ref(true)
 const searchQuery = ref('')
-const activeTag = ref('Tất cả')
+const activeTag = ref(t('auto_tat_ca', 'Tất cả'))
 
-const summaryStats = [
-  { label: 'Tổng Khách Hàng', value: '1,240', sub: '+87 tháng này', valueColor: 'text-gray-800', subColor: 'text-green-500' },
-  { label: 'Khách Repeater', value: '421', sub: '34% tỷ lệ quay lại', valueColor: 'text-pink-600', subColor: 'text-pink-400' },
-  { label: 'TB Lần Ghé / KH', value: '2.8', sub: 'lần / khách', valueColor: 'text-gray-800', subColor: 'text-gray-400' },
-  { label: 'Khách Mới Tháng Này', value: '87', sub: '▲ 12% so tháng trước', valueColor: 'text-green-600', subColor: 'text-green-500' },
-]
+const summaryStats = computed(() => [
+  { label: t('auto_tong_khach_hang', 'Tổng Khách Hàng'), value: '1,240', sub: t('auto_plus_87_thang_nay', '+87 tháng này'), valueColor: 'text-gray-800', subColor: 'text-green-500' },
+  { label: t('auto_khach_repeater', 'Khách Repeater'), value: '421', sub: t('auto_34_ty_le_quay_lai', '34% tỷ lệ quay lại'), valueColor: 'text-pink-600', subColor: 'text-pink-400' },
+  { label: t('auto_tb_lan_ghe_kh', 'TB Lần Ghé / KH'), value: '2.8', sub: t('auto_lan_khach', 'lần / khách'), valueColor: 'text-gray-800', subColor: 'text-gray-400' },
+  { label: t('auto_khach_moi_thang_nay', 'Khách Mới Tháng Này'), value: '87', sub: t('auto_12_so_thang_truoc', '▲ 12% so tháng trước'), valueColor: 'text-green-600', subColor: 'text-green-500' },
+])
 
 const channelBars = [
   { icon: '🗺️', label: 'Google Map', pct: 36, color: '#60A5FA' },
@@ -227,7 +227,7 @@ const ageBars = [
   { label: '50+ tuổi', pct: 7, barClass: 'bg-gray-300' },
 ]
 
-const businessTags = ['Tất cả', 'Cá Nhân', 'Công Ty', 'Gia Đình', 'Nhóm Bạn']
+const businessTags = computed(() => [t('auto_tat_ca', 'Tất cả'), t('auto_ca_nhan', 'Cá Nhân'), t('auto_cong_ty', 'Công Ty'), t('auto_gia_dinh', 'Gia Đình'), t('auto_nhom_ban', 'Nhóm Bạn')])
 
 const crmColumns = ['SĐT', 'Tên', 'Lần Đến', 'Tổng Chi', 'Lần Cuối', 'Kênh', 'Nhóm', 'Zalo', 'Loại']
 
@@ -340,7 +340,7 @@ onMounted(async () => {
 
 const filteredCustomers = computed(() => {
   let list = customers.value
-  if (activeTag.value !== 'Tất cả') {
+  if (activeTag.value !== t('auto_tat_ca', 'Tất cả')) {
     list = list.filter((c) => c.group === activeTag.value)
   }
   if (searchQuery.value) {

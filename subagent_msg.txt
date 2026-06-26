@@ -1,0 +1,81 @@
+I have completed the review of the 9 edge functions and compared them to the new database schema. 
+
+I found that 6 of the edge functions require updates because they still reference legacy tables (`table_assignments`, `voucher_redemptions`) or use outdated table shapes (e.g., `orders` no longer has `table_id`; it's now in `reservations`, and `invoices` uses `tax_info` JSONB instead of flat tax columns).
+
+Since I only have read access, please use your `replace_file_content` tool to apply the following fixes to the 6 affected files:
+
+### 1. `add-order-item/index.ts`
+**Issues:** Queries `table_assignments`; uses `orders.table_id` (removed); missing `status` in `order_items` insert.
+**Fixes:**
+- Update the `orders` query to fetch `table_id` via `reservations`: `admin.from('orders').select('id, status, branch_id, reservation_id, reservation:reservations(table_id)').eq('id', body.orderId).single()`
+- Retrieve `tableId` using `order.reservation?.table_id`.
+- Replace the `table_assignments` query (lines 34-43) with:
+  ```typescript
+  const { data: table } = await admin.from('tables').select('metadata').eq('id', tableId).single();
+  const assignment = { metadata: table?.metadata };
+  ```
+- Add `status: 'Pending'` and `metadata: {}` to the `order_items` insert (line 81).
+
+### 2. `check-in/index.ts`
+**Issues:** Inserts into `table_assignments`; walk-ins do not create `reservations` (but `orders` now require a `reservation_id`).
+**Fixes:**
+- For walk-ins, insert a new row into `reservations` with `status: 'Dining'`, `source: 'walk_in'`, and `table_id: body.tableIds[0]`, then capture its `id` as `finalResvId`.
+- Instead of inserting `table_assignments`, store the assignment details in `tables.metadata`:
+  ```typescript
+  const tableMetadata = { ...packageMeta, flow_mode: body.flowMode, party_size: body.partySize, demographics_capture: body.partySize, reservation_id: finalResvId, assigned_by: user.id, assigned_at: new Date().toISOString() };
+  await admin.from('tables').update({ status: 'occupied', metadata: tableMetadata }).in('id', body.tableIds);
+  ```
+- Return `reservationId: finalResvId` instead of `assignments`.
+
+### 3. `checkout/index.ts`
+**Issues:** Inserts into `voucher_redemptions`; updates `table_assignments`; `orders` missing `table_id`; `invoices` missing `reservation_id` and uses flat tax fields.
+**Fixes:**
+- Remove `table_id` from the `orders` select query.
+- In `invoices` insert (line 81), change `order_id` to `reservation_id: order.reservation_id`. Remove flat `tax_code` / `customer_company` / `customer_address` and replace with:
+  ```typescript
+  tax_info: { tax_code: body.taxCode ?? customer?.tax_code, company_name: body.customerCompany, address: body.customerAddress },
+  applied_vouchers: voucher ? [{ voucher_id: voucher.id, code: voucher.code, discount_amount: voucherDiscount }] : [],
+  notes: {},
+  ```
+- Delete the `voucher_redemptions` insert block entirely (lines 131-137), keeping only the `vouchers` update.
+- To release tables (line 155), query tables by `reservation_id` in metadata instead of `table_assignments`:
+  ```typescript
+  const { data: tbs } = await admin.from('tables').select('id, metadata').eq('status', 'occupied');
+  const myTbs = (tbs || []).filter((t: any) => t.metadata?.reservation_id === order.reservation_id);
+  if (myTbs.length > 0) {
+    await admin.from('tables').update({ status: 'available', metadata: {} }).in('id', myTbs.map(t => t.id));
+  }
+  ```
+
+### 4. `export-shift-csv/index.ts`
+**Issues:** Invalid joins because `payments` no longer links directly to `orders` (needs to go through `invoices` -> `reservations`), and `tax_code` is inside `tax_info`.
+**Fixes:**
+- Update the `.select()` join:
+  ```typescript
+  invoices(invoice_number, customer_snapshot, tax_info, total, reservations(orders(order_number), tables(code)))
+  ```
+- Adjust the CSV row mapping to extract `tax_info?.tax_code` and the deeply nested `tables?.code` and `orders?.order_number`.
+
+### 5. `issue-tax-invoice/index.ts`
+**Issues:** Invalid `orders` join; attempts to update flat `tax_code`, `customer_company`, `customer_address` columns on `invoices`.
+**Fixes:**
+- Update the `.select()` query to go through `reservations` to reach `orders`.
+- In the `invoices` update (line 67), nest the fields under `tax_info`:
+  ```typescript
+  tax_info: { tax_code: body.taxCode, company_name: body.customerCompany, address: body.customerAddress }
+  ```
+
+### 6. `kds-push/index.ts`
+**Issues:** `orders` doesn't have `table_id`; `tables` uses `zone` instead of `zone_id`.
+**Fixes:**
+- Change the `order_items` `.select()` join to:
+  ```typescript
+  order:orders(order_number, reservation:reservations(table:tables(code, zone)))
+  ```
+- Update the payload mapping variables to:
+  ```typescript
+  table_code: (item as any).order?.reservation?.table?.code,
+  zone: (item as any).order?.reservation?.table?.zone,
+  ```
+
+The remaining 3 functions (`close-shift`, `request-checkout`, `custom-access-token`) are fully compliant with the new schema and require no changes.

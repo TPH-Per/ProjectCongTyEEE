@@ -40,7 +40,7 @@ serve(async (req) => {
 
     // 1. Lấy order + menu_item song song (table_assignment cần order.table_id nên phải lấy sau)
     const [orderRes, menuRes] = await Promise.all([
-      admin.from('orders').select('id, status, table_id, branch_id').eq('id', body.orderId).single(),
+      admin.from('orders').select('id, status, branch_id, reservation_id, reservation:reservations(table_id)').eq('id', body.orderId).single(),
       admin.from('menu_items').select('id, name, price, cost, is_available, branch_id, category_id').eq('id', body.menuItemId).single(),
     ])
 
@@ -64,15 +64,14 @@ serve(async (req) => {
     }
 
     // 2. Lấy table_assignment theo table_id (filter by branch too)
-    const { data: assignment } = await admin
-      .from('table_assignments')
-      .select('id, metadata, released_at')
-      .eq('table_id', order.table_id!)
-      .eq('branch_id', order.branch_id)
-      .is('released_at', null)
-      .order('assigned_at', { ascending: false })
-      .limit(1)
-      .maybeSingle()
+    const tableId = (order.reservation as any)?.table_id;
+    const { data: table } = await admin
+      .from('tables')
+      .select('metadata')
+      .eq('id', tableId)
+      .single()
+    
+    const assignment = { metadata: table?.metadata }
 
     // 3. Validate item_limit (nếu có)
     const itemLimit = assignment?.metadata?.item_limit
@@ -123,6 +122,8 @@ serve(async (req) => {
         line_total: lineTotal,
         modifiers: body.modifiers ?? [],
         note: body.note,
+        status: 'Pending',
+        metadata: {},
       })
       .select()
       .single()
@@ -153,9 +154,9 @@ serve(async (req) => {
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
     )
   } catch (e: any) {
-    const status = e instanceof AuthError ? e.status : 400
+    const status = e.name === 'AuthError' ? e.status : (e.status || 400)
     return new Response(
-      JSON.stringify({ error: e.message }),
+      JSON.stringify({ error: e.message, errorName: e.name }),
       { status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
     )
   }

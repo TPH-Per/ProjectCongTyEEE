@@ -1,4 +1,5 @@
 export default {
+  auto_khach_vang_lai: 'Walk-in Guest',
 
   auto_khong_tim_thay_ban: 'No tables found in this zone.',
   auto_phan_khu: 'Zone',
@@ -896,7 +897,7 @@ export default {
   auto_nh_p_m_access_token_t_base_v: 'Enter Access Token code from Base.vn',
   auto_ang_th_ng_b_o_cho_thu_ng_n: 'Notifying the cashier...',
   auto_c_n_h_tr: 'Need Support',
-  auto_showpassword_an_mat_khau_hien_: 'Fixed',
+  auto_showpassword_an_mat_khau_hien_: 'Toggle Password',
   auto_tien_mat_cuoi_ca_vnd: 'Cash at the end of shift (VND)',
   auto_ghi_chu_ban_giao_tuy_chon: 'Handover notes (optional)',
   'auto_placeholder_fix': 'Enter...',
@@ -904,7 +905,6 @@ export default {
   'auto_khach': 'Guest:',
   'auto_nguoi': 'people',
   'auto_suc_chua': 'Capacity:',
-  'auto_dang_luu': 'Saving...',
   'auto_cap_nhat_tt': 'Update Information',
   'auto_mo_ban': 'Open table:',
   'auto_dang_xu_ly': 'Processing...',
@@ -927,4 +927,7 @@ export default {
   auto_super_user: 'Super User',
   auto_trong_nho: 'available',
   auto_luu_thiet_lap: 'Save Configuration',
+  auto_dang_luu: 'Saving...',
+  auto_chi_nhanh_branch: 'Branch',
+  auto_chon_chi_nhanh: 'Select Branch'
 }

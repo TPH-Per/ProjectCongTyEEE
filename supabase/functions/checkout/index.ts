@@ -135,16 +135,16 @@ serve(async (req) => {
       .from('invoices')
       .insert({
         branch_id: order.branch_id,
-        order_id: order.id,
+        reservation_id: order.reservation_id,
         invoice_number: invoiceNumber,
         status: 'paid',
         subtotal: order.subtotal,
         vat: order.vat,
         discount: Number(order.discount) + voucherDiscount,
         total: finalTotal,
-        tax_code: body.taxCode ?? customer?.tax_code,
-        customer_company: body.customerCompany,
-        customer_address: body.customerAddress,
+        tax_info: { tax_code: body.taxCode ?? customer?.tax_code, company_name: body.customerCompany, address: body.customerAddress },
+        applied_vouchers: voucher ? [{ voucher_id: voucher.id, code: voucher.code, discount_amount: voucherDiscount }] : [],
+        notes: {},
         customer_snapshot: customer ?? { name: 'Walk-in' },
         issued_at: new Date().toISOString(),
         issued_by: user.id,
@@ -179,15 +179,8 @@ serve(async (req) => {
     const { error: payErr } = await admin.from('payments').insert(paymentRows)
     if (payErr) throw payErr
 
-    // 6. Ghi voucher_redemption (nếu có)
+    // 6. Update voucher (nếu có)
     if (voucher) {
-      await admin.from('voucher_redemptions').insert({
-        branch_id: order.branch_id,
-        voucher_id: voucher.id,
-        invoice_id: invoice.id,
-        discount_amount: voucherDiscount,
-        redeemed_by: user.id,
-      })
       await admin
         .from('vouchers')
         .update({ used_count: voucher.used_count + 1 })
@@ -206,19 +199,11 @@ serve(async (req) => {
       .eq('id', order.id)
       .eq('branch_id', order.branch_id)
 
-    // 8. Release table_assignments (filter by branch + table)
-    if (order.table_id) {
-      await admin
-        .from('table_assignments')
-        .update({ released_at: new Date().toISOString() })
-        .eq('table_id', order.table_id)
-        .eq('branch_id', order.branch_id)
-        .is('released_at', null)
-      await admin
-        .from('tables')
-        .update({ status: 'available' })
-        .eq('id', order.table_id)
-        .eq('branch_id', order.branch_id)
+    // 8. Release tables based on metadata (filter by reservation_id)
+    const { data: tbs } = await admin.from('tables').select('id, metadata').eq('status', 'occupied');
+    const myTbs = (tbs || []).filter((t: any) => t.metadata?.reservation_id === order.reservation_id);
+    if (myTbs.length > 0) {
+      await admin.from('tables').update({ status: 'available', metadata: {} }).in('id', myTbs.map(t => t.id));
     }
 
     // 9. Update reservation → Completed (filter by branch)
@@ -249,9 +234,9 @@ serve(async (req) => {
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
     )
   } catch (e: any) {
-    const status = e instanceof AuthError ? e.status : 400
+    const status = e.name === 'AuthError' ? e.status : (e.status || 400)
     return new Response(
-      JSON.stringify({ error: e.message }),
+      JSON.stringify({ error: e.message, errorName: e.name }),
       { status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
     )
   }

@@ -1,4 +1,5 @@
 export default {
+  auto_khach_vang_lai: 'Khách vãng lai',
 
   auto_khong_tim_thay_ban: 'Không tìm thấy bàn nào thuộc phân khu này.',
   auto_phan_khu: 'Phân khu',
@@ -190,7 +191,7 @@ export default {
   auto_h_t_n: "Họ Tên",
   auto_m_t_kh_u: "Mật Khẩu",
   auto_vai_tr: "Vai Trò",
-  auto_chi_nh_nh_branch_id: "Chi nhánh (Branch ID)",
+  auto_chi_nh_nh_branch_id: "Chi nhánh",
   auto_t_i_kho_n_ang_ho_t_ng: "Tài khoản đang hoạt động",
   auto_h_y: "Hủy",
   auto_i_m_t_kh_u: "Đổi Mật Khẩu",
@@ -913,7 +914,6 @@ export default {
   'auto_nguoi': 'người',
 
   'auto_suc_chua': 'Sức chứa:',
-  'auto_dang_luu': 'Đang lưu...',
   'auto_cap_nhat_tt': 'Cập nhật Thông tin',
   'auto_mo_ban': 'Mở bàn:',
   'auto_dang_xu_ly': 'Đang xử lý...',
@@ -946,4 +946,7 @@ export default {
   auto_super_user: 'Super User',
   auto_trong_nho: 'trống',
   auto_luu_thiet_lap: 'Lưu Thiết Lập',
+  auto_dang_luu: 'Đang lưu...',
+  auto_chi_nhanh_branch: 'Chi nhánh',
+  auto_chon_chi_nhanh: 'Chọn chi nhánh'
 }

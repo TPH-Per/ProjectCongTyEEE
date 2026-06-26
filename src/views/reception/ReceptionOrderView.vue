@@ -1293,7 +1293,9 @@ const uiTranslations = {
     holdOrder: 'Tạm lưu',
     sendKitchen: 'Gửi vào bếp',
     cancelChanges: 'Hủy thay đổi',
-    courseLocked: 'Khóa Course'
+    courseLocked: 'Khóa Course',
+    guestWalkIn: 'Khách vãng lai',
+    courseLockedSuccess: 'Khóa Course cấu hình phục vụ thành công.'
   },
   EN: {
     table: 'Table',
@@ -1321,7 +1323,9 @@ const uiTranslations = {
     holdOrder: 'Hold',
     sendKitchen: 'Send to Kitchen',
     cancelChanges: 'Cancel Changes',
-    courseLocked: 'Course Locked'
+    courseLocked: 'Course Locked',
+    guestWalkIn: 'Walk-in Guest',
+    courseLockedSuccess: 'Course locked successfully.'
   },
   JP: {
     table: 'テーブル',
@@ -1349,7 +1353,9 @@ const uiTranslations = {
     holdOrder: '一時保留',
     sendKitchen: '厨房へ送信',
     cancelChanges: '変更取消',
-    courseLocked: 'コースロック'
+    courseLocked: 'コースロック',
+    guestWalkIn: 'ウォークインゲスト',
+    courseLockedSuccess: 'コースが正常にロックされました。'
   },
   KO: {
     table: '테이블',
@@ -1377,7 +1383,9 @@ const uiTranslations = {
     holdOrder: '보류',
     sendKitchen: '주방으로 전송',
     cancelChanges: '변경 취소',
-    courseLocked: '코스 잠금'
+    courseLocked: '코스 잠금',
+    guestWalkIn: '워크인 고객',
+    courseLockedSuccess: '코스가 성공적으로 잠금 처리되었습니다.'
   },
   ZH: {
     table: '桌号',
@@ -1405,7 +1413,9 @@ const uiTranslations = {
     holdOrder: '挂单',
     sendKitchen: '传菜下厨',
     cancelChanges: '取消修改',
-    courseLocked: '已锁套餐'
+    courseLocked: '已锁套餐',
+    guestWalkIn: '散客',
+    courseLockedSuccess: '套餐锁定成功。'
   }
 };
 
@@ -2424,9 +2434,9 @@ function confirmPackageSelection() {
     
     // Update order header name to show package
     const order = activeOrder.value;
-    order.customerName = order.customerName === 'Khách vãng lai' ? `Khách (${tempSettings.value.package})` : order.customerName;
+    order.customerName = order.customerName === t.value.guestWalkIn ? `Khách (${tempSettings.value.package})` : order.customerName;
     
-    triggerToast('success', 'Khóa Course cấu hình phục vụ thành công.');
+    triggerToast('success', t.value.courseLockedSuccess);
   }
   isPackageModalOpen.value = false;
 }

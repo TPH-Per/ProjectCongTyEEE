@@ -204,7 +204,7 @@
           ]"
         >
           <span>{{
-            isEditModeEnabled ? "🔓 Chế độ Sắp Xếp" : "🔒 Sắp xếp"
+            isEditModeEnabled ? "🔓 " + t('auto_che_do_sap_xep', 'Chế độ Sắp Xếp') : "🔒 " + t('auto_sap_xep', 'Sắp xếp')
           }}</span>
         </button>
         <button
@@ -280,13 +280,30 @@
                     <div class="flex items-center gap-1">
                       <button
                         v-if="isEditModeEnabled"
-                        @click.stop="deleteTable(table.code)"
+                        @click.stop="openMaintenanceModal(table)"
+                        class="text-[8px] px-1.5 py-0.5 bg-yellow-100 text-yellow-700 rounded hover:bg-yellow-200 border border-yellow-200"
+                        :title="$t('auto_title_fix', table.status === 'Maintenance' ? 'Mở khóa bàn' : 'Khóa bàn')"
+                      >
+                        {{ table.status === 'Maintenance' ? '🔓' : '🔒' }}
+                      </button>
+                      <button
+                        v-if="isEditModeEnabled"
+                        @click.stop="openEditTableModal(table, area.name)"
+                        class="text-[8px] px-1.5 py-0.5 bg-blue-100 text-blue-600 rounded hover:bg-blue-200 border border-blue-200"
+                        :title="$t('auto_title_fix', 'Sửa bàn')"
+                      >
+                        ✏️
+                      </button>
+                      <button
+                        v-if="isEditModeEnabled"
+                        @click.stop="deleteTable(table.id || '', table.code)"
                         class="text-[8px] px-1.5 py-0.5 bg-red-100 text-red-600 rounded hover:bg-red-200 border border-red-200"
                         :title="$t('auto_title_fix', 'Xóa bàn')"
                       >
                         ✕
                       </button>
                       <span
+                        v-if="!isEditModeEnabled"
                         :class="[
                           'text-[8px] font-black uppercase px-1.5 py-0.5 rounded leading-none border',
                           getBadgeColorClass(table.status),
@@ -317,7 +334,7 @@
                       <div
                         class="text-[10px] font-black text-gray-800 truncate"
                       >
-                        👤 {{ table.customerName || "Khách đặt trước" }}
+                        👤 {{ table.customerName || t('auto_khach_dat_truoc', 'Khách đặt trước') }}
                       </div>
                       <div
                         class="flex items-center justify-between text-[9px] text-gray-400 font-bold mt-1"
@@ -349,12 +366,23 @@
                       </div>
                     </template>
 
+                    <!-- CASE: Maintenance (BẢO TRÌ) -->
+                    <template v-if="table.status === 'Maintenance'">
+                      <span
+                        class="text-[9px] text-gray-500 font-extrabold flex items-center gap-0.5"
+                        >{{ t("auto_dang_bao_tri", "Đang bảo trì") }}</span
+                      >
+                      <span class="text-[9px] text-gray-400 font-medium mt-0.5 line-clamp-2"
+                        >{{ table.metadata?.maintenance_reason || '' }}</span
+                      >
+                    </template>
+
                     <!-- CASE: Serving (PHỤC VỤ) -->
                     <template v-else-if="table.status === 'Serving'">
                       <div
                         class="text-[10px] font-black text-gray-800 truncate"
                       >
-                        👤 {{ table.customerName || "Khách vãng lai" }}
+                        👤 {{ table.customerName || t('auto_khach_vang_lai', 'Khách vãng lai') }}
                       </div>
                       <div
                         class="flex items-center justify-between text-[9px] mt-1 font-extrabold"
@@ -505,7 +533,7 @@
                   : 'text-gray-500 hover:text-[#FF7B89]',
               ]"
             >
-              Tất cả ({{ getShiftCount("all") }})
+              {{ t('auto_tat_ca', 'Tất cả') }} ({{ getShiftCount("all") }})
             </button>
             <button
               @click="activeShift = 'morning'"
@@ -885,7 +913,7 @@
                 >{{ t("auto_s_c_ch_a") }}</span
               >
               <span class="font-extrabold text-xs text-gray-800"
-                >{{ selectedTableForModal.capacity }} {{ t('auto_ghe_ngoi', 'ghế ngồi') }}</span
+                >{{ selectedTableForModal.capacity }}</span
               >
             </div>
             <div class="bg-gray-50 p-3 rounded-xl border border-gray-100">
@@ -1221,7 +1249,7 @@
                   :value="tbl.code"
                   v-show="tbl.status === 'Available'"
                 >
-                  {{ t('auto_ban') }} {{ tbl.code }} ({{ tbl.capacity }} {{ t('auto_ghe', 'ghế') }})
+                  {{ t('auto_ban') }} {{ tbl.code }} ({{ tbl.capacity }})
                 </option>
               </optgroup>
             </select>
@@ -1638,6 +1666,140 @@
       </div>
     </div>
 
+    <!-- MODAL 8: EDIT TABLE -->
+    <div
+      v-if="isEditTableModalOpen"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4"
+    >
+      <div
+        class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm"
+        @click="isEditTableModalOpen = false"
+      ></div>
+
+      <div
+        class="bg-white border-2 border-blue-100 rounded-3xl w-full max-w-sm shadow-2xl p-6 z-10 relative animate-fade-in text-xs font-bold text-gray-700"
+      >
+        <button
+          @click="isEditTableModalOpen = false"
+          class="absolute top-4 right-4 w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 hover:text-gray-800 flex items-center justify-center transition-colors font-bold text-sm select-none"
+        >
+          ✕
+        </button>
+
+        <h3
+          class="text-base font-black text-gray-900 tracking-tight mb-3 flex items-center gap-1 border-b border-gray-100 pb-2 select-none"
+        >
+          <span>✏️</span> {{ t("auto_sua_ban", "Sửa Bàn") }}
+        </h3>
+
+        <div class="space-y-4 mb-5">
+          <div class="space-y-1">
+            <label class="text-[9px] font-black text-gray-400 uppercase select-none">{{ t("auto_m_b_n_t_n_b_n", "Mã Bàn / Tên Bàn") }}</label>
+            <input
+              type="text"
+              v-model="editTableForm.code"
+              class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-850 focus:outline-none focus:ring-1 focus:ring-blue-400"
+            />
+          </div>
+          <div class="space-y-1">
+            <label class="text-[9px] font-black text-gray-400 uppercase select-none">{{ t("auto_ph_n_khu_t_ng", "Phân Khu / Tầng") }}</label>
+            <input
+              type="text"
+              v-model="editTableForm.zone"
+              class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-850 focus:outline-none focus:ring-1 focus:ring-blue-400"
+              list="zone-datalist"
+            />
+          </div>
+          <div class="space-y-1">
+            <label class="text-[9px] font-black text-gray-400 uppercase select-none">{{ t("auto_s_c_ch_a_s_ng_i", "Sức Chứa (Số Người)") }}</label>
+            <input
+              type="number"
+              v-model="editTableForm.capacity"
+              min="1"
+              class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-850 focus:outline-none focus:ring-1 focus:ring-blue-400"
+            />
+          </div>
+        </div>
+
+        <div class="flex gap-3 select-none">
+          <button
+            @click="isEditTableModalOpen = false"
+            class="flex-1 py-2 rounded-xl border border-gray-250 bg-white hover:bg-gray-50 text-gray-700 text-xs font-bold transition-colors"
+          >
+            {{ t("auto_h_y", "Hủy") }}
+          </button>
+          <button
+            @click="saveEditTable"
+            class="flex-1 py-2 rounded-xl bg-blue-500 hover:bg-blue-600 text-white text-xs font-black transition-colors shadow-sm active:scale-95"
+          >
+            {{ t("auto_luu_thay_doi", "Lưu Thay Đổi") }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL 9: MAINTENANCE / LOCK TABLE -->
+    <div
+      v-if="isMaintenanceModalOpen"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4"
+    >
+      <div
+        class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm"
+        @click="isMaintenanceModalOpen = false"
+      ></div>
+
+      <div
+        class="bg-white border-2 border-yellow-100 rounded-3xl w-full max-w-sm shadow-2xl p-6 z-10 relative animate-fade-in text-xs font-bold text-gray-700"
+      >
+        <button
+          @click="isMaintenanceModalOpen = false"
+          class="absolute top-4 right-4 w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 hover:text-gray-800 flex items-center justify-center transition-colors font-bold text-sm select-none"
+        >
+          ✕
+        </button>
+
+        <h3
+          class="text-base font-black text-gray-900 tracking-tight mb-3 flex items-center gap-1 border-b border-gray-100 pb-2 select-none"
+        >
+          <span>{{ maintenanceForm.isLocking ? '🔒' : '🔓' }}</span> {{ maintenanceForm.isLocking ? t("auto_khoa_ban", "Khóa / Bảo Trì Bàn") : t("auto_mo_khoa_ban", "Mở Khóa Bàn") }}
+        </h3>
+
+        <div class="space-y-4 mb-5" v-if="maintenanceForm.isLocking">
+          <div class="space-y-1">
+            <label class="text-[9px] font-black text-gray-400 uppercase select-none">{{ t("auto_ly_do_bao_tri", "Lý Do Bảo Trì") }}</label>
+            <input
+              type="text"
+              v-model="maintenanceForm.reason"
+              placeholder="VD: Hư ghế, Sửa đèn..."
+              class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-850 focus:outline-none focus:ring-1 focus:ring-yellow-400"
+            />
+          </div>
+        </div>
+        
+        <p v-else class="text-sm font-semibold text-gray-600 mb-5">
+          {{ t("auto_xac_nhan_mo_khoa", "Bạn có chắc chắn muốn mở khóa bàn này để đưa vào phục vụ?") }}
+        </p>
+
+        <div class="flex gap-3 select-none">
+          <button
+            @click="isMaintenanceModalOpen = false"
+            class="flex-1 py-2 rounded-xl border border-gray-250 bg-white hover:bg-gray-50 text-gray-700 text-xs font-bold transition-colors"
+          >
+            {{ t("auto_h_y", "Hủy") }}
+          </button>
+          <button
+            @click="saveMaintenance"
+            :class="[
+              'flex-1 py-2 rounded-xl text-white text-xs font-black transition-colors shadow-sm active:scale-95',
+              maintenanceForm.isLocking ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-emerald-500 hover:bg-emerald-600'
+            ]"
+          >
+            {{ maintenanceForm.isLocking ? t("auto_khoa_ban_btn", "Xác Nhận Khóa") : t("auto_mo_khoa_btn", "Xác Nhận Mở") }}
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- MODAL 6: ASSIGN TABLE DIRECTLY -->
     <div
       v-if="isAssignTableModalOpen && selectedBookingForAssign"
@@ -1700,7 +1862,7 @@
                     tbl.code !== selectedBookingForAssign.assignedTable
                   "
                 >
-                  {{ t('auto_ban') }} {{ tbl.code }} ({{ t('auto_cho_ngoi', 'Chỗ ngồi') }}: {{ tbl.capacity }} {{ t('auto_ghe', 'ghế') }}) -
+                  {{ t('auto_ban') }} {{ tbl.code }} ({{ t('auto_cho_ngoi', 'Chỗ ngồi') }}: {{ tbl.capacity }}) -
                   {{ translateTableStatus(tbl.status) }}
                 </option>
               </optgroup>
@@ -1740,11 +1902,14 @@ import { useAuth } from '@/composables/useAuth';
 
 const router = useRouter();
 const restaurantStore = useRestaurantStore();
-const { areas, bookings } = storeToRefs(restaurantStore);
+const { bookings } = storeToRefs(restaurantStore);
+const areas = ref<AreaInfo[]>([]);
 
 interface TableInfo {
   code: string;
-  status: 'Available' | 'Reserved' | 'Arrived' | 'Serving';
+  status: 'Available' | 'Reserved' | 'Arrived' | 'Serving' | 'Maintenance';
+  id?: string;
+  metadata?: any;
   capacity: number;
   customerName?: string;
   billAmount?: string;
@@ -1777,14 +1942,14 @@ interface Booking {
 
 // System Zone options
 const zoneOptions = computed(() => {
-  const base = [{ label: 'Tất cả', value: 'All' }];
+  const base = [{ label: t('auto_tat_ca', 'Tất cả'), value: 'All' }];
   const dynamicZones = areas.value.map(a => ({ label: a.name, value: a.name }));
   return [...base, ...dynamicZones];
 });
 
 // Bottom Dashboard Zone list order
 const dashboardZoneList = computed(() => {
-  const base = [{ label: 'Tất cả', value: 'All' }];
+  const base = [{ label: t('auto_tat_ca', 'Tất cả'), value: 'All' }];
   const dynamicZones = areas.value.map(a => ({ label: a.name, value: a.name }));
   return [...base, ...dynamicZones];
 });
@@ -1964,6 +2129,73 @@ const getShiftCount = (shift: string) => {
 
 const isEditModeEnabled = ref(false);
 const isCreateTableModalOpen = ref(false);
+const isEditTableModalOpen = ref(false);
+const editTableForm = ref({ id: '', code: '', zone: '', capacity: 4 });
+const isMaintenanceModalOpen = ref(false);
+const maintenanceForm = ref({ id: '', reason: '', isLocking: true, metadata: {} as any });
+
+function openEditTableModal(table: TableInfo, zone: string) {
+  editTableForm.value = { id: table.id || '', code: table.code, zone: zone, capacity: table.capacity };
+  isEditTableModalOpen.value = true;
+}
+
+function openMaintenanceModal(table: TableInfo) {
+  const isCurrentlyLocked = table.status === 'Maintenance';
+  maintenanceForm.value = { 
+    id: table.id || '', 
+    reason: isCurrentlyLocked ? (table.metadata?.maintenance_reason || '') : '',
+    isLocking: !isCurrentlyLocked,
+    metadata: table.metadata || {}
+  };
+  isMaintenanceModalOpen.value = true;
+}
+
+async function saveEditTable() {
+  const { id, code, zone, capacity } = editTableForm.value;
+  if (!code || !zone || !capacity) {
+    Swal.fire('Lỗi', 'Vui lòng nhập đủ thông tin', 'error');
+    return;
+  }
+  const { error } = await supabase.from('tables').update({
+    code, capacity, metadata: { zone: zone.trim() }
+  }).eq('id', id);
+
+  if (error) {
+    Swal.fire('Lỗi', 'Không thể sửa bàn: ' + error.message, 'error');
+    return;
+  }
+  
+  Swal.fire('Thành công', 'Đã cập nhật bàn', 'success');
+  isEditTableModalOpen.value = false;
+  await loadTables();
+}
+
+async function saveMaintenance() {
+  const { id, reason, isLocking } = maintenanceForm.value;
+  
+  const newStatus = isLocking ? 'maintenance' : 'available';
+  const newMetadata = { ...maintenanceForm.value.metadata };
+  if (isLocking) {
+    newMetadata.maintenance_reason = reason;
+  } else {
+    delete newMetadata.maintenance_reason;
+  }
+
+  const { error } = await supabase.from('tables').update({
+    status: newStatus,
+    metadata: newMetadata
+  }).eq('id', id);
+
+  if (error) {
+    Swal.fire('Lỗi', 'Lỗi thao tác: ' + error.message, 'error');
+    return;
+  }
+  
+  Swal.fire('Thành công', isLocking ? 'Đã khóa bàn' : 'Đã mở khóa bàn', 'success');
+  isMaintenanceModalOpen.value = false;
+  await loadTables();
+}
+
 const createTableForm = ref({ code: '', zone: '', capacity: 4 });
 
 function openCreateTableModal() {
@@ -1974,7 +2206,7 @@ function openCreateTableModal() {
 async function saveNewTable() {
   const { code, zone, capacity } = createTableForm.value;
   if (!code || !zone || !capacity) {
-    Swal.fire('Lỗi', 'Vui lòng nhập đầy đủ Mã bàn, Phân khu và Sức chứa.', 'error');
+    Swal.fire(t('auto_loi', 'Lỗi'), t('auto_vui_long_nhap_day_du', 'Vui lòng nhập đầy đủ Mã bàn, Phân khu và Sức chứa.'), 'error');
     return;
   }
   const { branchId } = useAuth();
@@ -1984,44 +2216,12 @@ async function saveNewTable() {
     return;
   }
 
-  // Resolve the typed zone name to the actual zone_id (zones.name is
-  // free-text in the modal, so we must look it up within the user's
-  // branch before inserting). If the zone doesn't exist yet, create
-  // it on the fly so admins don't have to leave the screen.
-  let zoneId: string | null = null
-  const trimmedZone = zone.trim()
-  const { data: existingZone } = await supabase
-    .from('zones')
-    .select('id')
-    .eq('branch_id', bid)
-    .eq('name', trimmedZone)
-    .maybeSingle()
-  if (existingZone) {
-    zoneId = existingZone.id
-  } else {
-    const { data: createdZone, error: zoneErr } = await supabase
-      .from('zones')
-      .insert({
-        branch_id: bid,
-        name: trimmedZone,
-        sort_order: 99,
-        is_active: true,
-      })
-      .select('id')
-      .single()
-    if (zoneErr || !createdZone) {
-      Swal.fire('Lỗi', 'Không thể tạo Phân khu mới: ' + (zoneErr?.message ?? ''), 'error')
-      return
-    }
-    zoneId = createdZone.id
-  }
-
   const { error } = await supabase.from('tables').insert([{
     branch_id: bid,
-    zone_id: zoneId,
     code,
     capacity,
     status: 'available',
+    metadata: { zone: zone.trim() },
     is_active: true,
   }]);
 
@@ -2036,7 +2236,7 @@ async function saveNewTable() {
   await loadTables();
 }
 
-async function deleteTable(code: string) {
+async function deleteTable(id: string, code: string) {
   const result = await Swal.fire({
     title: 'Xóa bàn?',
     text: `Bạn có chắc chắn muốn xóa bàn ${code}?`,
@@ -2051,7 +2251,7 @@ async function deleteTable(code: string) {
     const { branchId } = useAuth();
     const bid = branchId.value;
     if (!bid) return;
-    const { error } = await supabase.from('tables').delete().eq('code', code).eq('branch_id', bid);
+    const { error } = await supabase.from('tables').delete().eq('id', id).eq('branch_id', bid);
     if (error) {
       Swal.fire('Lỗi', 'Không thể xóa bàn: ' + error.message, 'error');
     } else {
@@ -2085,7 +2285,7 @@ const simulatedAreas = computed<AreaInfo[]>(() => {
           return { ...table };
         }
 
-        let computedStatus: 'Available' | 'Reserved' | 'Arrived' | 'Serving' = table.status;
+        let computedStatus: 'Available' | 'Reserved' | 'Arrived' | 'Serving' | 'Maintenance' = table.status;
         let computedCustomer = table.customerName;
         let computedBill = table.billAmount;
         let computedCheckIn = table.checkInTime;
@@ -2276,6 +2476,33 @@ function getTableReservationTime(tableCode: string) {
   return match ? match.reservationTime : null;
 }
 
+function getBadgeColorClass(status: string) {
+  if (!status) return 'bg-gray-100 text-gray-400 border-gray-200'
+  const s = status.toLowerCase();
+  if (s === 'available') return 'bg-emerald-100 text-emerald-700 border-emerald-200'
+  if (s === 'reserved') return 'bg-blue-100 text-blue-700 border-blue-200'
+  if (s === 'arrived') return 'bg-amber-100 text-amber-700 border-amber-200'
+  if (s === 'serving' || s === 'occupied') return 'bg-red-100 text-red-700 border-red-200'
+  if (s === 'needs_cleaning') return 'bg-yellow-100 text-yellow-700 border-yellow-200'
+  if (s === 'maintenance') return 'bg-gray-100 text-gray-600 border-gray-200'
+  return 'bg-gray-100 text-gray-500 border-gray-200'
+}
+
+function translateTableStatus(status: string) {
+  if (!status) return '';
+  const s = status.toLowerCase();
+  switch (s) {
+    case 'available': return t('auto_trong', 'Trống')
+    case 'reserved': return t('auto_dat_truoc', 'Đặt trước')
+    case 'arrived': return t('auto_da_den', 'Đã đến')
+    case 'occupied':
+    case 'serving': return t('auto_dang_phuc_vu', 'Đang phục vụ')
+    case 'maintenance': return t('auto_bao_tri', 'Bảo trì')
+    case 'needs_cleaning': return t('auto_can_don_dep', 'Cần dọn dẹp')
+    default: return status
+  }
+}
+
 function getTableArrivalTime(tableCode: string) {
   const formattedToday = getFormattedSelectedDate.value;
   // Get arrival time from Arrived bookings
@@ -2283,36 +2510,18 @@ function getTableArrivalTime(tableCode: string) {
   return match ? match.reservationTime : null;
 }
 
-function getTableColorClass(status: 'Available' | 'Reserved' | 'Arrived' | 'Serving') {
+function getTableColorClass(status: 'Available' | 'Reserved' | 'Arrived' | 'Serving' | 'Maintenance') {
   switch (status) {
     case 'Available': return 'bg-emerald-50/40 border-emerald-200 hover:border-emerald-400'
     case 'Reserved': return 'bg-amber-50/40 border-amber-200 hover:border-amber-400'
     case 'Arrived': return 'bg-blue-50/40 border-blue-200 hover:border-blue-400'
     case 'Serving': return 'bg-rose-50/40 border-rose-200 hover:border-rose-450'
+    case 'Maintenance': return 'bg-yellow-50/40 border-yellow-200 hover:border-yellow-450'
     default: return 'bg-gray-50 border-gray-200'
   }
 }
 
-function getBadgeColorClass(status: 'Available' | 'Reserved' | 'Arrived' | 'Serving') {
-  switch (status) {
-    case 'Available': return 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'
-    case 'Reserved': return 'bg-amber-500/10 text-amber-600 border-amber-500/20'
-    case 'Arrived': return 'bg-blue-500/10 text-blue-600 border-blue-500/20'
-    case 'Serving': return 'bg-rose-500/10 text-rose-600 border-rose-500/20'
-    default: return 'bg-gray-500/10 text-gray-600 border-gray-500/20'
-  }
-}
 
-function translateTableStatus(status: string) {
-  switch (status) {
-    case 'Available': return t('auto_trong', 'Trống')
-    case 'Reserved': return t('auto_dat_truoc', 'Đặt trước')
-    case 'Arrived': return t('auto_da_den', 'Đã đến')
-    case 'Serving': return t('auto_phuc_vu', 'Phục vụ')
-    case 'Maintenance': return t('auto_bao_tri', 'Bảo trì')
-    default: return status
-  }
-}
 
 function translateReservationStatus(status: 'Waiting' | 'Arrived' | 'Seated' | 'Completed' | 'Cancelled') {
   switch (status) {
@@ -2440,61 +2649,46 @@ const updateSystemClock = () => {
 
 async function loadTables() {
   const { branchId } = useAuth();
-  // SECURITY: branch_id MUST come from useAuth (JWT app_metadata →
-  // public.users), NEVER from session.user.user_metadata. user_metadata
-  // is attacker-controlled via auth.updateUser(); using it for branch
-  // decisions would let a signed-in user spoof any branch.
   const bid = branchId.value;
   if (!bid) return;
-  // Load zones + tables, then GROUP BY zone_id and JOIN to zones.name.
-  // Bug history: previously this read `t.zone` (which doesn't exist on
-  // `tables` — only `zone_id` does), so the resulting areas list ended up
-  // with name=undefined and tables=[] on every load, silently wiping the
-  // Pinia store's seed.
+  
   const { data: tablesData } = await supabase
     .from('tables')
-    .select('id, code, capacity, status, zone_id, zones:zones!inner(id, name, color, sort_order)')
+    .select('id, code, capacity, status, metadata')
     .eq('branch_id', bid)
-    .eq('is_active', true)
     .order('code', { ascending: true });
 
   if (tablesData && tablesData.length > 0) {
-    // Group by zone id (NOT the old broken `t.zone` field).
     const byZone = new Map<string, { name: string; tables: TableInfo[] }>();
     for (const t of tablesData as any[]) {
-      const z = t.zones;
-      if (!byZone.has(z.id)) {
-        byZone.set(z.id, { name: z.name, tables: [] });
+      const zoneName = t.metadata?.zone || 'Main';
+      if (!byZone.has(zoneName)) {
+        byZone.set(zoneName, { name: zoneName, tables: [] });
       }
-      // DB enum is lowercase ('available' | 'reserved' | 'occupied' |
-      // 'maintenance'). Map to the PascalCase the UI expects.
+      
       const uiStatus: TableInfo['status'] =
         t.status === 'available' ? 'Available'
         : t.status === 'reserved' ? 'Reserved'
         : t.status === 'occupied' ? 'Serving'
+        : t.status === 'maintenance' ? 'Maintenance'
         : 'Available';
-      byZone.get(z.id)!.tables.push({
+        
+      byZone.get(zoneName)!.tables.push({
+        id: t.id,
         code: t.code,
         status: uiStatus,
         capacity: t.capacity,
+        metadata: t.metadata || {}
       });
     }
-    // Replace store areas with DB-backed view. Order zones by their
-    // declared sort_order so Khu A renders before Khu T etc.
+    
     areas.value = Array.from(byZone.values())
       .sort((a, b) => a.name.localeCompare(b.name, 'vi'))
       .map<AreaInfo>((z) => ({
         name: z.name,
-        description: z.name, // UI only renders name; description kept for parity with the store's seed.
+        description: z.name,
         tables: z.tables,
       }));
-  } else {
-    // No DB rows yet (or RLS blocked the read) — fall back to the
-    // Pinia store's hardcoded mock so the UI still has something to
-    // show during a fresh-install demo / dev-mode login.
-    // Intentionally do NOT clear `areas.value` here; the store's seed
-    // (10 zones, 57 tables) is the legacy fallback that keeps the page
-    // useful before the seed migration runs.
   }
 }
 
@@ -2546,7 +2740,7 @@ const tableModalForm = ref({
   customerName: '',
   billAmount: '',
   occupiedDuration: '',
-  status: 'Available' as 'Available' | 'Reserved' | 'Arrived' | 'Serving'
+  status: 'Available' as 'Available' | 'Reserved' | 'Arrived' | 'Serving' | 'Maintenance'
 });
 
 function openTableModal(areaName: string, table: TableInfo) {
@@ -2560,7 +2754,7 @@ function openTableModal(areaName: string, table: TableInfo) {
   isTableModalOpen.value = true;
 }
 
-function setTableModalStatus(status: 'Available' | 'Reserved' | 'Arrived' | 'Serving') {
+function setTableModalStatus(status: 'Available' | 'Reserved' | 'Arrived' | 'Serving' | 'Maintenance') {
   tableModalForm.value.status = status;
 }
 
@@ -2723,7 +2917,7 @@ const quickOpenForm = ref({
 function openQuickOpenModal() {
   quickOpenForm.value = {
     tableCode: '',
-    customerName: 'Khách vãng lai',
+    customerName: t('auto_khach_vang_lai', 'Khách vãng lai'),
     guestCount: 2,
     billAmount: '0đ'
   };
@@ -2741,7 +2935,7 @@ function goToOrderScreen(tableCode: string) {
   if (table) {
     if (table.status !== 'Serving') {
       table.status = 'Serving';
-      table.customerName = table.customerName || 'Khách vãng lai';
+      table.customerName = table.customerName || t('auto_khach_vang_lai', 'Khách vãng lai');
       table.billAmount = table.billAmount || '0đ';
       table.occupiedDuration = table.occupiedDuration || '1 phút';
       const now = new Date();
@@ -2762,7 +2956,7 @@ function saveQuickOpen() {
   const table = getTableByCode(quickOpenForm.value.tableCode);
   if (table) {
     table.status = 'Serving';
-    table.customerName = quickOpenForm.value.customerName || 'Khách vãng lai';
+    table.customerName = quickOpenForm.value.customerName || t('auto_khach_vang_lai', 'Khách vãng lai');
     table.billAmount = quickOpenForm.value.billAmount || '0đ';
     table.occupiedDuration = '1 phút';
     const now = new Date();

@@ -65,9 +65,12 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label class="block text-sm font-bold text-gray-700 mb-2">{{ t('auto_lo_i_doanh_thu__b_t_bu_c_') }}</label>
-              <select class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-base font-semibold focus:outline-none focus:border-red-500 text-gray-900 appearance-none">
-                <option value="dinner" selected>{{ t('auto_b_a_t_i__dinner_') }}</option>
+              <select v-model="revenueType" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-base font-semibold focus:outline-none focus:border-red-500 text-gray-900 appearance-none">
+                <option value="dinner">{{ t('auto_b_a_t_i__dinner_') }}</option>
                 <option value="lunch">{{ t('auto_b_a_tr_a__lunch_') }}</option>
+                <option value="wine">Rượu</option>
+                <option value="delivery">Giao hàng</option>
+                <option value="other">Khác</option>
               </select>
             </div>
             <div>
@@ -155,6 +158,7 @@ const customerPhone = ref('')
 const customerInfo = ref<any>(null)
 const voucherCode = ref('')
 const discount = ref(0)
+const revenueType = ref<'lunch' | 'dinner' | 'wine' | 'delivery' | 'other'>('dinner')
 
 const subTotal = computed(() => orderItems.value.reduce((acc, item) => acc + (item.unit_price * item.quantity), 0))
 const vat = computed(() => Math.round(subTotal.value * 0.08))
@@ -205,7 +209,10 @@ const handleCheckout = async () => {
   
   try {
     await checkout({
-      order_id: orderInfo.value.id,
+      orderId: orderInfo.value.id,
+      revenueType: revenueType.value,
+      customerId: customerInfo.value?.id,
+      voucherCode: voucherCode.value || undefined,
       payments: [{ method: 'cash', amount: totalAmount.value }],
     })
     Swal.fire('Thành công', 'Thanh toán thành công!', 'success')

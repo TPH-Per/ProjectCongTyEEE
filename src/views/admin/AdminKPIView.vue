@@ -47,7 +47,7 @@
           </div>
 
           <button type="submit" :disabled="loading" class="kawaii-btn-primary w-full mt-4 flex justify-center items-center gap-2 py-3 rounded-xl font-bold">
-            <span>💾</span> {{ loading ? t('auto_dang_luu', 'Đang lưu...') : t('auto_luu_thiet_lap', 'Lưu Thiết Lập') }}
+            <span></span> {{ loading ? t('auto_dang_luu', 'Đang lưu...') : t('auto_luu_thiet_lap', 'Lưu Thiết Lập') }}
           </button>
         </form>
       </div>
@@ -234,10 +234,10 @@ const saveKPI = async () => {
         scope: 'branch'
       })
     }
-    Swal.fire('Thông báo', 'Đã lưu cấu hình KPI!', 'info')
+    Swal.fire(t('auto_thong_bao', 'Thông báo'), t('auto_da_luu_cau_hinh_kpi', 'Đã lưu cấu hình KPI!'), 'info')
     await fetchKPIs()
   } catch (err) {
-    Swal.fire('Lỗi', 'Có lỗi xảy ra: ' + (error.value || err), 'error')
+    Swal.fire(t('auto_loi', 'Lỗi'), t('auto_co_loi_xay_ra', 'Có lỗi xảy ra: ') + (error.value || err), 'error')
   }
 }
 

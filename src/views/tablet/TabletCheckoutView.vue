@@ -36,12 +36,14 @@ onMounted(async () => {
   const orderId = 'mock-order-id-checkout'
   try {
     await checkout({
-      order_id: orderId,
-      payments: [{ method: 'cash', amount: 0 }]
+      orderId: orderId,
+      revenueType: 'dinner',
+      payments: [
+        { method: 'cash', amount: 500000 },
+      ],
     })
   } catch (e) {
     console.error('Checkout error:', e)
   }
 })
 </script>
-

@@ -35,9 +35,11 @@ serve(async (req) => {
       .from('invoices')
       .select(`
         id, invoice_number, subtotal, vat, discount, total, branch_id,
-        order:orders(
-          id, order_number, table_id, reservation_id,
-          order_items(name_snapshot, quantity, unit_price, line_total)
+        reservations(
+          orders(
+            id, order_number, reservation_id,
+            order_items(name_snapshot, quantity, unit_price, line_total)
+          )
         )
       `)
       .eq('id', body.invoiceId)
@@ -56,7 +58,7 @@ serve(async (req) => {
       taxCode: body.taxCode,
       customerCompany: body.customerCompany,
       customerAddress: body.customerAddress,
-      items: (invoice as any).order.order_items,
+      items: (invoice as any).reservations?.orders?.[0]?.order_items ?? [],
       subtotal: invoice.subtotal,
       vat: invoice.vat,
       total: invoice.total,
@@ -86,9 +88,7 @@ serve(async (req) => {
     await admin
       .from('invoices')
       .update({
-        tax_code: body.taxCode,
-        customer_company: body.customerCompany,
-        customer_address: body.customerAddress,
+        tax_info: { tax_code: body.taxCode, company_name: body.customerCompany, address: body.customerAddress },
         metadata: {
           ...(invoice as any).metadata,
           vt_invoice_id: result.id,
@@ -126,9 +126,9 @@ serve(async (req) => {
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
     )
   } catch (e: any) {
-    const status = e instanceof AuthError ? e.status : 400
+    const status = e.name === 'AuthError' ? e.status : (e.status || 400)
     return new Response(
-      JSON.stringify({ error: e.message }),
+      JSON.stringify({ error: e.message, errorName: e.name }),
       { status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
     )
   }

@@ -122,7 +122,7 @@ serve(async (req) => {
     }
 
     if (action === 'update_user') {
-      const { userId, role, branch_id, is_active } = payload
+      const { userId, role, branch_id, is_active, full_name } = payload
 
       // Load target so we can decide permission.
       const { data: target } = await supabaseAdmin
@@ -163,6 +163,7 @@ serve(async (req) => {
       if (role !== undefined) update.role = role
       if (branch_id !== undefined) update.branch_id = branch_id === '' ? null : branch_id
       if (is_active !== undefined) update.is_active = is_active
+      if (full_name !== undefined) update.full_name = full_name
 
       // Validate role if it's being changed.
       if (role !== undefined) {
@@ -242,9 +243,9 @@ serve(async (req) => {
 
     throw new AuthError('Invalid action', 400)
   } catch (error: any) {
-    const status = error instanceof AuthError ? error.status : 400
+    const status = error.name === 'AuthError' ? error.status : (error.status || 400)
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: error.message, errorName: error.name }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status,

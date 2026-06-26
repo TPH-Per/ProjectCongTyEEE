@@ -37,22 +37,7 @@
             <BellIcon class="w-6 h-6" />
             <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
           </button>
-          <div class="relative">
-            <!-- Backdrop to close dropdown on click outside -->
-            <div v-if="isDropdownOpen" class="fixed inset-0 z-40" @click="isDropdownOpen = false"></div>
 
-            <div @click="isDropdownOpen = !isDropdownOpen" class="flex items-center gap-2 cursor-pointer p-1 rounded-xl hover:bg-gray-50 transition-colors select-none z-50 relative">
-              <img :src="stickerUrl" alt="Avatar" class="w-8 h-8 object-contain drop-shadow-sm rounded-full" />
-              <span class="text-sm font-medium hidden md:block">Superadmin</span>
-              <ChevronDownIcon class="w-4 h-4 text-gray-400" />
-            </div>
-            
-            <!-- Dropdown Menu -->
-            <div v-if="isDropdownOpen" class="absolute right-0 top-full mt-2 w-48 bg-white border border-gray-100 rounded-xl shadow-lg py-1.5 z-50">
-              <button @click="handleSignOut" class="w-full flex items-center px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors">
-                <LogOutIcon class="w-4 h-4 mr-2" />{{ $t('auto_dang_xuat') }}</button>
-            </div>
-          </div>
         
         <div class="flex items-center gap-2 ml-4 border-l pl-4 border-[hsl(var(--border))]">
           <LanguageSwitcher />

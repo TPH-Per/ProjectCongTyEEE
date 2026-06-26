@@ -161,7 +161,7 @@ serve(async (req) => {
 
       const update: Record<string, unknown> = {}
       if (role !== undefined) update.role = role
-      if (branch_id !== undefined) update.branch_id = branch_id
+      if (branch_id !== undefined) update.branch_id = branch_id === '' ? null : branch_id
       if (is_active !== undefined) update.is_active = is_active
 
       // Validate role if it's being changed.

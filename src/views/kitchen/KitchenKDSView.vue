@@ -6,70 +6,27 @@
       <div class="flex items-center gap-4">
         <!-- Logo / Brand -->
         <div class="flex items-center gap-2">
-          <span class="text-3xl font-black text-[#ff6b35] tracking-widest">NGƯU CÁT</span>
-          <span class="bg-[#ff6b35]/20 text-[#ff6b35] px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wider">KDS</span>
+          <span class="logo-brand">NGƯU CÁT</span>
+          <span class="tag-kds">KDS</span>
         </div>
         <div class="h-6 w-[1px] bg-[#404040]"></div>
         <!-- Active Station Display -->
         <div class="flex items-center gap-2">
           <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Trạm hiện tại:</span>
-          <span class="text-xl font-bold bg-[#3D3D3D] px-3 py-1 rounded border border-[#616161]">
+          <span class="station-badge">
             {{ getStationLabel(activeStation) }}
           </span>
         </div>
       </div>
 
-      <!-- Real-time Clock, Alerts & User Profile -->
-      <div class="flex items-center gap-6">
-        <!-- New Feature Trigger: Grill & Coal Change Request Button -->
-        <button 
-          class="flex items-center gap-2 bg-[#ff6b35] hover:bg-[#e55a2b] active:scale-95 px-4 py-2 rounded-xl text-white font-bold text-sm transition-all shadow-md touch-target"
-          @click="showGrillRequestModal = true"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd" />
-          </svg>
-          Yêu cầu Vỉ / Than
-        </button>
+      <!-- Shared Header Buttons component -->
+      <HeaderButtons />
 
-        <button 
-          class="flex items-center gap-1.5 bg-[#3D3D3D] hover:bg-[#4A4A4A] border border-[#616161] px-3 py-2 rounded-xl text-xs font-bold transition-fast touch-target"
-          @click="showGrillSidebar = !showGrillSidebar"
-        >
-          <span>{{ showGrillSidebar ? 'Ẩn Panel Vỉ/Than' : 'Hiện Panel Vỉ/Than' }}</span>
-          <span v-if="grillRequests.length > 0" class="w-5 h-5 rounded-full bg-[#ff6b35] text-white flex items-center justify-center font-bold text-[10px]">
-            {{ grillRequests.length }}
-          </span>
-        </button>
-
-        <!-- New Feature: Hygiene & Safety (HACCP) Button -->
-        <button 
-          class="flex items-center gap-2 bg-[#2E7D32] hover:bg-[#256629] active:scale-95 px-4 py-2 rounded-xl text-white font-bold text-sm transition-all shadow-md touch-target"
-          @click="showHaccpModal = true"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944a11.954 11.954 0 007.834 3.056 12.012 12.012 0 01-1.423 7.82 11.95 11.95 0 01-6.411 5.233 11.95 11.95 0 01-6.41-5.233 12.008 12.008 0 01-1.424-7.82zM10 4a1 1 0 00-1 1v4a1 1 0 102 0V5a1 1 0 00-1-1zm0 8a1 1 0 100 2 1 1 0 000-2z" clip-rule="evenodd" />
-          </svg>
-          An Toàn HACCP
-          <span v-if="unresolvedIncidentCount > 0" class="w-5 h-5 rounded-full bg-red-600 text-white flex items-center justify-center font-bold text-[10px] animate-pulse">
-            {{ unresolvedIncidentCount }}
-          </span>
-        </button>
-
-        <!-- Alarm Banner / Alert Badge -->
-        <div v-if="countDelayed > 0" class="flex items-center gap-2 bg-[#C62828]/20 border border-[#F44336] px-3 py-1.5 rounded-lg text-[#F44336] animate-pulse">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
-          </svg>
-          <span class="text-sm font-bold uppercase tracking-wider">Cảnh báo: {{ countDelayed }} đơn trễ!</span>
-        </div>
-
+      <!-- Real-time Clock -->
+      <div class="flex items-center gap-4">
         <!-- Timer / Clock -->
-        <div class="flex items-center gap-2 text-gray-400 font-mono text-lg">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <span>{{ currentTime }}</span>
+        <div class="digital-clock">
+          {{ currentTime }}
         </div>
       </div>
     </header>
@@ -86,8 +43,8 @@
         <button 
           v-for="st in stations" 
           :key="st.key"
-          class="px-4 py-1.5 rounded-lg text-sm font-bold border transition-all touch-target"
-          :class="activeStation === st.key ? 'bg-[#ff6b35] border-[#ff6b35] text-white' : 'bg-[#3D3D3D] border-[#616161] text-gray-300 hover:text-white'"
+          class="station-btn"
+          :class="{ active: activeStation === st.key }"
           @click="activeStation = st.key"
         >
           {{ st.label }}
@@ -101,51 +58,43 @@
           <span class="text-xs text-gray-400 uppercase font-semibold">Sắp xếp:</span>
           <select 
             v-model="sortOrder"
-            class="bg-[#3D3D3D] border border-[#616161] rounded-lg px-3 py-1.5 text-sm font-bold text-gray-200 focus:outline-none focus:border-[#ff6b35]"
+            class="sort-dropdown"
           >
-            <option value="oldest">Cũ nhất trước</option>
+            <option value="oldest">FIFO (Cũ nhất trước)</option>
             <option value="newest">Mới nhất trước</option>
             <option value="priority">Độ ưu tiên</option>
           </select>
         </div>
 
         <!-- Search box -->
-        <div class="relative w-48 lg:w-64">
+        <div class="relative">
           <input 
             v-model="searchQuery"
             type="text" 
-            placeholder="Tìm bàn / ID đơn..."
-            class="w-full bg-[#1A1A1A] border border-[#616161] rounded-lg pl-9 pr-4 py-1.5 text-sm focus:outline-none focus:border-[#ff6b35] text-white placeholder-gray-500"
+            placeholder="Tìm bàn / ID Ticket..."
+            class="search-input"
           />
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
         </div>
       </div>
     </div>
 
     <!-- 3. STATUS BAR (50px) -->
-    <div class="h-[50px] bg-[#3D3D3D] border-b border-[#404040] px-6 flex items-center gap-6">
-      <div class="flex items-center gap-2 text-sm">
-        <span class="w-3 h-3 rounded-full bg-[#1A237E]"></span>
-        <span class="font-semibold text-gray-300">Chờ chế biến:</span>
-        <span class="font-bold bg-[#1A1A1A] px-2 py-0.5 rounded border border-[#616161]">{{ countPending }}</span>
+    <div class="h-[50px] bg-[#1A1A1A] border-b border-[#404040] px-6 flex items-center gap-6">
+      <div class="status-counter status-waiting">
+        <span>Chờ chế biến:</span>
+        <span class="count-badge">{{ countPending }}</span>
       </div>
-      <div class="flex items-center gap-2 text-sm">
-        <span class="w-3 h-3 rounded-full bg-[#E65100]"></span>
-        <span class="font-semibold text-gray-300">Đang làm:</span>
-        <span class="font-bold bg-[#1A1A1A] px-2 py-0.5 rounded border border-[#616161]">{{ countPreparing }}</span>
+      <div class="status-counter status-preparing">
+        <span>Đang làm:</span>
+        <span class="count-badge">{{ countPreparing }}</span>
       </div>
-      <div class="flex items-center gap-2 text-sm">
-        <span class="w-3 h-3 rounded-full bg-[#2E7D32]"></span>
-        <span class="font-semibold text-gray-300">Hoàn thành:</span>
-        <span class="font-bold bg-[#1A1A1A] px-2 py-0.5 rounded border border-[#616161]">{{ countDone }}</span>
+      <div class="status-counter status-done">
+        <span>Hoàn thành:</span>
+        <span class="count-badge">{{ countDone }}</span>
       </div>
-      <div class="h-4 w-[1px] bg-[#404040]"></div>
-      <div class="flex items-center gap-2 text-sm">
-        <span class="w-3 h-3 rounded-full bg-[#C62828] animate-pulse"></span>
-        <span class="font-semibold text-red-400">Trễ (>15m):</span>
-        <span class="font-bold bg-[#1A1A1A] px-2 py-0.5 rounded border border-[#C62828] text-red-400 animate-pulse">{{ countDelayed }}</span>
+      <div class="status-counter status-delayed">
+        <span>Trễ (>15 phút):</span>
+        <span class="count-badge">{{ countDelayed }}</span>
       </div>
     </div>
 
@@ -153,369 +102,407 @@
     <div class="flex-1 flex overflow-hidden">
       
       <!-- Kanban Board -->
-      <main class="flex-1 flex gap-6 overflow-x-auto p-6 bg-[#1A1A1A]">
+      <main class="kanban-container">
         
-        <!-- Cột 1: Chờ chế biến -->
-        <section class="flex-1 min-w-[310px] max-w-[420px] bg-[#2D2D2D] rounded-xl flex flex-col border border-[#404040]">
-          <div class="p-4 border-b border-[#404040] bg-[#2D2D2D] rounded-t-xl flex justify-between items-center sticky top-0 z-10">
-            <h2 class="text-lg font-bold text-gray-200 uppercase tracking-wider flex items-center gap-2">
-              <span class="w-2.5 h-2.5 rounded-full bg-[#1A237E]"></span>
-              {{ t('auto_ch__ch__bi_n') }}
-            </h2>
-            <span class="bg-[#1A1A1A] border border-[#616161] text-gray-300 px-3 py-0.5 rounded font-bold text-sm">
-              {{ pendingOrders.length }}
-            </span>
+        <!-- Cột 1: Chờ xác nhận (Pending Orders) -->
+        <section class="kanban-column pending animate-fade-in">
+          <div class="kanban-header pending">
+            <span>CHỜ XÁC NHẬN</span>
+            <span class="column-count">{{ pendingOrders.length }}</span>
           </div>
           
-          <div class="p-4 flex-1 overflow-y-auto space-y-4">
-            <div 
-              v-for="order in pendingOrders" 
-              :key="order.id" 
-              class="ticket-card status-new relative transition-normal"
-              :class="getTimerColorClass(order.waitTime)"
-              @click="openDetail(order)"
-            >
-              <div v-if="order.waitTime >= 900" class="absolute top-2 right-2">
-                <span class="status-badge delayed text-[10px]">TRỄ</span>
-              </div>
+          <div 
+            v-for="order in pendingOrders" 
+            :key="order.id" 
+            class="ticket-card status-pending"
+            :class="{ remake: isOrderRemake(order), delayed: order.waitTime >= 900 }"
+            @click="openDetail(order)"
+          >
+            <div v-if="order.waitTime >= 900" class="absolute top-2 right-2">
+              <span class="status-badge delayed text-[10px]">TRỄ</span>
+            </div>
 
-              <div class="flex justify-between items-start mb-3">
-                <div>
-                  <span class="text-2xl font-black text-white block flex items-center gap-2">
-                    Bàn {{ getTableCode(order.table) }}
-                    <span 
-                      v-if="order.id === oldestPendingOrderId" 
-                      class="bg-[#2196F3] text-white px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider animate-pulse"
-                      title="Nhập trước chế biến trước (FIFO)"
-                    >
-                      FIFO
-                    </span>
+            <div class="flex justify-between items-start mb-3">
+              <div>
+                <span class="text-2xl font-black text-white block flex items-center gap-2">
+                  Bàn {{ getTableCode(order.table) }}
+                  <span 
+                    v-if="order.id === oldestPendingOrderId" 
+                    class="bg-[#2196F3] text-white px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider animate-pulse"
+                    title="Nhập trước chế biến trước (FIFO)"
+                  >
+                    FIFO
                   </span>
-                  <span class="text-xs text-gray-400 font-medium">#{{ order.id.slice(0, 8) }} &bull; {{ order.time }}</span>
-                </div>
-                <span class="timer-display" :class="getTimerTextClass(order.waitTime)">
-                  {{ formatWaitTime(order.waitTime) }}
                 </span>
+                <div class="flex items-center gap-1.5 mt-1">
+                  <div class="badges">
+                    <span v-if="isOrderRemake(order)" class="badge badge-remake">
+                       TRẢ MÓN (REMAKE)
+                    </span>
+                    <span v-else-if="getOrderClassification(order) === 'Round1'" class="badge badge-buffet-1">
+                      VÒNG 1 (BUFFET)
+                    </span>
+                    <span v-else-if="getOrderClassification(order) === 'RoundN'" class="badge badge-buffet-add">
+                      GỌI THÊM (BUFFET)
+                    </span>
+                    <span class="badge badge-alacarte">
+                      A LA CARTE
+                    </span>
+                  </div>
+                </div>
+                <span class="text-xs text-gray-400 font-medium block mt-1.5">#{{ order.id.slice(0, 8) }} &bull; {{ order.time }}</span>
               </div>
-              
-              <hr class="border-[#404040] my-3" />
+              <span class="timer-display" :class="getTimerTextClass(order.waitTime)">
+                {{ formatWaitTime(order.waitTime) }}
+              </span>
+            </div>
+            
+            <hr class="border-[#404040] my-3" />
 
-              <div class="space-y-2">
-                <div 
-                  v-for="item in order.displayItems" 
-                  :key="item.id" 
-                  class="flex items-start gap-2.5 p-2 rounded bg-[#3D3D3D]/50 border border-[#404040] hover:bg-[#3D3D3D] transition-fast cursor-pointer"
-                  @click.stop="toggleItemStatus(item)"
-                >
+            <div class="space-y-2">
+              <div 
+                v-for="item in order.displayItems" 
+                :key="item.id" 
+                class="flex items-start gap-2.5 p-2 rounded transition-fast cursor-pointer border"
+                :class="[
+                  item.done ? 'bg-[#3D3D3D]/30 border-transparent opacity-60' :
+                  isItem86d(item.name) ? 'bg-red-950/20 border-[#D32F2F] hover:bg-red-950/30' : 'bg-[#3D3D3D]/50 border-[#404040] hover:bg-[#3D3D3D]'
+                ]"
+                @click.stop="toggleItemStatus(item)"
+              >
+                <div class="mt-0.5">
+                  <input 
+                    type="checkbox" 
+                    :checked="item.done" 
+                    class="w-5.5 h-5.5 rounded border-gray-600 text-[#ff6b35] focus:ring-[#ff6b35] bg-[#1A1A1A] pointer-events-none"
+                  >
+                </div>
+                <div class="flex-1 min-w-0">
+                  <span class="text-base font-semibold block text-gray-100" :class="{ 'line-through text-gray-500': item.done }">
+                    <span class="text-[#ff6b35] font-black mr-1 text-lg">{{ item.qty }}x</span>
+                    {{ item.name }}
+                  </span>
+                  <span v-if="activeStation === 'ALL'" class="inline-block mt-1 text-[10px] bg-[#3D3D3D] text-gray-400 px-1.5 py-0.5 rounded border border-[#616161]">
+                    {{ getStationLabel(getItemStation(item.name)) }}
+                  </span>
+                  
+                  <!-- Out of stock warning inside KDS list -->
+                  <div v-if="isItem86d(item.name) && !item.done" class="sold-out-warning">
+                     HẾT MÓN (86'd)
+                  </div>
+                  
+                  <div v-if="item.note" class="text-xs text-[#FFA726] italic mt-1 bg-[#FFA726]/10 p-1.5 rounded border border-[#FFA726]/20 flex items-start gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 flex-shrink-0 text-[#FFA726]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    <span>{{ item.note }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="mt-4 pt-3 border-t border-[#404040]">
+              <button 
+                class="acknowledge-btn"
+                @click.stop="moveToPreparing(order)"
+              >
+                XÁC NHẬN
+              </button>
+            </div>
+          </div>
+          
+          <div v-if="pendingOrders.length === 0" class="empty-state">
+            <div class="empty-icon">📋</div>
+            <div class="empty-title">Không có order mới</div>
+            <div class="empty-desc">Order từ POS sẽ xuất hiện ở đây</div>
+          </div>
+        </section>
+
+        <!-- Cột 2: Đang chế biến (Cooking Orders) -->
+        <section class="kanban-column cooking animate-fade-in">
+          <div class="kanban-header preparing">
+            <span>ĐANG CHẾ BIẾN</span>
+            <span class="column-count">{{ preparingOrders.length }}</span>
+          </div>
+
+          <div 
+            v-for="order in preparingOrders" 
+            :key="order.id" 
+            class="ticket-card preparing"
+            :class="{ remake: isOrderRemake(order), delayed: order.waitTime >= 900 }"
+            @click="openDetail(order)"
+          >
+            <div class="flex justify-between items-start mb-3">
+              <div>
+                <span class="text-2xl font-black text-white block">Bàn {{ getTableCode(order.table) }}</span>
+                <span class="text-xs text-gray-400 font-medium block mt-1.5">#{{ order.id.slice(0, 8) }} &bull; {{ order.time }}</span>
+              </div>
+              <span class="timer-display" :class="getTimerTextClass(order.waitTime)">
+                {{ formatWaitTime(order.waitTime) }}
+              </span>
+            </div>
+            
+            <hr class="border-[#404040] my-3" />
+
+            <!-- Items list -->
+            <div class="space-y-2">
+              <div 
+                v-for="item in order.displayItems" 
+                :key="item.id" 
+                class="flex flex-col p-2.5 rounded transition-fast cursor-pointer border"
+                :class="[
+                  item.done ? 'bg-[#3D3D3D]/30 border-transparent opacity-60' :
+                  isItem86d(item.name) ? 'bg-red-950/20 border-[#D32F2F] hover:bg-red-950/30' : 'bg-[#3D3D3D]/50 border-[#404040] hover:bg-[#3D3D3D]/80'
+                ]"
+                @click.stop="toggleItemStatus(item)"
+              >
+                <div class="flex items-start gap-2.5">
                   <div class="mt-0.5">
                     <input 
                       type="checkbox" 
                       :checked="item.done" 
-                      class="w-5.5 h-5.5 rounded border-gray-600 text-[#ff6b35] focus:ring-[#ff6b35] bg-[#1A1A1A] pointer-events-none"
+                      class="w-5.5 h-5.5 rounded border-gray-600 text-green-500 focus:ring-green-500 bg-[#1A1A1A] pointer-events-none"
                     >
                   </div>
                   <div class="flex-1 min-w-0">
                     <span class="text-base font-semibold block text-gray-100" :class="{ 'line-through text-gray-500': item.done }">
-                      <span class="text-[#ff6b35] font-black mr-1 text-lg">{{ item.qty }}x</span>
+                      <span class="text-[#2196F3] font-black mr-1 text-lg">{{ item.qty }}x</span>
                       {{ item.name }}
                     </span>
-                    <span v-if="activeStation === 'ALL'" class="inline-block mt-1 text-[10px] bg-[#3D3D3D] text-gray-400 px-1.5 py-0.5 rounded border border-[#616161]">
-                      {{ getStationLabel(getItemStation(item.name)) }}
+                  </div>
+                </div>
+
+                <!-- Micro checklist for cooking workflow -->
+                <div v-if="startedOrders.includes(order.id)" class="micro-checklist" @click.stop>
+                  <div 
+                    v-for="step in getItemSubSteps(item.name)" 
+                    :key="step.key" 
+                    class="checklist-item"
+                    :class="{ completed: isSubStepChecked(item.id, step.key) }"
+                  >
+                    <input 
+                      type="checkbox" 
+                      :checked="isSubStepChecked(item.id, step.key)" 
+                      @change="toggleSubStep(item.id, step.key)"
+                      class="w-5.5 h-5.5 rounded border-gray-600 text-green-500 focus:ring-green-500 bg-[#2D2D2D] cursor-pointer"
+                    >
+                    <span class="select-none">
+                      {{ step.label }}
                     </span>
-                    <div v-if="item.note" class="text-xs text-[#FFA726] italic mt-1 bg-[#FFA726]/10 p-1.5 rounded border border-[#FFA726]/20 flex items-start gap-1">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 flex-shrink-0 text-[#FFA726]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                      </svg>
-                      <span>{{ item.note }}</span>
-                    </div>
                   </div>
                 </div>
               </div>
-              
-              <div v-if="hasAllergyNote(order)" class="mt-3 bg-red-950/40 border border-red-800/40 p-2 rounded text-xs text-red-400 font-bold uppercase tracking-wider flex items-center gap-1.5">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                </svg>
-                <span>CẢNH BÁO DỊ ỨNG!</span>
-              </div>
+            </div>
 
-              <div class="mt-4 pt-3 border-t border-[#404040] flex justify-end">
-                <button 
-                  class="action-button primary w-full py-2.5 font-bold rounded-lg transition-fast touch-target"
-                  @click.stop="moveToPreparing(order)"
-                >
-                  {{ t('auto_b_t_u_l_m') }}
-                </button>
-              </div>
+            <div v-if="hasAllergyNote(order)" class="mt-3 bg-red-950/40 border border-red-800/40 p-2 rounded text-xs text-red-400 font-bold uppercase tracking-wider flex items-center gap-1.5">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              <span>CẢNH BÁO DỊ ỨNG!</span>
             </div>
-            
-            <div v-if="pendingOrders.length === 0" class="empty-state">
-              <div class="empty-state-icon">📋</div>
-              <div class="empty-state-title">Trống</div>
-              <div class="empty-state-description text-sm">Không có đơn hàng nào chờ chế biến.</div>
+
+            <!-- Start / Complete buttons -->
+            <div class="mt-4 pt-3 border-t border-[#404040]">
+              <button 
+                v-if="!startedOrders.includes(order.id)"
+                class="acknowledge-btn bg-amber-600 hover:bg-amber-500"
+                @click.stop="openIngredientCheck(order)"
+              >
+                BẮT ĐẦU
+              </button>
+              <button 
+                v-else
+                class="complete-btn"
+                @click.stop="openQcCheck(order)"
+              >
+                HOÀN TẤT
+              </button>
             </div>
+          </div>
+
+          <div v-if="preparingOrders.length === 0" class="empty-state">
+            <div class="empty-icon">🔥</div>
+            <div class="empty-title">Bếp đang trống</div>
+            <div class="empty-desc">Nhấn "Xác Nhận" để bắt đầu</div>
           </div>
         </section>
 
-        <!-- Cột 2: Đang làm -->
-        <section class="flex-1 min-w-[310px] max-w-[420px] bg-[#2D2D2D] rounded-xl flex flex-col border border-[#404040]">
-          <div class="p-4 border-b border-[#404040] bg-[#2D2D2D] rounded-t-xl flex justify-between items-center sticky top-0 z-10">
-            <h2 class="text-lg font-bold text-blue-400 uppercase tracking-wider flex items-center gap-2">
-              <span class="w-2.5 h-2.5 rounded-full bg-[#E65100]"></span>
-              {{ t('auto__ang_l_m') }}
-            </h2>
-            <span class="bg-[#1A1A1A] border border-[#616161] text-blue-300 px-3 py-0.5 rounded font-bold text-sm">
-              {{ preparingOrders.length }}
-            </span>
+        <!-- Cột 3: Sẵn sàng ra món (Ready Orders) -->
+        <section class="kanban-column ready animate-fade-in">
+          <div class="kanban-header ready">
+            <span>SẴN SÀNG RA MÓN</span>
+            <span class="column-count">{{ readyOrders.length }}</span>
           </div>
 
-          <div class="p-4 flex-1 overflow-y-auto space-y-4">
-            <div 
-              v-for="order in preparingOrders" 
-              :key="order.id" 
-              class="ticket-card status-cooking relative transition-normal"
-              :class="getTimerColorClass(order.waitTime)"
-              @click="openDetail(order)"
-            >
-              <div v-if="order.waitTime >= 900" class="absolute top-2 right-2">
-                <span class="status-badge delayed text-[10px]">TRỄ</span>
+          <div 
+            v-for="order in readyOrders" 
+            :key="order.id" 
+            class="ticket-card status-ready"
+            @click="openDetail(order)"
+          >
+            <div class="flex justify-between items-start mb-3">
+              <div>
+                <span class="text-xl font-bold text-gray-200 block">Bàn {{ getTableCode(order.table) }}</span>
+                <span class="text-xs text-gray-500 font-medium">#{{ order.id.slice(0, 8) }} &bull; {{ order.time }}</span>
               </div>
+              <span class="bg-green-950/40 text-green-400 border border-green-800/40 px-2 py-0.5 rounded text-xs font-bold uppercase">
+                SẴN SÀNG
+              </span>
+            </div>
 
-              <div class="flex justify-between items-start mb-3">
-                <div>
-                  <span class="text-2xl font-black text-white block">Bàn {{ getTableCode(order.table) }}</span>
-                  <span class="text-xs text-gray-400 font-medium">#{{ order.id.slice(0, 8) }} &bull; {{ order.time }}</span>
-                </div>
-                <span class="timer-display" :class="getTimerTextClass(order.waitTime)">
-                  {{ formatWaitTime(order.waitTime) }}
-                </span>
-              </div>
-              
-              <hr class="border-[#404040] my-3" />
-
-              <div class="space-y-2">
-                <div 
-                  v-for="item in order.displayItems" 
-                  :key="item.id" 
-                  class="flex flex-col p-2.5 rounded bg-[#3D3D3D]/50 border border-[#404040] hover:bg-[#3D3D3D]/80 transition-fast cursor-pointer"
-                  @click.stop="toggleItemStatus(item)"
-                >
-                  <div class="flex items-start gap-2.5">
-                    <div class="mt-0.5">
-                      <input 
-                        type="checkbox" 
-                        :checked="item.done" 
-                        class="w-5.5 h-5.5 rounded border-gray-600 text-green-500 focus:ring-green-500 bg-[#1A1A1A] pointer-events-none"
-                      >
-                    </div>
-                    <div class="flex-1 min-w-0">
-                      <span class="text-base font-semibold block text-gray-100" :class="{ 'line-through text-gray-500': item.done }">
-                        <span class="text-[#2196F3] font-black mr-1 text-lg">{{ item.qty }}x</span>
-                        {{ item.name }}
-                      </span>
-                      <span v-if="activeStation === 'ALL'" class="inline-block mt-1 text-[10px] bg-[#3D3D3D] text-gray-400 px-1.5 py-0.5 rounded border border-[#616161]">
-                        {{ getStationLabel(getItemStation(item.name)) }}
-                      </span>
-                      <div v-if="item.note" class="text-xs text-[#FFA726] italic mt-1 bg-[#FFA726]/10 p-1.5 rounded border border-[#FFA726]/20 flex items-start gap-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 flex-shrink-0 text-[#FFA726]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                        </svg>
-                        <span>{{ item.note }}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Micro checklist for cooking workflow from kitchen_cooking_flow.mmd -->
-                  <div class="mt-2 pl-8 space-y-1 bg-[#1A1A1A]/40 p-2 rounded border border-[#404040]/30" @click.stop>
-                    <div v-for="step in getItemSubSteps(item.name)" :key="step.key" class="flex items-center gap-1.5 py-0.5">
-                      <input 
-                        type="checkbox" 
-                        :checked="isSubStepChecked(item.id, step.key)" 
-                        @change="toggleSubStep(item.id, step.key)"
-                        class="w-4.5 h-4.5 rounded border-gray-600 text-green-500 focus:ring-green-500 bg-[#2D2D2D] cursor-pointer"
-                      >
-                      <span class="text-xs text-gray-300 select-none" :class="{ 'line-through text-gray-500': isSubStepChecked(item.id, step.key) }">
-                        {{ step.label }}
-                      </span>
-                    </div>
-                    
-                    <!-- Quick Grill / Coal Request Trigger (Only for Grill items) -->
-                    <div v-if="getItemStation(item.name) === 'Grill'" class="flex items-center gap-2 mt-2 pt-1.5 border-t border-[#404040]/40">
-                      <button 
-                        @click="triggerQuickRequest(order.table, 'GrillChange')" 
-                        class="flex items-center gap-1.5 px-2.5 py-1 bg-purple-950/60 border border-purple-800/60 rounded text-[10px] font-bold text-purple-300 hover:bg-purple-900/60 transition-fast"
-                        title="Thay vỉ nướng nhanh"
-                      >
-                        🧹 Thay vỉ
-                      </button>
-                      <button 
-                        @click="triggerQuickRequest(order.table, 'CoalRefill')" 
-                        class="flex items-center gap-1.5 px-2.5 py-1 bg-orange-950/60 border border-[#ff6b35]/60 rounded text-[10px] font-bold text-[#ff6b35] hover:bg-orange-900/60 transition-fast"
-                        title="Châm than nhanh"
-                      >
-                        🔥 Thêm than
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div v-if="hasAllergyNote(order)" class="mt-3 bg-red-950/40 border border-red-800/40 p-2 rounded text-xs text-red-400 font-bold uppercase tracking-wider flex items-center gap-1.5">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                </svg>
-                <span>CẢNH BÁO DỊ ỨNG!</span>
-              </div>
-
-              <div class="mt-4 pt-3 border-t border-[#404040] flex justify-end">
-                <button 
-                  class="action-button success w-full py-2.5 font-bold rounded-lg transition-fast touch-target"
-                  @click.stop="moveToDone(order)"
-                >
-                  {{ t('auto_ho_n_t_t_n') }}
-                </button>
+            <div class="space-y-1.5 mt-3 text-sm text-gray-300">
+              <div v-for="item in order.displayItems" :key="item.id" class="flex items-center gap-2">
+                <span class="font-bold text-green-500">{{ item.qty }}x</span>
+                <span>{{ item.name }}</span>
               </div>
             </div>
 
-            <div v-if="preparingOrders.length === 0" class="empty-state">
-              <div class="empty-state-icon">🔥</div>
-              <div class="empty-state-title">Trống</div>
-              <div class="empty-state-description text-sm">Không có đơn hàng nào đang chế biến.</div>
+            <div class="mt-4 pt-3 border-t border-[#404040]">
+              <button 
+                class="complete-btn bg-green-600 hover:bg-green-500"
+                @click.stop="moveToDone(order)"
+              >
+                HOÀN TẤT TICKET
+              </button>
             </div>
+          </div>
+
+          <div v-if="readyOrders.length === 0" class="empty-state">
+            <div class="empty-icon">🛎️</div>
+            <div class="empty-title">Chưa có món xong</div>
+            <div class="empty-desc">Món nấu xong chuyển sang đây</div>
           </div>
         </section>
 
-        <!-- Cột 3: Hoàn thành -->
-        <section class="flex-1 min-w-[310px] max-w-[420px] bg-[#2D2D2D] rounded-xl flex flex-col border border-[#404040] opacity-85">
-          <div class="p-4 border-b border-[#404040] bg-[#2D2D2D] rounded-t-xl flex justify-between items-center sticky top-0 z-10">
-            <h2 class="text-lg font-bold text-green-400 uppercase tracking-wider flex items-center gap-2">
-              <span class="w-2.5 h-2.5 rounded-full bg-[#2E7D32]"></span>
-              {{ t('auto_ho_n_th_nh') }}
-            </h2>
-            <span class="bg-[#1A1A1A] border border-[#616161] text-green-300 px-3 py-0.5 rounded font-bold text-sm">
-              {{ doneOrders.length }}
-            </span>
+        <!-- Cột 4: Hoàn tất (Done Orders) -->
+        <section class="kanban-column done animate-fade-in">
+          <div class="kanban-header done">
+            <span>HOÀN TẤT</span>
+            <span class="column-count">{{ doneOrders.length }}</span>
           </div>
 
-          <div class="p-4 flex-1 overflow-y-auto space-y-4">
-            <div 
-              v-for="order in doneOrders" 
-              :key="order.id" 
-              class="ticket-card status-ready p-4 rounded-lg bg-[#2D2D2D] border border-[#4CAF50]/30 shadow-md opacity-80 cursor-pointer"
-              @click="openDetail(order)"
-            >
-              <div class="flex justify-between items-start mb-3">
-                <div>
-                  <span class="text-xl font-bold text-gray-300 line-through block">Bàn {{ getTableCode(order.table) }}</span>
-                  <span class="text-xs text-gray-500 font-medium">#{{ order.id.slice(0, 8) }} &bull; {{ order.time }}</span>
-                </div>
-                <span class="bg-green-950/40 text-green-400 border border-green-800/40 px-2 py-0.5 rounded text-xs font-bold uppercase">
-                  SẴN SÀNG
-                </span>
+          <div 
+            v-for="order in doneOrders" 
+            :key="order.id" 
+            class="ticket-card done"
+            @click="openDetail(order)"
+          >
+            <div class="flex justify-between items-start mb-3">
+              <div>
+                <span class="text-xl font-bold text-gray-300 line-through block">Bàn {{ getTableCode(order.table) }}</span>
+                <span class="text-xs text-gray-500 font-medium">#{{ order.id.slice(0, 8) }} &bull; {{ order.time }}</span>
               </div>
-
-              <div class="space-y-1.5 mt-3 text-sm text-gray-400 line-through">
-                <div v-for="item in order.displayItems" :key="item.id" class="flex items-center gap-2">
-                  <span class="font-bold text-green-500/75">{{ item.qty }}x</span>
-                  <span>{{ item.name }}</span>
-                </div>
-              </div>
+              <span class="bg-gray-800 text-gray-400 border border-gray-700 px-2 py-0.5 rounded text-xs font-bold uppercase">
+                ĐÃ PHỤC VỤ
+              </span>
             </div>
 
-            <div v-if="doneOrders.length === 0" class="empty-state">
-              <div class="empty-state-icon">✅</div>
-              <div class="empty-state-title">Trống</div>
-              <div class="empty-state-description text-sm">Chưa có đơn hàng nào hoàn tất trong ca.</div>
+            <div class="space-y-1.5 mt-3 text-sm text-gray-500 line-through">
+              <div v-for="item in order.displayItems" :key="item.id" class="flex items-center gap-2">
+                <span class="font-bold text-gray-600">{{ item.qty }}x</span>
+                <span>{{ item.name }}</span>
+              </div>
             </div>
+          </div>
+
+          <div v-if="doneOrders.length === 0" class="empty-state">
+            <div class="empty-icon">✅</div>
+            <div class="empty-title">Chưa có món hoàn tất</div>
+            <div class="empty-desc">Món đã QC duyệt hiển thị ở đây</div>
           </div>
         </section>
 
       </main>
 
-      <!-- NEW FEATURE: GRILL & COAL ALERTS SIDEBAR PANEL (width 320px) -->
+      <!-- COLLAPSIBLE GRILL & COAL ALERTS SIDEBAR PANEL -->
       <aside 
-        v-if="showGrillSidebar" 
-        class="w-[320px] bg-[#2D2D2D] border-l border-[#404040] flex flex-col h-full transition-all duration-300"
+        class="grill-sidebar bg-[#2D2D2D] border-l border-[#404040] flex flex-col h-full"
+        :class="{ collapsed: !kitchenStore.isGrillPanelVisible }"
       >
-        <div class="p-4 border-b border-[#404040] bg-[#1A1A1A] flex justify-between items-center">
-          <h3 class="text-base font-bold text-[#ff6b35] uppercase tracking-wider flex items-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.655-.398-1.434-.398-2.42a1 1 0 00-1.743-.68 12.012 12.012 0 00-2.812 5.02c-.36 1.157-.507 2.3-.507 3.322 0 1.137.234 2.27.705 3.328a8.041 8.041 0 002.04 2.724c.959.837 2.1 1.432 3.31 1.75a11.93 11.93 0 006.185-.43 8.032 8.032 0 003.88-2.613 8.04 8.04 0 001.696-3.84c.328-1.22.316-2.442-.01-3.608a11.824 11.824 0 00-2.868-5.128M14 10a1 1 0 00-1.707-.707l-1 1a1 1 0 00-.293.707V12a1 1 0 002 0v-.586l.707-.707A1 1 0 0014 10z" clip-rule="evenodd" />
-            </svg>
-            Yêu cầu Vỉ & Than
-          </h3>
-          <span class="bg-[#ff6b35]/20 text-[#ff6b35] px-2.5 py-0.5 rounded-full text-xs font-bold">
-            {{ grillRequests.length }}
-          </span>
-        </div>
-
-        <div class="p-4 flex-1 overflow-y-auto space-y-4">
-          
-          <!-- Quick Guidelines from kitchen_cooking_flow.mmd -->
-          <div class="p-3 bg-[#3D3D3D] border border-[#616161] rounded-xl text-xs text-gray-300 space-y-1">
-            <div class="font-bold text-[#FFA726] uppercase">💡 Quy trình bếp nướng:</div>
-            <p>1. Định kỳ kiểm tra vỉ nướng & than.</p>
-            <p>2. Khi vỉ bẩn / than yếu $\rightarrow$ Gửi yêu cầu thay.</p>
-            <p>3. Thay vỉ/châm than mất từ **2 - 3 phút**.</p>
-          </div>
-
-          <!-- Active Request list -->
-          <div v-for="req in grillRequests" :key="req.id" class="p-4 rounded-xl bg-[#1A1A1A] border-l-4 shadow-md transition-fast relative" :class="req.priority === 'Urgent' ? 'border-[#C62828] bg-red-950/10' : 'border-[#FFA726]'">
-            
-            <button @click="cancelGrillRequest(req)" class="absolute top-2 right-2 text-gray-500 hover:text-white transition-fast">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+        <button class="toggle-sidebar-btn" @click="kitchenStore.isGrillPanelVisible = !kitchenStore.isGrillPanelVisible" aria-label="Toggle Grill Sidebar">
+          <span class="icon">🔥</span>
+          <span v-if="!kitchenStore.isGrillPanelVisible" class="sidebar-badge">{{ grillRequests.length }}</span>
+          <span v-else class="label font-bold uppercase tracking-wider text-xs">Yêu cầu Vỉ & Than ({{ grillRequests.length }})</span>
+        </button>
+        
+        <div v-if="kitchenStore.isGrillPanelVisible" class="sidebar-content flex-1 flex flex-col overflow-hidden">
+          <div class="p-4 border-b border-[#404040] bg-[#1A1A1A] flex justify-between items-center">
+            <h3 class="text-base font-bold text-[#ff6b35] uppercase tracking-wider flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.655-.398-1.434-.398-2.42a1 1 0 00-1.743-.68 12.012 12.012 0 00-2.812 5.02c-.36 1.157-.507 2.3-.507 3.322 0 1.137.234 2.27.705 3.328a8.041 8.041 0 002.04 2.724c.959.837 2.1 1.432 3.31 1.75a11.93 11.93 0 006.185-.43 8.032 8.032 0 003.88-2.613 8.04 8.04 0 001.696-3.84c.328-1.22.316-2.442-.01-3.608a11.824 11.824 0 00-2.868-5.128M14 10a1 1 0 00-1.707-.707l-1 1a1 1 0 00-.293.707V12a1 1 0 002 0v-.586l.707-.707A1 1 0 0014 10z" clip-rule="evenodd" />
               </svg>
-            </button>
-
-            <div class="flex justify-between items-baseline mb-2">
-              <span class="text-xl font-black text-white">Bàn {{ req.table }}</span>
-              <span class="text-[10px] px-2 py-0.5 rounded font-bold uppercase" :class="req.priority === 'Urgent' ? 'bg-[#C62828] text-white animate-pulse' : 'bg-[#3D3D3D] text-gray-400'">
-                {{ req.priority === 'Urgent' ? 'GẤP' : 'THƯỜNG' }}
-              </span>
-            </div>
-
-            <!-- Type of request -->
-            <div class="text-sm font-semibold text-gray-200 mb-3 flex items-center gap-1.5">
-              <span class="w-2.5 h-2.5 rounded-full" :class="req.type === 'GrillChange' ? 'bg-purple-500' : 'bg-[#FFA726]'"></span>
-              {{ req.type === 'GrillChange' ? 'Yêu cầu thay vỉ nướng' : 'Yêu cầu châm thêm than' }}
-            </div>
-
-            <!-- Progress & Actions -->
-            <div v-if="req.status === 'Pending'" class="mt-4">
-              <button 
-                class="w-full bg-[#ff6b35] hover:bg-[#e55a2b] text-white text-xs font-bold py-2 rounded-lg transition-fast touch-target"
-                @click="startGrillRequest(req)"
-              >
-                BẮT ĐẦU THỰC HIỆN
-              </button>
-            </div>
-
-            <div v-else-if="req.status === 'Inprogress'" class="space-y-2 mt-3">
-              <!-- Timer & Progress Bar -->
-              <div class="flex justify-between text-xs text-[#4CAF50] font-bold">
-                <span>Đang xử lý...</span>
-                <span>{{ formatWaitTime(req.timeLeft || 0) }}</span>
-              </div>
-              <div class="w-full bg-gray-700 h-2 rounded-full overflow-hidden">
-                <div class="bg-[#4CAF50] h-full transition-all duration-1000" :style="{ width: `${(req.timeLeft || 0) * 100 / 120}%` }"></div>
-              </div>
-              <button 
-                class="w-full bg-[#2E7D32] hover:bg-[#256629] text-white text-xs font-bold py-2 rounded-lg transition-fast mt-2 touch-target"
-                @click="completeGrillRequest(req)"
-              >
-                HOÀN TẤT NGAY
-              </button>
-            </div>
-
-            <div class="text-[10px] text-gray-500 mt-2 font-mono">Đã gửi: {{ getRequestElapsedTime(req.createdAt) }} trước</div>
+              Yêu cầu Vỉ & Than
+            </h3>
+            <span class="bg-[#ff6b35]/20 text-[#ff6b35] px-2.5 py-0.5 rounded-full text-xs font-bold">
+              {{ grillRequests.length }}
+            </span>
           </div>
 
-          <div v-if="grillRequests.length === 0" class="text-center py-8 text-gray-500 text-sm">
-            <div class="text-3xl mb-2">🔥</div>
-            Không có yêu cầu vỉ/than nào đang hoạt động.
-          </div>
+          <div class="p-4 flex-1 overflow-y-auto space-y-4">
+            <!-- Quick Guidelines from kitchen_cooking_flow.mmd -->
+            <div class="p-3 bg-[#3D3D3D] border border-[#616161] rounded-xl text-xs text-gray-300 space-y-1">
+              <div class="font-bold text-[#FFA726] uppercase">💡 Quy trình bếp nướng:</div>
+              <p>1. Định kỳ kiểm tra vỉ nướng & than.</p>
+              <p>2. Khi vỉ bẩn / than yếu $\rightarrow$ Gửi yêu cầu thay.</p>
+              <p>3. Thay vỉ/châm than mất từ **2 - 3 phút**.</p>
+            </div>
 
+            <!-- Active Request list -->
+            <div v-for="req in grillRequests" :key="req.id" class="p-4 rounded-xl bg-[#1A1A1A] border-l-4 shadow-md transition-fast relative" :class="req.priority === 'Urgent' ? 'border-[#C62828] bg-red-950/10' : 'border-[#FFA726]'">
+              <button @click="cancelGrillRequest(req)" class="absolute top-2 right-2 text-gray-500 hover:text-white transition-fast" aria-label="Cancel Grill Request">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                </svg>
+              </button>
+
+              <div class="flex justify-between items-baseline mb-2">
+                <span class="text-xl font-black text-white">Bàn {{ req.table }}</span>
+                <span class="text-[10px] px-2 py-0.5 rounded font-bold uppercase" :class="req.priority === 'Urgent' ? 'bg-[#C62828] text-white animate-pulse' : 'bg-[#3D3D3D] text-gray-400'">
+                  {{ req.priority === 'Urgent' ? 'GẤP' : 'THƯỜNG' }}
+                </span>
+              </div>
+
+              <!-- Type of request -->
+              <div class="text-sm font-semibold text-gray-200 mb-3 flex items-center gap-1.5">
+                <span class="w-2.5 h-2.5 rounded-full" :class="req.type === 'GrillChange' ? 'bg-purple-500' : 'bg-[#FFA726]'"></span>
+                {{ req.type === 'GrillChange' ? 'Yêu cầu thay vỉ nướng' : 'Yêu cầu châm thêm than' }}
+              </div>
+
+              <!-- Progress & Actions -->
+              <div v-if="req.status === 'Pending'" class="mt-4">
+                <button 
+                  class="w-full bg-[#ff6b35] hover:bg-[#e55a2b] text-white text-xs font-bold py-2 rounded-lg transition-fast touch-target"
+                  @click="startGrillRequest(req)"
+                >
+                  BẮT ĐẦU THỰC HIỆN
+                </button>
+              </div>
+
+              <div v-else-if="req.status === 'Inprogress'" class="space-y-2 mt-3">
+                <!-- Timer & Progress Bar -->
+                <div class="flex justify-between text-xs text-[#4CAF50] font-bold">
+                  <span>Đang xử lý...</span>
+                  <span>{{ formatWaitTime(req.timeLeft || 0) }}</span>
+                </div>
+                <div class="w-full bg-gray-700 h-2 rounded-full overflow-hidden">
+                  <div class="bg-[#4CAF50] h-full transition-all duration-1000" :style="{ width: `${(req.timeLeft || 0) * 100 / 120}%` }"></div>
+                </div>
+                <button 
+                  class="w-full bg-[#2E7D32] hover:bg-[#256629] text-white text-xs font-bold py-2 rounded-lg transition-fast mt-2 touch-target"
+                  @click="completeGrillRequest(req)"
+                >
+                  HOÀN TẤT NGAY
+                </button>
+              </div>
+
+              <div class="text-[10px] text-gray-500 mt-2 font-mono">Đã gửi: {{ getRequestElapsedTime(req.createdAt) }} trước</div>
+            </div>
+
+            <div v-if="grillRequests.length === 0" class="text-center py-8 text-gray-500 text-sm">
+              <div class="text-3xl mb-2">🔥</div>
+              Không có yêu cầu vỉ/than nào đang hoạt động.
+            </div>
+          </div>
         </div>
       </aside>
 
@@ -562,7 +549,11 @@
               <div 
                 v-for="item in selectedOrder.items" 
                 :key="item.id" 
-                class="flex items-start gap-4 p-4 rounded-xl bg-[#1A1A1A] border border-[#404040] hover:bg-[#3D3D3D]/50 cursor-pointer transition-fast"
+                class="flex items-start gap-4 p-4 rounded-xl transition-fast cursor-pointer border"
+                :class="[
+                  item.done ? 'bg-[#1A1A1A]/40 border-transparent opacity-60' :
+                  isItem86d(item.name) ? 'bg-red-950/20 border-[#D32F2F] hover:bg-red-950/30' : 'bg-[#1A1A1A] border-[#404040] hover:bg-[#3D3D3D]/50'
+                ]"
                 @click="toggleItemStatus(item)"
               >
                 <div class="mt-1">
@@ -577,10 +568,26 @@
                     <span class="text-lg font-bold text-white block" :class="{ 'line-through text-gray-500': item.done }">
                       <span class="text-[#ff6b35] font-black text-xl mr-1">{{ item.qty }}x</span>
                       {{ item.name }}
+                      <span 
+                        v-if="isItem86d(item.name) && !item.done" 
+                        class="ml-2 inline-block px-2.5 py-0.5 rounded text-[10px] font-extrabold uppercase bg-[#D32F2F] text-white animate-pulse"
+                      >
+                        ⚠️ HẾT MÓN (86'd)
+                      </span>
                     </span>
                     <span class="text-xs text-gray-500 bg-[#2D2D2D] px-2 py-0.5 rounded border border-[#404040]">
                       {{ getStationLabel(getItemStation(item.name)) }}
                     </span>
+                  </div>
+                  <!-- 86'd call staff action button -->
+                  <div v-if="isItem86d(item.name) && !item.done" class="mt-2 flex gap-2">
+                    <button 
+                      @click.stop="notifyStaffAbout86d(item.name, getTableCode(selectedOrder.table))"
+                      class="px-3 py-1 bg-red-800 hover:bg-red-700 text-white rounded-lg text-xs font-bold uppercase transition-fast flex items-center gap-1.5 shadow-sm touch-target"
+                      title="Báo phục vụ thay món khác cho khách"
+                    >
+                      📢 Báo Phục Vụ Đổi Món
+                    </button>
                   </div>
                   <!-- Quick actions inside detail modal from kitchen_cooking_flow.mmd -->
                   <div v-if="getItemStation(item.name) === 'Grill' && selectedOrder.status === 'preparing'" class="flex items-center gap-2 mt-2">
@@ -622,24 +629,35 @@
         </div>
 
         <!-- Modal Footer Actions (Touch target large: 56px) -->
-        <div class="px-6 py-4 bg-[#1A1A1A] border-t border-[#404040] flex justify-end gap-3">
-          <button @click="closeDetail" class="action-button danger large border border-[#616161] bg-[#2D2D2D] hover:bg-[#3D3D3D] text-gray-200 rounded-xl font-bold transition-fast touch-target-large">
-            Đóng
-          </button>
-          <button 
-            v-if="selectedOrder.status === 'pending'"
-            class="action-button primary large bg-[#ff6b35] text-white rounded-xl font-bold transition-fast touch-target-large"
-            @click="modalStartCooking(selectedOrder)"
-          >
-            Bắt đầu chế biến
-          </button>
-          <button 
-            v-if="selectedOrder.status === 'preparing'"
-            class="action-button success large bg-[#2E7D32] text-white rounded-xl font-bold transition-fast touch-target-large"
-            @click="modalFinishCooking(selectedOrder)"
-          >
-            Hoàn tất nấu
-          </button>
+        <div class="px-6 py-4 bg-[#1A1A1A] border-t border-[#404040] flex justify-between items-center gap-3">
+          <div>
+            <button 
+              class="px-4 py-2 rounded-xl text-xs font-bold border transition-fast touch-target"
+              :class="isOrderRemake(selectedOrder) ? 'bg-[#C62828]/20 border-red-500 text-red-300' : 'bg-[#3D3D3D] border-[#616161] text-gray-400 hover:text-white'"
+              @click="toggleOrderRemake(selectedOrder.id)"
+            >
+              {{ isOrderRemake(selectedOrder) ? '🚨 Hủy Trả Món (Remake)' : '⚠️ Đánh dấu Trả Món (Remake)' }}
+            </button>
+          </div>
+          <div class="flex gap-3">
+            <button @click="closeDetail" class="action-button danger large border border-[#616161] bg-[#2D2D2D] hover:bg-[#3D3D3D] text-gray-200 rounded-xl font-bold transition-fast touch-target-large">
+              Đóng
+            </button>
+            <button 
+              v-if="selectedOrder.status === 'pending'"
+              class="action-button primary large bg-[#ff6b35] text-white rounded-xl font-bold transition-fast touch-target-large"
+              @click="modalStartCooking(selectedOrder)"
+            >
+              Bắt đầu chế biến
+            </button>
+            <button 
+              v-if="selectedOrder.status === 'preparing'"
+              class="action-button success large bg-[#2E7D32] text-white rounded-xl font-bold transition-fast touch-target-large"
+              @click="modalFinishCooking(selectedOrder)"
+            >
+              Hoàn tất nấu
+            </button>
+          </div>
         </div>
 
       </div>
@@ -1199,20 +1217,607 @@
       </div>
     </div>
 
+    <!-- NEW FEATURE: PREP LIST (SƠ CHẾ ĐẦU CA) MODAL -->
+    <div v-if="showPrepModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in" @click.self="showPrepModal = false">
+      <div class="bg-[#2D2D2D] border border-[#404040] rounded-2xl w-full max-w-[650px] shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+        
+        <!-- Modal Header -->
+        <div class="px-6 py-4 bg-[#1A1A1A] border-b border-[#404040] flex justify-between items-center">
+          <div class="flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-[#1976d2]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+            </svg>
+            <div>
+              <h3 class="text-xl font-black text-white uppercase tracking-wider">Bảng Sơ Chế Đầu Ca (Prep List)</h3>
+              <p class="text-xs text-gray-400">Dự báo định lượng dựa trên danh sách đặt bàn hôm nay</p>
+            </div>
+          </div>
+          <button @click="showPrepModal = false" class="w-10 h-10 rounded-full bg-[#3D3D3D] hover:bg-[#4A4A4A] flex items-center justify-center border border-[#616161] transition-fast text-white touch-target">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Modal Body Content -->
+        <div class="p-6 overflow-y-auto space-y-6 flex-1 bg-[#2D2D2D]">
+          
+          <!-- Booking & expected guest forecast card -->
+          <div class="grid grid-cols-3 gap-4 bg-[#1A1A1A] p-4 rounded-xl border border-[#404040]">
+            <div>
+              <span class="text-xs text-gray-500 uppercase font-bold block">Tổng đặt bàn</span>
+              <span class="text-2xl font-black text-white">{{ todayBookingsCount }} bàn</span>
+            </div>
+            <div>
+              <span class="text-xs text-gray-500 uppercase font-bold block">Số khách dự kiến</span>
+              <span class="text-2xl font-black text-white">{{ todayExpectedGuests }} khách</span>
+            </div>
+            <div>
+              <span class="text-xs text-gray-500 uppercase font-bold block">Trạng thái bếp</span>
+              <span class="text-lg block mt-1" :class="kitchenPrepStatus.colorClass">
+                {{ kitchenPrepStatus.label }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Forecast quantity table -->
+          <div class="space-y-3">
+            <h4 class="text-xs text-gray-400 uppercase font-bold tracking-wider">🥩 Dự báo định lượng sơ chế (Expected Ingredients)</h4>
+            <div class="grid grid-cols-2 gap-3">
+              <div class="p-3 bg-[#3D3D3D]/30 border border-[#404040] rounded-xl flex justify-between items-center">
+                <div>
+                  <span class="text-xs text-gray-400 block">Thịt bò Wagyu lẩu</span>
+                  <span class="text-sm font-bold text-gray-200">Chuẩn bị thái mỏng</span>
+                </div>
+                <span class="text-lg font-black text-[#ff6b35]">{{ (todayExpectedGuests * 0.3).toFixed(1) }} kg</span>
+              </div>
+              <div class="p-3 bg-[#3D3D3D]/30 border border-[#404040] rounded-xl flex justify-between items-center">
+                <div>
+                  <span class="text-xs text-gray-400 block">Sườn bò Ngưu Cát</span>
+                  <span class="text-sm font-bold text-gray-200">Ướp sốt nướng</span>
+                </div>
+                <span class="text-lg font-black text-[#ff6b35]">{{ (todayExpectedGuests * 0.2).toFixed(1) }} kg</span>
+              </div>
+              <div class="p-3 bg-[#3D3D3D]/30 border border-[#404040] rounded-xl flex justify-between items-center">
+                <div>
+                  <span class="text-xs text-gray-400 block">Rau nấm tổng hợp</span>
+                  <span class="text-sm font-bold text-gray-200">Nhặt sạch, phân mâm</span>
+                </div>
+                <span class="text-lg font-black text-[#ff6b35]">{{ (todayExpectedGuests * 0.15).toFixed(1) }} kg</span>
+              </div>
+              <div class="p-3 bg-[#3D3D3D]/30 border border-[#404040] rounded-xl flex justify-between items-center">
+                <div>
+                  <span class="text-xs text-gray-400 block">Nước lẩu Sukiyaki</span>
+                  <span class="text-sm font-bold text-gray-200">Đun hầm sẵn tủ mát</span>
+                </div>
+                <span class="text-lg font-black text-[#ff6b35]">{{ (todayExpectedGuests * 0.4).toFixed(1) }} L</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tasks list & Assignment section -->
+          <div class="space-y-4">
+            <div class="flex justify-between items-center border-t border-[#404040] pt-4">
+              <h4 class="text-xs text-gray-400 uppercase font-bold tracking-wider">📋 Phân công sơ chế đầu ca</h4>
+              <span class="bg-[#1A1A1A] border border-[#616161] text-gray-300 px-2 py-0.5 rounded text-xs font-bold">
+                Cần làm: {{ pendingPrepTaskCount }}
+              </span>
+            </div>
+
+            <!-- New task inputs -->
+            <div class="flex gap-2 bg-[#1A1A1A]/40 p-3 rounded-xl border border-[#404040]">
+              <input 
+                type="text" 
+                v-model="newPrepTaskName"
+                placeholder="Tên công việc sơ chế..."
+                class="flex-1 bg-[#1A1A1A] border border-[#616161] rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-[#1976d2]"
+              />
+              <input 
+                type="text" 
+                v-model="newPrepTaskAssigned"
+                placeholder="Tên đầu bếp..."
+                class="w-32 bg-[#1A1A1A] border border-[#616161] rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-[#1976d2]"
+              />
+              <button 
+                @click="addPrepTask"
+                :disabled="!newPrepTaskName"
+                class="bg-[#1976d2] hover:bg-[#1565c0] disabled:opacity-50 text-white text-xs font-bold px-4 py-1.5 rounded-lg transition-fast touch-target"
+              >
+                Thêm
+              </button>
+            </div>
+
+            <!-- Tasks list -->
+            <div class="space-y-2">
+              <div 
+                v-for="task in prepTasks" 
+                :key="task.id" 
+                class="p-3 bg-[#1A1A1A] border border-[#404040] rounded-xl flex justify-between items-center hover:border-gray-500 transition-fast"
+              >
+                <div class="flex items-center gap-3">
+                  <input 
+                    type="checkbox" 
+                    :checked="task.status === 'Completed'" 
+                    @change="togglePrepTaskStatus(task)"
+                    class="w-5 h-5 rounded border-gray-600 text-[#1976d2] focus:ring-[#1976d2] bg-[#2D2D2D] cursor-pointer"
+                  >
+                  <div>
+                    <span 
+                      class="text-sm font-semibold text-gray-200 block" 
+                      :class="{ 'line-through text-gray-500': task.status === 'Completed' }"
+                    >
+                      {{ task.name }}
+                    </span>
+                    <span class="text-xs text-gray-400">Phân công: {{ task.assignedTo }}</span>
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-3">
+                  <span 
+                    class="text-[10px] px-2 py-0.5 rounded font-bold uppercase cursor-pointer" 
+                    :class="
+                      task.status === 'Pending' ? 'bg-[#C62828]/20 text-[#C62828] border border-[#C62828]/40' :
+                      task.status === 'InProgress' ? 'bg-orange-950/40 text-orange-400 border border-orange-800/40' :
+                      'bg-green-950/40 text-green-400 border border-green-800/40'
+                    "
+                    @click="togglePrepTaskStatus(task)"
+                  >
+                    {{ 
+                      task.status === 'Pending' ? 'Chưa làm' :
+                      task.status === 'InProgress' ? 'Đang làm' : 'Xong'
+                    }}
+                  </span>
+                  <button @click="deletePrepTask(task.id)" class="text-gray-500 hover:text-red-400 transition-fast">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4.5 w-4.5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="px-6 py-4 bg-[#1A1A1A] border-t border-[#404040] flex justify-end">
+          <button @click="showPrepModal = false" class="px-6 py-2.5 bg-[#3D3D3D] hover:bg-[#4A4A4A] text-gray-200 border border-[#616161] rounded-xl font-bold transition-fast touch-target">
+            Đóng bảng
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- NEW FEATURE: 86'd MENU ITEMS MANAGEMENT MODAL -->
+    <div v-if="show86dModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in" @click.self="show86dModal = false">
+      <div class="bg-[#2D2D2D] border border-[#404040] rounded-2xl w-full max-w-[650px] shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+        
+        <!-- Modal Header -->
+        <div class="px-6 py-4 bg-[#1A1A1A] border-b border-[#404040] flex justify-between items-center">
+          <div class="flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-[#ff5252]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.477 14.89A6 6 0 015.11 6.524l8.367 8.368zm1.414-1.414L6.524 5.11a6 6 0 018.367 8.367zM18 10a8 8 0 11-16 0 8 8 0 0116 0z" />
+            </svg>
+            <div>
+              <h3 class="text-xl font-black text-white uppercase tracking-wider">Quản lý Món Tạm Ngưng (86'd List)</h3>
+              <p class="text-xs text-gray-400">Kiểm tra tồn kho & Đánh dấu món hết hàng để thông báo cho POS / Phục vụ</p>
+            </div>
+          </div>
+          <button @click="show86dModal = false" class="w-10 h-10 rounded-full bg-[#3D3D3D] hover:bg-[#4A4A4A] flex items-center justify-center border border-[#616161] transition-fast text-white touch-target">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Search & Quick Filters -->
+        <div class="p-6 pb-2 bg-[#2D2D2D] space-y-4">
+          <div class="flex gap-4">
+            <!-- Search field -->
+            <div class="relative flex-1">
+              <input 
+                v-model="search86dQuery"
+                type="text" 
+                placeholder="Tìm món ăn..."
+                class="w-full bg-[#1A1A1A] border border-[#616161] rounded-xl pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:border-[#ff5252] text-white placeholder-gray-500"
+              />
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+            <!-- Quick Filter Select -->
+            <select 
+              v-model="filter86dStatus"
+              class="bg-[#1A1A1A] border border-[#616161] rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-[#ff5252]"
+            >
+              <option value="all">Tất cả món</option>
+              <option value="available">Còn hàng</option>
+              <option value="unavailable">Hết hàng (86'd)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Modal Body Content -->
+        <div class="p-6 pt-2 overflow-y-auto space-y-4 flex-1 bg-[#2D2D2D]">
+          
+          <div class="space-y-2">
+            <div 
+              v-for="item in filtered86dItems" 
+              :key="item.id" 
+              class="p-4 bg-[#1A1A1A] border border-[#404040] rounded-xl flex justify-between items-center hover:border-gray-500 transition-fast"
+            >
+              <div>
+                <span class="text-base font-bold text-gray-200 block">{{ item.name }}</span>
+                <span class="text-xs text-gray-400">Trạm: {{ getStationLabel(getItemStation(item.name)) }}</span>
+              </div>
+
+              <div class="flex items-center gap-4">
+                <span 
+                  class="text-[10px] px-2 py-0.5 rounded font-bold uppercase" 
+                  :class="item.is_available ? 'bg-green-950/40 text-green-400 border border-green-800/40' : 'bg-red-950/40 text-red-400 border border-red-800/40'"
+                >
+                  {{ item.is_available ? 'Còn hàng' : 'Hết hàng (86\'d)' }}
+                </span>
+
+                <!-- Switch button -->
+                <button 
+                  @click="toggleMenuItemAvailability(item)"
+                  class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none"
+                  :class="item.is_available ? 'bg-green-600' : 'bg-red-600'"
+                >
+                  <span 
+                    class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
+                    :class="item.is_available ? 'translate-x-5' : 'translate-x-0'"
+                  />
+                </button>
+              </div>
+            </div>
+            
+            <div v-if="filtered86dItems.length === 0" class="text-center py-8 text-gray-500 text-sm">
+              <div class="text-3xl mb-2">🔍</div>
+              Không tìm thấy món ăn nào.
+            </div>
+          </div>
+
+        </div>
+        
+        <!-- Modal Footer -->
+        <div class="px-6 py-4 bg-[#1A1A1A] border-t border-[#404040] flex justify-end">
+          <button @click="show86dModal = false" class="px-6 py-2.5 bg-[#3D3D3D] hover:bg-[#4A4A4A] text-gray-200 border border-[#616161] rounded-xl font-bold transition-fast touch-target">
+            Đóng
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- MODAL KIỂM TRA NGUYÊN LIỆU -->
+    <div v-if="showIngredientCheckModal && ingredientCheckOrder" class="modal-overlay" @click.self="showIngredientCheckModal = false">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 class="modal-title">KIỂM TRA NGUYÊN LIỆU - Bàn {{ getTableCode(ingredientCheckOrder.table) }}</h3>
+          <button @click="showIngredientCheckModal = false" class="text-gray-400 hover:text-white transition-fast">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="mb-4">
+          <p class="text-xs text-gray-400 uppercase font-bold tracking-wider mb-3">DANH SÁCH NGUYÊN LIỆU CẦN THIẾT</p>
+          <div class="ingredient-list">
+            <div v-for="ing in ingredientCheckList" :key="ing.name" class="ingredient-item">
+              <div class="ingredient-info">
+                <span class="ingredient-icon">{{ ing.icon }}</span>
+                <span class="ingredient-name font-bold">{{ ing.name }}</span>
+                <span class="ingredient-qty font-mono text-gray-400">({{ ing.qty }})</span>
+              </div>
+              <span class="ingredient-status" :class="{
+                'status-ok': ing.status === 'ok',
+                'status-low': ing.status === 'low',
+                'status-out': ing.status === 'out'
+              }">
+                {{ ing.status === 'ok' ? 'Còn đủ' : ing.status === 'low' ? 'Sắp hết' : 'HẾT HÀNG' }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Warning Box -->
+        <div v-if="ingredientCheckList.some(i => i.status === 'low' || i.status === 'out')" class="warning-box">
+          ⚠️ CẢNH BÁO: 
+          <span v-if="ingredientCheckList.some(i => i.status === 'out')">Có nguyên liệu HẾT HÀNG!</span>
+          <span v-else>Có nguyên liệu sắp hết.</span>
+          Bạn có muốn tiếp tục?
+        </div>
+
+        <div class="modal-actions">
+          <button @click="showIngredientCheckModal = false" class="modal-btn cancel">
+            HỦY
+          </button>
+          <button @click="openReportOutFromCheck()" class="modal-btn report-out" v-if="ingredientCheckList.some(i => i.status === 'out')">
+            BÁO HẾT MÓN (86'd)
+          </button>
+          <button @click="confirmStartCooking()" class="modal-btn continue">
+            TIẾP TỤC
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL BÁO HẾT MÓN (86'd) -->
+    <div v-if="showReportOutModal" class="modal-overlay" @click.self="showReportOutModal = false">
+      <div class="modal-content max-w-[500px]">
+        <div class="modal-header">
+          <h3 class="modal-title uppercase text-[#C62828]">Báo hết món (86'd)</h3>
+          <button @click="showReportOutModal = false" class="text-gray-400 hover:text-white transition-fast">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="space-y-4">
+          <!-- Item Select -->
+          <div class="space-y-1.5">
+            <label class="text-xs text-gray-400 uppercase font-bold">Món cần báo hết</label>
+            <select v-model="reportOutItem" class="w-full bg-[#1A1A1A] border border-[#616161] rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-[#C62828]">
+              <option :value="null" disabled>-- Chọn món --</option>
+              <option v-for="item in menuItems" :key="item.id" :value="item">{{ item.name }}</option>
+            </select>
+          </div>
+
+          <!-- Reason -->
+          <div class="space-y-2">
+            <label class="text-xs text-gray-400 uppercase font-bold block">Lý do hết món</label>
+            <div class="grid grid-cols-1 gap-2 bg-[#1A1A1A] p-3 rounded-xl border border-[#404040]">
+              <label v-for="reason in ['Hết nguyên liệu', 'Nguyên liệu hỏng', 'Không thể chế biến', 'Khác']" :key="reason" class="flex items-center gap-2.5 cursor-pointer text-sm text-gray-300">
+                <input type="radio" v-model="reportOutReason" :value="reason" class="w-4 h-4 text-[#C62828] bg-[#2D2D2D] border-gray-600 focus:ring-[#C62828]">
+                <span>{{ reason }}</span>
+              </label>
+            </div>
+            <input v-if="reportOutReason === 'Khác'" v-model="reportOutCustomReason" type="text" placeholder="Nhập lý do khác..." class="w-full bg-[#1A1A1A] border border-[#616161] rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-[#C62828] mt-2">
+          </div>
+
+          <!-- Expected restore time -->
+          <div class="space-y-1.5">
+            <label class="text-xs text-gray-400 uppercase font-bold">Thời gian dự kiến có lại</label>
+            <select v-model="reportOutRestoreTime" class="w-full bg-[#1A1A1A] border border-[#616161] rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-[#C62828]">
+              <option value="30 phút">30 phút</option>
+              <option value="1 giờ">1 giờ</option>
+              <option value="Cuối ca">Cuối ca</option>
+              <option value="Ngày mai">Ngày mai</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="modal-actions mt-6">
+          <button @click="showReportOutModal = false" class="modal-btn cancel">
+            HỦY
+          </button>
+          <button @click="submitReportOut()" :disabled="!reportOutItem" class="modal-btn report-out disabled:opacity-50">
+            XÁC NHẬN BÁO HẾT
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL THÔNG BÁO STAFF (ĐỔI MÓN) -->
+    <div v-if="showStaffNotificationModal" class="modal-overlay" @click.self="showStaffNotificationModal = false">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 class="modal-title uppercase text-[#FFA726] flex items-center gap-2">
+            📢 Thông báo Staff đổi món
+          </h3>
+          <button @click="showStaffNotificationModal = false" class="text-gray-400 hover:text-white transition-fast">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="space-y-5">
+          <div class="p-3 bg-[#FFA726]/10 border border-[#FFA726]/20 rounded-xl text-sm text-[#FFA726] font-bold">
+            MÓN HẾT HÀNG: {{ staffNotificationItemName }} (Lý do: {{ staffNotificationReason }})
+          </div>
+
+          <!-- Affected orders -->
+          <div class="space-y-2">
+            <label class="text-xs text-gray-400 uppercase font-bold block">Các order bị ảnh hưởng ({{ staffNotificationAffectedOrders.length }})</label>
+            <div v-if="staffNotificationAffectedOrders.length > 0" class="max-h-[150px] overflow-y-auto space-y-2">
+              <div v-for="ord in staffNotificationAffectedOrders" :key="ord.id" class="p-3 bg-[#1A1A1A] border border-[#404040] rounded-xl flex justify-between items-center text-sm">
+                <span class="font-bold text-gray-200">#{{ ord.id.slice(0, 8) }} - Bàn {{ ord.table }}</span>
+                <span class="text-orange-400 font-bold">Số lượng: x{{ ord.itemQty }}</span>
+              </div>
+            </div>
+            <p v-else class="text-sm text-gray-500 italic bg-[#1A1A1A] p-3 rounded-xl text-center border border-[#404040]/50">Không có order nào bị ảnh hưởng trực tiếp.</p>
+          </div>
+
+          <!-- Suggested replacements -->
+          <div class="space-y-2">
+            <label class="text-xs text-gray-400 uppercase font-bold block">Gợi ý món thay thế</label>
+            <div class="flex gap-2 flex-wrap">
+              <span v-for="rep in staffNotificationReplacements" :key="rep" class="px-3 py-1.5 bg-[#3D3D3D] border border-[#616161] text-gray-200 rounded-full text-xs font-bold">
+                {{ rep }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Extra notes -->
+          <div class="space-y-1.5">
+            <label class="text-xs text-gray-400 uppercase font-bold block">Ghi chú thêm</label>
+            <textarea v-model="staffNotificationNotes" rows="3" placeholder="Nhập thêm ghi chú dặn dò phục vụ..." class="w-full bg-[#1A1A1A] border border-[#616161] rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-[#FFA726] resize-none"></textarea>
+          </div>
+        </div>
+
+        <div class="modal-actions mt-6">
+          <button @click="showStaffNotificationModal = false" class="modal-btn cancel">
+            HỦY
+          </button>
+          <button @click="sendStaffNotification()" class="modal-btn continue bg-[#FFA726] hover:bg-[#ff9100]">
+            GỬI THÔNG BÁO
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL KIỂM TRA CHẤT LƯỢNG (QC) -->
+    <div v-if="showQcModal && qcOrder" class="modal-overlay" @click.self="showQcModal = false">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 class="modal-title">KIỂM TRA CHẤT LƯỢNG (QC) - Bàn {{ getTableCode(qcOrder.table) }}</h3>
+          <button @click="showQcModal = false" class="text-gray-400 hover:text-white transition-fast">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="space-y-5">
+          <!-- Checklist -->
+          <div class="space-y-2">
+            <label class="text-xs text-gray-400 uppercase font-bold block">CHECKLIST TIÊU CHUẨN MÓN ĂN (Expo QC)</label>
+            <div class="space-y-2.5 bg-[#1A1A1A] p-4 rounded-xl border border-[#404040]">
+              <label class="flex items-center gap-3 cursor-pointer text-sm text-gray-300">
+                <input type="checkbox" v-model="qcChecklist.plating" class="w-5 h-5 rounded border-gray-600 text-green-500 focus:ring-green-500 bg-[#2D2D2D]">
+                <span>Hình thức trình bày đẹp, đúng dĩa quy định</span>
+              </label>
+              <label class="flex items-center gap-3 cursor-pointer text-sm text-gray-300">
+                <input type="checkbox" v-model="qcChecklist.temperature" class="w-5 h-5 rounded border-gray-600 text-green-500 focus:ring-green-500 bg-[#2D2D2D]">
+                <span>Nhiệt độ món ăn đạt chuẩn (≥ 60°C đối với đồ nóng)</span>
+              </label>
+              <label class="flex items-center gap-3 cursor-pointer text-sm text-gray-300">
+                <input type="checkbox" v-model="qcChecklist.weight" class="w-5 h-5 rounded border-gray-600 text-green-500 focus:ring-green-500 bg-[#2D2D2D]">
+                <span>Định lượng đúng chuẩn định mức (sai số tối đa ±10%)</span>
+              </label>
+              <label class="flex items-center gap-3 cursor-pointer text-sm text-gray-300">
+                <input type="checkbox" v-model="qcChecklist.allergy" class="w-5 h-5 rounded border-gray-600 text-green-500 focus:ring-green-500 bg-[#2D2D2D]">
+                <span>Đáp ứng các lưu ý dị ứng của khách (Ví dụ: Không hành, ít cay)</span>
+              </label>
+              <label class="flex items-center gap-3 cursor-pointer text-sm text-gray-300">
+                <input type="checkbox" v-model="qcChecklist.taste" class="w-5 h-5 rounded border-gray-600 text-green-500 focus:ring-green-500 bg-[#2D2D2D]">
+                <span>Mùi vị và độ chín đạt tiêu chuẩn thương hiệu Ngưu Cát</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Result selectors -->
+          <div class="space-y-2">
+            <label class="text-xs text-gray-400 uppercase font-bold block">Kết quả kiểm tra</label>
+            <div class="grid grid-cols-2 gap-4">
+              <button 
+                @click="qcResult = 'pass'"
+                class="py-3 rounded-xl border-2 text-base font-bold transition-all flex items-center justify-center gap-2 touch-target"
+                :class="qcResult === 'pass' ? 'bg-green-950/40 border-[#4CAF50] text-[#4CAF50]' : 'bg-[#1A1A1A] border-[#404040] text-gray-400'"
+              >
+                ✅ ĐẠT TIÊU CHUẨN
+              </button>
+              <button 
+                @click="qcResult = 'fail'"
+                class="py-3 rounded-xl border-2 text-base font-bold transition-all flex items-center justify-center gap-2 touch-target"
+                :class="qcResult === 'fail' ? 'bg-red-950/40 border-[#F44336] text-[#F44336]' : 'bg-[#1A1A1A] border-[#404040] text-gray-400'"
+              >
+                ❌ KHÔNG ĐẠT YÊU CẦU
+              </button>
+            </div>
+          </div>
+
+          <!-- If fail reason -->
+          <div v-if="qcResult === 'fail'" class="space-y-1.5 animate-fade-in">
+            <label class="text-xs text-[#F44336] uppercase font-bold block">Ghi chú nguyên nhân không đạt</label>
+            <textarea v-model="qcFailReason" rows="3" placeholder="Nhập lý do không đạt (Ví dụ: bị cháy xém, thiếu dĩa đi kèm...)" class="w-full bg-[#1A1A1A] border border-[#F44336]/40 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-[#F44336] resize-none"></textarea>
+          </div>
+        </div>
+
+        <div class="modal-actions mt-6">
+          <button @click="showQcModal = false" class="modal-btn cancel">
+            HỦY
+          </button>
+          <button 
+            v-if="qcResult === 'pass'"
+            @click="submitQcResult()" 
+            class="modal-btn continue bg-green-600 hover:bg-green-500"
+          >
+            XÁC NHẬN ĐẠT & LÊN PASS
+          </button>
+          <button 
+            v-if="qcResult === 'fail'"
+            @click="submitQcResult()" 
+            class="modal-btn report-out"
+          >
+            YÊU CẦU LÀM LẠI (REMAKE)
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Delayed Orders Modal -->
+    <div v-if="kitchenStore.showDelayedOrdersModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in" @click.self="kitchenStore.showDelayedOrdersModal = false">
+      <div class="bg-[#2D2D2D] border border-[#404040] rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl animate-scale-up">
+        <!-- Header -->
+        <div class="p-6 bg-[#C62828] text-white flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <span class="text-2xl">⚠️</span>
+            <div>
+              <h3 class="text-lg font-bold">CẢNH BÁO: ĐƠN CHẾ BIẾN TRỄ</h3>
+              <p class="text-xs text-red-100">Các đơn hàng vượt quá thời gian chuẩn (15 phút)</p>
+            </div>
+          </div>
+          <button @click="kitchenStore.showDelayedOrdersModal = false" class="text-white/80 hover:text-white text-xl font-bold">&times;</button>
+        </div>
+        
+        <!-- Body -->
+        <div class="p-6 max-h-[400px] overflow-y-auto space-y-4">
+          <div v-if="kitchenStore.delayedTickets.length === 0" class="text-center py-8 text-gray-400">
+            Không có đơn hàng nào bị trễ.
+          </div>
+          <div v-else v-for="ticket in kitchenStore.delayedTickets" :key="ticket.id" class="p-4 bg-[#1A1A1A] border border-red-500/30 rounded-xl flex items-center justify-between gap-4">
+            <div class="space-y-1">
+              <div class="flex items-center gap-2">
+                <span class="bg-[#C62828] text-white text-xs px-2.5 py-0.5 rounded-full font-bold">Bàn {{ ticket.table }}</span>
+                <span class="text-gray-400 text-xs font-mono">{{ ticket.time }}</span>
+              </div>
+              <div class="text-sm font-semibold text-gray-200">
+                <div v-for="item in ticket.items" :key="item.id" class="inline-block mr-3">
+                  {{ item.name }} x{{ item.qty }}
+                </div>
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="text-red-500 font-bold text-sm">{{ Math.floor(ticket.waitTime / 60) }} phút</div>
+              <div class="text-xs text-gray-500">Thời gian chờ</div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="p-4 bg-[#1A1A1A] border-t border-[#404040] flex justify-end">
+          <button @click="kitchenStore.showDelayedOrdersModal = false" class="px-5 py-2 rounded-xl bg-gray-700 hover:bg-gray-600 text-white font-bold text-sm transition-all">Đóng</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
-import { ref, onMounted, onUnmounted, computed } from 'vue';
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
 import { supabase } from '@/lib/supabase';
 import { useRealtime } from '@/composables/useRealtime';
 import { useOrder } from '@/composables/useOrder';
+import { useBranch } from '@/composables/useBranch';
+import { mockTickets, mockGrillRequests, mock86dItems } from '@/data/mockKitchenData';
 import type { OrderStatus } from '@/types/database';
+import { useKitchenStore } from '@/stores/kitchen';
+import HeaderButtons from '@/components/HeaderButtons.vue';
 
 const { watchTable } = useRealtime();
 const { loading } = useOrder();
+
+const kitchenStore = useKitchenStore();
+
 
 // Types
 interface OrderItem {
@@ -1230,7 +1835,7 @@ interface Order {
   timestamp: number;
   waitTime: number; // in seconds
   items: OrderItem[];
-  status: 'pending' | 'preparing' | 'done';
+  status: 'pending' | 'preparing' | 'ready' | 'done';
 }
 
 // Grill & Coal Request structure
@@ -1266,11 +1871,52 @@ const notification = ref<{type: 'success' | 'error' | 'info' | 'warning', messag
 
 // Grill & Coal Request Management state
 const grillRequests = ref<GrillRequest[]>([]);
-const showGrillRequestModal = ref(false);
-const showGrillSidebar = ref(true);
+const showGrillRequestModal = computed({
+  get: () => kitchenStore.showGrillRequestModal,
+  set: (val) => kitchenStore.showGrillRequestModal = val
+});
+const showGrillSidebar = computed({
+  get: () => kitchenStore.isGrillPanelVisible,
+  set: (val) => kitchenStore.isGrillPanelVisible = val
+});
 const newRequestTable = ref('');
 const newRequestType = ref<'GrillChange' | 'CoalRefill'>('GrillChange');
 const newRequestPriority = ref<'Normal' | 'Urgent'>('Normal');
+
+
+// Local operational tracking
+const completedOrders = ref<string[]>([]);
+const startedOrders = ref<string[]>([]);
+
+// Modals State
+const showIngredientCheckModal = ref(false);
+const ingredientCheckOrder = ref<Order | null>(null);
+const ingredientCheckList = ref<{ name: string; qty: string; status: 'ok' | 'low' | 'out'; icon: string }[]>([]);
+
+const showReportOutModal = ref(false);
+const reportOutItem = ref<MenuItem | null>(null);
+const reportOutReason = ref('Hết nguyên liệu');
+const reportOutCustomReason = ref('');
+const reportOutRestoreTime = ref('30 phút');
+
+const showStaffNotificationModal = ref(false);
+const staffNotificationItemName = ref('');
+const staffNotificationReason = ref('');
+const staffNotificationAffectedOrders = ref<{ id: string; table: string; itemQty: number }[]>([]);
+const staffNotificationReplacements = ref<string[]>(['Hành phi', 'Ớt băm', 'Gừng băm']);
+const staffNotificationNotes = ref('');
+
+const showQcModal = ref(false);
+const qcOrder = ref<Order | null>(null);
+const qcChecklist = ref({
+  plating: false,
+  temperature: false,
+  weight: false,
+  allergy: false,
+  taste: false
+});
+const qcResult = ref<'pass' | 'fail' | null>(null);
+const qcFailReason = ref('');
 
 let clockInterval: any = null;
 let timerInterval: any = null;
@@ -1403,6 +2049,148 @@ const triggerQuickRequest = (tableIdOrCode: string, type: 'GrillChange' | 'CoalR
   showNotification('success', `Đã gửi yêu cầu ${type === 'GrillChange' ? 'thay vỉ' : 'châm than'} cho Bàn ${tableCode}!`);
 };
 
+// 86'd Menu Items States & Logic based on kitchen_order_receiving.mmd
+interface MenuItem {
+  id: string;
+  name: string;
+  is_available: boolean;
+}
+
+const show86dModal = computed({
+  get: () => kitchenStore.show86dModal,
+  set: (val) => kitchenStore.show86dModal = val
+});
+const search86dQuery = ref('');
+const filter86dStatus = ref<'all' | 'available' | 'unavailable'>('all');
+const menuItems = ref<MenuItem[]>([]);
+
+
+const defaultMenuItemsList = [
+  { id: 'def-item-1', name: 'Sườn bò Ngưu Cát', is_available: true },
+  { id: 'def-item-2', name: 'Thịt bò Wagyu lẩu', is_available: true },
+  { id: 'def-item-3', name: 'Rau nấm tổng hợp', is_available: true },
+  { id: 'def-item-4', name: 'Nước lẩu Sukiyaki', is_available: true },
+  { id: 'def-item-5', name: 'Gỏi xoài hải sản', is_available: true },
+  { id: 'def-item-6', name: 'Khoai tây chiên', is_available: true },
+  { id: 'def-item-7', name: 'Gà chiên giòn', is_available: true },
+  { id: 'def-item-8', name: 'Bia Sapporo', is_available: true },
+];
+
+const unavailableItemsCount = computed(() => {
+  return menuItems.value.filter(item => !item.is_available).length;
+});
+
+const filtered86dItems = computed(() => {
+  let result = menuItems.value;
+  if (search86dQuery.value) {
+    const q = search86dQuery.value.toLowerCase();
+    result = result.filter(item => item.name.toLowerCase().includes(q));
+  }
+  if (filter86dStatus.value === 'available') {
+    result = result.filter(item => item.is_available);
+  } else if (filter86dStatus.value === 'unavailable') {
+    result = result.filter(item => !item.is_available);
+  }
+  return result;
+});
+
+const fetchMenuItems = async () => {
+  try {
+    const { data, error } = await supabase.from('menu_items').select('id, name, is_available');
+    if (error) throw error;
+    if (data && data.length > 0) {
+      menuItems.value = data.map((d: any) => ({
+        id: d.id,
+        name: d.name,
+        is_available: d.is_available
+      }));
+    } else {
+      menuItems.value = [...defaultMenuItemsList];
+    }
+  } catch (e) {
+    console.error('Error fetching menu items:', e);
+    menuItems.value = [...defaultMenuItemsList];
+  }
+  mergeOrderItemsToMenu();
+};
+
+const mergeOrderItemsToMenu = () => {
+  const existingNames = new Set(menuItems.value.map(i => i.name.toLowerCase()));
+  orders.value.forEach(order => {
+    order.items.forEach(item => {
+      const nameLower = item.name.toLowerCase();
+      if (!existingNames.has(nameLower)) {
+        menuItems.value.push({
+          id: `ext-${item.id}`,
+          name: item.name,
+          is_available: true
+        });
+        existingNames.add(nameLower);
+      }
+    });
+  });
+};
+
+const toggleMenuItemAvailability = async (item: MenuItem) => {
+  const originalValue = item.is_available;
+  item.is_available = !item.is_available;
+  
+  if (item.id.startsWith('ext-') || item.id.startsWith('def-')) {
+    showNotification(
+      item.is_available ? 'success' : 'warning', 
+      `Đã cập nhật (Local): ${item.name} là ${item.is_available ? 'CÒN MÓN' : 'HẾT MÓN (86\'d)'}`
+    );
+    playNewTicketSound();
+    return;
+  }
+  
+  try {
+    const { error } = await supabase
+      .from('menu_items')
+      .update({ is_available: item.is_available })
+      .eq('id', item.id);
+    if (error) throw error;
+    
+    showNotification(
+      item.is_available ? 'success' : 'warning', 
+      `Đã cập nhật: ${item.name} là ${item.is_available ? 'CÒN MÓN' : 'HẾT MÓN (86\'d)'}`
+    );
+    playNewTicketSound();
+  } catch (e) {
+    console.error('Error updating menu item availability:', e);
+    item.is_available = originalValue;
+    showNotification('error', `Không thể cập nhật trạng thái món: ${e instanceof Error ? e.message : String(e)}`);
+  }
+};
+
+const isItem86d = (itemName: string): boolean => {
+  const item = menuItems.value.find(i => i.name.toLowerCase() === itemName.toLowerCase());
+  return item ? !item.is_available : false;
+};
+
+const { activeBranchId } = useBranch();
+
+const notifyStaffAbout86d = async (itemName: string, tableCode: string) => {
+  try {
+    const { error } = await supabase.from('notifications').insert({
+      branch_id: activeBranchId.value || null,
+      channel: 'staff',
+      recipient: 'all',
+      template: 'item_sold_out',
+      variables: { itemName, tableCode },
+      status: 'unread',
+      metadata: { source: 'kds', tableCode, itemName, time: new Date().toISOString() }
+    });
+    if (error) throw error;
+    showNotification('success', `Đã phát thông báo đổi món [${itemName}] cho Bàn ${tableCode} tới Phục vụ!`);
+    playNewTicketSound();
+  } catch (e) {
+    console.error('Error notifying staff:', e);
+    showNotification('warning', `Đã gửi yêu cầu đổi món [${itemName}] tại Bàn ${tableCode} cho nhân viên phục vụ.`);
+    playNewTicketSound();
+  }
+};
+
 // HACCP Hygiene & Safety States & Logic based on kitchen_hygiene_safety.mmd
 interface IncidentReport {
   id: string;
@@ -1415,7 +2203,178 @@ interface IncidentReport {
   resolvedAt?: number;
 }
 
-const showHaccpModal = ref(false);
+// Prep List & Tasks States based on kitchen_preprouting.mmd
+interface PrepTask {
+  id: string;
+  name: string;
+  assignedTo: string;
+  status: 'Pending' | 'InProgress' | 'Completed';
+  createdAt: number;
+}
+
+const showPrepModal = computed({
+  get: () => kitchenStore.showPrepListModal,
+  set: (val) => kitchenStore.showPrepListModal = val
+});
+const prepTasks = ref<PrepTask[]>([]);
+const newPrepTaskName = ref('');
+const newPrepTaskAssigned = ref('');
+
+const todayBookingsCount = ref(0);
+const todayExpectedGuests = ref(0);
+
+const pendingPrepTaskCount = computed(() => {
+  return prepTasks.value.filter(t => t.status !== 'Completed').length;
+});
+
+const kitchenPrepStatus = computed(() => {
+  if (!haccpPreSaved.value) {
+    return {
+      label: 'Chưa KT Nhiệt độ (HACCP)',
+      colorClass: 'text-red-400 font-bold'
+    };
+  }
+  if (pendingPrepTaskCount.value > 0) {
+    return {
+      label: `Đang sơ chế (${prepTasks.value.filter(t => t.status === 'Completed').length}/${prepTasks.value.length})`,
+      colorClass: 'text-[#FFA726] font-bold'
+    };
+  }
+  return {
+    label: 'Sẵn sàng đón Order',
+    colorClass: 'text-green-400 font-bold'
+  };
+});
+
+const loadPrepTasks = () => {
+  try {
+    const raw = localStorage.getItem('kds_prep_tasks');
+    if (raw) {
+      prepTasks.value = JSON.parse(raw);
+    } else {
+      prepTasks.value = [
+        { id: 'prep-1', name: 'Thái mỏng thịt bò Wagyu (đĩa lẩu)', assignedTo: 'Đầu bếp Hải', status: 'Pending', createdAt: Date.now() },
+        { id: 'prep-2', name: 'Tẩm ướp Sườn bò Ngưu Cát', assignedTo: 'Đầu bếp Sơn', status: 'Pending', createdAt: Date.now() },
+        { id: 'prep-3', name: 'Rửa sạch & xếp set rau lẩu tổng hợp', assignedTo: 'Đầu bếp Chi', status: 'Pending', createdAt: Date.now() },
+        { id: 'prep-4', name: 'Chuẩn bị nước cốt lẩu Sukiyaki', assignedTo: 'Đầu bếp Hải', status: 'Pending', createdAt: Date.now() }
+      ];
+      savePrepTasks();
+    }
+  } catch (e) {
+    console.error('Error loading prep tasks:', e);
+  }
+};
+
+const savePrepTasks = () => {
+  localStorage.setItem('kds_prep_tasks', JSON.stringify(prepTasks.value));
+};
+
+const addPrepTask = () => {
+  if (!newPrepTaskName.value) return;
+  prepTasks.value.push({
+    id: `prep-${Date.now()}`,
+    name: newPrepTaskName.value,
+    assignedTo: newPrepTaskAssigned.value || 'Chưa phân công',
+    status: 'Pending',
+    createdAt: Date.now()
+  });
+  savePrepTasks();
+  newPrepTaskName.value = '';
+  newPrepTaskAssigned.value = '';
+  showNotification('success', 'Đã thêm nhiệm vụ sơ chế mới!');
+};
+
+const togglePrepTaskStatus = (task: PrepTask) => {
+  if (task.status === 'Pending') task.status = 'InProgress';
+  else if (task.status === 'InProgress') task.status = 'Completed';
+  else task.status = 'Pending';
+  savePrepTasks();
+  playNewTicketSound();
+};
+
+const deletePrepTask = (taskId: string) => {
+  prepTasks.value = prepTasks.value.filter(t => t.id !== taskId);
+  savePrepTasks();
+};
+
+const fetchTodayBookingsForPrep = async () => {
+  try {
+    const today = new Date().toISOString().slice(0, 10);
+    const { data, error } = await supabase
+      .from('reservations')
+      .select('guests')
+      .eq('reservation_date', today);
+    if (error) throw error;
+    if (data) {
+      todayBookingsCount.value = data.length;
+      todayExpectedGuests.value = data.reduce((sum: number, r: any) => sum + (r.guests || 0), 0);
+    }
+  } catch (e) {
+    console.error('Error fetching today bookings for prep:', e);
+    todayBookingsCount.value = 8;
+    todayExpectedGuests.value = 32;
+  }
+};
+
+const localRemakeOrderIds = ref<string[]>([]);
+const toggleOrderRemake = (orderId: string) => {
+  const index = localRemakeOrderIds.value.indexOf(orderId);
+  if (index >= 0) {
+    localRemakeOrderIds.value.splice(index, 1);
+    showNotification('info', `Đã bỏ đánh dấu trả món cho Đơn #${orderId.slice(0, 8)}`);
+  } else {
+    localRemakeOrderIds.value.push(orderId);
+    showNotification('warning', `Đơn #${orderId.slice(0, 8)} đã được đánh dấu KHÁCH TRẢ MÓN - ƯU TIÊN CAO NHẤT!`);
+    playNewTicketSound();
+  }
+  localStorage.setItem('kds_remake_orders', JSON.stringify(localRemakeOrderIds.value));
+};
+
+const loadRemakeOrders = () => {
+  try {
+    const raw = localStorage.getItem('kds_remake_orders');
+    if (raw) {
+      localRemakeOrderIds.value = JSON.parse(raw);
+    }
+  } catch (e) {
+    console.error('Error loading remake orders:', e);
+  }
+};
+
+const isOrderRemake = (order: Order | null): boolean => {
+  if (!order) return false;
+  if (localRemakeOrderIds.value.includes(order.id)) return true;
+  return order.items.some(i => {
+    const note = (i.note || '').toLowerCase();
+    return note.includes('remake') || note.includes('làm lại') || note.includes('trả món') || note.includes('đổi món');
+  });
+};
+
+const getOrderClassification = (order: Order): 'Remake' | 'Round1' | 'RoundN' | 'Alacarte' => {
+  if (isOrderRemake(order)) return 'Remake';
+  
+  const hasBuffetItem = order.items.some(i => {
+    const name = i.name.toLowerCase();
+    return name.includes('buffet') || name.includes('gói') || name.includes('set');
+  });
+  
+  if (!hasBuffetItem) return 'Alacarte';
+  
+  const tableOrders = orders.value.filter(o => o.table === order.table);
+  if (tableOrders.length === 0) return 'Round1';
+  
+  const sorted = [...tableOrders].sort((a, b) => a.timestamp - b.timestamp);
+  if (sorted[0].id === order.id) {
+    return 'Round1';
+  } else {
+    return 'RoundN';
+  }
+};
+
+const showHaccpModal = computed({
+  get: () => kitchenStore.showHACCPModal,
+  set: (val) => kitchenStore.showHACCPModal = val
+});
 const haccpActiveTab = ref<'preshift' | 'incidents' | 'postshift' | 'approval'>('preshift');
 
 // Pre-shift state
@@ -1460,6 +2419,23 @@ const haccpHeadChefApproved = ref(false);
 const haccpChefName = ref('');
 const haccpHaccpStatus = ref<'Compliant' | 'NonCompliant'>('Compliant');
 const haccpActionNote = ref('');
+
+// Sync lists to kitchenStore
+watch(orders, (newOrders) => {
+  kitchenStore.qcQueue = newOrders.filter(o => o.status === 'ready');
+  kitchenStore.delayedTickets = newOrders.filter(o => o.status !== 'done' && o.status !== 'ready' && o.waitTime >= 900);
+}, { deep: true, immediate: true });
+
+watch(grillRequests, (newRequests) => {
+  kitchenStore.grillRequests = newRequests;
+}, { deep: true, immediate: true });
+
+watch(prepTasks, (newPrepTasks) => {
+  kitchenStore.prepList = newPrepTasks.map(t => ({
+    ...t,
+    completed: t.status === 'Completed'
+  }));
+}, { deep: true, immediate: true });
 
 const saveHaccpState = () => {
   const data = {
@@ -1638,6 +2614,79 @@ const playNewTicketSound = () => {
     oscillator.stop(audioCtx.currentTime + 0.15);
   } catch (e) {
     console.warn('Audio context failed to initialize:', e);
+  }
+};
+
+const playAcknowledgeSound = () => {
+  try {
+    const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const oscillator = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+    oscillator.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(600, audioCtx.currentTime);
+    oscillator.frequency.exponentialRampToValueAtTime(1000, audioCtx.currentTime + 0.1);
+    gainNode.gain.setValueAtTime(0.06, audioCtx.currentTime);
+    oscillator.start();
+    oscillator.stop(audioCtx.currentTime + 0.12);
+  } catch (e) {
+    console.warn(e);
+  }
+};
+
+const playCompleteSound = () => {
+  try {
+    const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const oscillator = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+    oscillator.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+    oscillator.type = 'triangle';
+    oscillator.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+    oscillator.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.08); // E5
+    oscillator.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.16); // G5
+    gainNode.gain.setValueAtTime(0.08, audioCtx.currentTime);
+    oscillator.start();
+    oscillator.stop(audioCtx.currentTime + 0.3);
+  } catch (e) {
+    console.warn(e);
+  }
+};
+
+const playAlertSound = () => {
+  try {
+    const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const oscillator = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+    oscillator.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+    oscillator.type = 'sawtooth';
+    oscillator.frequency.setValueAtTime(440, audioCtx.currentTime);
+    oscillator.frequency.setValueAtTime(880, audioCtx.currentTime + 0.1);
+    gainNode.gain.setValueAtTime(0.04, audioCtx.currentTime);
+    oscillator.start();
+    oscillator.stop(audioCtx.currentTime + 0.2);
+  } catch (e) {
+    console.warn(e);
+  }
+};
+
+const playWarningSound = () => {
+  try {
+    const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const oscillator = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+    oscillator.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+    oscillator.type = 'square';
+    oscillator.frequency.setValueAtTime(150, audioCtx.currentTime);
+    oscillator.frequency.linearRampToValueAtTime(300, audioCtx.currentTime + 0.25);
+    gainNode.gain.setValueAtTime(0.05, audioCtx.currentTime);
+    oscillator.start();
+    oscillator.stop(audioCtx.currentTime + 0.3);
+  } catch (e) {
+    console.warn(e);
   }
 };
 
@@ -1822,27 +2871,34 @@ const filteredOrders = computed(() => {
     );
   }
 
-  // Sorting
-  if (sortOrder.value === 'oldest') {
-    result.sort((a, b) => b.waitTime - a.waitTime);
-  } else if (sortOrder.value === 'newest') {
-    result.sort((a, b) => a.waitTime - b.waitTime);
-  } else if (sortOrder.value === 'priority') {
-    const isPriority = (o: any) => {
-      const isDelayed = o.waitTime >= 900;
-      const hasAllergy = o.items.some((i: any) => {
-        const note = (i.note || '').toLowerCase();
-        return note.includes('dị ứng') || note.includes('allergy') || note.includes('vip') || note.includes('gấp') || note.includes('lại');
-      });
-      return (isDelayed ? 2 : 0) + (hasAllergy ? 3 : 0);
-    };
-    result.sort((a, b) => {
+  // Sorting: Remake always bypasses normal queue and goes to the absolute top based on kitchen_preprouting.mmd
+  result.sort((a, b) => {
+    const aRemake = isOrderRemake(a) ? 1 : 0;
+    const bRemake = isOrderRemake(b) ? 1 : 0;
+    if (aRemake !== bRemake) {
+      return bRemake - aRemake; // Remake first
+    }
+
+    if (sortOrder.value === 'oldest') {
+      return b.waitTime - a.waitTime;
+    } else if (sortOrder.value === 'newest') {
+      return a.waitTime - b.waitTime;
+    } else if (sortOrder.value === 'priority') {
+      const isPriority = (o: any) => {
+        const isDelayed = o.waitTime >= 900;
+        const hasAllergy = o.items.some((i: any) => {
+          const note = (i.note || '').toLowerCase();
+          return note.includes('dị ứng') || note.includes('allergy') || note.includes('vip') || note.includes('gấp') || note.includes('lại');
+        });
+        return (isDelayed ? 2 : 0) + (hasAllergy ? 3 : 0);
+      };
       const aPri = isPriority(a);
       const bPri = isPriority(b);
       if (aPri !== bPri) return bPri - aPri;
-      return b.waitTime - a.waitTime; // fallback oldest
-    });
-  }
+      return b.waitTime - a.waitTime;
+    }
+    return 0;
+  });
 
   return result;
 });
@@ -1850,13 +2906,16 @@ const filteredOrders = computed(() => {
 // Kanban column divisions
 const pendingOrders = computed(() => filteredOrders.value.filter(o => o.status === 'pending'));
 const preparingOrders = computed(() => filteredOrders.value.filter(o => o.status === 'preparing'));
-const doneOrders = computed(() => filteredOrders.value.filter(o => o.status === 'done'));
+const readyOrders = computed(() => filteredOrders.value.filter(o => o.status === 'ready' && !completedOrders.value.includes(o.id)));
+const doneOrders = computed(() => filteredOrders.value.filter(o => o.status === 'done' || completedOrders.value.includes(o.id)));
 
 // Status counts
 const countPending = computed(() => orders.value.filter(o => o.status === 'pending').length);
 const countPreparing = computed(() => orders.value.filter(o => o.status === 'preparing').length);
-const countDone = computed(() => orders.value.filter(o => o.status === 'done').length);
-const countDelayed = computed(() => orders.value.filter(o => o.status !== 'done' && o.waitTime >= 900).length);
+const countReady = computed(() => orders.value.filter(o => o.status === 'ready' && !completedOrders.value.includes(o.id)).length);
+const countDone = computed(() => orders.value.filter(o => o.status === 'done' || completedOrders.value.includes(o.id)).length);
+const countDelayed = computed(() => orders.value.filter(o => o.status !== 'done' && o.status !== 'ready' && o.waitTime >= 900).length);
+const qcQueueCount = computed(() => countReady.value);
 
 // Actions handlers
 const toggleItemStatus = async (item: OrderItem) => {
@@ -1878,13 +2937,31 @@ const moveToPreparing = async (order: Order) => {
     const { error: err } = await supabase.from('orders').update({ status: 'Preparing' }).eq('id', order.id);
     if (err) throw err;
     showNotification('info', `Bàn ${getTableCode(order.table)}: Bắt đầu chế biến.`);
+    playAcknowledgeSound();
   } catch (e) {
     showNotification('error', `Lỗi kết nối: ${e instanceof Error ? e.message : String(e)}`);
     order.status = 'pending';
   }
 };
 
+const moveToReady = async (order: Order) => {
+  order.status = 'ready';
+  try {
+    const { error: err1 } = await supabase.from('orders').update({ status: 'Served' }).eq('id', order.id);
+    const { error: err2 } = await supabase.from('order_items').update({ status: 'Served' }).eq('order_id', order.id);
+    if (err1 || err2) throw (err1 || err2);
+    showNotification('success', `Bàn ${getTableCode(order.table)}: Đã kiểm tra QC đạt chuẩn và đưa lên Pass.`);
+    playCompleteSound();
+  } catch (e) {
+    showNotification('error', `Lỗi kết nối: ${e instanceof Error ? e.message : String(e)}`);
+    order.status = 'preparing';
+  }
+};
+
 const moveToDone = async (order: Order) => {
+  if (!completedOrders.value.includes(order.id)) {
+    completedOrders.value.push(order.id);
+  }
   order.status = 'done';
   order.items.forEach(item => item.done = true);
   try {
@@ -1892,10 +2969,146 @@ const moveToDone = async (order: Order) => {
     const { error: err2 } = await supabase.from('order_items').update({ status: 'Served' }).eq('order_id', order.id);
     if (err1 || err2) throw (err1 || err2);
     showNotification('success', `Bàn ${getTableCode(order.table)}: Đơn hàng hoàn tất và sẵn sàng phục vụ.`);
+    playCompleteSound();
   } catch (e) {
     showNotification('error', `Lỗi kết nối: ${e instanceof Error ? e.message : String(e)}`);
-    order.status = 'preparing';
   }
+};
+
+// Ingredient Check & QC Log Helper logic
+const getIngredientsForOrder = (order: Order) => {
+  const list: { name: string; qty: string; status: 'ok' | 'low' | 'out'; icon: string }[] = [];
+  order.items.forEach(item => {
+    const isOut = isItem86d(item.name);
+    if (item.name.toLowerCase().includes('sườn') || item.name.toLowerCase().includes('wagyu') || item.name.toLowerCase().includes('thịt')) {
+      list.push({ name: 'Thịt bò Wagyu', qty: `${item.qty * 250}g`, status: isOut ? 'out' : 'ok', icon: '🥩' });
+      list.push({ name: 'Nước xốt gia vị', qty: `${item.qty * 50}ml`, status: 'ok', icon: '🏺' });
+    } else if (item.name.toLowerCase().includes('lẩu') || item.name.toLowerCase().includes('sukiyaki')) {
+      list.push({ name: 'Nước lẩu Sukiyaki', qty: `${item.qty * 1}L`, status: 'ok', icon: '🍲' });
+      list.push({ name: 'Rau lẩu tổng hợp', qty: `${item.qty * 300}g`, status: isOut ? 'out' : 'low', icon: '🥬' });
+    } else if (item.name.toLowerCase().includes('rau') || item.name.toLowerCase().includes('cải') || item.name.toLowerCase().includes('nấm')) {
+      list.push({ name: 'Rau cải sạch', qty: `${item.qty * 150}g`, status: isOut ? 'out' : 'ok', icon: '🥦' });
+      list.push({ name: 'Nấm đùi gà', qty: `${item.qty * 100}g`, status: 'ok', icon: '🍄' });
+    } else {
+      list.push({ name: `Nguyên liệu ${item.name}`, qty: `${item.qty * 1} phần`, status: isOut ? 'out' : 'ok', icon: '📦' });
+    }
+  });
+  if (order.items.length > 0) {
+    const isGarlic86d = isItem86d('Tỏi băm') || isItem86d('Tỏi');
+    list.push({ 
+      name: 'Tỏi băm', 
+      qty: '50g', 
+      status: isGarlic86d ? 'out' : (order.timestamp % 7 === 0 ? 'out' : (order.timestamp % 5 === 0 ? 'low' : 'ok')), 
+      icon: '🧄' 
+    });
+  }
+  return list;
+};
+
+const openIngredientCheck = (order: Order) => {
+  ingredientCheckOrder.value = order;
+  ingredientCheckList.value = getIngredientsForOrder(order);
+  showIngredientCheckModal.value = true;
+};
+
+const confirmStartCooking = () => {
+  if (ingredientCheckOrder.value) {
+    const orderId = ingredientCheckOrder.value.id;
+    if (!startedOrders.value.includes(orderId)) {
+      startedOrders.value.push(orderId);
+    }
+  }
+  showIngredientCheckModal.value = false;
+  playAcknowledgeSound();
+};
+
+const openReportOutFromCheck = () => {
+  const outIng = ingredientCheckList.value.find(i => i.status === 'out');
+  if (outIng) {
+    const mItem = menuItems.value.find(mi => mi.name.toLowerCase().includes(outIng.name.toLowerCase()) || outIng.name.toLowerCase().includes(mi.name.toLowerCase()));
+    reportOutItem.value = mItem || null;
+  }
+  showIngredientCheckModal.value = false;
+  showReportOutModal.value = true;
+};
+
+const submitReportOut = async () => {
+  if (!reportOutItem.value) return;
+  const item = reportOutItem.value;
+  
+  item.is_available = false;
+  try {
+    if (!item.id.startsWith('ext-') && !item.id.startsWith('def-')) {
+      await supabase.from('menu_items').update({ is_available: false }).eq('id', item.id);
+    }
+  } catch (e) {
+    console.error('Error updating DB menu item:', e);
+  }
+
+  showNotification('warning', `Đã đánh dấu hết hàng: ${item.name}`);
+  playWarningSound();
+  
+  staffNotificationItemName.value = item.name;
+  staffNotificationReason.value = reportOutReason.value === 'Khác' ? reportOutCustomReason.value : reportOutReason.value;
+  
+  const affected: { id: string; table: string; itemQty: number }[] = [];
+  orders.value.forEach(ord => {
+    if (ord.status !== 'done') {
+      const match = ord.items.find(i => i.name.toLowerCase().includes(item.name.toLowerCase()) || item.name.toLowerCase().includes(i.name.toLowerCase()));
+      if (match) {
+        affected.push({ id: ord.id, table: getTableCode(ord.table), itemQty: match.qty });
+      }
+    }
+  });
+  staffNotificationAffectedOrders.value = affected;
+  
+  if (item.name.toLowerCase().includes('tỏi')) {
+    staffNotificationReplacements.value = ['Hành phi', 'Ớt băm', 'Gừng băm'];
+  } else if (item.name.toLowerCase().includes('thịt') || item.name.toLowerCase().includes('sườn')) {
+    staffNotificationReplacements.value = ['Thịt heo Iberico', 'Dẻ sườn bò Mỹ'];
+  } else {
+    staffNotificationReplacements.value = ['Món tương tự trong menu', 'Salad trộn', 'Đậu hũ'];
+  }
+  
+  staffNotificationNotes.value = `Khách có thể đổi sang ${staffNotificationReplacements.value[0]} hoặc món khác tương đương.`;
+  
+  showReportOutModal.value = false;
+  showStaffNotificationModal.value = true;
+};
+
+const sendStaffNotification = () => {
+  showNotification('success', `Đã gửi thông báo đổi món đến POS & Phục vụ của ${staffNotificationAffectedOrders.value.length} bàn.`);
+  playAlertSound();
+  showStaffNotificationModal.value = false;
+};
+
+const openQcCheck = (order: Order) => {
+  qcOrder.value = order;
+  qcChecklist.value = {
+    plating: false,
+    temperature: false,
+    weight: false,
+    allergy: false,
+    taste: false
+  };
+  qcResult.value = null;
+  qcFailReason.value = '';
+  showQcModal.value = true;
+};
+
+const submitQcResult = async () => {
+  if (!qcOrder.value) return;
+  const order = qcOrder.value;
+  
+  if (qcResult.value === 'pass') {
+    await moveToReady(order);
+  } else if (qcResult.value === 'fail') {
+    toggleOrderRemake(order.id);
+    startedOrders.value = startedOrders.value.filter(id => id !== order.id);
+    showNotification('error', `Bàn ${getTableCode(order.table)}: QC KHÔNG ĐẠT. Đã yêu cầu làm lại (Remake) với ưu tiên cao.`);
+    playWarningSound();
+  }
+  showQcModal.value = false;
 };
 
 // Modal functions
@@ -1939,11 +3152,61 @@ const formatWaitTime = (seconds: number): string => {
   return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
 };
 
+const loadMockTickets = () => {
+  const mapped = mockTickets.map((t: any) => {
+    const d = new Date(t.createdAt);
+    return {
+      id: t.id,
+      table: t.tableNumber,
+      time: d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      timestamp: d.getTime(),
+      waitTime: Math.floor((Date.now() - d.getTime()) / 1000),
+      status: t.status === 'delayed' ? 'pending' : t.status,
+      items: t.items.map((i: any) => ({
+        id: i.id,
+        name: i.name,
+        qty: i.quantity,
+        note: i.notes || (i.hasAllergy ? i.allergyInfo : ''),
+        done: t.status === 'ready' || t.status === 'done'
+      }))
+    };
+  });
+  
+  mapped.forEach((o: any) => {
+    if (!orders.value.some(existing => existing.id === o.id)) {
+      orders.value.push(o);
+    }
+  });
+};
+
+const loadMockGrillRequests = () => {
+  const mapped = mockGrillRequests.map((r: any) => ({
+    id: r.id,
+    table: r.tableNumber,
+    type: r.type === 'vỉ' ? 'GrillChange' as const : 'CoalRefill' as const,
+    status: r.status === 'pending' ? 'Pending' as const : 'Inprogress' as const,
+    priority: r.type === 'than' ? 'Urgent' as const : 'Normal' as const,
+    createdAt: r.createdAt.getTime(),
+    timeLeft: r.estimatedTime * 60
+  }));
+  mapped.forEach((req: any) => {
+    if (!grillRequests.value.some(existing => existing.id === req.id)) {
+      grillRequests.value.push(req);
+    }
+  });
+};
+
 onMounted(async () => {
-  // Load local requests, sub-steps & HACCP states
+  // Load local requests, sub-steps, HACCP, remake & prep states
   loadGrillRequests();
   loadSubSteps();
   loadHaccpState();
+  loadRemakeOrders();
+  loadPrepTasks();
+  loadMockTickets();
+  loadMockGrillRequests();
+  await fetchTodayBookingsForPrep();
+  await fetchMenuItems();
 
   // Fetch table mappings
   await fetchTableMap();
@@ -1963,9 +3226,10 @@ onMounted(async () => {
     if (rawOrders) {
       orders.value = rawOrders.map((ro: any) => {
         const d = new Date(ro.created_at);
-        let st: 'pending'|'preparing'|'done' = 'pending';
+        let st: 'pending'|'preparing'|'ready'|'done' = 'pending';
         if (ro.status === 'Preparing') st = 'preparing';
-        if (ro.status === 'Served' || ro.status === 'Paid') st = 'done';
+        if (ro.status === 'Served') st = 'ready';
+        if (ro.status === 'Paid') st = 'done';
         
         return {
           id: ro.id,
@@ -1983,6 +3247,7 @@ onMounted(async () => {
           }))
         };
       });
+      mergeOrderItemsToMenu();
     }
   } catch (e) {
     showNotification('error', `Lỗi tải dữ liệu bếp: ${e instanceof Error ? e.message : String(e)}`);
@@ -1994,7 +3259,8 @@ onMounted(async () => {
     const existing = orders.value.find(o => o.id === order.id);
     if (existing) {
       if (order.status === 'Preparing') existing.status = 'preparing';
-      else if (order.status === 'Served' || order.status === 'Paid') existing.status = 'done';
+      else if (order.status === 'Served') existing.status = 'ready';
+      else if (order.status === 'Paid') existing.status = 'done';
       else if (order.status === 'Pending') existing.status = 'pending';
     } else if (order.id && payload.eventType === 'INSERT') {
       const d = new Date(order.created_at || Date.now());
@@ -2025,6 +3291,7 @@ onMounted(async () => {
             note: item.note,
             done: item.status === 'Served' || item.status === 'Paid'
           });
+          mergeOrderItemsToMenu();
           playNewTicketSound();
         }
       }
@@ -2034,6 +3301,23 @@ onMounted(async () => {
         if (existingItem) {
           existingItem.done = (item.status === 'Served' || item.status === 'Paid');
         }
+      }
+    }
+  });
+
+  // Realtime subscription for menu_items
+  watchTable('menu_items', '*', (payload) => {
+    const updatedItem = payload.new as any;
+    if (updatedItem && updatedItem.id) {
+      const existing = menuItems.value.find(i => i.id === updatedItem.id);
+      if (existing) {
+        existing.is_available = updatedItem.is_available;
+      } else if (payload.eventType === 'INSERT') {
+        menuItems.value.push({
+          id: updatedItem.id,
+          name: updatedItem.name,
+          is_available: updatedItem.is_available
+        });
       }
     }
   });
@@ -2065,86 +3349,611 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-/* Dark Theme Custom styling props */
+/* Design Tokens */
 .kds-container {
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  background: #1A1A1A;
+  color: #FFFFFF;
 }
 
+/* Header Styles */
+.logo-brand {
+  font-size: 24px;
+  font-weight: 700;
+  color: #ff6b35; /* Cam đỏ nổi bật */
+  letter-spacing: 1px;
+}
+
+.tag-kds {
+  background: #2196F3;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-left: 12px;
+}
+
+.station-badge {
+  font-size: 16px;
+  color: #E0E0E0;
+  margin-left: 24px;
+  padding: 8px 16px;
+  background: #2D2D2D;
+  border-radius: 8px;
+  border: 1px solid #404040;
+}
+
+.digital-clock {
+  font-family: 'Courier New', monospace;
+  font-size: 20px;
+  color: #FFFFFF;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+/* Filter Bar Styles */
+.station-btn {
+  padding: 10px 20px;
+  background: #3D3D3D;
+  color: #B0B0B0;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  margin-right: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.station-btn.active {
+  background: #2196F3;
+  color: white;
+  font-weight: 600;
+}
+
+.station-btn:hover {
+  background: #4A4A4A;
+}
+
+.sort-dropdown {
+  padding: 8px 16px;
+  background: #3D3D3D;
+  color: white;
+  border: 1px solid #404040;
+  border-radius: 6px;
+  font-size: 13px;
+  margin-left: 16px;
+  outline: none;
+}
+
+.sort-dropdown:focus {
+  border-color: #2196F3;
+}
+
+.search-input {
+  padding: 8px 16px;
+  background: #1A1A1A;
+  border: 1px solid #404040;
+  border-radius: 6px;
+  color: white;
+  font-size: 13px;
+  margin-left: 16px;
+  width: 200px;
+  outline: none;
+}
+
+.search-input:focus {
+  border-color: #2196F3;
+}
+
+.search-input::placeholder {
+  color: #666666;
+}
+
+/* Status Bar Counters */
+.status-counter {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 24px;
+  margin-right: 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.status-waiting {
+  background: #1A237E; /* Xanh Navy */
+  color: white;
+}
+
+.status-preparing {
+  background: #E65100; /* Cam đậm */
+  color: white;
+}
+
+.status-done {
+  background: #2E7D32; /* Xanh lá */
+  color: white;
+}
+
+.status-delayed {
+  background: #C62828; /* Đỏ */
+  color: white;
+  animation: blink 1s infinite;
+}
+
+.count-badge {
+  background: rgba(255,255,255,0.3);
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 16px;
+}
+
+/* Kanban Board Columns */
+.kanban-container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  padding: 20px;
+  overflow-x: auto;
+  height: calc(100vh - 270px); /* Trừ header + filter + status */
+  background: #1A1A1A;
+}
+
+.kanban-column {
+  background: #252525;
+  border-radius: 12px;
+  padding: 16px;
+  overflow-y: auto;
+  min-height: 400px;
+}
+
+.kanban-column h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #E0E0E0;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #404040;
+}
+
+/* Ticket Cards */
 .ticket-card {
   background: #2D2D2D;
   border-radius: 12px;
   padding: 16px;
-  min-height: 220px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.35);
+  margin-bottom: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  transition: all 0.3s ease;
+  border: 2px solid #404040;
   cursor: pointer;
-  border: 2.5px solid #404040;
+  position: relative;
 }
 
 .ticket-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
-  border-color: #ff6b35;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
 }
 
-.ticket-card.status-new {
-  border-color: #3949AB;
+.ticket-card.new,
+.ticket-card.status-pending {
+  border-color: #1A237E; /* Xanh đậm - Mới */
+  animation: slide-in 0.3s ease;
 }
 
+.ticket-card.preparing,
 .ticket-card.status-cooking {
-  border-color: #F57C00;
+  border-color: #E65100; /* Cam - Đang nấu */
+  background: linear-gradient(135deg, #2D2D2D 0%, #3D2817 100%);
 }
 
 .ticket-card.status-ready {
   border-color: #2E7D32;
-  background: linear-gradient(135deg, #2D2D2D 0%, #1f3721 100%);
+  background: linear-gradient(135deg, #2D2D2D 0%, #1A3D1A 100%);
 }
 
-/* Animations */
-@keyframes delayed-border-pulse {
+.ticket-card.done,
+.ticket-card.status-done {
+  opacity: 0.8;
+  background: #252525;
+  border-color: #2E7D32; /* Xanh lá - Sẵn sàng */
+}
+
+.ticket-card.done .ticket-header,
+.ticket-card.status-done .ticket-header,
+.ticket-card.done .table-info,
+.ticket-card.status-done .table-info {
+  text-decoration: line-through;
+  color: #888888;
+}
+
+.ticket-card.remake,
+.ticket-card.status-remake {
+  border-color: #9C27B0 !important; /* Tím - Ưu tiên cao */
+  border-width: 3px !important;
+  background: linear-gradient(135deg, #2D2D2D 0%, #341e3d 100%) !important;
+  animation: pulse-border 1.5s infinite !important;
+}
+
+.ticket-card.delayed,
+.ticket-card.status-delayed {
+  border-color: #C62828 !important; /* Đỏ - Trễ */
+  animation: pulse-border 2s infinite !important;
+}
+
+/* === HEADER BUTTON DESIGN SYSTEM === */
+.header-btn {
+  /* Kích thước chuẩn */
+  height: 48px;
+  min-width: 120px;
+  padding: 0 20px;
+  
+  /* Typography */
+  font-size: 14px;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  letter-spacing: 0.3px;
+  
+  /* Layout */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  
+  /* Visual */
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  
+  /* Text */
+  color: #FFFFFF;
+  text-transform: none; /* Không viết hoa tất cả */
+  text-decoration: none;
+}
+
+/* Hover State */
+.header-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  filter: brightness(1.1);
+}
+
+/* Active State */
+.header-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* Focus State (Accessibility) */
+.header-btn:focus-visible {
+  outline: 3px solid #2196F3;
+  outline-offset: 2px;
+}
+
+/* === BUTTON VARIANTS === */
+
+/* Primary Action (Xanh dương - Navigation chính / Sơ chế) */
+.header-btn.btn-kitchen-kds,
+.header-btn.btn-prep-list {
+  background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+}
+
+/* Secondary Action (Tím - Expo QC) */
+.header-btn.btn-expo-qc {
+  background: linear-gradient(135deg, #9C27B0 0%, #7B1FA2 100%);
+}
+
+/* Warning Action (Cam - Yêu cầu Vỉ/Than) */
+.header-btn.btn-grill-request {
+  background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);
+}
+
+/* Success Action (Xanh lá - HACCP) */
+.header-btn.btn-haccp {
+  background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%);
+}
+
+/* Danger Action (Đỏ - 86'd) */
+.header-btn.btn-86d {
+  background: linear-gradient(135deg, #F44336 0%, #D32F2F 100%);
+}
+
+/* Neutral Action (Xám - Ẩn Panel) */
+.header-btn.btn-hide-panel {
+  background: linear-gradient(135deg, #616161 0%, #424242 100%);
+}
+
+/* Urgent Alert (Đỏ đậm - Cảnh báo trễ) */
+.header-btn.btn-alert-delayed {
+  background: linear-gradient(135deg, #C62828 0%, #B71C1C 100%);
+  animation: pulse-urgent 2s infinite;
+  height: 56px; /* Lớn hơn để nổi bật */
+  font-size: 15px;
+  font-weight: 700;
+  cursor: default;
+}
+
+/* Active State for Routing link */
+.header-btn.active {
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.5);
+  filter: brightness(1.2);
+  transform: scale(1.02);
+}
+
+/* === ICON STYLES === */
+.header-btn .btn-icon {
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+}
+
+/* === BADGE STYLES === */
+.header-btn .badge {
+  /* Vị trí */
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  
+  /* Kích thước */
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  
+  /* Visual */
+  background: #F44336;
+  color: #FFFFFF;
+  border-radius: 11px;
+  border: 2px solid #1A1A1A; /* Viền đồng màu với header */
+  
+  /* Typography */
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  /* Animation */
+  transition: all 0.3s ease;
+}
+
+/* Badge với số lượng lớn */
+.header-btn .badge.large {
+  background: #FF5722;
+  animation: badge-pulse 1.5s infinite;
+}
+
+@keyframes pulse-urgent {
   0%, 100% {
-    border-color: #C62828;
-    box-shadow: 0 0 0 0 rgba(198, 40, 40, 0.45);
+    box-shadow: 0 0 0 0 rgba(198, 40, 40, 0.7);
   }
   50% {
-    border-color: #F44336;
     box-shadow: 0 0 0 8px rgba(198, 40, 40, 0);
   }
 }
 
-.delayed-pulse {
-  animation: delayed-border-pulse 2s infinite;
-}
-
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.35; }
-}
-
-.animate-blink {
-  animation: blink 0.8s infinite;
-}
-
-@keyframes fade-in {
-  from {
-    opacity: 0;
-    transform: scale(0.96);
-  }
-  to {
-    opacity: 1;
+@keyframes badge-pulse {
+  0%, 100% {
     transform: scale(1);
   }
+  50% {
+    transform: scale(1.1);
+  }
 }
 
-.animate-fade-in {
-  animation: fade-in 0.25s ease-out forwards;
+/* Buttons */
+.acknowledge-btn {
+  width: 100%;
+  padding: 12px;
+  background: #2196F3;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
 }
 
-/* Text glow */
-.text-shadow-red {
-  text-shadow: 0 0 8px rgba(244, 67, 54, 0.6);
+.acknowledge-btn:hover {
+  background: #1976D2;
+  transform: scale(1.02);
 }
 
-/* Alert banner classes */
+.complete-btn {
+  width: 100%;
+  padding: 12px;
+  background: #2E7D32;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.complete-btn:hover {
+  background: #256629;
+  transform: scale(1.02);
+}
+
+/* Micro Checklist */
+.micro-checklist {
+  margin: 12px 0;
+  padding: 12px;
+  background: #1A1A1A;
+  border-radius: 8px;
+}
+
+.checklist-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  font-size: 12px;
+  color: #B0B0B0;
+}
+
+.checklist-item.completed {
+  color: #4CAF50;
+}
+
+/* Quick Actions */
+.quick-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.quick-action-btn {
+  flex: 1;
+  padding: 8px;
+  background: #3D3D3D;
+  color: white;
+  border: 1px solid #404040;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  transition: all 0.2s;
+}
+
+.quick-action-btn:hover {
+  background: #4A4A4A;
+  border-color: #FF9800;
+}
+
+/* Badges */
+.badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-right: 6px;
+  border: 1px solid transparent;
+}
+
+.badge-remake {
+  background: #9C27B0;
+  color: white;
+  animation: blink 1s infinite;
+}
+
+.badge-buffet-1 {
+  background: #FF9800;
+  color: white;
+}
+
+.badge-buffet-add {
+  background: #FFC107;
+  color: #333;
+}
+
+.badge-alacarte {
+  background: #2196F3;
+  color: white;
+}
+
+/* 86'd Out of Stock warning */
+.sold-out-warning {
+  background: rgba(244, 67, 54, 0.2);
+  border: 1px solid #F44336;
+  color: #F44336;
+  padding: 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+  margin: 8px 0;
+  animation: blink 1s infinite;
+}
+
+/* Modals Overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.modal-content {
+  background: #2D2D2D;
+  border-radius: 16px;
+  padding: 24px;
+  max-width: 800px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  border: 1px solid #404040;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+}
+
+.sold-out-list {
+  margin-top: 20px;
+}
+
+.sold-out-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  background: #1A1A1A;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  border: 1px solid #333;
+}
+
+.toggle-switch {
+  width: 60px;
+  height: 32px;
+  background: #C62828; /* Đỏ - Hết hàng */
+  border-radius: 16px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.toggle-switch.active {
+  background: #4CAF50; /* Xanh lá - Còn hàng */
+}
+
+.toggle-switch::after {
+  content: "";
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  background: white;
+  border-radius: 50%;
+  top: 4px;
+  left: 4px;
+  transition: all 0.3s;
+}
+
+.toggle-switch.active::after {
+  left: 32px;
+}
+
+/* Alert Banners */
 .alert-banner {
   display: flex;
   align-items: center;
@@ -2179,47 +3988,532 @@ onUnmounted(() => {
   color: #FF9800;
 }
 
+/* Animations */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.02);
+    opacity: 0.8;
+  }
+}
+
+@keyframes pulse-border {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(0,0,0,0);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(255, 152, 0, 0.25);
+  }
+}
+
+@keyframes slide-in {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
 @keyframes slide-down {
   from { transform: translateY(-100%); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
 }
 
-/* Status badges */
-.status-badge {
-  display: inline-flex;
+/* Accessibility */
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 3px solid #2196F3;
+  outline-offset: 2px;
+}
+
+/* Minimum Touch Targets */
+button,
+select,
+input {
+  min-height: 48px;
+}
+
+.quick-action-btn {
+  min-height: 40px; /* specific sub buttons */
+}
+
+.acknowledge-btn,
+.complete-btn {
+  min-height: 56px;
+  font-size: 16px;
+}
+
+/* Responsive Design */
+/* Large screens (>1920px) */
+@media (min-width: 1920px) {
+  .kanban-container {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+  }
+  
+  .ticket-card {
+    min-height: 240px;
+  }
+}
+
+/* Standard POS (1366-1920px) */
+@media (min-width: 1366px) and (max-width: 1919px) {
+  .kanban-container {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+}
+
+/* Tablet (768-1366px) */
+@media (min-width: 768px) and (max-width: 1365px) {
+  .kanban-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Mobile (<768px) */
+@media (max-width: 767px) {
+  .kanban-container {
+    grid-template-columns: 1fr;
+  }
+  
+  header {
+    flex-direction: column;
+    height: auto;
+    padding: 12px;
+    gap: 12px;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .ticket-card {
+    border-width: 3px;
+  }
+  
+  .badge {
+    border: 2px solid currentColor;
+  }
+}
+
+/* Reduced Motion Mode */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Custom Modal Styles for Kitchen Operations */
+.ingredient-list {
+  margin-bottom: 24px;
+}
+
+.ingredient-item {
+  display: flex;
+  justify-content: space-between;
   align-items: center;
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 11px;
-  font-weight: 700;
-  color: white;
-  text-transform: uppercase;
-}
-
-.status-badge.delayed {
-  background: #C62828;
-}
-
-/* Scrollbars */
-.overflow-y-auto::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-.overflow-y-auto::-webkit-scrollbar-track {
+  padding: 16px;
   background: #1A1A1A;
-  border-radius: 10px;
-}
-.overflow-y-auto::-webkit-scrollbar-thumb {
-  background-color: #404040;
-  border-radius: 10px;
-  border: 2px solid #1A1A1A;
-}
-.overflow-y-auto::-webkit-scrollbar-thumb:hover {
-  background-color: #616161;
+  border-radius: 8px;
+  margin-bottom: 12px;
 }
 
-/* Kanban column flex layouts height overrides */
-.overflow-x-auto {
-  height: calc(100vh - 190px);
+.ingredient-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.ingredient-icon {
+  font-size: 24px;
+}
+
+.ingredient-name {
+  font-size: 16px;
+  color: #E0E0E0;
+}
+
+.ingredient-qty {
+  font-size: 14px;
+  color: #B0B0B0;
+  margin-left: 12px;
+}
+
+.ingredient-status {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-ok {
+  background: #2E7D32;
+  color: white;
+}
+
+.status-low {
+  background: #FF9800;
+  color: white;
+}
+
+.status-out {
+  background: #C62828;
+  color: white;
+  animation: blink 1s infinite;
+}
+
+.warning-box {
+  background: rgba(255, 152, 0, 0.2);
+  border: 2px solid #FF9800;
+  color: #FF9800;
+  padding: 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 24px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.modal-btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-btn.cancel {
+  background: #424242;
+  color: white;
+}
+
+.modal-btn.cancel:hover {
+  background: #4f4f4f;
+  transform: scale(1.05);
+}
+
+.modal-btn.continue {
+  background: #FF9800;
+  color: white;
+}
+
+.modal-btn.continue:hover {
+  background: #ffaa2b;
+  transform: scale(1.05);
+}
+
+.modal-btn.report-out {
+  background: #C62828;
+  color: white;
+}
+
+.modal-btn.report-out:hover {
+  background: #d32f2f;
+  transform: scale(1.05);
+}
+
+/* Touch target helpers */
+.touch-target {
+  min-height: 48px;
+}
+
+/* DESIGN OVERRIDES FOR KITCHEN KDS REDESIGN */
+
+/* Design Tokens & Colors */
+:root {
+  --font-family: 'Inter', -apple-system, sans-serif;
+  --text-xs: 11px;
+  --text-sm: 13px;
+  --text-base: 14px;
+  --text-lg: 16px;
+  --text-xl: 20px;
+  
+  --font-regular: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+  
+  --bg-primary: #1A1A1A;
+  --bg-secondary: #2D2D2D;
+  --bg-tertiary: #3D3D3D;
+  
+  --color-pending: #1A237E;
+  --color-cooking: #E65100;
+  --color-ready: #2E7D32;
+  --color-done: #616161;
+  
+  --color-accent: #2196F3;
+  --color-danger: #F44336;
+  --color-warning: #FF9800;
+}
+
+/* 1. Columns border-top styles */
+.kanban-column.pending { border-top: 4px solid var(--color-pending); }
+.kanban-column.cooking { border-top: 4px solid var(--color-cooking); }
+.kanban-column.ready { border-top: 4px solid var(--color-ready); }
+.kanban-column.done { border-top: 4px solid var(--color-done); }
+
+/* 2. Unified ticket card styling */
+.ticket-card {
+  min-height: 180px;
+  background: var(--bg-secondary) !important;
+  border-radius: 10px !important;
+  padding: 14px !important;
+  margin-bottom: 10px !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3) !important;
+  border: none !important;
+  border-left: 4px solid var(--color-pending) !important;
+  transition: all 0.2s ease !important;
+  font-family: var(--font-family) !important;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.ticket-card:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4) !important;
+}
+
+/* Card header - same style */
+.ticket-card .flex.justify-between.items-start {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  margin-bottom: 10px !important;
+  padding-bottom: 8px !important;
+  border-bottom: 1px solid #404040 !important;
+}
+
+/* Ticket card table and title */
+.ticket-card .logo-brand,
+.ticket-card .text-xl,
+.ticket-card .text-2xl {
+  font-size: var(--text-lg) !important;
+  font-weight: var(--font-bold) !important;
+  color: white !important;
+  font-family: var(--font-family) !important;
+}
+
+/* Wait timer styling */
+.ticket-card .timer-display {
+  font-family: 'Courier New', monospace !important;
+  font-size: var(--text-lg) !important;
+  font-weight: var(--font-bold) !important;
+}
+
+.ticket-card .timer-display.normal { color: #4CAF50 !important; }
+.ticket-card .timer-display.warning { color: #FF9800 !important; }
+.ticket-card .timer-display.danger {
+  color: #F44336 !important;
+  animation: blink-red-timer 1s infinite !important;
+}
+
+@keyframes blink-red-timer {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* Classification type badge styling */
+.ticket-card .badge {
+  display: inline-block !important;
+  padding: 3px 10px !important;
+  border-radius: 12px !important;
+  font-size: var(--text-xs) !important;
+  font-weight: var(--font-bold) !important;
+  text-transform: uppercase !important;
+  margin-bottom: 10px !important;
+  position: static !important; /* overrides header button badges absolute */
+  border: none !important;
+}
+
+.ticket-card .badge.badge-remake { background: #9C27B0 !important; color: white !important; animation: blink-red-timer 1s infinite !important; }
+.ticket-card .badge.badge-buffet-1 { background: #FF9800 !important; color: white !important; }
+.ticket-card .badge.badge-buffet-add { background: #E65100 !important; color: white !important; }
+.ticket-card .badge.badge-alacarte { background: #2196F3 !important; color: white !important; }
+
+/* Item list spacing and typography */
+.ticket-card .space-y-1,
+.ticket-card .space-y-2 {
+  margin-bottom: 10px !important;
+}
+
+.ticket-card .flex.justify-between.items-center.text-sm,
+.ticket-card .flex.flex-col.p-2\.5 {
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 8px !important;
+  padding: 6px 0 !important;
+  border-bottom: 1px solid #333 !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+}
+
+.ticket-card .text-\[\#FF9800\] {
+  font-size: var(--text-base) !important;
+  font-weight: var(--font-bold) !important;
+  color: #FF9800 !important;
+  min-width: 30px !important;
+}
+
+.ticket-card .text-gray-300 {
+  flex: 1 !important;
+  font-size: var(--text-base) !important;
+  color: #E0E0E0 !important;
+  font-family: var(--font-family) !important;
+}
+
+/* Allergy warning / notes styling */
+.ticket-card .bg-red-950\/40,
+.ticket-card .ticket-note {
+  background: rgba(255, 152, 0, 0.15) !important;
+  border-left: 3px solid #FF9800 !important;
+  padding: 6px 10px !important;
+  border-radius: 4px !important;
+  font-size: var(--text-xs) !important;
+  color: #FFB74D !important;
+  margin-bottom: 10px !important;
+  border-top: none !important;
+  border-right: none !important;
+  border-bottom: none !important;
+}
+
+/* Action button styling */
+.ticket-card .acknowledge-btn,
+.ticket-card .complete-btn,
+.ticket-card .complete-btn.bg-green-600 {
+  width: 100% !important;
+  padding: 10px !important;
+  border: none !important;
+  border-radius: 8px !important;
+  font-size: var(--text-base) !important;
+  font-weight: var(--font-bold) !important;
+  color: white !important;
+  cursor: pointer !important;
+  text-transform: uppercase !important;
+  min-height: auto !important;
+  display: block !important;
+  text-align: center !important;
+}
+
+.ticket-card .acknowledge-btn { background: #2196F3 !important; }
+.ticket-card .acknowledge-btn.bg-amber-600 { background: #FF9800 !important; }
+.ticket-card .complete-btn { background: #4CAF50 !important; }
+
+/* Status-specific card borders */
+.ticket-card.status-pending { border-left-color: var(--color-pending) !important; }
+.ticket-card.preparing { border-left-color: var(--color-cooking) !important; }
+.ticket-card.status-ready { border-left-color: var(--color-ready) !important; }
+.ticket-card.done { border-left-color: var(--color-done) !important; opacity: 0.7 !important; }
+
+/* Collapsible Grill Sidebar */
+.grill-sidebar {
+  width: 300px;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: var(--bg-secondary);
+  border-left: 1px solid #404040;
+  display: flex;
+  flex-direction: column;
+}
+
+.grill-sidebar.collapsed {
+  width: 50px;
+}
+
+.toggle-sidebar-btn {
+  width: 100%;
+  padding: 12px;
+  background: #FF9800;
+  border: none;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 48px;
+  transition: background 0.2s;
+}
+
+.toggle-sidebar-btn:hover {
+  background: #E65100;
+}
+
+.toggle-sidebar-btn .sidebar-badge {
+  background: #F44336;
+  color: white;
+  padding: 1px 6px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 700;
+  border: 1px solid white;
+}
+
+.sidebar-content {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  height: calc(100% - 48px);
+  overflow: hidden;
+}
+
+/* Nav typography overrides */
+.kanban-header {
+  font-size: var(--text-sm) !important;
+  font-weight: var(--font-bold) !important;
+  font-family: var(--font-family) !important;
+}
+
+/* Empty State styling */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 20px;
+  text-align: center;
+  color: #616161;
+}
+
+.empty-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.empty-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #888;
+  margin-bottom: 8px;
+}
+
+.empty-desc {
+  font-size: 13px;
+  color: #666;
 }
 </style>

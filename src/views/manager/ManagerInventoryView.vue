@@ -181,4 +181,3 @@ const beverageItems = [
   { name: 'Nước Ngọt Assorted', openStock: 200, used: 145, closeStock: 55, price: 15000 },
 ]
 </script>
-

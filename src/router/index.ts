@@ -50,6 +50,10 @@ import ReceptionOrderView from '@/views/reception/ReceptionOrderView.vue'
 
 // ─── Kitchen Views ────────────────────────────────────────────────────────────
 import KitchenKDSView from '@/views/kitchen/KitchenKDSView.vue'
+import KitchenExpoView from '@/views/kitchen/KitchenExpoView.vue'
+import KitchenRequisitionView from '@/views/kitchen/KitchenRequisitionView.vue'
+import KitchenHandoverView from '@/views/kitchen/KitchenHandoverView.vue'
+import KitchenInventoryView from '@/views/kitchen/KitchenInventoryView.vue'
 
 // ─── Superadmin Views ─────────────────────────────────────────────────────────
 import SuperadminDashboardView from '@/views/superadmin/SuperadminDashboardView.vue'
@@ -255,6 +259,26 @@ const routes: RouteRecordRaw[] = [
         path: 'kds',
         name: 'kitchen-kds',
         component: KitchenKDSView,
+      },
+      {
+        path: 'expo',
+        name: 'kitchen-expo',
+        component: KitchenExpoView,
+      },
+      {
+        path: 'requisition',
+        name: 'kitchen-requisition',
+        component: KitchenRequisitionView,
+      },
+      {
+        path: 'handover',
+        name: 'kitchen-handover',
+        component: KitchenHandoverView,
+      },
+      {
+        path: 'inventory',
+        name: 'kitchen-inventory',
+        component: KitchenInventoryView,
       },
     ],
   },

@@ -1,15 +1,15 @@
 <template>
-  <div class="kds-container min-h-screen flex flex-col bg-[#1A1A1A] text-white">
+  <div class="kds-container min-h-screen flex flex-col bg-background text-foreground">
 
     <!-- 1. KDS HEADER (80px) -->
-    <header class="h-[80px] bg-[#1A1A1A] border-b border-[#404040] px-6 flex items-center justify-between">
+    <header class="h-[80px] bg-background border-b border-border px-6 flex items-center justify-between">
       <div class="flex items-center gap-4">
         <!-- Logo / Brand -->
         <div class="flex items-center gap-2">
           <span class="logo-brand">NGƯU CÁT</span>
           <span class="tag-kds">KDS</span>
         </div>
-        <div class="h-6 w-[1px] bg-[#404040]"></div>
+        <div class="h-6 w-[1px] bg-muted"></div>
         <!-- Active Station Display -->
         <div class="flex items-center gap-2">
           <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Trạm hiện tại:</span>
@@ -37,7 +37,7 @@
     </div>
 
     <!-- 2. FILTER BAR (60px) -->
-    <div class="h-[60px] bg-[#2D2D2D] border-b border-[#404040] px-6 flex items-center justify-between gap-4 overflow-x-auto">
+    <div class="h-[60px] bg-card border-b border-border px-6 flex items-center justify-between gap-4 overflow-x-auto">
       <!-- Station Filters -->
       <div class="flex items-center gap-2">
         <button 
@@ -79,7 +79,7 @@
     </div>
 
     <!-- 3. STATUS BAR (50px) -->
-    <div class="h-[50px] bg-[#1A1A1A] border-b border-[#404040] px-6 flex items-center gap-6">
+    <div class="h-[50px] bg-background border-b border-border px-6 flex items-center gap-6">
       <div class="status-counter status-waiting">
         <span>Chờ chế biến:</span>
         <span class="count-badge">{{ countPending }}</span>
@@ -124,7 +124,7 @@
 
             <div class="flex justify-between items-start mb-3">
               <div>
-                <span class="text-2xl font-black text-white block flex items-center gap-2">
+                <span class="text-2xl font-black text-foreground block flex items-center gap-2">
                   Bàn {{ getTableCode(order.table) }}
                   <span 
                     v-if="order.id === oldestPendingOrderId" 
@@ -157,7 +157,7 @@
               </span>
             </div>
             
-            <hr class="border-[#404040] my-3" />
+            <hr class="border-border my-3" />
 
             <div class="space-y-2">
               <div 
@@ -165,8 +165,8 @@
                 :key="item.id" 
                 class="flex items-start gap-2.5 p-2 rounded transition-fast cursor-pointer border"
                 :class="[
-                  item.done ? 'bg-[#3D3D3D]/30 border-transparent opacity-60' :
-                  isItem86d(item.name) ? 'bg-red-950/20 border-[#D32F2F] hover:bg-red-950/30' : 'bg-[#3D3D3D]/50 border-[#404040] hover:bg-[#3D3D3D]'
+                  item.done ? 'bg-muted/30 border-transparent opacity-60' :
+                  isItem86d(item.name) ? 'bg-red-950/20 border-[#D32F2F] hover:bg-red-950/30' : 'bg-muted/50 border-border hover:bg-muted'
                 ]"
                 @click.stop="toggleItemStatus(item)"
               >
@@ -174,15 +174,15 @@
                   <input 
                     type="checkbox" 
                     :checked="item.done" 
-                    class="w-5.5 h-5.5 rounded border-gray-600 text-[#ff6b35] focus:ring-[#ff6b35] bg-[#1A1A1A] pointer-events-none"
+                    class="w-5.5 h-5.5 rounded border-gray-600 text-primary focus:ring-[#ff6b35] bg-background pointer-events-none"
                   >
                 </div>
                 <div class="flex-1 min-w-0">
                   <span class="text-base font-semibold block text-gray-100" :class="{ 'line-through text-gray-500': item.done }">
-                    <span class="text-[#ff6b35] font-black mr-1 text-lg">{{ item.qty }}x</span>
+                    <span class="text-primary font-black mr-1 text-lg">{{ item.qty }}x</span>
                     {{ item.name }}
                   </span>
-                  <span v-if="activeStation === 'ALL'" class="inline-block mt-1 text-[10px] bg-[#3D3D3D] text-gray-400 px-1.5 py-0.5 rounded border border-[#616161]">
+                  <span v-if="activeStation === 'ALL'" class="inline-block mt-1 text-[10px] bg-muted text-gray-400 px-1.5 py-0.5 rounded border border-border">
                     {{ getStationLabel(getItemStation(item.name)) }}
                   </span>
                   
@@ -201,7 +201,7 @@
               </div>
             </div>
             
-            <div class="mt-4 pt-3 border-t border-[#404040]">
+            <div class="mt-4 pt-3 border-t border-border">
               <button 
                 class="acknowledge-btn"
                 @click.stop="moveToPreparing(order)"
@@ -234,7 +234,7 @@
           >
             <div class="flex justify-between items-start mb-3">
               <div>
-                <span class="text-2xl font-black text-white block">Bàn {{ getTableCode(order.table) }}</span>
+                <span class="text-2xl font-black text-foreground block">Bàn {{ getTableCode(order.table) }}</span>
                 <span class="text-xs text-gray-400 font-medium block mt-1.5">#{{ order.id.slice(0, 8) }} &bull; {{ order.time }}</span>
               </div>
               <span class="timer-display" :class="getTimerTextClass(order.waitTime)">
@@ -242,7 +242,7 @@
               </span>
             </div>
             
-            <hr class="border-[#404040] my-3" />
+            <hr class="border-border my-3" />
 
             <!-- Items list -->
             <div class="space-y-2">
@@ -251,8 +251,8 @@
                 :key="item.id" 
                 class="flex flex-col p-2.5 rounded transition-fast cursor-pointer border"
                 :class="[
-                  item.done ? 'bg-[#3D3D3D]/30 border-transparent opacity-60' :
-                  isItem86d(item.name) ? 'bg-red-950/20 border-[#D32F2F] hover:bg-red-950/30' : 'bg-[#3D3D3D]/50 border-[#404040] hover:bg-[#3D3D3D]/80'
+                  item.done ? 'bg-muted/30 border-transparent opacity-60' :
+                  isItem86d(item.name) ? 'bg-red-950/20 border-[#D32F2F] hover:bg-red-950/30' : 'bg-muted/50 border-border hover:bg-muted/80'
                 ]"
                 @click.stop="toggleItemStatus(item)"
               >
@@ -261,7 +261,7 @@
                     <input 
                       type="checkbox" 
                       :checked="item.done" 
-                      class="w-5.5 h-5.5 rounded border-gray-600 text-green-500 focus:ring-green-500 bg-[#1A1A1A] pointer-events-none"
+                      class="w-5.5 h-5.5 rounded border-gray-600 text-green-500 focus:ring-green-500 bg-background pointer-events-none"
                     >
                   </div>
                   <div class="flex-1 min-w-0">
@@ -284,7 +284,7 @@
                       type="checkbox" 
                       :checked="isSubStepChecked(item.id, step.key)" 
                       @change="toggleSubStep(item.id, step.key)"
-                      class="w-5.5 h-5.5 rounded border-gray-600 text-green-500 focus:ring-green-500 bg-[#2D2D2D] cursor-pointer"
+                      class="w-5.5 h-5.5 rounded border-gray-600 text-green-500 focus:ring-green-500 bg-card cursor-pointer"
                     >
                     <span class="select-none">
                       {{ step.label }}
@@ -302,7 +302,7 @@
             </div>
 
             <!-- Start / Complete buttons -->
-            <div class="mt-4 pt-3 border-t border-[#404040]">
+            <div class="mt-4 pt-3 border-t border-border">
               <button 
                 v-if="!startedOrders.includes(order.id)"
                 class="acknowledge-btn bg-amber-600 hover:bg-amber-500"
@@ -357,7 +357,7 @@
               </div>
             </div>
 
-            <div class="mt-4 pt-3 border-t border-[#404040]">
+            <div class="mt-4 pt-3 border-t border-border">
               <button 
                 class="complete-btn bg-green-600 hover:bg-green-500"
                 @click.stop="moveToDone(order)"
@@ -416,7 +416,7 @@
 
       <!-- COLLAPSIBLE GRILL & COAL ALERTS SIDEBAR PANEL -->
       <aside 
-        class="grill-sidebar bg-[#2D2D2D] border-l border-[#404040] flex flex-col h-full"
+        class="grill-sidebar bg-card border-l border-border flex flex-col h-full"
         :class="{ collapsed: !kitchenStore.isGrillPanelVisible }"
       >
         <button class="toggle-sidebar-btn" @click="kitchenStore.isGrillPanelVisible = !kitchenStore.isGrillPanelVisible" aria-label="Toggle Grill Sidebar">
@@ -426,21 +426,21 @@
         </button>
         
         <div v-if="kitchenStore.isGrillPanelVisible" class="sidebar-content flex-1 flex flex-col overflow-hidden">
-          <div class="p-4 border-b border-[#404040] bg-[#1A1A1A] flex justify-between items-center">
-            <h3 class="text-base font-bold text-[#ff6b35] uppercase tracking-wider flex items-center gap-2">
+          <div class="p-4 border-b border-border bg-background flex justify-between items-center">
+            <h3 class="text-base font-bold text-primary uppercase tracking-wider flex items-center gap-2">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.655-.398-1.434-.398-2.42a1 1 0 00-1.743-.68 12.012 12.012 0 00-2.812 5.02c-.36 1.157-.507 2.3-.507 3.322 0 1.137.234 2.27.705 3.328a8.041 8.041 0 002.04 2.724c.959.837 2.1 1.432 3.31 1.75a11.93 11.93 0 006.185-.43 8.032 8.032 0 003.88-2.613 8.04 8.04 0 001.696-3.84c.328-1.22.316-2.442-.01-3.608a11.824 11.824 0 00-2.868-5.128M14 10a1 1 0 00-1.707-.707l-1 1a1 1 0 00-.293.707V12a1 1 0 002 0v-.586l.707-.707A1 1 0 0014 10z" clip-rule="evenodd" />
               </svg>
               Yêu cầu Vỉ & Than
             </h3>
-            <span class="bg-[#ff6b35]/20 text-[#ff6b35] px-2.5 py-0.5 rounded-full text-xs font-bold">
+            <span class="bg-primary/20 text-primary px-2.5 py-0.5 rounded-full text-xs font-bold">
               {{ grillRequests.length }}
             </span>
           </div>
 
           <div class="p-4 flex-1 overflow-y-auto space-y-4">
             <!-- Quick Guidelines from kitchen_cooking_flow.mmd -->
-            <div class="p-3 bg-[#3D3D3D] border border-[#616161] rounded-xl text-xs text-gray-300 space-y-1">
+            <div class="p-3 bg-muted border border-border rounded-xl text-xs text-gray-300 space-y-1">
               <div class="font-bold text-[#FFA726] uppercase">💡 Quy trình bếp nướng:</div>
               <p>1. Định kỳ kiểm tra vỉ nướng & than.</p>
               <p>2. Khi vỉ bẩn / than yếu $\rightarrow$ Gửi yêu cầu thay.</p>
@@ -448,16 +448,16 @@
             </div>
 
             <!-- Active Request list -->
-            <div v-for="req in grillRequests" :key="req.id" class="p-4 rounded-xl bg-[#1A1A1A] border-l-4 shadow-md transition-fast relative" :class="req.priority === 'Urgent' ? 'border-[#C62828] bg-red-950/10' : 'border-[#FFA726]'">
-              <button @click="cancelGrillRequest(req)" class="absolute top-2 right-2 text-gray-500 hover:text-white transition-fast" aria-label="Cancel Grill Request">
+            <div v-for="req in grillRequests" :key="req.id" class="p-4 rounded-xl bg-background border-l-4 shadow-md transition-fast relative" :class="req.priority === 'Urgent' ? 'border-[#C62828] bg-red-950/10' : 'border-[#FFA726]'">
+              <button @click="cancelGrillRequest(req)" class="absolute top-2 right-2 text-gray-500 hover:text-foreground transition-fast" aria-label="Cancel Grill Request">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                   <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
                 </svg>
               </button>
 
               <div class="flex justify-between items-baseline mb-2">
-                <span class="text-xl font-black text-white">Bàn {{ req.table }}</span>
-                <span class="text-[10px] px-2 py-0.5 rounded font-bold uppercase" :class="req.priority === 'Urgent' ? 'bg-[#C62828] text-white animate-pulse' : 'bg-[#3D3D3D] text-gray-400'">
+                <span class="text-xl font-black text-foreground">Bàn {{ req.table }}</span>
+                <span class="text-[10px] px-2 py-0.5 rounded font-bold uppercase" :class="req.priority === 'Urgent' ? 'bg-[#C62828] text-white animate-pulse' : 'bg-muted text-gray-400'">
                   {{ req.priority === 'Urgent' ? 'GẤP' : 'THƯỜNG' }}
                 </span>
               </div>
@@ -471,7 +471,7 @@
               <!-- Progress & Actions -->
               <div v-if="req.status === 'Pending'" class="mt-4">
                 <button 
-                  class="w-full bg-[#ff6b35] hover:bg-[#e55a2b] text-white text-xs font-bold py-2 rounded-lg transition-fast touch-target"
+                  class="w-full bg-primary hover:bg-[#e55a2b] text-white text-xs font-bold py-2 rounded-lg transition-fast touch-target"
                   @click="startGrillRequest(req)"
                 >
                   BẮT ĐẦU THỰC HIỆN
@@ -510,15 +510,15 @@
 
     <!-- 5. TICKET DETAIL MODAL (600px max) -->
     <div v-if="selectedOrder" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in" @click.self="closeDetail">
-      <div class="bg-[#2D2D2D] border border-[#404040] rounded-2xl w-full max-w-[600px] shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+      <div class="bg-card border border-border rounded-2xl w-full max-w-[600px] shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
         
         <!-- Modal Header -->
-        <div class="px-6 py-4 bg-[#1A1A1A] border-b border-[#404040] flex justify-between items-center">
+        <div class="px-6 py-4 bg-background border-b border-border flex justify-between items-center">
           <div>
-            <h3 class="text-2xl font-black text-white">Chi tiết Ticket #{{ selectedOrder.id.slice(0, 8) }}</h3>
+            <h3 class="text-2xl font-black text-foreground">Chi tiết Ticket #{{ selectedOrder.id.slice(0, 8) }}</h3>
             <p class="text-xs text-gray-400 mt-1">Khởi tạo lúc: {{ selectedOrder.time }} &bull; Đã chờ {{ formatWaitTime(selectedOrder.waitTime) }}</p>
           </div>
-          <button @click="closeDetail" class="w-10 h-10 rounded-full bg-[#3D3D3D] hover:bg-[#4A4A4A] flex items-center justify-center border border-[#616161] transition-fast text-white touch-target">
+          <button @click="closeDetail" class="w-10 h-10 rounded-full bg-muted hover:bg-[#4A4A4A] flex items-center justify-center border border-border transition-fast text-foreground touch-target">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -529,10 +529,10 @@
         <div class="p-6 overflow-y-auto space-y-6">
           
           <!-- Basic Info -->
-          <div class="grid grid-cols-2 gap-4 bg-[#1A1A1A] p-4 rounded-xl border border-[#404040]">
+          <div class="grid grid-cols-2 gap-4 bg-background p-4 rounded-xl border border-border">
             <div>
               <span class="text-xs text-gray-500 uppercase font-bold block">Bàn vật lý</span>
-              <span class="text-2xl font-black text-white">Bàn {{ getTableCode(selectedOrder.table) }}</span>
+              <span class="text-2xl font-black text-foreground">Bàn {{ getTableCode(selectedOrder.table) }}</span>
             </div>
             <div>
               <span class="text-xs text-gray-500 uppercase font-bold block">Trạng thái hiện tại</span>
@@ -551,8 +551,8 @@
                 :key="item.id" 
                 class="flex items-start gap-4 p-4 rounded-xl transition-fast cursor-pointer border"
                 :class="[
-                  item.done ? 'bg-[#1A1A1A]/40 border-transparent opacity-60' :
-                  isItem86d(item.name) ? 'bg-red-950/20 border-[#D32F2F] hover:bg-red-950/30' : 'bg-[#1A1A1A] border-[#404040] hover:bg-[#3D3D3D]/50'
+                  item.done ? 'bg-background/40 border-transparent opacity-60' :
+                  isItem86d(item.name) ? 'bg-red-950/20 border-[#D32F2F] hover:bg-red-950/30' : 'bg-background border-border hover:bg-muted/50'
                 ]"
                 @click="toggleItemStatus(item)"
               >
@@ -560,13 +560,13 @@
                   <input 
                     type="checkbox" 
                     :checked="item.done" 
-                    class="w-6 h-6 rounded border-gray-600 text-green-500 focus:ring-green-500 bg-[#2D2D2D] pointer-events-none"
+                    class="w-6 h-6 rounded border-gray-600 text-green-500 focus:ring-green-500 bg-card pointer-events-none"
                   >
                 </div>
                 <div class="flex-1 min-w-0">
                   <div class="flex justify-between items-baseline">
-                    <span class="text-lg font-bold text-white block" :class="{ 'line-through text-gray-500': item.done }">
-                      <span class="text-[#ff6b35] font-black text-xl mr-1">{{ item.qty }}x</span>
+                    <span class="text-lg font-bold text-foreground block" :class="{ 'line-through text-gray-500': item.done }">
+                      <span class="text-primary font-black text-xl mr-1">{{ item.qty }}x</span>
                       {{ item.name }}
                       <span 
                         v-if="isItem86d(item.name) && !item.done" 
@@ -575,7 +575,7 @@
                         ⚠️ HẾT MÓN (86'd)
                       </span>
                     </span>
-                    <span class="text-xs text-gray-500 bg-[#2D2D2D] px-2 py-0.5 rounded border border-[#404040]">
+                    <span class="text-xs text-gray-500 bg-card px-2 py-0.5 rounded border border-border">
                       {{ getStationLabel(getItemStation(item.name)) }}
                     </span>
                   </div>
@@ -583,7 +583,7 @@
                   <div v-if="isItem86d(item.name) && !item.done" class="mt-2 flex gap-2">
                     <button 
                       @click.stop="notifyStaffAbout86d(item.name, getTableCode(selectedOrder.table))"
-                      class="px-3 py-1 bg-red-800 hover:bg-red-700 text-white rounded-lg text-xs font-bold uppercase transition-fast flex items-center gap-1.5 shadow-sm touch-target"
+                      class="px-3 py-1 bg-red-800 hover:bg-red-700 text-foreground rounded-lg text-xs font-bold uppercase transition-fast flex items-center gap-1.5 shadow-sm touch-target"
                       title="Báo phục vụ thay món khác cho khách"
                     >
                       📢 Báo Phục Vụ Đổi Món
@@ -599,7 +599,7 @@
                     </button>
                     <button 
                       @click.stop="triggerQuickRequest(selectedOrder.table, 'CoalRefill')" 
-                      class="px-2.5 py-1 bg-orange-950/60 border border-[#ff6b35]/60 rounded text-xs font-bold text-[#ff6b35] hover:bg-orange-900/60 transition-fast touch-target"
+                      class="px-2.5 py-1 bg-orange-950/60 border border-primary/60 rounded text-xs font-bold text-primary hover:bg-orange-900/60 transition-fast touch-target"
                     >
                       🔥 Châm thêm than
                     </button>
@@ -629,23 +629,23 @@
         </div>
 
         <!-- Modal Footer Actions (Touch target large: 56px) -->
-        <div class="px-6 py-4 bg-[#1A1A1A] border-t border-[#404040] flex justify-between items-center gap-3">
+        <div class="px-6 py-4 bg-background border-t border-border flex justify-between items-center gap-3">
           <div>
             <button 
               class="px-4 py-2 rounded-xl text-xs font-bold border transition-fast touch-target"
-              :class="isOrderRemake(selectedOrder) ? 'bg-[#C62828]/20 border-red-500 text-red-300' : 'bg-[#3D3D3D] border-[#616161] text-gray-400 hover:text-white'"
+              :class="isOrderRemake(selectedOrder) ? 'bg-[#C62828]/20 border-red-500 text-red-300' : 'bg-muted border-border text-gray-400 hover:text-foreground'"
               @click="toggleOrderRemake(selectedOrder.id)"
             >
               {{ isOrderRemake(selectedOrder) ? '🚨 Hủy Trả Món (Remake)' : '⚠️ Đánh dấu Trả Món (Remake)' }}
             </button>
           </div>
           <div class="flex gap-3">
-            <button @click="closeDetail" class="action-button danger large border border-[#616161] bg-[#2D2D2D] hover:bg-[#3D3D3D] text-gray-200 rounded-xl font-bold transition-fast touch-target-large">
+            <button @click="closeDetail" class="action-button danger large border border-border bg-card hover:bg-muted text-gray-200 rounded-xl font-bold transition-fast touch-target-large">
               Đóng
             </button>
             <button 
               v-if="selectedOrder.status === 'pending'"
-              class="action-button primary large bg-[#ff6b35] text-white rounded-xl font-bold transition-fast touch-target-large"
+              class="action-button primary large bg-primary text-primary-foreground rounded-xl font-bold transition-fast touch-target-large"
               @click="modalStartCooking(selectedOrder)"
             >
               Bắt đầu chế biến
@@ -665,11 +665,11 @@
 
     <!-- NEW FEATURE: GRILL & COAL REQUEST CREATION MODAL -->
     <div v-if="showGrillRequestModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-fade-in" @click.self="showGrillRequestModal = false">
-      <div class="bg-[#2D2D2D] border border-[#404040] rounded-2xl w-full max-w-[450px] shadow-2xl p-6 space-y-5">
+      <div class="bg-card border border-border rounded-2xl w-full max-w-[450px] shadow-2xl p-6 space-y-5">
         
-        <div class="flex justify-between items-center pb-2 border-b border-[#404040]">
-          <h3 class="text-xl font-black text-white">Yêu cầu Thay Vỉ / Châm Than</h3>
-          <button @click="showGrillRequestModal = false" class="text-gray-400 hover:text-white transition-fast">
+        <div class="flex justify-between items-center pb-2 border-b border-border">
+          <h3 class="text-xl font-black text-foreground">Yêu cầu Thay Vỉ / Châm Than</h3>
+          <button @click="showGrillRequestModal = false" class="text-gray-400 hover:text-foreground transition-fast">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -683,7 +683,7 @@
             <label class="text-xs text-gray-400 uppercase font-bold">Chọn bàn cần xử lý</label>
             <select 
               v-model="newRequestTable"
-              class="w-full bg-[#1A1A1A] border border-[#616161] rounded-xl px-4 py-2 text-white focus:outline-none focus:border-[#ff6b35]"
+              class="w-full bg-background border border-border rounded-xl px-4 py-2 text-foreground focus:outline-none focus:border-primary"
             >
               <option value="" disabled>-- Chọn Bàn --</option>
               <option v-for="tbl in availableTablesForRequests" :key="tbl" :value="tbl">Bàn {{ tbl }}</option>
@@ -696,14 +696,14 @@
             <div class="grid grid-cols-2 gap-3">
               <button 
                 class="px-4 py-3 rounded-xl border text-sm font-bold transition-fast touch-target"
-                :class="newRequestType === 'GrillChange' ? 'bg-purple-900/40 border-purple-500 text-purple-200' : 'bg-[#1A1A1A] border-[#616161] text-gray-400'"
+                :class="newRequestType === 'GrillChange' ? 'bg-purple-900/40 border-purple-500 text-purple-200' : 'bg-background border-border text-gray-400'"
                 @click="newRequestType = 'GrillChange'"
               >
                 Thay Vỉ Nướng
               </button>
               <button 
                 class="px-4 py-3 rounded-xl border text-sm font-bold transition-fast touch-target"
-                :class="newRequestType === 'CoalRefill' ? 'bg-orange-950/40 border-[#ff6b35] text-[#ff6b35]' : 'bg-[#1A1A1A] border-[#616161] text-gray-400'"
+                :class="newRequestType === 'CoalRefill' ? 'bg-orange-950/40 border-primary text-primary' : 'bg-background border-border text-gray-400'"
                 @click="newRequestType = 'CoalRefill'"
               >
                 Châm Thêm Than
@@ -717,14 +717,14 @@
             <div class="grid grid-cols-2 gap-3">
               <button 
                 class="px-4 py-2.5 rounded-xl border text-sm font-bold transition-fast touch-target"
-                :class="newRequestPriority === 'Normal' ? 'bg-[#3D3D3D] border-[#616161] text-white' : 'bg-[#1A1A1A] border-[#616161] text-gray-400'"
+                :class="newRequestPriority === 'Normal' ? 'bg-muted border-border text-foreground' : 'bg-background border-border text-gray-400'"
                 @click="newRequestPriority = 'Normal'"
               >
                 Thường
               </button>
               <button 
                 class="px-4 py-2.5 rounded-xl border text-sm font-bold transition-fast touch-target"
-                :class="newRequestPriority === 'Urgent' ? 'bg-red-950/40 border-red-500 text-red-300' : 'bg-[#1A1A1A] border-[#616161] text-gray-400'"
+                :class="newRequestPriority === 'Urgent' ? 'bg-red-950/40 border-red-500 text-red-300' : 'bg-background border-border text-gray-400'"
                 @click="newRequestPriority = 'Urgent'"
               >
                 Gấp (Urgent)
@@ -734,15 +734,15 @@
         </div>
 
         <!-- Footer Actions -->
-        <div class="flex justify-end gap-3 pt-3 border-t border-[#404040]">
+        <div class="flex justify-end gap-3 pt-3 border-t border-border">
           <button 
-            class="px-4 py-2.5 bg-[#3D3D3D] hover:bg-[#4A4A4A] rounded-xl text-xs font-bold transition-fast text-gray-300 touch-target"
+            class="px-4 py-2.5 bg-muted hover:bg-[#4A4A4A] rounded-xl text-xs font-bold transition-fast text-gray-300 touch-target"
             @click="showGrillRequestModal = false"
           >
             Hủy bỏ
           </button>
           <button 
-            class="px-6 py-2.5 bg-[#ff6b35] hover:bg-[#e55a2b] disabled:opacity-50 disabled:cursor-not-allowed rounded-xl text-xs font-bold text-white transition-fast touch-target"
+            class="px-6 py-2.5 bg-primary hover:bg-[#e55a2b] disabled:opacity-50 disabled:cursor-not-allowed rounded-xl text-xs font-bold text-foreground transition-fast touch-target"
             :disabled="!newRequestTable"
             @click="createGrillRequest"
           >
@@ -755,20 +755,20 @@
 
     <!-- NEW FEATURE: KITCHEN HYGIENE & SAFETY (HACCP) MODAL -->
     <div v-if="showHaccpModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in" @click.self="showHaccpModal = false">
-      <div class="bg-[#2D2D2D] border border-[#404040] rounded-2xl w-full max-w-[700px] shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+      <div class="bg-card border border-border rounded-2xl w-full max-w-[700px] shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
         
         <!-- Modal Header -->
-        <div class="px-6 py-4 bg-[#1A1A1A] border-b border-[#404040] flex justify-between items-center">
+        <div class="px-6 py-4 bg-background border-b border-border flex justify-between items-center">
           <div class="flex items-center gap-2">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-[#4CAF50]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
             </svg>
             <div>
-              <h3 class="text-xl font-black text-white uppercase tracking-wider">Nhật Ký An Toàn & Vệ Sinh HACCP</h3>
+              <h3 class="text-xl font-black text-foreground uppercase tracking-wider">Nhật Ký An Toàn & Vệ Sinh HACCP</h3>
               <p class="text-xs text-gray-400">Giám sát chất lượng & tuân thủ quy chuẩn nhà bếp</p>
             </div>
           </div>
-          <button @click="showHaccpModal = false" class="w-10 h-10 rounded-full bg-[#3D3D3D] hover:bg-[#4A4A4A] flex items-center justify-center border border-[#616161] transition-fast text-white touch-target">
+          <button @click="showHaccpModal = false" class="w-10 h-10 rounded-full bg-muted hover:bg-[#4A4A4A] flex items-center justify-center border border-border transition-fast text-foreground touch-target">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -776,7 +776,7 @@
         </div>
 
         <!-- Modal Tabs -->
-        <div class="flex bg-[#1A1A1A]/50 border-b border-[#404040]">
+        <div class="flex bg-background/50 border-b border-border">
           <button 
             v-for="tab in [
               { key: 'preshift', label: '1. Đầu Ca (Pre-Shift)' },
@@ -787,27 +787,27 @@
             :key="tab.key"
             @click="haccpActiveTab = tab.key"
             class="flex-1 py-3 text-xs font-bold uppercase tracking-wider border-b-2 text-center transition-all touch-target"
-            :class="haccpActiveTab === tab.key ? 'text-[#4CAF50] border-[#4CAF50] bg-[#2D2D2D]/30' : 'text-gray-400 border-transparent hover:text-gray-200'"
+            :class="haccpActiveTab === tab.key ? 'text-[#4CAF50] border-[#4CAF50] bg-card/30' : 'text-gray-400 border-transparent hover:text-gray-200'"
           >
             {{ tab.label }}
           </button>
         </div>
 
         <!-- Modal Body Content -->
-        <div class="p-6 overflow-y-auto space-y-6 flex-1 bg-[#2D2D2D]">
+        <div class="p-6 overflow-y-auto space-y-6 flex-1 bg-card">
           
           <!-- TAB 1: PRE-SHIFT -->
           <div v-if="haccpActiveTab === 'preshift'" class="space-y-5 animate-fade-in">
-            <div class="p-4 bg-[#3D3D3D]/30 border border-[#404040] rounded-xl space-y-4">
+            <div class="p-4 bg-muted/30 border border-border rounded-xl space-y-4">
               <h4 class="text-sm font-bold text-[#4CAF50] uppercase tracking-wide">📋 Khảo sát vệ sinh đầu ngày</h4>
               
               <!-- Personal Hygiene Checkbox -->
-              <label class="flex items-start gap-3 cursor-pointer p-3 rounded-lg bg-[#1A1A1A]/30 border border-[#404040] hover:bg-[#1A1A1A]/50 transition-fast">
+              <label class="flex items-start gap-3 cursor-pointer p-3 rounded-lg bg-background/30 border border-border hover:bg-background/50 transition-fast">
                 <input 
                   type="checkbox" 
                   v-model="haccpPreHandHygiene" 
                   :disabled="haccpPreSaved"
-                  class="w-5.5 h-5.5 rounded border-gray-600 text-[#4CAF50] focus:ring-[#4CAF50] bg-[#1A1A1A]"
+                  class="w-5.5 h-5.5 rounded border-gray-600 text-[#4CAF50] focus:ring-[#4CAF50] bg-background"
                 >
                 <div class="text-sm select-none">
                   <span class="font-bold text-gray-200 block">Vệ sinh cá nhân đạt chuẩn</span>
@@ -816,12 +816,12 @@
               </label>
 
               <!-- FEFO Expiration Checkbox -->
-              <label class="flex items-start gap-3 cursor-pointer p-3 rounded-lg bg-[#1A1A1A]/30 border border-[#404040] hover:bg-[#1A1A1A]/50 transition-fast">
+              <label class="flex items-start gap-3 cursor-pointer p-3 rounded-lg bg-background/30 border border-border hover:bg-background/50 transition-fast">
                 <input 
                   type="checkbox" 
                   v-model="haccpPreFefoChecked" 
                   :disabled="haccpPreSaved"
-                  class="w-5.5 h-5.5 rounded border-gray-600 text-[#4CAF50] focus:ring-[#4CAF50] bg-[#1A1A1A]"
+                  class="w-5.5 h-5.5 rounded border-gray-600 text-[#4CAF50] focus:ring-[#4CAF50] bg-background"
                 >
                 <div class="text-sm select-none">
                   <span class="font-bold text-gray-200 block">Kiểm tra hạn sử dụng (Áp dụng FEFO)</span>
@@ -831,7 +831,7 @@
             </div>
 
             <!-- Temperature log -->
-            <div class="p-4 bg-[#3D3D3D]/30 border border-[#404040] rounded-xl space-y-4">
+            <div class="p-4 bg-muted/30 border border-border rounded-xl space-y-4">
               <h4 class="text-sm font-bold text-[#4CAF50] uppercase tracking-wide">❄️ Đo nhiệt độ hệ thống bảo quản</h4>
               
               <div class="grid grid-cols-2 gap-4">
@@ -843,7 +843,7 @@
                       v-model="haccpPreFridgeTemp" 
                       :disabled="haccpPreSaved"
                       step="0.5"
-                      class="w-full bg-[#1A1A1A] border border-[#616161] rounded-xl px-4 py-2 text-white text-lg font-bold focus:outline-none focus:border-[#4CAF50] pr-10"
+                      class="w-full bg-background border border-border rounded-xl px-4 py-2 text-foreground text-lg font-bold focus:outline-none focus:border-[#4CAF50] pr-10"
                     />
                     <span class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold">°C</span>
                   </div>
@@ -857,7 +857,7 @@
                       v-model="haccpPreFreezerTemp" 
                       :disabled="haccpPreSaved"
                       step="0.5"
-                      class="w-full bg-[#1A1A1A] border border-[#616161] rounded-xl px-4 py-2 text-white text-lg font-bold focus:outline-none focus:border-[#4CAF50] pr-10"
+                      class="w-full bg-background border border-border rounded-xl px-4 py-2 text-foreground text-lg font-bold focus:outline-none focus:border-[#4CAF50] pr-10"
                     />
                     <span class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold">°C</span>
                   </div>
@@ -877,18 +877,18 @@
                 </div>
 
                 <label v-if="!haccpPreSaved" class="flex items-center gap-2 mt-2 cursor-pointer p-2 rounded bg-red-900/10 hover:bg-red-900/20 border border-red-800/30 transition-fast">
-                  <input type="checkbox" v-model="tempTransferConfirmed" class="w-4.5 h-4.5 rounded border-red-600 text-red-500 focus:ring-red-500 bg-[#1A1A1A]">
+                  <input type="checkbox" v-model="tempTransferConfirmed" class="w-4.5 h-4.5 rounded border-red-600 text-red-500 focus:ring-red-500 bg-background">
                   <span class="text-xs font-bold text-red-300 select-none">Tôi xác nhận đã chuyển nguyên liệu an toàn sang tủ dự phòng khẩn cấp</span>
                 </label>
               </div>
             </div>
 
             <!-- Save Pre-Shift Actions -->
-            <div class="flex justify-end pt-2 border-t border-[#404040]">
+            <div class="flex justify-end pt-2 border-t border-border">
               <button 
                 v-if="!haccpPreSaved"
                 @click="savePreShiftHaccp"
-                class="px-6 py-2.5 bg-[#4CAF50] hover:bg-[#43a047] disabled:opacity-50 disabled:cursor-not-allowed rounded-xl text-xs font-bold text-white transition-fast touch-target"
+                class="px-6 py-2.5 bg-[#4CAF50] hover:bg-[#43a047] disabled:opacity-50 disabled:cursor-not-allowed rounded-xl text-xs font-bold text-foreground transition-fast touch-target"
                 :disabled="!haccpPreHandHygiene || !haccpPreFefoChecked || (isTempAlertActive && !tempTransferConfirmed)"
               >
                 Ghi nhận đầu ca (HACCP)
@@ -909,17 +909,17 @@
               <button 
                 v-if="!showNewIncidentForm"
                 @click="showNewIncidentForm = true"
-                class="bg-[#ff6b35] hover:bg-[#e55a2b] text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-fast touch-target"
+                class="bg-primary hover:bg-[#e55a2b] text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-fast touch-target"
               >
                 + Báo cáo sự cố mới
               </button>
             </div>
 
             <!-- New Incident Form -->
-            <div v-if="showNewIncidentForm" class="p-4 bg-[#3D3D3D]/40 border border-[#FFA726]/30 rounded-xl space-y-4 animate-fade-in">
-              <div class="flex justify-between items-center pb-2 border-b border-[#404040]">
+            <div v-if="showNewIncidentForm" class="p-4 bg-muted/40 border border-[#FFA726]/30 rounded-xl space-y-4 animate-fade-in">
+              <div class="flex justify-between items-center pb-2 border-b border-border">
                 <span class="text-xs font-bold text-[#FFA726] uppercase">Báo cáo Sự cố mới</span>
-                <button @click="showNewIncidentForm = false" class="text-gray-400 hover:text-white text-xs">Hủy</button>
+                <button @click="showNewIncidentForm = false" class="text-gray-400 hover:text-foreground text-xs">Hủy</button>
               </div>
 
               <div class="grid grid-cols-2 gap-4">
@@ -929,14 +929,14 @@
                     type="text" 
                     v-model="newIncidentReporter" 
                     placeholder="Tên nhân viên..."
-                    class="w-full bg-[#1A1A1A] border border-[#616161] rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-[#FFA726]"
+                    class="w-full bg-background border border-border rounded-xl px-3 py-2 text-foreground text-sm focus:outline-none focus:border-[#FFA726]"
                   />
                 </div>
                 <div class="space-y-1.5">
                   <label class="text-[10px] text-gray-400 uppercase font-bold">Phân loại sự cố</label>
                   <select 
                     v-model="newIncidentType"
-                    class="w-full bg-[#1A1A1A] border border-[#616161] rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-[#FFA726]"
+                    class="w-full bg-background border border-border rounded-xl px-3 py-2 text-foreground text-sm focus:outline-none focus:border-[#FFA726]"
                   >
                     <option value="FoodDrop">Rơi thức ăn xuống sàn (Dropped Food)</option>
                     <option value="CutHand">Tai nạn đứt tay / Chấn thương (Injury)</option>
@@ -952,14 +952,14 @@
                   v-model="newIncidentDescription" 
                   rows="3"
                   placeholder="Mô tả sự việc và các bước đã xử lý ngay lập tức..."
-                  class="w-full bg-[#1A1A1A] border border-[#616161] rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-[#FFA726]"
+                  class="w-full bg-background border border-border rounded-xl px-3 py-2 text-foreground text-sm focus:outline-none focus:border-[#FFA726]"
                 ></textarea>
               </div>
 
               <div class="flex justify-end gap-2">
                 <button 
                   @click="showNewIncidentForm = false"
-                  class="px-4 py-2 bg-[#3D3D3D] hover:bg-[#4A4A4A] rounded-xl text-xs font-bold text-gray-300 touch-target"
+                  class="px-4 py-2 bg-muted hover:bg-[#4A4A4A] rounded-xl text-xs font-bold text-gray-300 touch-target"
                 >
                   Hủy
                 </button>
@@ -975,9 +975,9 @@
 
             <!-- Incidents List -->
             <div class="space-y-3">
-              <div v-for="inc in haccpIncidents" :key="inc.id" class="p-4 bg-[#1A1A1A] border-l-4 rounded-xl shadow-md transition-fast relative" :class="inc.status === 'Pending' ? 'border-[#C62828] bg-red-950/5' : 'border-gray-600 opacity-70'">
+              <div v-for="inc in haccpIncidents" :key="inc.id" class="p-4 bg-background border-l-4 rounded-xl shadow-md transition-fast relative" :class="inc.status === 'Pending' ? 'border-[#C62828] bg-red-950/5' : 'border-gray-600 opacity-70'">
                 
-                <button v-if="inc.status === 'Pending'" @click="haccpIncidents = haccpIncidents.filter(i => i.id !== inc.id); saveHaccpState();" class="absolute top-2 right-2 text-gray-500 hover:text-white transition-fast">
+                <button v-if="inc.status === 'Pending'" @click="haccpIncidents = haccpIncidents.filter(i => i.id !== inc.id); saveHaccpState();" class="absolute top-2 right-2 text-gray-500 hover:text-foreground transition-fast">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
                   </svg>
@@ -985,7 +985,7 @@
 
                 <div class="flex justify-between items-baseline mb-2">
                   <div class="flex items-center gap-2">
-                    <span class="text-xs font-bold bg-[#3D3D3D] text-gray-300 px-2 py-0.5 rounded">
+                    <span class="text-xs font-bold bg-muted text-gray-300 px-2 py-0.5 rounded">
                       {{ inc.reporter }}
                     </span>
                     <span class="text-[10px] text-gray-500 font-mono">
@@ -1007,7 +1007,7 @@
                 <p class="text-xs text-gray-400">{{ inc.description }}</p>
 
                 <!-- Resolution section -->
-                <div v-if="inc.status === 'Pending'" class="mt-3 pt-3 border-t border-[#404040]/40 flex justify-end">
+                <div v-if="inc.status === 'Pending'" class="mt-3 pt-3 border-t border-border/40 flex justify-end">
                   <button 
                     @click="resolveIncidentPrompt(inc)"
                     class="bg-[#2E7D32] hover:bg-[#256629] text-white text-[10px] font-bold px-3 py-1.5 rounded-lg transition-fast touch-target"
@@ -1015,7 +1015,7 @@
                     XÁC NHẬN ĐÃ XỬ LÝ (SƠ CỨU/DỌN DẸP)
                   </button>
                 </div>
-                <div v-else class="mt-2 bg-[#2D2D2D]/60 p-2 rounded text-xs border border-green-800/20 text-green-400">
+                <div v-else class="mt-2 bg-card/60 p-2 rounded text-xs border border-green-800/20 text-green-400">
                   <span class="font-bold block">Biện pháp khắc phục:</span>
                   <span class="italic text-gray-300">{{ inc.resolutionNote }}</span>
                 </div>
@@ -1030,16 +1030,16 @@
 
           <!-- TAB 3: POST-SHIFT -->
           <div v-if="haccpActiveTab === 'postshift'" class="space-y-5 animate-fade-in">
-            <div class="p-4 bg-[#3D3D3D]/30 border border-[#404040] rounded-xl space-y-4">
+            <div class="p-4 bg-muted/30 border border-border rounded-xl space-y-4">
               <h4 class="text-sm font-bold text-[#4CAF50] uppercase tracking-wide">🧹 Quy trình đóng ca & Dọn dẹp vệ sinh</h4>
               
               <!-- Surface cleaning checkbox -->
-              <label class="flex items-start gap-3 cursor-pointer p-3 rounded-lg bg-[#1A1A1A]/30 border border-[#404040] hover:bg-[#1A1A1A]/50 transition-fast">
+              <label class="flex items-start gap-3 cursor-pointer p-3 rounded-lg bg-background/30 border border-border hover:bg-background/50 transition-fast">
                 <input 
                   type="checkbox" 
                   v-model="haccpPostCleaning" 
                   :disabled="haccpPostSaved"
-                  class="w-5.5 h-5.5 rounded border-gray-600 text-[#4CAF50] focus:ring-[#4CAF50] bg-[#1A1A1A]"
+                  class="w-5.5 h-5.5 rounded border-gray-600 text-[#4CAF50] focus:ring-[#4CAF50] bg-background"
                 >
                 <div class="text-sm select-none">
                   <span class="font-bold text-gray-200 block">Vệ sinh bề mặt bàn bếp & Thiết bị chế biến</span>
@@ -1048,12 +1048,12 @@
               </label>
 
               <!-- Waste sorting checkbox -->
-              <label class="flex items-start gap-3 cursor-pointer p-3 rounded-lg bg-[#1A1A1A]/30 border border-[#404040] hover:bg-[#1A1A1A]/50 transition-fast">
+              <label class="flex items-start gap-3 cursor-pointer p-3 rounded-lg bg-background/30 border border-border hover:bg-background/50 transition-fast">
                 <input 
                   type="checkbox" 
                   v-model="haccpPostWasteSorting" 
                   :disabled="haccpPostSaved"
-                  class="w-5.5 h-5.5 rounded border-gray-600 text-[#4CAF50] focus:ring-[#4CAF50] bg-[#1A1A1A]"
+                  class="w-5.5 h-5.5 rounded border-gray-600 text-[#4CAF50] focus:ring-[#4CAF50] bg-background"
                 >
                 <div class="text-sm select-none">
                   <span class="font-bold text-gray-200 block">Phân loại & Thu gom rác thải</span>
@@ -1062,12 +1062,12 @@
               </label>
 
               <!-- Leftover wrap/labels checkbox -->
-              <label class="flex items-start gap-3 cursor-pointer p-3 rounded-lg bg-[#1A1A1A]/30 border border-[#404040] hover:bg-[#1A1A1A]/50 transition-fast">
+              <label class="flex items-start gap-3 cursor-pointer p-3 rounded-lg bg-background/30 border border-border hover:bg-background/50 transition-fast">
                 <input 
                   type="checkbox" 
                   v-model="haccpPostLeftoversStored" 
                   :disabled="haccpPostSaved"
-                  class="w-5.5 h-5.5 rounded border-gray-600 text-[#4CAF50] focus:ring-[#4CAF50] bg-[#1A1A1A]"
+                  class="w-5.5 h-5.5 rounded border-gray-600 text-[#4CAF50] focus:ring-[#4CAF50] bg-background"
                 >
                 <div class="text-sm select-none">
                   <span class="font-bold text-gray-200 block">Bảo quản nguyên liệu thừa</span>
@@ -1084,16 +1084,16 @@
                 rows="3"
                 :disabled="haccpPostSaved"
                 placeholder="Nhập ghi chú bàn giao hoặc các thiết bị cần bảo trì..."
-                class="w-full bg-[#1A1A1A] border border-[#616161] rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-[#4CAF50]"
+                class="w-full bg-background border border-border rounded-xl px-3 py-2 text-foreground text-sm focus:outline-none focus:border-[#4CAF50]"
               ></textarea>
             </div>
 
             <!-- Actions -->
-            <div class="flex justify-end pt-2 border-t border-[#404040]">
+            <div class="flex justify-end pt-2 border-t border-border">
               <button 
                 v-if="!haccpPostSaved"
                 @click="savePostShiftHaccp"
-                class="px-6 py-2.5 bg-[#4CAF50] hover:bg-[#43a047] disabled:opacity-50 disabled:cursor-not-allowed rounded-xl text-xs font-bold text-white transition-fast touch-target"
+                class="px-6 py-2.5 bg-[#4CAF50] hover:bg-[#43a047] disabled:opacity-50 disabled:cursor-not-allowed rounded-xl text-xs font-bold text-foreground transition-fast touch-target"
                 :disabled="!haccpPostCleaning || !haccpPostWasteSorting || !haccpPostLeftoversStored || unresolvedIncidentCount > 0"
               >
                 Ghi nhận cuối ca (Digital HACCP Log)
@@ -1109,27 +1109,27 @@
 
           <!-- TAB 4: APPROVAL / HEAD CHEF SIGN-OFF -->
           <div v-if="haccpActiveTab === 'approval'" class="space-y-5 animate-fade-in">
-            <div class="p-4 bg-[#3D3D3D]/30 border border-[#404040] rounded-xl space-y-4">
+            <div class="p-4 bg-muted/30 border border-border rounded-xl space-y-4">
               <h4 class="text-sm font-bold text-[#2196F3] uppercase tracking-wide">🔬 Báo cáo tổng hợp ca trực (HACCP Summary)</h4>
               
               <div class="space-y-2.5 text-sm text-gray-300">
-                <div class="flex justify-between border-b border-[#404040] pb-2">
+                <div class="flex justify-between border-b border-border pb-2">
                   <span>Trạng thái Kiểm tra đầu ca:</span>
                   <span class="font-bold" :class="haccpPreSaved ? 'text-green-400' : 'text-yellow-500'">
                     {{ haccpPreSaved ? 'Đã hoàn thành' : 'Chưa hoàn thành' }}
                   </span>
                 </div>
-                <div class="flex justify-between border-b border-[#404040] pb-2">
+                <div class="flex justify-between border-b border-border pb-2">
                   <span>Nhiệt độ đo đạc (Đầu ngày):</span>
                   <span class="font-bold">Tủ mát: {{ haccpPreFridgeTemp }}°C, Tủ đông: {{ haccpPreFreezerTemp }}°C</span>
                 </div>
-                <div class="flex justify-between border-b border-[#404040] pb-2">
+                <div class="flex justify-between border-b border-border pb-2">
                   <span>Tổng số Sự cố vệ sinh ghi nhận:</span>
                   <span class="font-bold" :class="haccpIncidents.length > 0 ? 'text-yellow-500' : 'text-green-400'">
                     {{ haccpIncidents.length }} (Đã giải quyết: {{ haccpIncidents.filter(i => i.status === 'Resolved').length }})
                   </span>
                 </div>
-                <div class="flex justify-between border-b border-[#404040] pb-2">
+                <div class="flex justify-between border-b border-border pb-2">
                   <span>Trạng thái Vệ sinh đóng ca:</span>
                   <span class="font-bold" :class="haccpPostSaved ? 'text-green-400' : 'text-yellow-500'">
                     {{ haccpPostSaved ? 'Đã hoàn thành' : 'Chưa hoàn thành' }}
@@ -1139,7 +1139,7 @@
             </div>
 
             <!-- Sign-off Form -->
-            <div class="p-4 bg-[#3D3D3D]/30 border border-[#404040] rounded-xl space-y-4">
+            <div class="p-4 bg-muted/30 border border-border rounded-xl space-y-4">
               <h4 class="text-sm font-bold text-[#2196F3] uppercase tracking-wide">✍️ Chữ ký phê duyệt của Bếp Trưởng</h4>
               
               <div class="space-y-4" v-if="!haccpHeadChefApproved">
@@ -1150,14 +1150,14 @@
                       type="text" 
                       v-model="haccpChefName" 
                       placeholder="Bếp Trưởng ký tên..."
-                      class="w-full bg-[#1A1A1A] border border-[#616161] rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:border-[#2196F3]"
+                      class="w-full bg-background border border-border rounded-xl px-4 py-2 text-foreground text-sm focus:outline-none focus:border-[#2196F3]"
                     />
                   </div>
                   <div class="space-y-1.5">
                     <label class="text-xs text-gray-400 uppercase font-bold">Đánh giá chung chất lượng vệ sinh ca</label>
                     <select 
                       v-model="haccpHaccpStatus"
-                      class="w-full bg-[#1A1A1A] border border-[#616161] rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:border-[#2196F3]"
+                      class="w-full bg-background border border-border rounded-xl px-4 py-2 text-foreground text-sm focus:outline-none focus:border-[#2196F3]"
                     >
                       <option value="Compliant">ĐẠT CHUẨN VỆ SINH & AN TOÀN HACCP</option>
                       <option value="NonCompliant">CÓ VI PHẠM (Yêu cầu họp bàn/huấn luyện lại)</option>
@@ -1171,14 +1171,14 @@
                     v-model="haccpActionNote" 
                     rows="3"
                     placeholder="Mô tả các điểm vi phạm nếu có hoặc hành động khắc phục huấn luyện..."
-                    class="w-full bg-[#1A1A1A] border border-[#616161] rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-[#2196F3]"
+                    class="w-full bg-background border border-border rounded-xl px-3 py-2 text-foreground text-sm focus:outline-none focus:border-[#2196F3]"
                   ></textarea>
                 </div>
 
                 <button 
                   @click="approveShiftHaccp"
                   :disabled="!haccpChefName || !haccpPreSaved || !haccpPostSaved"
-                  class="w-full bg-[#2196F3] hover:bg-[#1976d2] disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-bold py-3 rounded-xl transition-fast touch-target-large"
+                  class="w-full bg-[#2196F3] hover:bg-[#1976d2] disabled:opacity-50 disabled:cursor-not-allowed text-foreground text-sm font-bold py-3 rounded-xl transition-fast touch-target-large"
                 >
                   KÝ XÁC NHẬN & LƯU HỒ SƠ LƯU TRỮ HACCP
                 </button>
@@ -1197,7 +1197,7 @@
                 
                 <button 
                   @click="resetHaccpForNewShift" 
-                  class="w-full bg-[#3D3D3D] hover:bg-[#4A4A4A] border border-[#616161] text-gray-300 text-xs font-bold py-2.5 rounded-xl transition-fast touch-target"
+                  class="w-full bg-muted hover:bg-[#4A4A4A] border border-border text-gray-300 text-xs font-bold py-2.5 rounded-xl transition-fast touch-target"
                 >
                   BẮT ĐẦU CA TRỰC MỚI (RESET LOGS)
                 </button>
@@ -1208,8 +1208,8 @@
         </div>
         
         <!-- Modal Footer -->
-        <div class="px-6 py-4 bg-[#1A1A1A] border-t border-[#404040] flex justify-end">
-          <button @click="showHaccpModal = false" class="px-6 py-2.5 bg-[#3D3D3D] hover:bg-[#4A4A4A] text-gray-200 border border-[#616161] rounded-xl font-bold transition-fast touch-target">
+        <div class="px-6 py-4 bg-background border-t border-border flex justify-end">
+          <button @click="showHaccpModal = false" class="px-6 py-2.5 bg-muted hover:bg-[#4A4A4A] text-gray-200 border border-border rounded-xl font-bold transition-fast touch-target">
             Đóng bảng
           </button>
         </div>
@@ -1219,20 +1219,20 @@
 
     <!-- NEW FEATURE: PREP LIST (SƠ CHẾ ĐẦU CA) MODAL -->
     <div v-if="showPrepModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in" @click.self="showPrepModal = false">
-      <div class="bg-[#2D2D2D] border border-[#404040] rounded-2xl w-full max-w-[650px] shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+      <div class="bg-card border border-border rounded-2xl w-full max-w-[650px] shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
         
         <!-- Modal Header -->
-        <div class="px-6 py-4 bg-[#1A1A1A] border-b border-[#404040] flex justify-between items-center">
+        <div class="px-6 py-4 bg-background border-b border-border flex justify-between items-center">
           <div class="flex items-center gap-2">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-[#1976d2]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
             </svg>
             <div>
-              <h3 class="text-xl font-black text-white uppercase tracking-wider">Bảng Sơ Chế Đầu Ca (Prep List)</h3>
+              <h3 class="text-xl font-black text-foreground uppercase tracking-wider">Bảng Sơ Chế Đầu Ca (Prep List)</h3>
               <p class="text-xs text-gray-400">Dự báo định lượng dựa trên danh sách đặt bàn hôm nay</p>
             </div>
           </div>
-          <button @click="showPrepModal = false" class="w-10 h-10 rounded-full bg-[#3D3D3D] hover:bg-[#4A4A4A] flex items-center justify-center border border-[#616161] transition-fast text-white touch-target">
+          <button @click="showPrepModal = false" class="w-10 h-10 rounded-full bg-muted hover:bg-[#4A4A4A] flex items-center justify-center border border-border transition-fast text-foreground touch-target">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -1240,17 +1240,17 @@
         </div>
 
         <!-- Modal Body Content -->
-        <div class="p-6 overflow-y-auto space-y-6 flex-1 bg-[#2D2D2D]">
+        <div class="p-6 overflow-y-auto space-y-6 flex-1 bg-card">
           
           <!-- Booking & expected guest forecast card -->
-          <div class="grid grid-cols-3 gap-4 bg-[#1A1A1A] p-4 rounded-xl border border-[#404040]">
+          <div class="grid grid-cols-3 gap-4 bg-background p-4 rounded-xl border border-border">
             <div>
               <span class="text-xs text-gray-500 uppercase font-bold block">Tổng đặt bàn</span>
-              <span class="text-2xl font-black text-white">{{ todayBookingsCount }} bàn</span>
+              <span class="text-2xl font-black text-foreground">{{ todayBookingsCount }} bàn</span>
             </div>
             <div>
               <span class="text-xs text-gray-500 uppercase font-bold block">Số khách dự kiến</span>
-              <span class="text-2xl font-black text-white">{{ todayExpectedGuests }} khách</span>
+              <span class="text-2xl font-black text-foreground">{{ todayExpectedGuests }} khách</span>
             </div>
             <div>
               <span class="text-xs text-gray-500 uppercase font-bold block">Trạng thái bếp</span>
@@ -1264,64 +1264,64 @@
           <div class="space-y-3">
             <h4 class="text-xs text-gray-400 uppercase font-bold tracking-wider">🥩 Dự báo định lượng sơ chế (Expected Ingredients)</h4>
             <div class="grid grid-cols-2 gap-3">
-              <div class="p-3 bg-[#3D3D3D]/30 border border-[#404040] rounded-xl flex justify-between items-center">
+              <div class="p-3 bg-muted/30 border border-border rounded-xl flex justify-between items-center">
                 <div>
                   <span class="text-xs text-gray-400 block">Thịt bò Wagyu lẩu</span>
                   <span class="text-sm font-bold text-gray-200">Chuẩn bị thái mỏng</span>
                 </div>
-                <span class="text-lg font-black text-[#ff6b35]">{{ (todayExpectedGuests * 0.3).toFixed(1) }} kg</span>
+                <span class="text-lg font-black text-primary">{{ (todayExpectedGuests * 0.3).toFixed(1) }} kg</span>
               </div>
-              <div class="p-3 bg-[#3D3D3D]/30 border border-[#404040] rounded-xl flex justify-between items-center">
+              <div class="p-3 bg-muted/30 border border-border rounded-xl flex justify-between items-center">
                 <div>
                   <span class="text-xs text-gray-400 block">Sườn bò Ngưu Cát</span>
                   <span class="text-sm font-bold text-gray-200">Ướp sốt nướng</span>
                 </div>
-                <span class="text-lg font-black text-[#ff6b35]">{{ (todayExpectedGuests * 0.2).toFixed(1) }} kg</span>
+                <span class="text-lg font-black text-primary">{{ (todayExpectedGuests * 0.2).toFixed(1) }} kg</span>
               </div>
-              <div class="p-3 bg-[#3D3D3D]/30 border border-[#404040] rounded-xl flex justify-between items-center">
+              <div class="p-3 bg-muted/30 border border-border rounded-xl flex justify-between items-center">
                 <div>
                   <span class="text-xs text-gray-400 block">Rau nấm tổng hợp</span>
                   <span class="text-sm font-bold text-gray-200">Nhặt sạch, phân mâm</span>
                 </div>
-                <span class="text-lg font-black text-[#ff6b35]">{{ (todayExpectedGuests * 0.15).toFixed(1) }} kg</span>
+                <span class="text-lg font-black text-primary">{{ (todayExpectedGuests * 0.15).toFixed(1) }} kg</span>
               </div>
-              <div class="p-3 bg-[#3D3D3D]/30 border border-[#404040] rounded-xl flex justify-between items-center">
+              <div class="p-3 bg-muted/30 border border-border rounded-xl flex justify-between items-center">
                 <div>
                   <span class="text-xs text-gray-400 block">Nước lẩu Sukiyaki</span>
                   <span class="text-sm font-bold text-gray-200">Đun hầm sẵn tủ mát</span>
                 </div>
-                <span class="text-lg font-black text-[#ff6b35]">{{ (todayExpectedGuests * 0.4).toFixed(1) }} L</span>
+                <span class="text-lg font-black text-primary">{{ (todayExpectedGuests * 0.4).toFixed(1) }} L</span>
               </div>
             </div>
           </div>
 
           <!-- Tasks list & Assignment section -->
           <div class="space-y-4">
-            <div class="flex justify-between items-center border-t border-[#404040] pt-4">
+            <div class="flex justify-between items-center border-t border-border pt-4">
               <h4 class="text-xs text-gray-400 uppercase font-bold tracking-wider">📋 Phân công sơ chế đầu ca</h4>
-              <span class="bg-[#1A1A1A] border border-[#616161] text-gray-300 px-2 py-0.5 rounded text-xs font-bold">
+              <span class="bg-background border border-border text-gray-300 px-2 py-0.5 rounded text-xs font-bold">
                 Cần làm: {{ pendingPrepTaskCount }}
               </span>
             </div>
 
             <!-- New task inputs -->
-            <div class="flex gap-2 bg-[#1A1A1A]/40 p-3 rounded-xl border border-[#404040]">
+            <div class="flex gap-2 bg-background/40 p-3 rounded-xl border border-border">
               <input 
                 type="text" 
                 v-model="newPrepTaskName"
                 placeholder="Tên công việc sơ chế..."
-                class="flex-1 bg-[#1A1A1A] border border-[#616161] rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-[#1976d2]"
+                class="flex-1 bg-background border border-border rounded-lg px-3 py-1.5 text-xs text-foreground focus:outline-none focus:border-[#1976d2]"
               />
               <input 
                 type="text" 
                 v-model="newPrepTaskAssigned"
                 placeholder="Tên đầu bếp..."
-                class="w-32 bg-[#1A1A1A] border border-[#616161] rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-[#1976d2]"
+                class="w-32 bg-background border border-border rounded-lg px-3 py-1.5 text-xs text-foreground focus:outline-none focus:border-[#1976d2]"
               />
               <button 
                 @click="addPrepTask"
                 :disabled="!newPrepTaskName"
-                class="bg-[#1976d2] hover:bg-[#1565c0] disabled:opacity-50 text-white text-xs font-bold px-4 py-1.5 rounded-lg transition-fast touch-target"
+                class="bg-[#1976d2] hover:bg-[#1565c0] disabled:opacity-50 text-foreground text-xs font-bold px-4 py-1.5 rounded-lg transition-fast touch-target"
               >
                 Thêm
               </button>
@@ -1332,14 +1332,14 @@
               <div 
                 v-for="task in prepTasks" 
                 :key="task.id" 
-                class="p-3 bg-[#1A1A1A] border border-[#404040] rounded-xl flex justify-between items-center hover:border-gray-500 transition-fast"
+                class="p-3 bg-background border border-border rounded-xl flex justify-between items-center hover:border-gray-500 transition-fast"
               >
                 <div class="flex items-center gap-3">
                   <input 
                     type="checkbox" 
                     :checked="task.status === 'Completed'" 
                     @change="togglePrepTaskStatus(task)"
-                    class="w-5 h-5 rounded border-gray-600 text-[#1976d2] focus:ring-[#1976d2] bg-[#2D2D2D] cursor-pointer"
+                    class="w-5 h-5 rounded border-gray-600 text-[#1976d2] focus:ring-[#1976d2] bg-card cursor-pointer"
                   >
                   <div>
                     <span 
@@ -1380,8 +1380,8 @@
         </div>
 
         <!-- Modal Footer -->
-        <div class="px-6 py-4 bg-[#1A1A1A] border-t border-[#404040] flex justify-end">
-          <button @click="showPrepModal = false" class="px-6 py-2.5 bg-[#3D3D3D] hover:bg-[#4A4A4A] text-gray-200 border border-[#616161] rounded-xl font-bold transition-fast touch-target">
+        <div class="px-6 py-4 bg-background border-t border-border flex justify-end">
+          <button @click="showPrepModal = false" class="px-6 py-2.5 bg-muted hover:bg-[#4A4A4A] text-gray-200 border border-border rounded-xl font-bold transition-fast touch-target">
             Đóng bảng
           </button>
         </div>
@@ -1391,20 +1391,20 @@
 
     <!-- NEW FEATURE: 86'd MENU ITEMS MANAGEMENT MODAL -->
     <div v-if="show86dModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in" @click.self="show86dModal = false">
-      <div class="bg-[#2D2D2D] border border-[#404040] rounded-2xl w-full max-w-[650px] shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+      <div class="bg-card border border-border rounded-2xl w-full max-w-[650px] shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
         
         <!-- Modal Header -->
-        <div class="px-6 py-4 bg-[#1A1A1A] border-b border-[#404040] flex justify-between items-center">
+        <div class="px-6 py-4 bg-background border-b border-border flex justify-between items-center">
           <div class="flex items-center gap-2">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-[#ff5252]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.477 14.89A6 6 0 015.11 6.524l8.367 8.368zm1.414-1.414L6.524 5.11a6 6 0 018.367 8.367zM18 10a8 8 0 11-16 0 8 8 0 0116 0z" />
             </svg>
             <div>
-              <h3 class="text-xl font-black text-white uppercase tracking-wider">Quản lý Món Tạm Ngưng (86'd List)</h3>
+              <h3 class="text-xl font-black text-foreground uppercase tracking-wider">Quản lý Món Tạm Ngưng (86'd List)</h3>
               <p class="text-xs text-gray-400">Kiểm tra tồn kho & Đánh dấu món hết hàng để thông báo cho POS / Phục vụ</p>
             </div>
           </div>
-          <button @click="show86dModal = false" class="w-10 h-10 rounded-full bg-[#3D3D3D] hover:bg-[#4A4A4A] flex items-center justify-center border border-[#616161] transition-fast text-white touch-target">
+          <button @click="show86dModal = false" class="w-10 h-10 rounded-full bg-muted hover:bg-[#4A4A4A] flex items-center justify-center border border-border transition-fast text-foreground touch-target">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -1412,7 +1412,7 @@
         </div>
 
         <!-- Search & Quick Filters -->
-        <div class="p-6 pb-2 bg-[#2D2D2D] space-y-4">
+        <div class="p-6 pb-2 bg-card space-y-4">
           <div class="flex gap-4">
             <!-- Search field -->
             <div class="relative flex-1">
@@ -1420,7 +1420,7 @@
                 v-model="search86dQuery"
                 type="text" 
                 placeholder="Tìm món ăn..."
-                class="w-full bg-[#1A1A1A] border border-[#616161] rounded-xl pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:border-[#ff5252] text-white placeholder-gray-500"
+                class="w-full bg-background border border-border rounded-xl pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:border-[#ff5252] text-foreground placeholder-gray-500"
               />
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -1429,7 +1429,7 @@
             <!-- Quick Filter Select -->
             <select 
               v-model="filter86dStatus"
-              class="bg-[#1A1A1A] border border-[#616161] rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-[#ff5252]"
+              class="bg-background border border-border rounded-xl px-4 py-2 text-sm text-foreground focus:outline-none focus:border-[#ff5252]"
             >
               <option value="all">Tất cả món</option>
               <option value="available">Còn hàng</option>
@@ -1439,13 +1439,13 @@
         </div>
 
         <!-- Modal Body Content -->
-        <div class="p-6 pt-2 overflow-y-auto space-y-4 flex-1 bg-[#2D2D2D]">
+        <div class="p-6 pt-2 overflow-y-auto space-y-4 flex-1 bg-card">
           
           <div class="space-y-2">
             <div 
               v-for="item in filtered86dItems" 
               :key="item.id" 
-              class="p-4 bg-[#1A1A1A] border border-[#404040] rounded-xl flex justify-between items-center hover:border-gray-500 transition-fast"
+              class="p-4 bg-background border border-border rounded-xl flex justify-between items-center hover:border-gray-500 transition-fast"
             >
               <div>
                 <span class="text-base font-bold text-gray-200 block">{{ item.name }}</span>
@@ -1483,8 +1483,8 @@
         </div>
         
         <!-- Modal Footer -->
-        <div class="px-6 py-4 bg-[#1A1A1A] border-t border-[#404040] flex justify-end">
-          <button @click="show86dModal = false" class="px-6 py-2.5 bg-[#3D3D3D] hover:bg-[#4A4A4A] text-gray-200 border border-[#616161] rounded-xl font-bold transition-fast touch-target">
+        <div class="px-6 py-4 bg-background border-t border-border flex justify-end">
+          <button @click="show86dModal = false" class="px-6 py-2.5 bg-muted hover:bg-[#4A4A4A] text-gray-200 border border-border rounded-xl font-bold transition-fast touch-target">
             Đóng
           </button>
         </div>
@@ -1497,7 +1497,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h3 class="modal-title">KIỂM TRA NGUYÊN LIỆU - Bàn {{ getTableCode(ingredientCheckOrder.table) }}</h3>
-          <button @click="showIngredientCheckModal = false" class="text-gray-400 hover:text-white transition-fast">
+          <button @click="showIngredientCheckModal = false" class="text-gray-400 hover:text-foreground transition-fast">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -1551,7 +1551,7 @@
       <div class="modal-content max-w-[500px]">
         <div class="modal-header">
           <h3 class="modal-title uppercase text-[#C62828]">Báo hết món (86'd)</h3>
-          <button @click="showReportOutModal = false" class="text-gray-400 hover:text-white transition-fast">
+          <button @click="showReportOutModal = false" class="text-gray-400 hover:text-foreground transition-fast">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -1562,7 +1562,7 @@
           <!-- Item Select -->
           <div class="space-y-1.5">
             <label class="text-xs text-gray-400 uppercase font-bold">Món cần báo hết</label>
-            <select v-model="reportOutItem" class="w-full bg-[#1A1A1A] border border-[#616161] rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-[#C62828]">
+            <select v-model="reportOutItem" class="w-full bg-background border border-border rounded-xl px-4 py-2.5 text-foreground focus:outline-none focus:border-[#C62828]">
               <option :value="null" disabled>-- Chọn món --</option>
               <option v-for="item in menuItems" :key="item.id" :value="item">{{ item.name }}</option>
             </select>
@@ -1571,19 +1571,19 @@
           <!-- Reason -->
           <div class="space-y-2">
             <label class="text-xs text-gray-400 uppercase font-bold block">Lý do hết món</label>
-            <div class="grid grid-cols-1 gap-2 bg-[#1A1A1A] p-3 rounded-xl border border-[#404040]">
+            <div class="grid grid-cols-1 gap-2 bg-background p-3 rounded-xl border border-border">
               <label v-for="reason in ['Hết nguyên liệu', 'Nguyên liệu hỏng', 'Không thể chế biến', 'Khác']" :key="reason" class="flex items-center gap-2.5 cursor-pointer text-sm text-gray-300">
-                <input type="radio" v-model="reportOutReason" :value="reason" class="w-4 h-4 text-[#C62828] bg-[#2D2D2D] border-gray-600 focus:ring-[#C62828]">
+                <input type="radio" v-model="reportOutReason" :value="reason" class="w-4 h-4 text-[#C62828] bg-card border-gray-600 focus:ring-[#C62828]">
                 <span>{{ reason }}</span>
               </label>
             </div>
-            <input v-if="reportOutReason === 'Khác'" v-model="reportOutCustomReason" type="text" placeholder="Nhập lý do khác..." class="w-full bg-[#1A1A1A] border border-[#616161] rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-[#C62828] mt-2">
+            <input v-if="reportOutReason === 'Khác'" v-model="reportOutCustomReason" type="text" placeholder="Nhập lý do khác..." class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm text-foreground focus:outline-none focus:border-[#C62828] mt-2">
           </div>
 
           <!-- Expected restore time -->
           <div class="space-y-1.5">
             <label class="text-xs text-gray-400 uppercase font-bold">Thời gian dự kiến có lại</label>
-            <select v-model="reportOutRestoreTime" class="w-full bg-[#1A1A1A] border border-[#616161] rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-[#C62828]">
+            <select v-model="reportOutRestoreTime" class="w-full bg-background border border-border rounded-xl px-4 py-2.5 text-foreground focus:outline-none focus:border-[#C62828]">
               <option value="30 phút">30 phút</option>
               <option value="1 giờ">1 giờ</option>
               <option value="Cuối ca">Cuối ca</option>
@@ -1610,7 +1610,7 @@
           <h3 class="modal-title uppercase text-[#FFA726] flex items-center gap-2">
             📢 Thông báo Staff đổi món
           </h3>
-          <button @click="showStaffNotificationModal = false" class="text-gray-400 hover:text-white transition-fast">
+          <button @click="showStaffNotificationModal = false" class="text-gray-400 hover:text-foreground transition-fast">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -1626,19 +1626,19 @@
           <div class="space-y-2">
             <label class="text-xs text-gray-400 uppercase font-bold block">Các order bị ảnh hưởng ({{ staffNotificationAffectedOrders.length }})</label>
             <div v-if="staffNotificationAffectedOrders.length > 0" class="max-h-[150px] overflow-y-auto space-y-2">
-              <div v-for="ord in staffNotificationAffectedOrders" :key="ord.id" class="p-3 bg-[#1A1A1A] border border-[#404040] rounded-xl flex justify-between items-center text-sm">
+              <div v-for="ord in staffNotificationAffectedOrders" :key="ord.id" class="p-3 bg-background border border-border rounded-xl flex justify-between items-center text-sm">
                 <span class="font-bold text-gray-200">#{{ ord.id.slice(0, 8) }} - Bàn {{ ord.table }}</span>
                 <span class="text-orange-400 font-bold">Số lượng: x{{ ord.itemQty }}</span>
               </div>
             </div>
-            <p v-else class="text-sm text-gray-500 italic bg-[#1A1A1A] p-3 rounded-xl text-center border border-[#404040]/50">Không có order nào bị ảnh hưởng trực tiếp.</p>
+            <p v-else class="text-sm text-gray-500 italic bg-background p-3 rounded-xl text-center border border-border/50">Không có order nào bị ảnh hưởng trực tiếp.</p>
           </div>
 
           <!-- Suggested replacements -->
           <div class="space-y-2">
             <label class="text-xs text-gray-400 uppercase font-bold block">Gợi ý món thay thế</label>
             <div class="flex gap-2 flex-wrap">
-              <span v-for="rep in staffNotificationReplacements" :key="rep" class="px-3 py-1.5 bg-[#3D3D3D] border border-[#616161] text-gray-200 rounded-full text-xs font-bold">
+              <span v-for="rep in staffNotificationReplacements" :key="rep" class="px-3 py-1.5 bg-muted border border-border text-gray-200 rounded-full text-xs font-bold">
                 {{ rep }}
               </span>
             </div>
@@ -1647,7 +1647,7 @@
           <!-- Extra notes -->
           <div class="space-y-1.5">
             <label class="text-xs text-gray-400 uppercase font-bold block">Ghi chú thêm</label>
-            <textarea v-model="staffNotificationNotes" rows="3" placeholder="Nhập thêm ghi chú dặn dò phục vụ..." class="w-full bg-[#1A1A1A] border border-[#616161] rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-[#FFA726] resize-none"></textarea>
+            <textarea v-model="staffNotificationNotes" rows="3" placeholder="Nhập thêm ghi chú dặn dò phục vụ..." class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm text-foreground focus:outline-none focus:border-[#FFA726] resize-none"></textarea>
           </div>
         </div>
 
@@ -1667,7 +1667,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h3 class="modal-title">KIỂM TRA CHẤT LƯỢNG (QC) - Bàn {{ getTableCode(qcOrder.table) }}</h3>
-          <button @click="showQcModal = false" class="text-gray-400 hover:text-white transition-fast">
+          <button @click="showQcModal = false" class="text-gray-400 hover:text-foreground transition-fast">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -1678,25 +1678,25 @@
           <!-- Checklist -->
           <div class="space-y-2">
             <label class="text-xs text-gray-400 uppercase font-bold block">CHECKLIST TIÊU CHUẨN MÓN ĂN (Expo QC)</label>
-            <div class="space-y-2.5 bg-[#1A1A1A] p-4 rounded-xl border border-[#404040]">
+            <div class="space-y-2.5 bg-background p-4 rounded-xl border border-border">
               <label class="flex items-center gap-3 cursor-pointer text-sm text-gray-300">
-                <input type="checkbox" v-model="qcChecklist.plating" class="w-5 h-5 rounded border-gray-600 text-green-500 focus:ring-green-500 bg-[#2D2D2D]">
+                <input type="checkbox" v-model="qcChecklist.plating" class="w-5 h-5 rounded border-gray-600 text-green-500 focus:ring-green-500 bg-card">
                 <span>Hình thức trình bày đẹp, đúng dĩa quy định</span>
               </label>
               <label class="flex items-center gap-3 cursor-pointer text-sm text-gray-300">
-                <input type="checkbox" v-model="qcChecklist.temperature" class="w-5 h-5 rounded border-gray-600 text-green-500 focus:ring-green-500 bg-[#2D2D2D]">
+                <input type="checkbox" v-model="qcChecklist.temperature" class="w-5 h-5 rounded border-gray-600 text-green-500 focus:ring-green-500 bg-card">
                 <span>Nhiệt độ món ăn đạt chuẩn (≥ 60°C đối với đồ nóng)</span>
               </label>
               <label class="flex items-center gap-3 cursor-pointer text-sm text-gray-300">
-                <input type="checkbox" v-model="qcChecklist.weight" class="w-5 h-5 rounded border-gray-600 text-green-500 focus:ring-green-500 bg-[#2D2D2D]">
+                <input type="checkbox" v-model="qcChecklist.weight" class="w-5 h-5 rounded border-gray-600 text-green-500 focus:ring-green-500 bg-card">
                 <span>Định lượng đúng chuẩn định mức (sai số tối đa ±10%)</span>
               </label>
               <label class="flex items-center gap-3 cursor-pointer text-sm text-gray-300">
-                <input type="checkbox" v-model="qcChecklist.allergy" class="w-5 h-5 rounded border-gray-600 text-green-500 focus:ring-green-500 bg-[#2D2D2D]">
+                <input type="checkbox" v-model="qcChecklist.allergy" class="w-5 h-5 rounded border-gray-600 text-green-500 focus:ring-green-500 bg-card">
                 <span>Đáp ứng các lưu ý dị ứng của khách (Ví dụ: Không hành, ít cay)</span>
               </label>
               <label class="flex items-center gap-3 cursor-pointer text-sm text-gray-300">
-                <input type="checkbox" v-model="qcChecklist.taste" class="w-5 h-5 rounded border-gray-600 text-green-500 focus:ring-green-500 bg-[#2D2D2D]">
+                <input type="checkbox" v-model="qcChecklist.taste" class="w-5 h-5 rounded border-gray-600 text-green-500 focus:ring-green-500 bg-card">
                 <span>Mùi vị và độ chín đạt tiêu chuẩn thương hiệu Ngưu Cát</span>
               </label>
             </div>
@@ -1709,14 +1709,14 @@
               <button 
                 @click="qcResult = 'pass'"
                 class="py-3 rounded-xl border-2 text-base font-bold transition-all flex items-center justify-center gap-2 touch-target"
-                :class="qcResult === 'pass' ? 'bg-green-950/40 border-[#4CAF50] text-[#4CAF50]' : 'bg-[#1A1A1A] border-[#404040] text-gray-400'"
+                :class="qcResult === 'pass' ? 'bg-green-950/40 border-[#4CAF50] text-[#4CAF50]' : 'bg-background border-border text-gray-400'"
               >
                 ✅ ĐẠT TIÊU CHUẨN
               </button>
               <button 
                 @click="qcResult = 'fail'"
                 class="py-3 rounded-xl border-2 text-base font-bold transition-all flex items-center justify-center gap-2 touch-target"
-                :class="qcResult === 'fail' ? 'bg-red-950/40 border-[#F44336] text-[#F44336]' : 'bg-[#1A1A1A] border-[#404040] text-gray-400'"
+                :class="qcResult === 'fail' ? 'bg-red-950/40 border-[#F44336] text-[#F44336]' : 'bg-background border-border text-gray-400'"
               >
                 ❌ KHÔNG ĐẠT YÊU CẦU
               </button>
@@ -1726,7 +1726,7 @@
           <!-- If fail reason -->
           <div v-if="qcResult === 'fail'" class="space-y-1.5 animate-fade-in">
             <label class="text-xs text-[#F44336] uppercase font-bold block">Ghi chú nguyên nhân không đạt</label>
-            <textarea v-model="qcFailReason" rows="3" placeholder="Nhập lý do không đạt (Ví dụ: bị cháy xém, thiếu dĩa đi kèm...)" class="w-full bg-[#1A1A1A] border border-[#F44336]/40 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-[#F44336] resize-none"></textarea>
+            <textarea v-model="qcFailReason" rows="3" placeholder="Nhập lý do không đạt (Ví dụ: bị cháy xém, thiếu dĩa đi kèm...)" class="w-full bg-background border border-[#F44336]/40 rounded-xl px-4 py-2 text-sm text-foreground focus:outline-none focus:border-[#F44336] resize-none"></textarea>
           </div>
         </div>
 
@@ -1754,7 +1754,7 @@
 
     <!-- Delayed Orders Modal -->
     <div v-if="kitchenStore.showDelayedOrdersModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in" @click.self="kitchenStore.showDelayedOrdersModal = false">
-      <div class="bg-[#2D2D2D] border border-[#404040] rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl animate-scale-up">
+      <div class="bg-card border border-border rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl animate-scale-up">
         <!-- Header -->
         <div class="p-6 bg-[#C62828] text-white flex items-center justify-between">
           <div class="flex items-center gap-3">
@@ -1764,7 +1764,7 @@
               <p class="text-xs text-red-100">Các đơn hàng vượt quá thời gian chuẩn (15 phút)</p>
             </div>
           </div>
-          <button @click="kitchenStore.showDelayedOrdersModal = false" class="text-white/80 hover:text-white text-xl font-bold">&times;</button>
+          <button @click="kitchenStore.showDelayedOrdersModal = false" class="text-foreground/80 hover:text-foreground text-xl font-bold">&times;</button>
         </div>
         
         <!-- Body -->
@@ -1772,7 +1772,7 @@
           <div v-if="kitchenStore.delayedTickets.length === 0" class="text-center py-8 text-gray-400">
             Không có đơn hàng nào bị trễ.
           </div>
-          <div v-else v-for="ticket in kitchenStore.delayedTickets" :key="ticket.id" class="p-4 bg-[#1A1A1A] border border-red-500/30 rounded-xl flex items-center justify-between gap-4">
+          <div v-else v-for="ticket in kitchenStore.delayedTickets" :key="ticket.id" class="p-4 bg-background border border-red-500/30 rounded-xl flex items-center justify-between gap-4">
             <div class="space-y-1">
               <div class="flex items-center gap-2">
                 <span class="bg-[#C62828] text-white text-xs px-2.5 py-0.5 rounded-full font-bold">Bàn {{ ticket.table }}</span>
@@ -1792,8 +1792,8 @@
         </div>
         
         <!-- Footer -->
-        <div class="p-4 bg-[#1A1A1A] border-t border-[#404040] flex justify-end">
-          <button @click="kitchenStore.showDelayedOrdersModal = false" class="px-5 py-2 rounded-xl bg-gray-700 hover:bg-gray-600 text-white font-bold text-sm transition-all">Đóng</button>
+        <div class="p-4 bg-background border-t border-border flex justify-end">
+          <button @click="kitchenStore.showDelayedOrdersModal = false" class="px-5 py-2 rounded-xl bg-gray-700 hover:bg-gray-600 text-foreground font-bold text-sm transition-all">Đóng</button>
         </div>
       </div>
     </div>

@@ -42,14 +42,14 @@
         <div v-for="item in processedItems" :key="item.id" class="processing-item">
           <div class="item-header flex items-center gap-3">
             <span class="item-icon">{{ item.icon }}</span>
-            <span class="item-name font-bold text-white text-base">{{ item.name }}</span>
+            <span class="item-name font-bold text-foreground text-base">{{ item.name }}</span>
             <span class="ml-auto text-sm text-gray-400">
-              Yêu cầu: <strong class="text-white">{{ item.requestedQty }} {{ item.unit }}</strong>
+              Yêu cầu: <strong class="text-foreground">{{ item.requestedQty }} {{ item.unit }}</strong>
             </span>
           </div>
 
           <!-- Stock verification panel -->
-          <div class="verification-panel grid grid-cols-1 md:grid-cols-3 gap-4 mt-3 pt-3 border-t border-[#404040]">
+          <div class="verification-panel grid grid-cols-1 md:grid-cols-3 gap-4 mt-3 pt-3 border-t border-border">
             <div>
               <span class="stock-label">Tồn kho chính hiện tại:</span>
               <div class="text-sm font-semibold text-gray-200 mt-1">
@@ -112,7 +112,7 @@
     </div>
 
     <!-- Summary of Processing -->
-    <div class="summary-section mt-6 p-4 bg-[#1A1A1A] rounded-xl border border-[#404040]">
+    <div class="summary-section mt-6 p-4 bg-background rounded-xl border border-border">
       <div class="flex justify-between items-center text-sm font-semibold">
         <span>Tổng số lượng mặt hàng:</span>
         <span>{{ processedItems.length }} món</span>
@@ -124,7 +124,7 @@
     </div>
 
     <!-- Action Buttons -->
-    <div class="action-buttons flex gap-4 justify-end mt-6 pt-4 border-t border-[#404040]">
+    <div class="action-buttons flex gap-4 justify-end mt-6 pt-4 border-t border-border">
       <button class="proc-btn btn-reject bg-[#F44336]" @click="rejectRequisition">
         TỪ CHỐI YÊU CẦU
       </button>

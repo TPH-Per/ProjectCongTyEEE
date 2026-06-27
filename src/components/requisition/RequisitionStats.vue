@@ -7,7 +7,7 @@
         <!-- Total -->
         <div class="stat-card total bg-gray-800 border border-gray-700 rounded-xl p-4 text-center">
           <span class="stat-label block text-xs text-gray-400 uppercase font-semibold">TỔNG YÊU CẦU</span>
-          <span class="stat-val block text-3xl font-bold text-white mt-1">{{ stats.total }}</span>
+          <span class="stat-val block text-3xl font-bold text-foreground mt-1">{{ stats.total }}</span>
         </div>
         <!-- Pending -->
         <div class="stat-card pending bg-yellow-950/20 border border-yellow-500/30 rounded-xl p-4 text-center">
@@ -27,7 +27,7 @@
       </div>
 
       <!-- Priority Distribution -->
-      <div class="chart-section bg-[#2D2D2D] rounded-xl border border-[#404040] p-5">
+      <div class="chart-section bg-card rounded-xl border border-border p-5">
         <h3 class="text-sm font-bold text-gray-200 uppercase mb-4">Phân Bố Mức Độ Ưu Tiên</h3>
         <div class="space-y-3">
           <div>
@@ -35,7 +35,7 @@
               <span>Ưu tiên CAO (High):</span>
               <span class="font-bold text-red-500">{{ stats.highPriority }} phiếu</span>
             </div>
-            <div class="progress-bar-container bg-[#1A1A1A] h-2.5 rounded-full overflow-hidden">
+            <div class="progress-bar-container bg-background h-2.5 rounded-full overflow-hidden">
               <div class="bg-red-500 h-full rounded-full" :style="{ width: `${getPercentage(stats.highPriority)}%` }"></div>
             </div>
           </div>
@@ -44,7 +44,7 @@
               <span>Ưu tiên TRUNG BÌNH (Medium):</span>
               <span class="font-bold text-orange-500">{{ stats.mediumPriority }} phiếu</span>
             </div>
-            <div class="progress-bar-container bg-[#1A1A1A] h-2.5 rounded-full overflow-hidden">
+            <div class="progress-bar-container bg-background h-2.5 rounded-full overflow-hidden">
               <div class="bg-orange-500 h-full rounded-full" :style="{ width: `${getPercentage(stats.mediumPriority)}%` }"></div>
             </div>
           </div>
@@ -53,7 +53,7 @@
               <span>Ưu tiên THẤP (Low):</span>
               <span class="font-bold text-green-500">{{ stats.lowPriority }} phiếu</span>
             </div>
-            <div class="progress-bar-container bg-[#1A1A1A] h-2.5 rounded-full overflow-hidden">
+            <div class="progress-bar-container bg-background h-2.5 rounded-full overflow-hidden">
               <div class="bg-green-500 h-full rounded-full" :style="{ width: `${getPercentage(stats.lowPriority)}%` }"></div>
             </div>
           </div>
@@ -61,18 +61,18 @@
       </div>
 
       <!-- High Demand Items -->
-      <div class="bg-[#2D2D2D] rounded-xl border border-[#404040] p-5">
+      <div class="bg-card rounded-xl border border-border p-5">
         <h3 class="text-sm font-bold text-gray-200 uppercase mb-3">Nguyên Liệu Được Yêu Cầu Nhiều Nhất</h3>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div 
             v-for="(item, idx) in topItems" 
             :key="item.name"
-            class="flex items-center gap-3 p-3 bg-[#1A1A1A] border border-[#404040] rounded-lg"
+            class="flex items-center gap-3 p-3 bg-background border border-border rounded-lg"
           >
             <span class="text-xl font-bold font-mono text-[#FF9800]">#{{ idx + 1 }}</span>
             <span class="text-2xl">{{ item.icon }}</span>
             <div>
-              <span class="block text-sm font-semibold text-white">{{ item.name }}</span>
+              <span class="block text-sm font-semibold text-foreground">{{ item.name }}</span>
               <span class="block text-xs text-gray-400">Đã yêu cầu xuất: {{ item.totalQty }} {{ item.unit }}</span>
             </div>
           </div>
@@ -81,7 +81,7 @@
     </div>
 
     <!-- Audit Logs Side Panel (Right 1 col) -->
-    <div class="audit-log bg-[#2D2D2D] rounded-xl border border-[#404040] p-5 flex flex-col max-h-[500px]">
+    <div class="audit-log bg-card rounded-xl border border-border p-5 flex flex-col max-h-[500px]">
       <h3 class="text-sm font-bold text-gray-200 uppercase mb-4 flex items-center gap-2">
         ⏳ NHẬT KÝ HOẠT ĐỘNG (AUDIT TRAIL)
       </h3>
@@ -93,7 +93,7 @@
           v-else 
           v-for="log in allLogs" 
           :key="log.id" 
-          class="log-entry text-xs p-3 bg-[#1A1A1A] border border-[#404040] rounded-lg space-y-1"
+          class="log-entry text-xs p-3 bg-background border border-border rounded-lg space-y-1"
         >
           <div class="flex justify-between text-gray-400 font-mono">
             <span>👤 {{ log.actor }}</span>

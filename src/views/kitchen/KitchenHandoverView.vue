@@ -1,15 +1,15 @@
 <!-- KitchenHandoverView.vue -->
 <template>
-  <div class="handover-view min-h-screen flex flex-col bg-[#1A1A1A] text-white p-6">
+  <div class="handover-view min-h-screen flex flex-col bg-background text-foreground p-6">
     
     <!-- PAGE HEADER -->
-    <header class="flex justify-between items-center mb-6 pb-4 border-b border-[#404040]">
+    <header class="flex justify-between items-center mb-6 pb-4 border-b border-border">
       <div class="flex items-center gap-4">
         <div class="flex items-center gap-2">
           <span class="logo-brand text-[#FF9800] font-extrabold tracking-wider text-xl">NGƯU CÁT</span>
           <span class="tag-handover bg-[#9C27B0]/20 text-[#9C27B0] border border-[#9C27B0]/30 text-xs px-2.5 py-0.5 rounded font-bold">BÀN GIAO</span>
         </div>
-        <div class="h-6 w-[1px] bg-[#404040]"></div>
+        <div class="h-6 w-[1px] bg-muted"></div>
         <h2 class="text-lg font-bold text-gray-200 uppercase tracking-wide">Bàn Giao Ca Bếp (Shift Handover)</h2>
       </div>
 
@@ -21,7 +21,7 @@
         >
           {{ activeSubTab === 'wizard' ? '⏳ Xem Lịch Sử Ca' : '✍️ Bàn Giao Ca Mới' }}
         </button>
-        <button class="bg-[#424242] text-xs font-bold px-4 py-2 rounded-xl border border-transparent hover:border-[#FF9800] transition" @click="navigateBack">
+        <button class="bg-muted text-xs font-bold px-4 py-2 rounded-xl border border-transparent hover:border-[#FF9800] transition" @click="navigateBack">
           📺 Quay lại KDS
         </button>
       </div>
@@ -31,11 +31,11 @@
     <div v-if="activeSubTab === 'history'" class="animate-fade-in flex-1">
       <div class="max-w-4xl mx-auto space-y-6">
         <div class="flex justify-between items-center mb-4">
-          <h3 class="text-lg font-bold text-white uppercase tracking-wider">Lịch Sử Nhật Ký Bàn Giao Ca</h3>
+          <h3 class="text-lg font-bold text-foreground uppercase tracking-wider">Lịch Sử Nhật Ký Bàn Giao Ca</h3>
           <span class="text-xs text-gray-400">Ghi nhận hoạt động đóng ca bếp</span>
         </div>
 
-        <div v-if="kitchenStore.handoverLogs.length === 0" class="text-center py-12 text-gray-500 bg-[#2D2D2D] rounded-xl border border-[#404040]">
+        <div v-if="kitchenStore.handoverLogs.length === 0" class="text-center py-12 text-gray-500 bg-card rounded-xl border border-border">
           📭 Chưa có nhật ký bàn giao ca nào được lưu.
         </div>
         
@@ -43,12 +43,12 @@
           <div 
             v-for="log in kitchenStore.handoverLogs" 
             :key="log.id"
-            class="bg-[#2D2D2D] rounded-xl border border-[#404040] p-6 shadow-lg"
+            class="bg-card rounded-xl border border-border p-6 shadow-lg"
           >
-            <div class="flex justify-between items-start flex-wrap gap-2 mb-4 border-b border-[#404040] pb-3">
+            <div class="flex justify-between items-start flex-wrap gap-2 mb-4 border-b border-border pb-3">
               <div>
                 <span class="text-xs font-bold text-[#FF9800] block uppercase font-mono">Phiếu Bàn Giao: #{{ log.id }}</span>
-                <h4 class="text-base font-bold text-white mt-1">{{ log.shift }}</h4>
+                <h4 class="text-base font-bold text-foreground mt-1">{{ log.shift }}</h4>
               </div>
               <div class="text-right">
                 <span class="text-xs text-gray-400 block font-mono">{{ log.date }}</span>
@@ -57,14 +57,14 @@
             </div>
 
             <!-- Handover detail details -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 bg-[#1A1A1A] p-4 rounded-xl border border-[#404040] text-xs">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 bg-background p-4 rounded-xl border border-border text-xs">
               <div>
                 <span class="text-gray-500 block">Chef bàn giao:</span>
-                <strong class="text-white text-sm">👤 {{ log.outgoingChef }}</strong>
+                <strong class="text-foreground text-sm">👤 {{ log.outgoingChef }}</strong>
               </div>
               <div>
                 <span class="text-gray-500 block">Chef ca sau nhận:</span>
-                <strong class="text-white text-sm">👤 {{ log.incomingChef }}</strong>
+                <strong class="text-foreground text-sm">👤 {{ log.incomingChef }}</strong>
               </div>
               <div>
                 <span class="text-gray-500 block">Nhiệt độ Tủ mát:</span>
@@ -77,7 +77,7 @@
             </div>
 
             <!-- Notes -->
-            <div class="mb-4 text-sm text-gray-300 bg-[#1A1A1A]/40 p-3 rounded-lg border border-[#404040]">
+            <div class="mb-4 text-sm text-gray-300 bg-background/40 p-3 rounded-lg border border-border">
               <span class="font-bold text-[#FF9800] block text-xs uppercase mb-1">Ghi chú bàn giao:</span>
               <p class="italic">"{{ log.notes }}"</p>
             </div>
@@ -92,8 +92,8 @@
             <div class="mb-4">
               <span class="font-bold text-gray-400 block text-xs uppercase mb-2">Số liệu kiểm kê tồn kho bếp đóng ca:</span>
               <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                <div v-for="item in log.items" :key="item.id" class="flex justify-between items-center p-2 bg-[#1A1A1A] rounded border border-[#404040] text-xs">
-                  <span class="text-white">{{ item.icon }} {{ item.name }}</span>
+                <div v-for="item in log.items" :key="item.id" class="flex justify-between items-center p-2 bg-background rounded border border-border text-xs">
+                  <span class="text-foreground">{{ item.icon }} {{ item.name }}</span>
                   <span class="font-mono text-gray-300">
                     {{ item.actual }} {{ item.unit }}
                     <span v-if="item.diff !== 0" :class="item.diff < 0 ? 'text-red-500' : 'text-green-500'" class="ml-1 font-bold">
@@ -105,9 +105,9 @@
             </div>
 
             <!-- Digital Signature image -->
-            <div v-if="log.signatureImage" class="flex flex-col items-center pt-3 border-t border-[#404040]">
+            <div v-if="log.signatureImage" class="flex flex-col items-center pt-3 border-t border-border">
               <span class="text-[10px] text-gray-500 uppercase font-bold mb-1">Chữ ký số Bếp trưởng ca sau:</span>
-              <img :src="log.signatureImage" alt="Incoming Chef Signature" class="max-h-[60px] bg-slate-900 border border-[#333] rounded px-3 py-0.5" />
+              <img :src="log.signatureImage" alt="Incoming Chef Signature" class="max-h-[60px] bg-slate-900 border border-border rounded px-3 py-0.5" />
             </div>
           </div>
         </div>
@@ -118,7 +118,7 @@
     <div v-else class="flex-1 flex flex-col justify-center items-center">
       
       <!-- SUCCESS SCREEN -->
-      <div v-if="handoverSuccess" class="success-panel bg-[#2D2D2D] rounded-2xl p-8 border border-[#404040] text-center max-w-[600px] w-full animate-fade-in shadow-2xl">
+      <div v-if="handoverSuccess" class="success-panel bg-card rounded-2xl p-8 border border-border text-center max-w-[600px] w-full animate-fade-in shadow-2xl">
         <div class="success-checkmark mb-6">
           <div class="check-icon">
             <span class="icon-line line-tip animate-check-tip"></span>
@@ -128,14 +128,14 @@
           </div>
         </div>
         
-        <h3 class="text-2xl font-black text-white uppercase tracking-wider mb-2">BÀN GIAO CA THÀNH CÔNG</h3>
+        <h3 class="text-2xl font-black text-foreground uppercase tracking-wider mb-2">BÀN GIAO CA THÀNH CÔNG</h3>
         <p class="text-sm text-gray-400 mb-6">Phiếu bàn giao ca đóng bếp đã được đồng bộ lên POS và lưu trữ nhật ký hoạt động.</p>
         
         <div class="flex gap-3 justify-center">
-          <button class="bg-[#FF9800] text-xs font-bold px-5 py-3 rounded-xl text-white hover:bg-[#F57C00] shadow-md" @click="activeSubTab = 'history'">
+          <button class="bg-[#FF9800] text-xs font-bold px-5 py-3 rounded-xl text-foreground hover:bg-[#F57C00] shadow-md" @click="activeSubTab = 'history'">
             ⏳ Xem danh sách lịch sử đóng ca
           </button>
-          <button class="bg-[#424242] text-xs font-bold px-5 py-3 rounded-xl text-white hover:bg-[#505050]" @click="resetWizard">
+          <button class="bg-muted text-xs font-bold px-5 py-3 rounded-xl text-foreground hover:bg-muted" @click="resetWizard">
             Tạo ca làm việc mới
           </button>
         </div>
@@ -144,7 +144,7 @@
       <!-- WIZARD STAGES -->
       <div v-else class="w-full max-w-4xl flex flex-col">
         <!-- Visual pipeline tracker at top of wizard -->
-        <div class="flex justify-between items-center mb-8 bg-[#2D2D2D] p-5 rounded-xl border border-[#404040] flex-wrap gap-4">
+        <div class="flex justify-between items-center mb-8 bg-card p-5 rounded-xl border border-border flex-wrap gap-4">
           <!-- Stepper header -->
           <div class="flex items-center gap-3">
             <span class="text-xs font-bold text-[#FF9800] uppercase tracking-wider">Tiến trình bàn giao ca:</span>
@@ -164,59 +164,59 @@
           </div>
         </div>
 
-        <div class="flex-1 bg-[#2D2D2D] rounded-2xl p-6 border border-[#404040] shadow-xl">
+        <div class="flex-1 bg-card rounded-2xl p-6 border border-border shadow-xl">
           
           <!-- STEP 1: END-OF-SHIFT (Vệ sinh & Thiết bị) -->
           <div v-if="wizardStep === 1" class="space-y-6 animate-fade-in">
-            <div class="flex justify-between items-baseline mb-4 border-b border-[#404040] pb-3">
-              <h3 class="text-base font-bold text-white uppercase tracking-wider">1. Kết Thúc Ca Làm Việc & Vệ Sinh Bếp</h3>
+            <div class="flex justify-between items-baseline mb-4 border-b border-border pb-3">
+              <h3 class="text-base font-bold text-foreground uppercase tracking-wider">1. Kết Thúc Ca Làm Việc & Vệ Sinh Bếp</h3>
               <span class="text-xs text-[#FF9800]">Bắt buộc thực hiện cuối ca</span>
             </div>
 
             <div class="space-y-4">
               <!-- Check 1 -->
-              <label class="flex items-start gap-3 cursor-pointer p-4 rounded-xl bg-[#1A1A1A] border border-[#404040] hover:border-gray-500 transition">
+              <label class="flex items-start gap-3 cursor-pointer p-4 rounded-xl bg-background border border-border hover:border-gray-500 transition">
                 <input 
                   type="checkbox" 
                   v-model="checklist.stopOrders"
-                  class="w-6 h-6 rounded border-gray-600 text-[#FF9800] focus:ring-[#FF9800] bg-[#2D2D2D] mt-0.5"
+                  class="w-6 h-6 rounded border-gray-600 text-[#FF9800] focus:ring-[#FF9800] bg-card mt-0.5"
                 />
                 <div>
-                  <span class="font-bold text-white block">Dừng tiếp nhận Order mới (Trừ khách đang ăn dở)</span>
+                  <span class="font-bold text-foreground block">Dừng tiếp nhận Order mới (Trừ khách đang ăn dở)</span>
                   <span class="text-xs text-gray-400">Đóng cổng tiếp nhận đơn hàng trên POS trạm, đảm bảo không phát sinh món mới.</span>
                 </div>
               </label>
 
               <!-- Check 2 -->
-              <label class="flex items-start gap-3 cursor-pointer p-4 rounded-xl bg-[#1A1A1A] border border-[#404040] hover:border-gray-500 transition">
+              <label class="flex items-start gap-3 cursor-pointer p-4 rounded-xl bg-background border border-border hover:border-gray-500 transition">
                 <input 
                   type="checkbox" 
                   v-model="checklist.cleanArea"
-                  class="w-6 h-6 rounded border-gray-600 text-[#FF9800] focus:ring-[#FF9800] bg-[#2D2D2D] mt-0.5"
+                  class="w-6 h-6 rounded border-gray-600 text-[#FF9800] focus:ring-[#FF9800] bg-card mt-0.5"
                 />
                 <div>
-                  <span class="font-bold text-white block">Vệ sinh sạch sẽ khu vực chế biến</span>
+                  <span class="font-bold text-foreground block">Vệ sinh sạch sẽ khu vực chế biến</span>
                   <span class="text-xs text-gray-400">Lau chùi bề mặt bếp nướng/lẩu, vệ sinh thớt cắt thái, quét dọn và lau sàn sạch sẽ.</span>
                 </div>
               </label>
 
               <!-- Check 3 -->
-              <label class="flex items-start gap-3 cursor-pointer p-4 rounded-xl bg-[#1A1A1A] border border-[#404040] hover:border-gray-500 transition">
+              <label class="flex items-start gap-3 cursor-pointer p-4 rounded-xl bg-background border border-border hover:border-gray-500 transition">
                 <input 
                   type="checkbox" 
                   v-model="checklist.powerOff"
-                  class="w-6 h-6 rounded border-gray-600 text-[#FF9800] focus:ring-[#FF9800] bg-[#2D2D2D] mt-0.5"
+                  class="w-6 h-6 rounded border-gray-600 text-[#FF9800] focus:ring-[#FF9800] bg-card mt-0.5"
                 />
                 <div>
-                  <span class="font-bold text-white block">Tắt các thiết bị điện không sử dụng</span>
+                  <span class="font-bold text-foreground block">Tắt các thiết bị điện không sử dụng</span>
                   <span class="text-xs text-gray-400">Ngắt điện lò nướng, lò chiên, tắt máy xay, lò vi sóng để đảm bảo phòng chống cháy nổ.</span>
                 </div>
               </label>
             </div>
 
-            <div class="flex justify-end pt-4 border-t border-[#404040]">
+            <div class="flex justify-end pt-4 border-t border-border">
               <button 
-                class="px-6 py-2.5 bg-[#FF9800] hover:bg-[#F57C00] disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold rounded-xl text-xs uppercase transition shadow-md"
+                class="px-6 py-2.5 bg-[#FF9800] hover:bg-[#F57C00] disabled:opacity-50 disabled:cursor-not-allowed text-foreground font-bold rounded-xl text-xs uppercase transition shadow-md"
                 :disabled="!isStep1Complete"
                 @click="wizardStep = 2"
               >
@@ -227,14 +227,14 @@
 
           <!-- STEP 2: INVENTORY & SAFETY (Tồn kho & An toàn tủ lạnh) -->
           <div v-else-if="wizardStep === 2" class="space-y-6 animate-fade-in">
-            <div class="flex justify-between items-baseline mb-4 border-b border-[#404040] pb-3">
-              <h3 class="text-base font-bold text-white uppercase tracking-wider">2. Kiểm Kê Kho Trạm Bếp & An Toàn Thực Phẩm</h3>
+            <div class="flex justify-between items-baseline mb-4 border-b border-border pb-3">
+              <h3 class="text-base font-bold text-foreground uppercase tracking-wider">2. Kiểm Kê Kho Trạm Bếp & An Toàn Thực Phẩm</h3>
               <span class="text-xs text-[#FF9800]">Nhập số liệu kiểm kê thực tế</span>
             </div>
 
             <!-- Table of stock comparison -->
-            <div class="bg-[#1A1A1A] rounded-xl border border-[#404040] overflow-hidden">
-              <div class="grid grid-cols-4 gap-2 bg-[#2D2D2D] p-3 text-xs font-bold text-gray-400 uppercase tracking-wide">
+            <div class="bg-background rounded-xl border border-border overflow-hidden">
+              <div class="grid grid-cols-4 gap-2 bg-card p-3 text-xs font-bold text-gray-400 uppercase tracking-wide">
                 <div class="col-span-2">Nguyên Liệu</div>
                 <div class="text-center">Lý Thuyết</div>
                 <div class="text-center">Thực Tế</div>
@@ -248,7 +248,7 @@
                   <div class="col-span-2 flex items-center gap-2">
                     <span class="text-xl">{{ item.icon }}</span>
                     <div>
-                      <span class="font-bold text-white block">{{ item.name }}</span>
+                      <span class="font-bold text-foreground block">{{ item.name }}</span>
                       <span class="text-[10px] text-gray-500 font-mono">Đơn vị: {{ item.unit }}</span>
                     </div>
                   </div>
@@ -262,7 +262,7 @@
                       v-model.number="item.actual" 
                       type="number" 
                       min="0"
-                      class="w-16 text-center bg-[#2D2D2D] border border-[#404040] rounded py-1 text-white font-mono font-bold text-xs"
+                      class="w-16 text-center bg-card border border-border rounded py-1 text-foreground font-mono font-bold text-xs"
                       @input="calculateDiff(item)"
                     />
                     <span class="text-xs text-gray-500 font-bold uppercase">{{ item.unit }}</span>
@@ -291,39 +291,39 @@
                 v-model="wasteNotes"
                 placeholder="Giải trình lý do hao hụt (ví dụ: Thịt bò Wagyu bị cháy hủy món bàn 4, Rau bị dập nát hủy bỏ 0.5kg ca sáng...)"
                 rows="2"
-                class="w-full bg-[#1A1A1A] border border-[#404040] rounded-lg p-3 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-[#F44336]"
+                class="w-full bg-background border border-border rounded-lg p-3 text-xs text-foreground placeholder-gray-600 focus:outline-none focus:border-[#F44336]"
               ></textarea>
             </div>
 
             <!-- Safety Checklists -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <label class="flex items-start gap-3 cursor-pointer p-3.5 rounded-xl bg-[#1A1A1A] border border-[#404040] hover:border-gray-500 transition">
+              <label class="flex items-start gap-3 cursor-pointer p-3.5 rounded-xl bg-background border border-border hover:border-gray-500 transition">
                 <input 
                   type="checkbox" 
                   v-model="checklist.fefoCheck"
-                  class="w-5.5 h-5.5 rounded border-gray-600 text-[#FF9800] focus:ring-[#FF9800] bg-[#2D2D2D] mt-0.5"
+                  class="w-5.5 h-5.5 rounded border-gray-600 text-[#FF9800] focus:ring-[#FF9800] bg-card mt-0.5"
                 />
                 <div>
-                  <span class="font-semibold text-white block text-sm">Kiểm tra hạn sử dụng (FEFO)</span>
+                  <span class="font-semibold text-foreground block text-sm">Kiểm tra hạn sử dụng (FEFO)</span>
                   <span class="text-xs text-gray-400">Rà soát ngày, xếp các khay hạn sử dụng ngắn ra ngoài để ca sau dùng trước.</span>
                 </div>
               </label>
 
-              <label class="flex items-start gap-3 cursor-pointer p-3.5 rounded-xl bg-[#1A1A1A] border border-[#404040] hover:border-gray-500 transition">
+              <label class="flex items-start gap-3 cursor-pointer p-3.5 rounded-xl bg-background border border-border hover:border-gray-500 transition">
                 <input 
                   type="checkbox" 
                   v-model="checklist.wrapFood"
-                  class="w-5.5 h-5.5 rounded border-gray-600 text-[#FF9800] focus:ring-[#FF9800] bg-[#2D2D2D] mt-0.5"
+                  class="w-5.5 h-5.5 rounded border-gray-600 text-[#FF9800] focus:ring-[#FF9800] bg-card mt-0.5"
                 />
                 <div>
-                  <span class="font-semibold text-white block text-sm">Bọc màng co & dán nhãn ngày</span>
+                  <span class="font-semibold text-foreground block text-sm">Bọc màng co & dán nhãn ngày</span>
                   <span class="text-xs text-gray-400">Toàn bộ khay thịt/rau củ thừa bọc màng thực phẩm kín, dán nhãn ca và ngày sơ chế.</span>
                 </div>
               </label>
             </div>
 
             <!-- Fridge and Freezer Temperature inputs -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-5 p-4 bg-[#1A1A1A] rounded-xl border border-[#404040]">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5 p-4 bg-background rounded-xl border border-border">
               <div class="space-y-2">
                 <div class="flex justify-between items-baseline">
                   <span class="text-xs font-bold text-gray-400 uppercase">🌡️ Nhiệt độ Tủ Mát</span>
@@ -355,15 +355,15 @@
               </div>
             </div>
 
-            <div class="flex justify-between pt-4 border-t border-[#404040]">
+            <div class="flex justify-between pt-4 border-t border-border">
               <button 
-                class="px-6 py-2.5 bg-gray-800 border border-gray-700 hover:bg-gray-700 text-white font-bold rounded-xl text-xs uppercase transition"
+                class="px-6 py-2.5 bg-gray-800 border border-gray-700 hover:bg-gray-700 text-foreground font-bold rounded-xl text-xs uppercase transition"
                 @click="wizardStep = 1"
               >
                 Quay lại
               </button>
               <button 
-                class="px-6 py-2.5 bg-[#FF9800] hover:bg-[#F57C00] disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold rounded-xl text-xs uppercase transition shadow-md"
+                class="px-6 py-2.5 bg-[#FF9800] hover:bg-[#F57C00] disabled:opacity-50 disabled:cursor-not-allowed text-foreground font-bold rounded-xl text-xs uppercase transition shadow-md"
                 :disabled="!isStep2Complete"
                 @click="wizardStep = 3"
               >
@@ -374,8 +374,8 @@
 
           <!-- STEP 3: HANDOVER (Sổ bàn giao, Ký xác nhận ca sau) -->
           <div v-else-if="wizardStep === 3" class="space-y-6 animate-fade-in">
-            <div class="flex justify-between items-baseline mb-4 border-b border-[#404040] pb-3">
-              <h3 class="text-base font-bold text-white uppercase tracking-wider">3. Bàn Giao Ca Sau & Ký Xác Nhận</h3>
+            <div class="flex justify-between items-baseline mb-4 border-b border-border pb-3">
+              <h3 class="text-base font-bold text-foreground uppercase tracking-wider">3. Bàn Giao Ca Sau & Ký Xác Nhận</h3>
               <span class="text-xs text-[#FF9800]">Chef ca sau ký nhận bàn giao</span>
             </div>
 
@@ -384,7 +384,7 @@
               <div class="space-y-4">
                 <div class="flex flex-col gap-1.5">
                   <label for="shift-select" class="text-xs text-gray-400 uppercase font-bold">Ca làm việc đóng cửa</label>
-                  <input id="shift-select" type="text" v-model="shiftName" disabled class="bg-[#1A1A1A] border border-[#404040] rounded-xl px-4 py-2.5 text-sm text-gray-300 opacity-80" />
+                  <input id="shift-select" type="text" v-model="shiftName" disabled class="bg-background border border-border rounded-xl px-4 py-2.5 text-sm text-gray-300 opacity-80" />
                 </div>
 
                 <div class="flex flex-col gap-1.5">
@@ -392,7 +392,7 @@
                   <select 
                     id="incoming-select" 
                     v-model="incomingChef"
-                    class="bg-[#1A1A1A] border border-[#404040] rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-[#FF9800]"
+                    class="bg-background border border-border rounded-xl px-4 py-2.5 text-sm text-foreground focus:outline-none focus:border-[#FF9800]"
                   >
                     <option value="" disabled>-- Chọn Bếp Trưởng Ca Sau --</option>
                     <option value="Chef Minh">Chef Minh (Bếp chính)</option>
@@ -409,7 +409,7 @@
                     v-model="handoverNotes"
                     placeholder="Nhập các sự cố bếp, thiết bị trục trặc, các lưu ý về order dở dang hoặc món sắp hết hàng để ca sau chủ động nắm bắt..."
                     rows="4"
-                    class="w-full bg-[#1A1A1A] border border-[#404040] rounded-xl p-3 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-[#FF9800]"
+                    class="w-full bg-background border border-border rounded-xl p-3 text-xs text-foreground placeholder-gray-600 focus:outline-none focus:border-[#FF9800]"
                   ></textarea>
                 </div>
               </div>
@@ -418,12 +418,12 @@
               <div class="space-y-4">
                 <div class="flex justify-between items-baseline">
                   <span class="text-xs text-gray-400 uppercase font-bold">✍️ Chữ ký số Chef ca sau (Chef Minh)</span>
-                  <button type="button" class="text-[10px] bg-[#1A1A1A] hover:bg-[#2D2D2D] border border-[#404040] text-gray-300 font-bold px-2 py-1 rounded" @click="clearSignature">
+                  <button type="button" class="text-[10px] bg-background hover:bg-card border border-border text-gray-300 font-bold px-2 py-1 rounded" @click="clearSignature">
                     Xóa Chữ Ký
                   </button>
                 </div>
 
-                <div class="signature-canvas-container bg-[#1A1A1A]/40 border-2 border-dashed border-[#404040] rounded-xl h-[175px] relative overflow-hidden flex items-center justify-center">
+                <div class="signature-canvas-container bg-background/40 border-2 border-dashed border-border rounded-xl h-[175px] relative overflow-hidden flex items-center justify-center">
                   <canvas 
                     ref="canvasRef"
                     width="400"
@@ -448,15 +448,15 @@
               </div>
             </div>
 
-            <div class="flex justify-between pt-4 border-t border-[#404040]">
+            <div class="flex justify-between pt-4 border-t border-border">
               <button 
-                class="px-6 py-2.5 bg-gray-800 border border-gray-700 hover:bg-gray-700 text-white font-bold rounded-xl text-xs uppercase transition"
+                class="px-6 py-2.5 bg-gray-800 border border-gray-700 hover:bg-gray-700 text-foreground font-bold rounded-xl text-xs uppercase transition"
                 @click="wizardStep = 2"
               >
                 Quay lại
               </button>
               <button 
-                class="px-8 py-3 bg-[#4CAF50] hover:bg-[#43a047] disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold rounded-xl text-xs uppercase transition shadow-lg flex items-center gap-2"
+                class="px-8 py-3 bg-[#4CAF50] hover:bg-[#43a047] disabled:opacity-50 disabled:cursor-not-allowed text-foreground font-bold rounded-xl text-xs uppercase transition shadow-lg flex items-center gap-2"
                 :disabled="!isStep3Complete"
                 @click="submitHandover"
               >

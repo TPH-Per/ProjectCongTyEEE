@@ -90,7 +90,7 @@
       </div>
 
       <!-- Phân Tích & Gợi Ý Tự Động (Prep List & Forecast) -->
-      <div class="form-section bg-[#1A1A1A] p-4 rounded-xl border border-[#404040]">
+      <div class="form-section bg-background p-4 rounded-xl border border-border">
         <div class="flex justify-between items-center mb-3">
           <h4 class="text-sm font-bold text-[#FF9800] uppercase tracking-wider flex items-center gap-2">
             📊 Phân Tích Nhu Cầu & Dự Báo (Prep & Forecast)
@@ -102,12 +102,12 @@
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
           <!-- Prep list correlation -->
-          <div class="p-3 bg-[#2D2D2D]/50 rounded-lg border border-[#404040]">
+          <div class="p-3 bg-card/50 rounded-lg border border-border">
             <span class="font-bold text-gray-300 block mb-1">📋 Đối chiếu Prep List ca này:</span>
             <p class="text-gray-400">Hạng mục sơ chế chưa hoàn tất: <strong class="text-yellow-500">Cắt thái rau thập cẩm</strong>, <strong class="text-yellow-500">Nấu nước lẩu Sukiyaki</strong>. Đề xuất chuẩn bị thêm nguyên vật liệu thô.</p>
           </div>
           <!-- Sales Forecast -->
-          <div class="p-3 bg-[#2D2D2D]/50 rounded-lg border border-[#404040]">
+          <div class="p-3 bg-card/50 rounded-lg border border-border">
             <span class="font-bold text-gray-300 block mb-1">📈 Dự báo Doanh thu & Khách đặt:</span>
             <p class="text-gray-400">Khách đặt: Tiệc buffet nướng 30 người lúc 19:00. Nhu cầu thịt bò Wagyu dự báo tăng <strong class="text-orange-500">+2.0 kg</strong> so với ngày thường.</p>
           </div>
@@ -121,7 +121,7 @@
           </div>
           <button 
             type="button"
-            class="bg-[#FF9800] hover:bg-[#F57C00] text-xs font-bold text-white px-3.5 py-1.5 rounded-lg transition"
+            class="bg-[#FF9800] hover:bg-[#F57C00] text-xs font-bold text-foreground px-3.5 py-1.5 rounded-lg transition"
             @click="applyAutoSuggestions"
           >
             ⚡ Áp dụng gợi ý

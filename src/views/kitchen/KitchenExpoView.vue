@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-[#1A1A1A] text-white flex flex-col font-sans kds-container">
+  <div class="min-h-screen bg-background text-foreground flex flex-col font-sans kds-container">
     
     <!-- 1. EXPO HEADER (70px) -->
     <header class="expo-header">
@@ -103,7 +103,7 @@
           </span>
         </h2>
 
-        <div v-if="filteredQcOrders.length === 0" class="flex-1 flex flex-col items-center justify-center bg-[#252525] rounded-2xl border border-[#404040]/50 p-8 text-center">
+        <div v-if="filteredQcOrders.length === 0" class="flex-1 flex flex-col items-center justify-center bg-[#252525] rounded-2xl border border-border/50 p-8 text-center">
           <span class="text-5xl mb-3">🛎️</span>
           <h3 class="text-lg font-bold text-gray-300">Không có đơn hàng nào cần kiểm tra</h3>
           <p class="text-sm text-gray-500 mt-1">Đơn hàng hoàn tất sơ chế & chế biến tại KDS sẽ tự động hiển thị tại đây.</p>
@@ -184,7 +184,7 @@
                     v-model="orderChecklistState[order.id][key]"
                     class="hidden"
                   >
-                  <span v-if="orderChecklistState[order.id]?.[key]" class="text-white text-xs">✓</span>
+                  <span v-if="orderChecklistState[order.id]?.[key]" class="text-foreground text-xs">✓</span>
                 </div>
                 <span class="checklist-label">{{ label }}</span>
               </label>
@@ -215,7 +215,7 @@
             </span>
           </h2>
 
-          <div v-if="activeRemakes.length === 0" class="p-6 bg-[#1A1A1A] rounded-lg border border-[#404040]/30 text-center text-gray-500 text-sm">
+          <div v-if="activeRemakes.length === 0" class="p-6 bg-background rounded-lg border border-border/30 text-center text-gray-500 text-sm">
             Không có món nào đang làm lại.
           </div>
 
@@ -239,7 +239,7 @@
               Lý do: {{ remake.reason || 'Lỗi chế biến' }} ({{ remake.severity || 'Medium' }})
             </div>
 
-            <div class="flex justify-between items-center mt-3 pt-2 border-t border-[#404040]/50">
+            <div class="flex justify-between items-center mt-3 pt-2 border-t border-border/50">
               <span class="text-xs text-gray-400 font-mono">
                 Bắt đầu: {{ formatWaitTime(remake.elapsedTime || 0) }}
               </span>
@@ -268,7 +268,7 @@
             </div>
           </div>
 
-          <div class="mt-4 p-3 bg-[#2D2D2D] rounded-lg border border-[#404040]/50 text-xs text-gray-400">
+          <div class="mt-4 p-3 bg-card rounded-lg border border-border/50 text-xs text-gray-400">
             <div class="flex justify-between mb-1">
               <span>Tổng số lượng QC:</span>
               <span class="text-gray-200 font-bold">{{ stats.totalQC }} món</span>
@@ -298,7 +298,7 @@
           <!-- Item Summary -->
           <div>
             <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Món ăn không đạt</label>
-            <div class="p-3 bg-[#1A1A1A] border border-[#404040] rounded-xl text-sm font-semibold">
+            <div class="p-3 bg-background border border-border rounded-xl text-sm font-semibold">
               <div v-for="item in selectedQcOrder.items" :key="item.id">
                 {{ item.qty }}x {{ item.name }}
               </div>
@@ -327,7 +327,7 @@
               v-model="qcFailCustomReason"
               type="text"
               placeholder="Nhập chi tiết nguyên nhân khác..."
-              class="w-full bg-[#1A1A1A] border border-[#616161] rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-[#C62828] mt-2"
+              class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm text-foreground focus:outline-none focus:border-[#C62828] mt-2"
             >
           </div>
 
@@ -369,7 +369,7 @@
               v-model="qcFailNotes" 
               rows="3" 
               placeholder="Nhập lưu ý thêm cho bếp khi chế biến lại (ví dụ: chú ý làm chín kỹ hơn, không bỏ đậu phộng...)"
-              class="w-full bg-[#1A1A1A] border border-[#404040] rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-red-600 resize-none"
+              class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm text-foreground focus:outline-none focus:border-red-600 resize-none"
             ></textarea>
           </div>
 
@@ -378,7 +378,7 @@
           </div>
         </div>
 
-        <div class="bg-[#2D2D2D] p-6 border-t border-[#404040] flex gap-3 justify-end">
+        <div class="bg-card p-6 border-t border-border flex gap-3 justify-end">
           <button @click="showQcFailModal = false" class="modal-btn cancel">
             Hủy
           </button>
@@ -395,7 +395,7 @@
     <!-- 5. MODAL "ĐẠT" (SERVICE HANDOFF) -->
     <div v-if="showQcPassModal && selectedQcOrder" class="modal-overlay" @click.self="showQcPassModal = false">
       <div class="modal-content max-w-[500px]">
-        <div class="modal-header border-b border-[#404040] pb-4 mb-4">
+        <div class="modal-header border-b border-border pb-4 mb-4">
           <h3 class="text-lg font-bold text-green-400 flex items-center gap-2">
             🎉 Món đã đạt chuẩn QC!
           </h3>
@@ -405,7 +405,7 @@
         <div class="space-y-4">
           <div>
             <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Tóm tắt các món ra bàn</label>
-            <div class="p-3 bg-[#1A1A1A] border border-green-900/30 rounded-xl space-y-1">
+            <div class="p-3 bg-background border border-green-900/30 rounded-xl space-y-1">
               <div v-for="item in selectedQcOrder.items" :key="item.id" class="flex justify-between text-sm text-gray-200">
                 <span>{{ item.qty }}x {{ item.name }}</span>
                 <span class="text-green-500 font-semibold">Đạt chuẩn ✓</span>
@@ -414,7 +414,7 @@
           </div>
 
           <!-- Time statistics -->
-          <div class="bg-[#1A1A1A] p-3 rounded-xl border border-[#404040]">
+          <div class="bg-background p-3 rounded-xl border border-border">
             <div class="flex justify-between text-xs mb-1">
               <span class="text-gray-400">Thời gian chế biến:</span>
               <span class="text-gray-200 font-bold font-mono">{{ formatWaitTime(selectedQcOrder.waitTime) }}</span>
@@ -423,7 +423,7 @@
               <span class="text-gray-400">Thời gian tiêu chuẩn:</span>
               <span class="text-gray-200 font-bold font-mono">15:00</span>
             </div>
-            <div class="flex justify-between text-xs pt-1.5 border-t border-[#333]">
+            <div class="flex justify-between text-xs pt-1.5 border-t border-border">
               <span class="text-green-400 font-bold">Trạng thái:</span>
               <span class="text-green-400 font-bold">
                 {{ selectedQcOrder.waitTime < 900 ? 'SỚM HƠN ' + formatWaitTime(900 - selectedQcOrder.waitTime) : 'TRỄ' }}
@@ -435,28 +435,28 @@
           <div class="space-y-2">
             <label class="text-xs text-gray-400 uppercase font-bold block">Gọi staff/runner lấy món</label>
             <div class="grid grid-cols-3 gap-2">
-              <button @click="triggerRunnerCall('bell')" class="py-2.5 px-2 bg-[#3D3D3D] hover:bg-[#4d4d4d] border border-[#616161] text-xs font-bold rounded-lg transition-all flex flex-col items-center justify-center gap-1.5">
+              <button @click="triggerRunnerCall('bell')" class="py-2.5 px-2 bg-muted hover:bg-[#4d4d4d] border border-border text-xs font-bold rounded-lg transition-all flex flex-col items-center justify-center gap-1.5">
                 <span>🔔</span>
                 <span>BẤM CHUÔNG</span>
               </button>
-              <button @click="triggerRunnerCall('notify')" class="py-2.5 px-2 bg-[#3D3D3D] hover:bg-[#4d4d4d] border border-[#616161] text-xs font-bold rounded-lg transition-all flex flex-col items-center justify-center gap-1.5">
+              <button @click="triggerRunnerCall('notify')" class="py-2.5 px-2 bg-muted hover:bg-[#4d4d4d] border border-border text-xs font-bold rounded-lg transition-all flex flex-col items-center justify-center gap-1.5">
                 <span>📱</span>
                 <span>GỬI NOTIFY</span>
               </button>
-              <button @click="triggerRunnerCall('voice')" class="py-2.5 px-2 bg-[#3D3D3D] hover:bg-[#4d4d4d] border border-[#616161] text-xs font-bold rounded-lg transition-all flex flex-col items-center justify-center gap-1.5">
+              <button @click="triggerRunnerCall('voice')" class="py-2.5 px-2 bg-muted hover:bg-[#4d4d4d] border border-border text-xs font-bold rounded-lg transition-all flex flex-col items-center justify-center gap-1.5">
                 <span>🗣️</span>
                 <span>GỌI TÊN</span>
               </button>
             </div>
             
-            <div class="mt-2 text-xs text-gray-400 flex justify-between items-center bg-[#2D2D2D] p-2.5 rounded-lg border border-[#404040]">
+            <div class="mt-2 text-xs text-gray-400 flex justify-between items-center bg-card p-2.5 rounded-lg border border-border">
               <span>Staff phụ trách (Runner):</span>
               <span class="text-gray-200 font-bold">Nguyễn Văn A (Runner)</span>
             </div>
           </div>
         </div>
 
-        <div class="modal-actions mt-6 border-t border-[#404040] pt-4">
+        <div class="modal-actions mt-6 border-t border-border pt-4">
           <button @click="showQcPassModal = false" class="modal-btn cancel">
             HỦY
           </button>
@@ -469,7 +469,7 @@
 
     <!-- Delayed Orders Modal -->
     <div v-if="kitchenStore.showDelayedOrdersModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in" @click.self="kitchenStore.showDelayedOrdersModal = false">
-      <div class="bg-[#2D2D2D] border border-[#404040] rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl animate-scale-up">
+      <div class="bg-card border border-border rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl animate-scale-up">
         <!-- Header -->
         <div class="p-6 bg-[#C62828] text-white flex items-center justify-between">
           <div class="flex items-center gap-3">
@@ -479,7 +479,7 @@
               <p class="text-xs text-red-100">Các đơn hàng vượt quá thời gian chuẩn (15 phút)</p>
             </div>
           </div>
-          <button @click="kitchenStore.showDelayedOrdersModal = false" class="text-white/80 hover:text-white text-xl font-bold">&times;</button>
+          <button @click="kitchenStore.showDelayedOrdersModal = false" class="text-foreground/80 hover:text-foreground text-xl font-bold">&times;</button>
         </div>
         
         <!-- Body -->
@@ -487,7 +487,7 @@
           <div v-if="kitchenStore.delayedTickets.length === 0" class="text-center py-8 text-gray-400">
             Không có đơn hàng nào bị trễ.
           </div>
-          <div v-else v-for="ticket in kitchenStore.delayedTickets" :key="ticket.id" class="p-4 bg-[#1A1A1A] border border-red-500/30 rounded-xl flex items-center justify-between gap-4">
+          <div v-else v-for="ticket in kitchenStore.delayedTickets" :key="ticket.id" class="p-4 bg-background border border-red-500/30 rounded-xl flex items-center justify-between gap-4">
             <div class="space-y-1">
               <div class="flex items-center gap-2">
                 <span class="bg-[#C62828] text-white text-xs px-2.5 py-0.5 rounded-full font-bold">Bàn {{ ticket.table }}</span>
@@ -507,8 +507,8 @@
         </div>
         
         <!-- Footer -->
-        <div class="p-4 bg-[#1A1A1A] border-t border-[#404040] flex justify-end">
-          <button @click="kitchenStore.showDelayedOrdersModal = false" class="px-5 py-2 rounded-xl bg-gray-700 hover:bg-gray-600 text-white font-bold text-sm transition-all">Đóng</button>
+        <div class="p-4 bg-background border-t border-border flex justify-end">
+          <button @click="kitchenStore.showDelayedOrdersModal = false" class="px-5 py-2 rounded-xl bg-gray-700 hover:bg-gray-600 text-foreground font-bold text-sm transition-all">Đóng</button>
         </div>
       </div>
     </div>

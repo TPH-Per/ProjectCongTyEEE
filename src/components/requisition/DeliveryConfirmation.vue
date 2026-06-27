@@ -1,9 +1,9 @@
 <!-- DeliveryConfirmation.vue -->
 <template>
-  <div class="delivery-confirmation bg-[#2D2D2D] rounded-2xl p-6 max-w-[900px] margin-auto relative overflow-hidden">
+  <div class="delivery-confirmation bg-card rounded-2xl p-6 max-w-[900px] margin-auto relative overflow-hidden">
     
     <!-- SYSTEM UPDATE SCREEN (PHASE 4) -->
-    <div v-if="showSystemUpdate" class="system-update-overlay absolute inset-0 bg-[#1A1A1A] z-40 flex flex-col items-center justify-center p-8 text-center animate-fade-in">
+    <div v-if="showSystemUpdate" class="system-update-overlay absolute inset-0 bg-background z-40 flex flex-col items-center justify-center p-8 text-center animate-fade-in">
       <div class="success-checkmark mb-6">
         <div class="check-icon">
           <span class="icon-line line-tip animate-check-tip"></span>
@@ -13,11 +13,11 @@
         </div>
       </div>
       
-      <h3 class="text-2xl font-black text-white uppercase tracking-wider mb-2">ĐÃ CẬP NHẬT HỆ THỐNG THÀNH CÔNG</h3>
+      <h3 class="text-2xl font-black text-foreground uppercase tracking-wider mb-2">ĐÃ CẬP NHẬT HỆ THỐNG THÀNH CÔNG</h3>
       <p class="text-sm text-gray-400 mb-6 max-w-md">Phiếu yêu cầu #{{ requisition.id }} đã hoàn tất bàn giao. Quy trình tự động hóa kho & tài chính đã thực hiện:</p>
       
       <!-- Stepper of updates -->
-      <div class="update-steps text-left w-full max-w-md bg-[#2D2D2D]/60 border border-[#404040] rounded-xl p-5 mb-8 space-y-3.5">
+      <div class="update-steps text-left w-full max-w-md bg-card/60 border border-border rounded-xl p-5 mb-8 space-y-3.5">
         <div class="flex items-center gap-3 text-sm text-green-500 font-semibold">
           <span class="step-check flex items-center justify-center w-5 h-5 rounded-full bg-green-500/20 text-[10px]">✓</span>
           <span>Đồng bộ POS trạm {{ requisition.station }}</span>
@@ -59,18 +59,18 @@
     </div>
 
     <!-- MAIN INSPECTION SCREEN (PHASE 3) -->
-    <div class="flex justify-between items-center mb-6 pb-4 border-b border-[#404040]">
+    <div class="flex justify-between items-center mb-6 pb-4 border-b border-border">
       <div>
-        <h3 class="font-black text-white text-xl tracking-wide">KIỂM TRA GIAO NHẬN NGUYÊN LIỆU</h3>
+        <h3 class="font-black text-foreground text-xl tracking-wide">KIỂM TRA GIAO NHẬN NGUYÊN LIỆU</h3>
         <p class="text-xs text-gray-400 mt-1">Phiếu yêu cầu: #{{ requisition.id }} | Trạm: {{ requisition.station }}</p>
       </div>
-      <button class="bg-[#424242] text-white text-xs px-4 py-2 rounded-xl font-bold hover:bg-[#505050] transition border border-[#505050]" @click="$emit('back')">
+      <button class="bg-muted text-foreground text-xs px-4 py-2 rounded-xl font-bold hover:bg-muted transition border border-border" @click="$emit('back')">
         ⬅ Quay lại danh sách
       </button>
     </div>
 
     <!-- Stepper indicator -->
-    <div class="flex justify-between items-center mb-6 bg-[#1A1A1A] p-3.5 rounded-xl border border-[#404040]">
+    <div class="flex justify-between items-center mb-6 bg-background p-3.5 rounded-xl border border-border">
       <span class="text-xs font-bold text-[#FF9800] uppercase">Bước 3: Bếp kiểm tra & Giao nhận</span>
       <div class="flex items-center gap-2 text-xs font-semibold text-gray-400">
         <span>Tạo Phiếu</span>
@@ -87,7 +87,7 @@
       <div 
         v-for="item in deliveryItems" 
         :key="item.id"
-        class="delivery-item bg-[#1A1A1A] rounded-xl p-5 border border-[#404040] transition"
+        class="delivery-item bg-background rounded-xl p-5 border border-border transition"
         :class="{ 
           'border-l-4 border-l-[#4CAF50]': item.status === 'accepted', 
           'border-l-4 border-l-[#F44336]': item.status === 'rejected',
@@ -98,7 +98,7 @@
           <div class="flex items-center gap-3">
             <span class="item-icon text-3xl">{{ item.icon }}</span>
             <div>
-              <span class="item-name font-bold text-white text-lg block">{{ item.name }}</span>
+              <span class="item-name font-bold text-foreground text-lg block">{{ item.name }}</span>
               <span class="text-xs text-gray-400 font-medium font-mono">
                 Số lượng kho giao: {{ item.deliveredQty }} {{ item.unit }}
               </span>
@@ -116,7 +116,7 @@
           </div>
         </div>
 
-        <hr class="border-[#404040] my-4" />
+        <hr class="border-border my-4" />
 
         <!-- 3-Way Quality Control checks (Mermaid: G2 Bếp trưởng kiểm tra Chất lượng, Số lượng, Nhiệt độ) -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
@@ -184,7 +184,7 @@
             <div class="flex items-center gap-2 mt-1">
               <button 
                 type="button" 
-                class="qty-adjust bg-[#2D2D2D] hover:bg-[#404040] text-white w-8 h-8 rounded-lg flex items-center justify-center font-bold"
+                class="qty-adjust bg-card hover:bg-muted text-foreground w-8 h-8 rounded-lg flex items-center justify-center font-bold"
                 @click="adjustItemQty(item, -1)"
               >-</button>
               <input 
@@ -192,11 +192,11 @@
                 type="number" 
                 min="0"
                 :max="item.requestedQty"
-                class="w-full text-center bg-[#2D2D2D] border border-[#404040] rounded-lg py-1 text-white font-mono font-bold text-sm"
+                class="w-full text-center bg-card border border-border rounded-lg py-1 text-foreground font-mono font-bold text-sm"
               />
               <button 
                 type="button" 
-                class="qty-adjust bg-[#2D2D2D] hover:bg-[#404040] text-white w-8 h-8 rounded-lg flex items-center justify-center font-bold"
+                class="qty-adjust bg-card hover:bg-muted text-foreground w-8 h-8 rounded-lg flex items-center justify-center font-bold"
                 @click="adjustItemQty(item, 1)"
               >+</button>
               <span class="text-xs text-gray-400 font-bold uppercase">{{ item.unit }}</span>
@@ -212,17 +212,17 @@
     </div>
 
     <!-- DIGITAL SIGNATURE PAD (Mermaid: G5 Ký xác nhận Digital Signature) -->
-    <div class="signature-section bg-[#1A1A1A] rounded-xl p-5 border border-[#404040] mt-6">
+    <div class="signature-section bg-background rounded-xl p-5 border border-border mt-6">
       <div class="flex justify-between items-center mb-3">
         <h4 class="text-sm font-bold text-[#FF9800] uppercase tracking-wider flex items-center gap-2">
           ✍️ Ký Xác Nhận Nhận Bàn Giao (Digital Signature)
         </h4>
-        <button type="button" class="text-xs bg-[#2D2D2D] hover:bg-[#404040] border border-[#404040] text-gray-300 font-bold px-3 py-1.5 rounded-lg transition" @click="clearSignature">
+        <button type="button" class="text-xs bg-card hover:bg-muted border border-border text-gray-300 font-bold px-3 py-1.5 rounded-lg transition" @click="clearSignature">
           Xóa Chữ Ký
         </button>
       </div>
 
-      <div class="signature-canvas-container bg-[#2D2D2D]/30 border-2 border-dashed border-[#404040] rounded-xl h-[120px] relative overflow-hidden flex items-center justify-center">
+      <div class="signature-canvas-container bg-card/30 border-2 border-dashed border-border rounded-xl h-[120px] relative overflow-hidden flex items-center justify-center">
         <canvas 
           ref="canvasRef"
           width="700"
@@ -244,12 +244,12 @@
     </div>
     
     <!-- OVERALL ACTIONS -->
-    <div class="overall-actions flex gap-4 mt-6 pt-4 border-t border-[#404040]">
+    <div class="overall-actions flex gap-4 mt-6 pt-4 border-t border-border">
       <button class="btn-reject-all py-3 rounded-xl font-bold bg-[#C62828] hover:bg-[#b71c1c] text-white transition flex-1 text-sm tracking-wide" @click="rejectAll">
          TỪ CHỐI NHẬN TOÀN BỘ
       </button>
       <button 
-        class="btn-confirm-all py-3 rounded-xl font-bold bg-[#4CAF50] hover:bg-[#43a047] disabled:opacity-50 disabled:cursor-not-allowed text-white transition flex-2 text-sm tracking-wide flex items-center justify-center gap-2 shadow-lg" 
+        class="btn-confirm-all py-3 rounded-xl font-bold bg-[#4CAF50] hover:bg-[#43a047] disabled:opacity-50 disabled:cursor-not-allowed text-foreground transition flex-2 text-sm tracking-wide flex items-center justify-center gap-2 shadow-lg" 
         :disabled="!hasSigned || hasPendingItems"
         @click="confirmAll"
       >

@@ -1,0 +1,30 @@
+1. Quản lý Nguyên liệu (Ingredient Management)
+Kiểm tra tồn kho thực tế
+Cảnh báo nguyên liệu sắp hết
+Theo dõi hạn sử dụng
+Xuất nguyên liệu cho bếp
+2. Quản lý Công thức (Recipe/Formula Management)
+Định lượng nguyên liệu cho từng món
+Tính giá vốn (COGS)
+BOM (Bill of Materials)
+Cập nhật công thức khi thay đổi menu
+3. Kiểm kê Kho (Stocktaking)
+Kiểm kê định kỳ (cuối tháng/quý)
+Kiểm kê đột xuất
+Đối chiếu tồn kho thực tế vs hệ thống
+Xử lý chênh lệch kiểm kê
+4. Quản lý Hao hụt (Waste Management)
+Ghi nhận nguyên liệu hư hỏng
+Theo dõi thức ăn thừa
+Báo cáo hao hụt
+Phân tích nguyên nhân
+5. Mua hàng (Procurement/Purchasing)
+Tạo yêu cầu mua hàng (Purchase Request)
+Tạo đơn mua hàng (Purchase Order)
+Theo dõi đơn hàng từ nhà cung cấp
+Đánh giá nhà cung cấp
+6. Xuất kho (Stock Out/Issuing)
+Xuất nguyên liệu cho bếp
+Xuất hàng cho sự kiện
+Chuyển kho giữa các chi nhánh
+Trả hàng nhà cung cấp

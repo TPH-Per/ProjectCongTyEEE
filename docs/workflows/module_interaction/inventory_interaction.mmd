@@ -1,0 +1,10 @@
+graph TD
+    classDef interaction fill:#9f9,stroke:#333,stroke-width:2px;
+
+    subgraph "Inventory Module Interaction"
+        M_Inventory[Inventory Management] <--> M_Recipe[Recipe Config]
+        M_Inventory <--> M_KDS[Kitchen Display System]
+        M_Inventory <--> M_POS[Sales Checkout POS]
+    end
+
+    class M_Inventory,M_Recipe,M_KDS,M_POS interaction;

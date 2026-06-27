@@ -1,0 +1,83 @@
+flowchart TD
+    classDef process fill:#fcc,stroke:#333,stroke-width:2px;
+    classDef decision fill:#ff9,stroke:#333,stroke-width:2px;
+    classDef special fill:#9f9,stroke:#333,stroke-width:2px;
+
+    subgraph "GIAI ĐOẠN 1: ĐÓN KHÁCH & CHECK-IN"
+        A1["Khách vào nhà hàng"]
+        A2["Chào 'Irasshaimase !!'"]
+        A3["Nhân viên nhập Employee ID"]
+        A4["Chọn bàn trên Seat Map"]
+        A5["Gán QR động cho bàn"]
+        A6["Giới thiệu menu giấy"]
+        A7["Phân loại khách<br/>(Ước lượng: Giới tính/Tuổi/Số người)<br/>KHÔNG hỏi trực tiếp"]
+        A8["Xác nhận Seat Map"]
+    end
+
+    subgraph "GIAI ĐOẠN 2: CHỌN MENU & ĐỒ UỐNG"
+        B1["Chọn Package<br/>(Buffet 1380/1150/680/490/380,<br/>Biz, Kids Meal)"]
+        B2["Chọn Drink Group<br/>A: Soft drink free<br/>B: Premium free 2h<br/>C: Premium thay thế 2h<br/>D: A La Carte (tính tiền)"]
+        B3["Chọn ngôn ngữ Tablet<br/>(VI/JP/EN/KO/ZH)"]
+    end
+
+    subgraph "GIAI ĐOẠN 3: KHÓA COURSE & CRM"
+        C1["Khóa Course tại Page 10<br/>(Không thể quay lại)"]
+        C2["Kích hoạt Timer 2 giờ"]
+        C3["Giao Tablet cho khách"]
+        C4["Tặng Voucher 10%"]
+        C5["CRM Survey<br/>(Nguồn biết đến,<br/>Xin phép chụp ảnh)"]
+    end
+
+    subgraph "GIAI ĐOẠN 4: KHÁCH TỰ ORDER"
+        D1["Khách tự order trên Tablet"]
+        D2{"Đã quá 2 giờ<br/>và Drink B/C?"}
+        D3["Khóa drink Premium<br/>Chỉ hiện drink A"]
+        D4{"Order bổ sung?"}
+        D5["Order mới<br/>(Max 10 món/loại/lượt)"]
+        D6["Gửi order xuống bếp"]
+        D7["Theo dõi trạng thái món"]
+        D8["Nhận món từ bếp"]
+        D9["Phục vụ món"]
+        D10["Thay vỉ nướng / Thay than"]
+        D11{"Khách yêu cầu<br/>đổi/hủy món?"}
+        D12["Xử lý đổi/hủy"]
+    end
+
+    subgraph "GIAI ĐOẠN 5: CHECKOUT"
+        E1["Khách nhấn Checkout trên Tablet"]
+        E2["Tablet hiển thị<br/>'Please come to reception'"]
+        E3["Lễ tân hỏi thăm trải nghiệm"]
+        E4{"Là khách cũ<br/>(Repeater)?"}
+        E5["Nhập SĐT → Tra cứu<br/>Membership → Áp dụng discount"]
+        E6["Đăng ký CRM:<br/>Tên, Tuổi, SĐT,<br/>Kết nối Zalo OA<br/>→ Tạo Membership"]
+        E7["Thanh toán thực tế<br/>(QR/Cash/Card)"]
+        E8["Mời đánh giá<br/>Google Map"]
+        E9["Chào tiễn<br/>'Arigato Gozaimashita !!'"]
+    end
+
+    subgraph "GIAI ĐOẠN 6: SAU KHI KHÁCH VỀ"
+        F1["Cập nhật trạng thái bàn<br/>→ Cần dọn dẹp"]
+        F2["Thu dọn bàn"]
+        F3["Bàn sẵn sàng đón khách mới"]
+    end
+
+    A1 --> A2 --> A3 --> A4 --> A5 --> A6 --> A7 --> A8
+    A8 --> B1 --> B2 --> B3
+    B3 --> C1 --> C2 --> C3 --> C4 --> C5
+    C5 --> D1
+    D1 --> D2
+    D2 -- "Có" --> D3 --> D1
+    D2 -- "Không" --> D4
+    D4 -- "Có" --> D5 --> D6 --> D7 --> D8 --> D9 --> D10 --> D1
+    D4 -- "Không" --> D11
+    D11 -- "Có" --> D12 --> D6
+    D11 -- "Không" --> E1
+    E1 --> E2 --> E3 --> E4
+    E4 -- "Có" --> E5 --> E7
+    E4 -- "Không" --> E6 --> E7
+    E7 --> E8 --> E9
+    E9 --> F1 --> F2 --> F3
+
+    class A1,A2,A3,A4,A5,A6,A7,A8,B1,B2,B3,C1,C2,C3,C4,C5,D1,D5,D6,D7,D8,D9,D10,D12,E1,E2,E3,E5,E6,E7,E8,E9,F1,F2,F3 process;
+    class D2,D4,D11,E4 decision;
+    class D3 special;

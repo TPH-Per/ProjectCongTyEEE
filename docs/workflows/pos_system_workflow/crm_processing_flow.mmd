@@ -1,0 +1,11 @@
+graph TD
+    classDef system fill:#bbf,stroke:#333,stroke-width:2px;
+
+    subgraph "POS CRM Processing Workflow"
+        B1[Tạo mã CRM Survey động liên kết với phiên bàn ăn hiện tại] --> B2[Xử lý dữ liệu ý kiến khách hàng, tự động phát hành Voucher]
+        B2 --> B3[Đồng bộ và liên kết SĐT khách hàng với Zalo OA User ID]
+        B3 --> B4[Quy tắc CRM: Tự động xếp hạng thành viên: Đồng -> Bạc -> Vàng -> Kim cương]
+        B4 --> B5[Tự động tính toán phần trăm chiết khấu hạng thành viên khi thanh toán]
+    end
+
+    class B1,B2,B3,B4,B5 system;

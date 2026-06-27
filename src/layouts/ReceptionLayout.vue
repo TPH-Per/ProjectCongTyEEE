@@ -1,7 +1,8 @@
 <template>
   <div class="flex h-screen overflow-hidden bg-gray-50">
     <!-- Sidebar -->
-    <aside class="w-64 border-r border-[hsl(var(--border))] bg-white flex flex-col shrink-0 shadow-sm">
+    <Transition name="sidebar-slide">
+      <aside v-if="!isFullscreen" class="w-64 border-r border-[hsl(var(--border))] bg-white flex flex-col shrink-0 shadow-sm overflow-hidden">
       <div class="p-5 border-b border-[hsl(var(--border))]">
         <div class="flex items-center gap-3">
           <TextLogo size="md" />
@@ -153,8 +154,10 @@
         </div>
       </div>
     </aside>
+    </Transition>
     <main class="flex-1 flex flex-col overflow-hidden">
       <header
+        v-if="!isFullscreen"
         class="h-16 border-b border-[hsl(var(--border))] bg-white flex items-center justify-between px-6 shrink-0 shadow-sm z-10"
       >
         <div
@@ -177,7 +180,7 @@
           </div>
         </div>
       </header>
-      <section class="flex-1 overflow-auto bg-gray-50 p-6">
+      <section :class="['flex-1 overflow-auto bg-gray-50 transition-all duration-300', isFullscreen ? 'p-0' : 'p-6']">
         <RouterView />
       </section>
     </main>
@@ -197,6 +200,8 @@ const route = useRoute()
 const { signOut, profile, role } = useAuth()
 const { stickerUrl } = useUserSticker()
 const isDropdownOpen = ref(false)
+
+const isFullscreen = computed(() => route.meta.fullscreen === true);
 
 // headerTitle is the single source of truth — the template no longer hardcodes
 // 'Bảng điều khiển'. Falls back to the dashboard label when the route doesn't
@@ -240,3 +245,19 @@ async function handleSignOut() {
   await router.push({ name: 'login' })
 }
 </script>
+
+<style scoped>
+.sidebar-slide-enter-active,
+.sidebar-slide-leave-active {
+  transition: all 0.3s ease;
+}
+
+.sidebar-slide-enter-from,
+.sidebar-slide-leave-to {
+  width: 0 !important;
+  opacity: 0;
+  border-right-width: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+</style>

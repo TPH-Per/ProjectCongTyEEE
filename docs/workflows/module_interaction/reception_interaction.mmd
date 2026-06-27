@@ -1,0 +1,10 @@
+graph TD
+    classDef interaction fill:#9f9,stroke:#333,stroke-width:2px;
+
+    subgraph "Reception Module Interaction"
+        M_Reception[Reception Desk] <--> M_POS[Cashier POS]
+        M_Reception <--> M_Floor[Floor Space & Seat Map]
+        M_Reception <--> M_Booking[Booking System]
+    end
+
+    class M_Reception,M_POS,M_Floor,M_Booking interaction;

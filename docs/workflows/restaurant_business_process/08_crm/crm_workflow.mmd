@@ -1,0 +1,11 @@
+graph TD
+    classDef process fill:#fcc,stroke:#333,stroke-width:2px;
+
+    subgraph "Quy trình Khách hàng CRM & Loyalty (CRM Workflow)"
+        A1[Khách hàng quét mã CRM Survey tại bàn ăn] --> A2[Điền thông tin khảo sát ý kiến dịch vụ]
+        A2 --> A3[Khách đồng ý kết nối tài khoản Zalo OA]
+        A3 --> A4[Nhận Voucher giảm giá 10% gửi qua Zalo]
+        A4 --> A5[Tích lũy chi tiêu khi thanh toán hóa đơn để thăng hạng thành viên]
+    end
+
+    class A1,A2,A3,A4,A5 process;

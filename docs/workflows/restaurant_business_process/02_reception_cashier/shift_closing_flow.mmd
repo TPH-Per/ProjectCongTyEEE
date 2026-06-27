@@ -1,0 +1,12 @@
+graph TD
+    classDef process fill:#fcc,stroke:#333,stroke-width:2px;
+
+    subgraph "Quy trình Chốt Ca Trực Thu Ngân (Shift Closing Flow)"
+        A1[Thu ngân đếm toàn bộ tiền mặt vật lý tại két quỹ khi hết ca] --> A2[Thu ngân nhập số tiền mặt kiểm đếm được vào POS]
+        A2 --> A3[Thu ngân nhập lý do giải trình nếu phát hiện chênh lệch]
+        A3 --> A4[Quản lý kiểm tra đối chiếu báo cáo ca trực]
+        A4 --> A5[Quản lý nhập mã PIN đồng ý đóng ca]
+        A5 --> A6[Thu ngân in báo cáo chốt ca & bàn giao két quỹ cho ca sau]
+    end
+
+    class A1,A2,A3,A4,A5,A6 process;

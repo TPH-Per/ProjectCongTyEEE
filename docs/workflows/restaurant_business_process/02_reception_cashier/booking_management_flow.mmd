@@ -1,0 +1,32 @@
+graph TD
+    classDef process fill:#fcc,stroke:#333,stroke-width:2px;
+
+    subgraph "Quy trình Quản lý Đặt bàn (Booking Management Flow)"
+        A1[Khách hàng liên hệ qua Điện thoại/Zalo/Web hoặc đến trực tiếp] --> A2[Lễ tân tiếp nhận thông tin khách hàng và nhu cầu đặt bàn]
+        
+        %% Nhánh 1: Tiếp nhận đặt bàn mới
+        A2 -->|Đặt bàn mới| A3[Lễ tân kiểm tra sơ đồ bàn trống trên sơ đồ vật lý]
+        A3 --> A4[Ghi nhận thông tin: Tên, SĐT, Số lượng người lớn/Trẻ em, Ngày giờ đặt, Gói ăn và Ghi chú]
+        A4 --> A5[Lễ tân gán bàn trống dự kiến cho khách và tạo mã đặt bàn ở trạng thái Chờ đến]
+        
+        %% Nhánh 2: Xem và kiểm tra danh sách đặt bàn hàng ngày
+        A2 -->|Quản lý đặt bàn hiện có| A6[Lễ tân mở danh sách đặt bàn trong ngày để theo dõi timeline]
+        A6 --> A7{Khách có thay đổi yêu cầu?}
+        
+        %% Điều chỉnh thông tin đặt bàn
+        A7 -->|Có| A8[Lễ tân cập nhật: đổi giờ đặt, số lượng khách, đổi gói ăn buffet hoặc đổi bàn gán]
+        A8 --> A6
+        
+        %% Hủy đặt bàn hoặc trễ hẹn
+        A7 -->|Không / Khách báo hủy / Trễ hẹn| A9{Đến giờ hẹn?}
+        A9 -->|Khách chủ động báo hủy| A10[Lễ tân ghi nhận lý do hủy, chuyển sang Đã hủy và giải phóng bàn đặt]
+        A9 -->|Quá giờ hẹn 30 phút mà khách không đến| A11[Lễ tân xác định khách No-Show, chuyển sang Đã hủy và giải phóng bàn]
+        
+        %% Khách đến và check-in
+        A9 -->|Khách đến đúng giờ| A12[Lễ tân chào đón khách và đối chiếu mã đặt bàn/SĐT]
+        A12 --> A13[Lễ tân xác nhận lại số lượng khách thực tế và gói buffet/nước uống khách chọn]
+        A13 --> A14[Lễ tân xác nhận check-in trên POS và dẫn khách vào bàn vật lý đã gán]
+        A14 --> A15[Phục vụ kích hoạt tablet, khóa gói ăn và khởi chạy bộ đếm giờ dùng bữa 2 tiếng]
+    end
+
+    class A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11,A12,A13,A14,A15 process;

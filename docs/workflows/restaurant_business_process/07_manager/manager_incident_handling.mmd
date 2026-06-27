@@ -1,0 +1,78 @@
+flowchart TD
+    classDef process fill:#e1f5fe,stroke:#01579b,stroke-width:2px;
+    classDef decision fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;
+    classDef alert fill:#ffcdd2,stroke:#c62828,stroke-width:2px;
+    classDef priority fill:#f8bbd0,stroke:#ad1457,stroke-width:2px;
+
+    subgraph "TIẾP NHẬN SỰ CỐ"
+        I1["Nhân viên báo sự cố<br/>hoặc Khách phàn nàn"] --> I2{"Loại sự cố?"}
+        
+        I2 -- "Khách phàn nàn<br/>chất lượng món" --> P1["Ưu tiên CAO"]
+        I2 -- "Khách phàn nàn<br/>dịch vụ" --> P2["Ưu tiên TRUNG BÌNH"]
+        I2 -- "Thiết bị hỏng" --> P3["Ưu tiên TRUNG BÌNH"]
+        I2 -- "Mất Internet" --> P4["Ưu tiên KHẨN"]
+        I2 -- "Tai nạn / An toàn" --> P5["Ưu tiên KHẨN CẤP"]
+    end
+
+    subgraph "XỬ LÝ KHÁCH PHÀN NÀN MÓN ĂN"
+        P1 --> Q1["Quản lý đến bàn<br/>lắng nghe khách hàng"]
+        Q1 --> Q2{"Món có vấn đề?"}
+        Q2 -- "Sống/Cháy/Sai" --> Q3["Xin lỗi & Thu hồi món"]
+        Q3 --> Q4["Yêu cầu bếp Remake<br/>(Ưu tiên CAO NHẤT)"]
+        Q4 --> Q5{"Khách có hài lòng?"}
+        Q5 -- "Có" --> Q6["Tặng voucher / Free món<br/>(Quyền Manager)"]
+        Q5 -- "Không" --> Q7["Báo cáo cấp trên<br/>& bồi thường cao hơn"]
+        
+        Q2 -- "Khách không thích<br/>(không phải lỗi)" --> Q8["Giải thích & Tư vấn<br/>đổi món khác"]
+        Q8 --> Q9{"Khách chấp nhận?"}
+        Q9 -- "Có" --> Q10["Thực hiện đổi món"]
+        Q9 -- "Không" --> Q11["Hủy món trên POS<br/>& ghi nhận lý do"]
+    end
+
+    subgraph "XỬ LÝ SỰ CỐ THIẾT BỊ"
+        P3 --> T1["Xác định thiết bị hỏng<br/>(POS/Máy in/KDS)"]
+        T1 --> T2{"Có thiết bị dự phòng?"}
+        T2 -- "Có" --> T3["Chuyển sang thiết bị dự phòng"]
+        T2 -- "Không" --> T4["Chuyển sang chế độ giấy<br/>(Manual Backup)"]
+        T3 --> T5["Gọi bảo trì<br/>(Ghi nhận thời gian)"]
+        T4 --> T5
+        T5 --> T6["Thông báo toàn bộ nhân viên"]
+    end
+
+    subgraph "XỬ LÝ MẤT INTERNET (KHẨN)"
+        P4 --> N1["Kích hoạt Offline Mode"]
+        N1 --> N2["Nhân viên tiếp tục<br/>nhận order bình thường"]
+        N2 --> N3["Dữ liệu lưu local queue"]
+        N3 --> N4["Liên hệ ISP / Kiểm tra mạng"]
+        N4 --> N5{"Đã có mạng?"}
+        N5 -- "Có" --> N6["Tự động đồng bộ<br/>dữ liệu từ queue"]
+        N5 -- "Không" --> N7["Tiếp tục offline<br/>& báo IT support"]
+    end
+
+    subgraph "XỬ LÝ TAI NẠN (KHẨN CẤP)"
+        P5 --> S1["Đảm bảo an toàn<br/>khách hàng & nhân viên"]
+        S1 --> S2{"Có người bị thương?"}
+        S2 -- "Có" --> S3["Gọi cấp cứu 115"]
+        S3 --> S4["Sơ cứu tại chỗ"]
+        S4 --> S5["Lập biên bản sự cố"]
+        S5 --> S6["Báo cáo chủ nhà hàng<br/>& cơ quan chức năng (nếu cần)"]
+        
+        S2 -- "Không" --> S7["Xử lý tại chỗ"]
+        S7 --> S5
+    end
+
+    subgraph "GHI NHẬN & BÁO CÁO"
+        Q6 --> R1["Ghi nhận Incident Report"]
+        Q7 --> R1
+        Q10 --> R1
+        Q11 --> R1
+        T6 --> R1
+        N6 --> R1
+        S6 --> R1
+        R1 --> R2["Lưu vào hệ thống<br/>& Phân tích nguyên nhân"]
+    end
+
+    class I1,P1,P2,P3,P4,P5,Q1,Q2,Q3,Q4,Q5,Q6,Q7,Q8,Q9,Q10,Q11,T1,T2,T3,T4,T5,T6,N1,N2,N3,N4,N5,N6,N7,S1,S2,S3,S4,S5,S6,S7,R1,R2 process;
+    class I2,Q2,Q5,Q9,T2,N5,S2 decision;
+    class P4,P5 alert;
+    class P1 priority;

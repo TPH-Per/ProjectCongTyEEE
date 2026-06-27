@@ -1,0 +1,106 @@
+flowchart TD
+    %% ========== NHÓM QUY TRÌNH NHẬP KHO ==========
+    subgraph "NHẬP KHO TỪ NHÀ CUNG CẤP"
+        A1["📦 Nhận hàng từ NCC"] --> A2{"Kiểm tra hóa đơn<br/>& chứng từ?"}
+        A2 -- "Không đầy đủ" --> A3["Trả lại NCC<br/>bổ sung chứng từ"]
+        A3 --> A1
+        
+        A2 -- "Đầy đủ" --> A4["Kiểm tra chất lượng<br/>nguyên liệu"]
+        A4 --> A5{"Đạt chuẩn QC?"}
+        A5 -- "Không đạt" --> A6["Từ chối nhận hàng<br/>Ghi nhận lý do"]
+        A6 --> A7["Cập nhật 86'd<br/>tạm thời"]
+        
+        A5 -- "Đạt" --> A8["Nhập số liệu:<br/>- Số lượng<br/>- Hạn sử dụng<br/>- Lô hàng"]
+        A8 --> A9["In tem nhãn<br/>mã vạch/QR"]
+        A9 --> A10["Lưu kho theo vị trí<br/>FIFO/FEFO"]
+        A10 --> A11["Cập nhật tồn kho<br/>hệ thống"]
+    end
+
+    %% ========== NHÓM QUY TRÌNH XUẤT KHO ==========
+    subgraph "XUẤT KHO CHO BẾP"
+        B1["📋 Bếp tạo yêu cầu<br/>xuất kho"] --> B2{"Thủ kho kiểm tra<br/>tồn kho?"}
+        
+        B2 -- "Đủ hàng" --> B3["Xuất hàng theo<br/>nguyên tắc FIFO"]
+        B3 --> B4["Cập nhật số lượng<br/>thực tế"]
+        B4 --> B5["Bếp trưởng ký<br/>xác nhận"]
+        B5 --> B6["Trừ tồn kho<br/>hệ thống"]
+        
+        B2 -- "Thiếu hàng" --> B7["Thông báo cho<br/>bếp trưởng"]
+        B7 --> B8{"Bếp quyết định?"}
+        B8 -- "Chấp nhận<br/>số lượng ít hơn" --> B3
+        B8 -- "Hủy yêu cầu" --> B9["Ghi nhận vào<br/>log"]
+        B8 -- "Chờ bổ sung" --> B10["Tạo đơn mua<br/>hàng khẩn"]
+    end
+
+    %% ========== NHÓM KIỂM KÊ ==========
+    subgraph "KIỂM KÊ ĐỊNH KỲ"
+        C1["📊 Lên kế hoạch<br/>kiểm kê"] --> C2["In danh sách<br/>kiểm kê"]
+        C2 --> C3["Kiểm đếm thực tế<br/>từng vị trí"]
+        C3 --> C4{"So sánh:<br/>Thực tế vs Hệ thống?"}
+        
+        C4 -- "Khớp" --> C5["Xác nhận<br/>kiểm kê OK"]
+        
+        C4 -- "Chênh lệch" --> C6["Điều tra nguyên nhân:<br/>- Mất mát<br/>- Hư hỏng<br/>- Nhập sai<br/>- Xuất sai"]
+        C6 --> C7{"Mức độ<br/>chênh lệch?"}
+        
+        C7 -- "Nhỏ (< 2%)" --> C8["Điều chỉnh<br/>tồn kho"]
+        C7 -- "Lớn (> 2%)" --> C9["Báo cáo quản lý<br/>xét duyệt"]
+        C9 --> C10["Xử lý kỷ luật<br/>nếu cần"]
+        C10 --> C8
+    end
+
+    %% ========== NHÓM QUẢN LÝ HẠN SỬ DỤNG ==========
+    subgraph "QUẢN LÝ HẠN SỬ DỤNG"
+        D1["⏰ Hệ thống check<br/>hạn sử dụng hàng ngày"] --> D2{"Phát hiện hàng<br/>sắp hết hạn?"}
+        
+        D2 -- "Còn > 7 ngày" --> D3["Không cảnh báo"]
+        
+        D2 -- "Còn ≤ 7 ngày" --> D4["Cảnh báo màu vàng<br/>Ưu tiên sử dụng"]
+        D4 --> D5["Thông báo cho<br/>bếp trưởng"]
+        
+        D2 -- "Đã hết hạn" --> D6["Cảnh báo màu đỏ<br/>Không được dùng"]
+        D6 --> D7["Cách ly hàng<br/>hết hạn"]
+        D7 --> D8["Lập biên bản<br/>tiêu hủy"]
+        D8 --> D9["Ghi nhận waste<br/>log"]
+    end
+
+    %% ========== NHÓM MUA HÀNG ==========
+    subgraph "MUA HÀNG TỰ ĐỘNG"
+        E1["📉 Hệ thống check<br/>tồn kho tối thiểu"] --> E2{"Món nào dưới<br/>mức min?"}
+        
+        E2 -- "Không" --> E3["Không làm gì"]
+        
+        E2 -- "Có" --> E4["Tạo danh sách<br/>cần mua"]
+        E4 --> E5{"Mức độ khẩn?"}
+        
+        E5 -- "Bình thường" --> E6["Gửi PO cho NCC<br/>theo lịch"]
+        E6 --> E7["Theo dõi<br/>đơn hàng"]
+        
+        E5 -- "Khẩn cấp" --> E8["Gọi điện/Nhắn tin<br/>NCC ngay"]
+        E8 --> E9["Cập nhật ETA<br/>thời gian giao"]
+    end
+
+    %% ========== NHÓM BÁO CÁO ==========
+    subgraph "BÁO CÁO & PHÂN TÍCH"
+        F1["📈 Tổng hợp dữ liệu<br/>hàng ngày/tuần/tháng"] --> F2["Tính các chỉ số:<br/>- Tồn kho trung bình<br/>- Vòng quay tồn kho<br/>- Tỷ lệ hao hụt<br/>- Food cost"]
+        F2 --> F3["Phân tích ABC:<br/>- A: Giá trị cao<br/>- B: Giá trị TB<br/>- C: Giá trị thấp"]
+        F3 --> F4["Đề xuất:<br/>- Điều chỉnh mức min/max<br/>- Thay đổi NCC<br/>- Giảm lãng phí"]
+    end
+
+    %% ========== KẾT NỐI CÁC QUY TRÌNH ==========
+    A11 --> E1
+    B6 --> F1
+    C8 --> F1
+    D9 --> F1
+    E7 --> A1
+    
+    %% ========== STYLES ==========
+    classDef process fill:#2D2D2D,stroke:#4CAF50,stroke-width:2px,color:#FFFFFF
+    classDef decision fill:#2D2D2D,stroke:#FF9800,stroke-width:2px,color:#FFFFFF
+    classDef alert fill:#2D2D2D,stroke:#F44336,stroke-width:2px,color:#FFFFFF
+    classDef success fill:#1B5E20,stroke:#4CAF50,stroke-width:2px,color:#FFFFFF
+    
+    class A1,A3,A4,A6,A8,A9,A10,A11,B1,B3,B4,B5,B6,B7,B9,B10,C1,C2,C3,C5,C6,C8,C9,C10,D1,D3,D4,D5,D6,D7,D8,D9,E1,E3,E4,E6,E7,E8,E9,F1,F2,F3,F4 process
+    class A2,A5,B2,B8,C4,C7,D2,E2,E5 decision
+    class A7,D4,D6,E8 alert
+    class A10,A11,B6,C5,F4 success

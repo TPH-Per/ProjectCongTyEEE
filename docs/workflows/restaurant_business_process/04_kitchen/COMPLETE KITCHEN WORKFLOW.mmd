@@ -1,0 +1,114 @@
+flowchart TD
+    classDef process fill:#fcc,stroke:#333,stroke-width:2px;
+    classDef decision fill:#ff9,stroke:#333,stroke-width:2px;
+    classDef special fill:#9f9,stroke:#333,stroke-width:2px;
+    classDef alert fill:#f99,stroke:#333,stroke-width:2px;
+    classDef admin fill:#ffd700,stroke:#333,stroke-width:2px;
+
+    subgraph "PRE-SHIFT: Chuẩn bị đầu ca"
+        P1["Check-in nhân viên bếp<br/>(Mã PIN/Thẻ từ)"] --> P2["Checklist vệ sinh<br/>(Rửa tay, găng, đồng phục)"]
+        P2 --> P3["Kiểm tra nhiệt độ tủ lạnh<br/>(Tủ mát ≤ 5°C, Tủ đông ≤ -18°C)"]
+        P3 --> P4["Xem Prep List trong ngày<br/>(Dựa trên Booking + Lịch sử)"]
+        P4 --> P5["Sơ chế hàng loạt<br/>(Thái thịt, ướp, cắt rau)"]
+        P5 --> P6["Báo cáo sẵn sàng cho Bếp trưởng"]
+    end
+
+    subgraph "ORDER RECEIVING: Tiếp nhận Order"
+        O1["Nhận Ticket từ KDS<br/>(POS/Tablet/Delivery)"] --> O2{"Phân loại Order?"}
+        O2 -- "Buffet mới" --> O3["Đánh dấu Vòng 1<br/>(Round 1)"]
+        O2 -- "Buffet gọi thêm" --> O4["Đánh dấu Vòng N<br/>(Round N)"]
+        O2 -- "A La Carte" --> O5["Xử lý đơn lẻ"]
+        O2 -- "Delivery" --> O6["Ưu tiên đóng gói"]
+        
+        O3 --> O7{"Auto-Routing<br/>theo Station?"}
+        O4 --> O7
+        O5 --> O7
+        O6 --> O7
+        
+        O7 -- "Bếp Nướng (Grill)" --> S1["Station: Grill"]
+        O7 -- "Bếp Lẩu (Hotpot)" --> S2["Station: Hotpot"]
+        O7 -- "Bếp Lạnh/Sushi" --> S3["Station: Cold"]
+        O7 -- "Bếp Chiên" --> S4["Station: Fry"]
+    end
+
+    subgraph "PRIORITY: Ưu tiên Order"
+        S1 --> PR1{"Có Remake?"}
+        S2 --> PR1
+        S3 --> PR1
+        S4 --> PR1
+        
+        PR1 -- "Có" --> PR2["Ưu tiên CAO NHẤT<br/>(Bỏ qua hàng đợi)"]
+        PR1 -- "Không" --> PR3["Sắp xếp theo:<br/>1. Thời gian chờ (FIFO)<br/>2. Món chế biến lâu trước<br/>3. Khách VIP"]
+        PR2 --> PR4["Acknowledge trên KDS"]
+        PR3 --> PR4
+    end
+
+    subgraph "COOKING: Chế biến"
+        PR4 --> C1["Lấy nguyên liệu<br/>(FIFO/FEFO)"]
+        C1 --> C2{"Kiểm tra tồn kho?"}
+        
+        C2 -- "Hết hàng" --> C3["Báo 86'd trên KDS<br/>→ Ẩn món trên Tablet"]
+        C3 --> C4["Thông báo Staff<br/>tư vấn khách đổi món"]
+        
+        C2 -- "Còn hàng" --> C5{"Khu vực Nướng?"}
+        C5 -- "Có" --> C6["Nướng trên than<br/>(Canh độ chín)"]
+        C6 --> C7{"Vỉ bẩn / Hết than?"}
+        C7 -- "Có" --> C8["Yêu cầu thay vỉ/than<br/>(Grill Change Request)"]
+        C8 --> C6
+        C7 -- "Không" --> C9["Trình bày món (Plating)"]
+        
+        C5 -- "Không (Lẩu/Lạnh/Chiên)" --> C10["Chế biến theo Recipe"]
+        C10 --> C9
+    end
+
+    subgraph "QUALITY CONTROL: Kiểm soát chất lượng"
+        C9 --> QC1["Expo Station<br/>(Bếp trưởng Luc kiểm tra)"]
+        QC1 --> QC2{"Đạt chuẩn?"}
+        QC2 -- "Không đạt" --> QC3["Làm lại (Remake)<br/>Ưu tiên cao"]
+        QC3 --> C1
+        QC2 -- "Đạt" --> QC4["Đặt lên Pass<br/>(Khu vực ra món)"]
+    end
+
+    subgraph "SERVICE: Phục vụ"
+        QC4 --> SV1["Bấm chuông / Gửi thông báo<br/>Call Runner"]
+        SV1 --> SV2["Staff đến nhận món"]
+        SV2 --> SV3["Cập nhật trạng thái<br/>'Served' trên KDS"]
+        SV3 --> SV4["Hoàn tất Kitchen Ticket"]
+    end
+
+    subgraph "EXCEPTION: Xử lý sự cố"
+        E1["Staff trả món từ khách"] --> E2{"Lý do?"}
+        E2 -- "Lỗi Bếp<br/>(Sống/Cháy/Sai)" --> E3["Ghi nhận lỗi<br/>Remake ngay"]
+        E3 --> C1
+        E2 -- "Lỗi Khách<br/>(Không thích)" --> E4["Báo quản lý<br/>Hủy trên POS"]
+        E2 -- "Dị ứng/Kiêng kỵ" --> E5["CẢNH BÁO KHẨN<br/>Thu hồi toàn bộ bàn"]
+        
+        E6["Phát hiện rơi/đổ/hỏng"] --> E7["Ghi Waste Log<br/>(Lý do + Khối lượng)"]
+    end
+
+    subgraph "POST-SHIFT: Kết thúc ca"
+        PS1["Kiểm kê cuối ngày<br/>(Daily Stocktake)"] --> PS2["Đối chiếu tồn kho<br/>với BOM lý thuyết"]
+        PS2 --> PS3["Ghi nhận chênh lệch<br/>(Hao hụt thực tế)"]
+        PS3 --> PS4["Tạo Yêu cầu xuất kho<br/>cho ngày mai"]
+        PS4 --> PS5["Vệ sinh bếp<br/>(Checklist cuối ca)"]
+        PS5 --> PS6["Báo cáo cuối ca<br/>(Shift Report)"]
+        PS6 --> PS7["Bàn giao cho ca sau<br/>(Shift Handover)"]
+    end
+
+    subgraph "REPORTING: Báo cáo cho Bếp trưởng"
+        R1["Dashboard KPI"] --> R2["Thời gian chế biến TB<br/>(theo món/station)"]
+        R1 --> R3["Tỷ lệ Remake<br/>(Mục tiêu < 2%)"]
+        R1 --> R4["Tỷ lệ Waste<br/>(Mục tiêu < 5%)"]
+        R1 --> R5["Công suất từng khu vực<br/>(Utilization %)"]
+        R1 --> R6["Món hay trễ / Món bán chạy"]
+    end
+
+    %% Kết nối các phase
+    P6 -.->|"Bắt đầu ca"| O1
+    SV4 -.->|"Cuối ngày"| PS1
+    PS6 -.-> R1
+
+    class P1,P2,P3,P4,P5,P6,O1,O3,O4,O5,O6,S1,S2,S3,S4,PR2,PR3,PR4,C1,C4,C6,C8,C9,C10,QC1,QC4,SV1,SV2,SV3,SV4,E3,E4,E5,E7,PS1,PS2,PS3,PS4,PS5,PS6,PS7,R1,R2,R3,R4,R5,R6 process;
+    class O2,O7,PR1,C2,C5,C7,QC2,E2 decision;
+    class QC3 special;
+    class C3,E5 alert;

@@ -1,0 +1,118 @@
+graph TD
+    classDef main fill:#ff7b89,stroke:#333,stroke-width:2px,color:#fff;
+    classDef flow fill:#f9f,stroke:#333,stroke-width:1px;
+    classDef entity fill:#bbf,stroke:#333,stroke-width:1px;
+    classDef structural fill:#9f9,stroke:#333,stroke-width:1px;
+    classDef admin fill:#ffd700,stroke:#333,stroke-width:1px;
+    classDef delivery fill:#87ceeb,stroke:#333,stroke-width:1px;
+    classDef crm fill:#ffb6c1,stroke:#333,stroke-width:1px;
+
+    ROOT[Sơ đồ 1: Tổng quan Nghiệp vụ<br>overall_business_overview.mmd]:::main
+
+    %% ============================================================
+    %% PHẦN 1: KIẾN TRÚC HỆ THỐNG & PHÂN HỆ
+    %% ============================================================
+    ROOT --> |1. Kiến trúc hệ thống| D10[Sơ đồ 10: Mối quan hệ phân hệ<br>module_relationships.mmd]:::structural
+
+    %% ============================================================
+    %% PHẦN 2: LUỒNG KHÁCH HÀNG (Customer Entry Workflows)
+    %% ============================================================
+    ROOT --> |2. Phân loại Khách hàng| INLET{Lối vào của Khách}:::flow
+    
+    INLET --> |Đặt bàn trước| D3[Sơ đồ 3: Quy trình đặt bàn<br>booking_flow.mmd]:::flow
+    INLET --> |Khách vãng lai| D2[Sơ đồ 2: Quy trình khách vãng lai<br>walkin_flow.mmd]:::flow
+    INLET --> |Đơn giao hàng| D20[Sơ đồ 20: Quy trình Delivery<br>delivery_flow.mmd]:::delivery
+
+    %% ============================================================
+    %% PHẦN 3: NGHIỆP VỤ BÀN (Table Management)
+    %% ============================================================
+    D3 --> |Đoàn khách vào bàn| D4[Sơ đồ 4: Quy trình gọi món tại bàn<br>ordering_flow.mmd]:::flow
+    D2 --> |Đoàn khách vào bàn| D4
+    D20 --> |Đơn hàng đến bếp| D5
+
+    D4 --> |Gửi đơn món ăn| D5[Sơ đồ 5: Quy trình chế biến ở bếp<br>kitchen_workflow.mmd]:::flow
+
+    %% Table operations
+    D4 --> |Chuyển/Ghép/Tách bàn| D11[Sơ đồ 11: Quản lý bàn ăn<br>table_management.mmd]:::flow
+    D11 --> D4
+
+    %% ============================================================
+    %% PHẦN 4: QUẢN LÝ THỰC ĐƠN (Menu Management)
+    %% ============================================================
+    D4 --> |Chọn món từ Menu| D12[Sơ đồ 12: Quản lý thực đơn<br>menu_management.mmd]:::flow
+    D12 --> |Recipe and COGS| D13[Sơ đồ 13: Quản lý công thức<br>recipe_workflow.mmd]:::flow
+
+    %% ============================================================
+    %% PHẦN 5: QUẢN LÝ NGUYÊN LIỆU (Inventory)
+    %% ============================================================
+    D5 --> |Trừ nguyên liệu| D14[Sơ đồ 14: Quản lý nguyên liệu<br>ingredient_management.mmd]:::flow
+    D14 --> |Cảnh báo hết hàng| D12
+
+    %% ============================================================
+    %% PHẦN 6: THANH TOÁN & TÀI CHÍNH
+    %% ============================================================
+    D4 --> |Yêu cầu thanh toán| D6[Sơ đồ 6: Quy trình thanh toán<br>payment_flow.mmd]:::flow
+
+    D6 --> |Đặt cọc/Hoàn cọc| D15[Sơ đồ 15: Quản lý tiền cọc<br>deposit_workflow.mmd]:::flow
+    D6 --> |Hoàn tiền| D16[Sơ đồ 16: Quy trình hoàn tiền<br>refund_workflow.mmd]:::flow
+
+    %% CRM tại quầy thanh toán
+    D6 --> |Tích điểm/Voucher| D17[Sơ đồ 17: CRM and Loyalty<br>crm_loyalty_workflow.mmd]:::crm
+    D6 --> |Khuyến mãi| D18[Sơ đồ 18: Marketing and Voucher<br>marketing_workflow.mmd]:::crm
+
+    %% ============================================================
+    %% PHẦN 7: CHỐT CA & BÁO CÁO
+    %% ============================================================
+    D6 --> |Bàn giao tiền ca| D7[Sơ đồ 7: Quy trình chốt ca<br>shift_closing_flow.mmd]:::flow
+    D7 --> |Báo cáo doanh thu| D19[Sơ đồ 19: Báo cáo and KPI<br>reporting_workflow.mmd]:::flow
+
+    %% ============================================================
+    %% PHẦN 8: QUẢN TRỊ HỆ THỐNG (Admin)
+    %% ============================================================
+    ROOT --> |Quản trị hệ thống| ADMIN{Admin Operations}:::admin
+    ADMIN --> D21[Sơ đồ 21: Quản lý nhân viên<br>employee_operations.mmd]:::admin
+    ADMIN --> D22[Sơ đồ 22: Phân quyền người dùng<br>user_permission.mmd]:::admin
+    ADMIN --> D23[Sơ đồ 23: Cấu hình chi nhánh<br>branch_configuration.mmd]:::admin
+
+    %% ============================================================
+    %% PHẦN 9: VÒNG ĐỜI THỰC THỂ (Entity Lifecycles)
+    %% ============================================================
+    
+    %% Table & QR Lifecycles
+    D2 -.-> |Thay đổi trạng thái bàn| D8[Sơ đồ 8: Vòng đời bàn ăn<br>table_lifecycle.mmd]:::entity
+    D6 -.-> |Giải phóng bàn| D8
+    
+    D2 -.-> |Kích hoạt mã QR| D9[Sơ đồ 9: Vòng đời mã QR<br>qr_lifecycle.mmd]:::entity
+    D6 -.-> |Vô hiệu hóa QR| D9
+
+    %% Order & Bill Lifecycles (MỚI)
+    D4 -.-> |Vòng đời Order| D24[Sơ đồ 24: Vòng đời Order<br>order_lifecycle.mmd]:::entity
+    D6 -.-> |Vòng đời Hóa đơn| D25[Sơ đồ 25: Vòng đời Bill<br>bill_lifecycle.mmd]:::entity
+
+    %% Kitchen Ticket Lifecycle (MỚI)
+    D5 -.-> |Vòng đời phiếu bếp| D26[Sơ đồ 26: Vòng đời Kitchen Ticket<br>kitchen_ticket_lifecycle.mmd]:::entity
+
+    %% Customer & Voucher Lifecycles (MỚI)
+    D17 -.-> |Vòng đời Khách hàng| D27[Sơ đồ 27: Vòng đời Customer<br>customer_lifecycle.mmd]:::entity
+    D18 -.-> |Vòng đời Voucher| D28[Sơ đồ 28: Vòng đời Voucher<br>voucher_lifecycle.mmd]:::entity
+
+    %% Ingredient & Inventory Lifecycles (MỚI)
+    D14 -.-> |Vòng đời Nguyên liệu| D29[Sơ đồ 29: Vòng đời Ingredient<br>ingredient_lifecycle.mmd]:::entity
+    D14 -.-> |Vòng đời Tồn kho| D30[Sơ đồ 30: Vòng đời Inventory<br>inventory_lifecycle.mmd]:::entity
+
+    %% Booking Lifecycle (MỚI)
+    D3 -.-> |Vòng đời Booking| D31[Sơ đồ 31: Vòng đời Booking<br>booking_lifecycle.mmd]:::entity
+
+    %% ============================================================
+    %% PHẦN 10: TƯƠNG TÁC GIỮA CÁC MODULE (Module Interactions)
+    %% ============================================================
+    ROOT --> |Tương tác module| INTERACTIONS{Tương tác Module}:::structural
+    
+    INTERACTIONS --> I1[Reception - Staff<br>Bàn giao khách]
+    INTERACTIONS --> I2[Staff - Kitchen<br>Gửi/Nhận order]
+    INTERACTIONS --> I3[Kitchen - Inventory<br>Trừ nguyên liệu]
+    INTERACTIONS --> I4[Reception - Cashier<br>Chuyển thanh toán]
+    INTERACTIONS --> I5[Cashier - CRM<br>Điểm/Voucher]
+    INTERACTIONS --> I6[Manager - Dashboard<br>KPI/Doanh thu]
+    INTERACTIONS --> I7[Admin - All Modules<br>Cấu hình/Phân quyền]
+    INTERACTIONS --> I8[POS - Delivery<br>Grab/Shopee/BE/Capichi]

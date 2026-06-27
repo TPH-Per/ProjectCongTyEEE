@@ -1,0 +1,11 @@
+graph TD
+    classDef process fill:#fcc,stroke:#333,stroke-width:2px;
+
+    subgraph "Quy trình Quản lý Kho & Nguyên liệu (Inventory Workflow)"
+        A1[Nhân viên kho tiếp nhận nguyên vật liệu từ nhà cung cấp] --> A2[Kiểm tra số lượng & thời hạn sử dụng khi nhập kho]
+        A2 --> A3[Sắp xếp nguyên liệu theo nguyên tắc FIFO/FEFO]
+        A3 --> A4[Xuất kho nguyên vật liệu cho khu vực bếp khi có yêu cầu]
+        A4 --> A5[Kiểm kê lượng tồn kho vật lý định kỳ]
+    end
+
+    class A1,A2,A3,A4,A5 process;

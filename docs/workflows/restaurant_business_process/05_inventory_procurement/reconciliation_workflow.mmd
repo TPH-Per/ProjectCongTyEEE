@@ -1,0 +1,30 @@
+flowchart TD
+    A["Tập hợp hóa đơn đỏ cuối tháng<br>月末に税務請求書を集約"] --> B{"Số lượng hóa đơn có khớp không?<br>請求書数は一致しているか？"}
+    
+    B -- "Không" --> C["Ghi nhận hóa đơn còn thiếu<br>不足請求書を記録"]
+    C --> D{"Có mã định danh duy nhất không?<br>ユニークIDが存在するか？"}
+    
+    B -- "Có" --> D
+    
+    D -- "Có" --> E["Đối chiếu tự động theo mã ID<br>IDで自動照合"]
+    D -- "Không" --> F["Đối chiếu thủ công<br>手動照合"]
+    
+    E --> G{"Tổng tiền có khớp không?<br>金額は一致しているか？"}
+    F --> G
+    
+    G -- "Chênh lệch nhỏ" --> H["Ghi nhận chênh lệch nhỏ<br>軽微な差異を記録"]
+    G -- "Chênh lệch lớn" --> I["Xử lý chênh lệch lớn<br>大きな差異を確認"]
+    G -- "Khớp" --> J{"Đã ghép đúng chưa?<br>正しく照合されたか？"}
+    
+    H --> J
+    I --> J
+    
+    J -- "Không" --> K["Kiểm tra thủ công lại<br>手動で再確認"]
+    K --> L["Đánh dấu đã đối soát<br>照合済みとして記録"]
+    
+    J -- "Có" --> L
+    
+    L --> M{"Còn hóa đơn chưa đối soát không?<br>未照合データは残っているか？"}
+    
+    M -- "Có" --> D
+    M -- "Không" --> N["Hoàn thành đối soát<br>照合完了"]

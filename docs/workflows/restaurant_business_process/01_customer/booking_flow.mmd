@@ -1,0 +1,12 @@
+graph TD
+    classDef process fill:#fcc,stroke:#333,stroke-width:2px;
+
+    subgraph "Quy trình Đặt Bàn Trước (Booking Flow)"
+        A1[Khách liên hệ qua Điện thoại/Website để đặt bàn] --> A2[Lễ tân đối chiếu sơ đồ bàn trống trên hệ thống]
+        A2 --> A3[Lễ tân xác nhận thông tin & ghi nhận lượt đặt chỗ]
+        A3 --> A4[Khách đến nhà hàng đúng ngày giờ hẹn]
+        A4 --> A5[Lễ tân check-in cho khách tại quầy thu ngân]
+        A5 --> A6[Phục vụ dẫn khách vào bàn vật lý đã gán]
+    end
+
+    class A1,A2,A3,A4,A5,A6 process;

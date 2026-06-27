@@ -1,6 +1,6 @@
 <!-- File: src/views/reception/ReceptionOrderView.vue -->
 <template>
-  <div class="h-[calc(100vh-112px)] w-full flex overflow-hidden font-sans select-none text-gray-800 bg-[#f8f9fa] rounded-2xl border border-gray-200 relative shadow-sm">
+  <div class="h-screen w-full flex overflow-hidden font-sans select-none text-gray-800 bg-[#f8f9fa] relative">
     
     <!-- SYSTEM TOAST QUEUE OVERLAY -->
     <div class="fixed top-4 right-4 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none">
@@ -50,6 +50,16 @@
       <!-- 1. Header Bar: Full width top header -->
       <header class="h-16 shrink-0 bg-[#2d2d2d] border-b border-[#1e1e1e] flex items-center justify-between px-6 select-none z-10 text-white">
         <div class="flex items-center gap-4">
+          <!-- Back button -->
+          <button 
+            class="back-btn mr-2"
+            @click="goBack"
+            aria-label="Quay lại"
+          >
+            <span class="back-icon">⬅️</span>
+            <span class="back-text font-bold text-xs ml-1">{{ $t('auto_quay_lai', 'Quay lại') }}</span>
+          </button>
+
           <!-- Restaurant logo -->
           <div class="flex items-center gap-2 font-bold text-base text-[#ff8f00]">
             <span class="text-xl">🐮</span>
@@ -390,81 +400,52 @@
             </div>
 
             <!-- Responsive Product Card Grid -->
-            <div v-else class="grid gap-4" style="grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));">
+            <div v-else class="menu-grid">
               <div 
                 v-for="product in finalFilteredItems" 
                 :key="product.id"
                 @click="handleCardClick(product)"
                 :class="[
-                  'bg-[#242424] border rounded-xl p-3 flex flex-col justify-between cursor-pointer hover:border-[#ff8f00] hover:shadow-lg transition-all relative overflow-hidden group select-none',
-                  getCartItemQty(product.id) > 0 ? 'border-[#ff8f00] bg-[#2d2418]' : 'border-[#4a4a4a]',
-                  !getEnrichedItem(product).isAvailable ? 'opacity-30 pointer-events-none' : ''
+                  'menu-card border cursor-pointer transition-all duration-300 relative overflow-hidden group select-none',
+                  getCartItemQty(product.id) > 0 ? 'in-cart' : 'border-[#404040]',
+                  !getEnrichedItem(product).isAvailable ? 'out-of-stock' : ''
                 ]"
-                style="height: 140px;"
               >
-                <!-- Out of stock overlay -->
-                <div 
-                  v-if="!getEnrichedItem(product).isAvailable"
-                  class="absolute inset-0 bg-black/60 flex items-center justify-center z-10 pointer-events-none animate-fade-in"
-                >
-                  <span class="bg-[#d32f2f] text-white text-[11px] font-extrabold uppercase px-3 py-1 rounded shadow-md tracking-wider transform -rotate-12 border border-red-400">
-                    HẾT MÓN
-                  </span>
+                <!-- Badge số lượng trong giỏ -->
+                <div v-if="getCartItemQty(product.id) > 0" class="qty-badge">
+                  {{ getCartItemQty(product.id) }}
                 </div>
 
-                <!-- Qty badge overlay (top-left, green bg) -->
-                <div 
-                  v-if="getCartItemQty(product.id) > 0"
-                  class="absolute top-2.5 left-2.5 bg-[#4CAF50] text-white font-mono text-[9px] font-black px-1.5 py-0.5 rounded shadow-sm z-10"
-                >
-                  {{ getCartItemQty(product.id) }} phần
+                <!-- Favorite icon -->
+                <span v-if="favoriteIds.includes(product.id)" class="favorite-star">⭐</span>
+
+                <!-- Tên món (1 dòng) -->
+                <h3 class="item-name" :title="product.name" :style="{ color: getCartItemQty(product.id) > 0 ? '#ff8f00' : '#ffffff' }">
+                  {{ getJpAndViNames(product.name).vi }}
+                </h3>
+
+                <!-- Badge TRONG GÓI hoặc Giá -->
+                <div v-if="isItemInPackage(product, activeSettings.package) || product.price === 0" class="badge-included">
+                  TRONG GÓI
+                </div>
+                <div v-else class="item-price">
+                  {{ formatPrice(product.price) }}
                 </div>
 
-                <!-- Favorite badge overlay -->
-                <button 
-                  @click.stop="toggleFavorite(product.id)"
-                  class="absolute top-2 right-2 w-6 h-6 rounded-full bg-[#3a3a3a] hover:bg-[#4a4a4a] text-gray-400 flex items-center justify-center text-xs transition-colors shrink-0 z-10"
-                  ::title="$t('auto_favoriteids_includes_product_i', 'favoriteIds.includes(product.id) ? \'Bỏ đánh dấu món yêu thích\' : \'Đánh dấu món yêu thích\'')"
-                >
-                  <span :class="favoriteIds.includes(product.id) ? 'text-[#ff8f00] font-black' : 'text-gray-400'">⭐</span>
-                </button>
-
-                <!-- Product Name centered -->
-                <div class="mt-4 flex-1 flex flex-col justify-start">
-                  <h4 
-                    :style="{ color: getCartItemQty(product.id) > 0 ? '#ff8f00' : '#f0f0f0' }"
-                    class="text-sm font-semibold leading-snug line-clamp-2 min-h-[40px] transition-colors"
-                    :title="product.name"
-                  >
-                    {{ getJpAndViNames(product.name).vi }}
-                  </h4>
-                  <span 
-                    v-if="getJpAndViNames(product.name).jp !== 'N/A'" 
-                    class="text-[9px] text-gray-500 font-bold mt-0.5 truncate"
-                    :title="getJpAndViNames(product.name).jp"
-                  >
-                    {{ getJpAndViNames(product.name).jp }}
-                  </span>
-                </div>
-
-                <!-- Card Footer metadata -->
-                <div class="flex items-end justify-between border-t border-[#3a3a3a] pt-2 mt-1 shrink-0">
-                  <div class="flex flex-col">
-                    <span class="text-[8px] text-gray-500 font-bold uppercase leading-none">ĐVT: {{ product.unit }}</span>
-                    <span class="text-xs font-mono font-bold mt-1">
-                      <span v-if="isItemInPackage(product, activeSettings.package) || product.price === 0" class="text-emerald-400">{{ $t('auto_trong_goi') }}</span>
-                      <span v-else class="text-[#ff8f00] font-bold text-sm">{{ product.price_display }}</span>
-                    </span>
-                  </div>
-
-                  <!-- Details modal info button -->
+                <!-- Footer: ĐVT + Icon Info -->
+                <div class="card-footer">
+                  <span class="unit-label">ĐVT: {{ product.unit }}</span>
                   <button 
+                    class="info-btn" 
                     @click.stop="openDetailPanel(product)"
-                    class="w-6 h-6 rounded bg-[#3a3a3a] hover:bg-[#4a4a4a] flex items-center justify-center text-gray-400 hover:text-white transition-colors border border-[#4a4a4a]"
-                    :title="$t('auto_xem_chi_tiet_tuy_chon')"
+                    :title="'Chi tiết: ' + product.name"
                   >
-                    ℹ️
                   </button>
+                </div>
+
+                <!-- Stamp HẾT MÓN -->
+                <div v-if="!getEnrichedItem(product).isAvailable" class="out-of-stock-stamp">
+                  HẾT
                 </div>
               </div>
             </div>
@@ -474,14 +455,14 @@
           <!-- Bottom Navigation Area -->
           <div class="bg-[#2d2d2d] border-t border-[#1e1e1e] flex flex-col shrink-0 select-none">
             <!-- Level 2 - Sub Categories: Directly above Main Categories -->
-            <div class="p-3 border-b border-[#1e1e1e] overflow-x-auto scrollbar-none flex gap-2">
+            <div class="p-3 border-b border-[#1e1e1e] category-container-sub">
               <button 
                 @click="selectSubCategory('all')"
                 :style="{
                   backgroundColor: '#f5a623',
                   border: activeSubCategoryId === 'all' ? '2px solid white' : '2px solid transparent'
                 }"
-                class="px-4 py-2 rounded-xl text-xs font-bold text-white transition-all shrink-0 active:scale-95 shadow-sm"
+                class="category-btn-sub px-4 py-2 rounded-xl text-xs font-bold text-white transition-all active:scale-95 shadow-sm flex items-center justify-center"
               >{{ $t('auto_tat_ca') }}</button>
               
               <button 
@@ -492,14 +473,14 @@
                   backgroundColor: '#f5a623',
                   border: activeSubCategoryId === sub.id ? '2px solid white' : '2px solid transparent'
                 }"
-                class="px-4 py-2 rounded-xl text-xs font-bold text-white transition-all shrink-0 active:scale-95 shadow-sm"
+                class="category-btn-sub px-4 py-2 rounded-xl text-xs font-bold text-white transition-all active:scale-95 shadow-sm flex items-center justify-center"
               >
                 {{ sub.name }}
               </button>
             </div>
 
             <!-- Level 1 - Main Categories: Bottom Row -->
-            <div class="p-3 overflow-x-auto scrollbar-none flex gap-2">
+            <div class="p-3 category-container-main">
               <button 
                 v-for="cat in menuHierarchy"
                 :key="cat.id"
@@ -508,7 +489,7 @@
                   backgroundColor: '#b56576',
                   border: activeCategoryId === cat.id ? '2px solid #c62828' : '2px solid transparent'
                 }"
-                class="px-5 py-3.5 rounded-xl text-xs font-bold text-white transition-all shrink-0 flex items-center gap-2 uppercase tracking-wide active:scale-95 shadow-sm"
+                class="category-btn-main px-5 py-3.5 rounded-xl text-xs font-bold text-white transition-all flex items-center justify-center gap-2 uppercase tracking-wide active:scale-95 shadow-sm"
               >
                 <span>
                   <span v-if="cat.id === 'buffet'">🏆</span>
@@ -1267,6 +1248,14 @@ function getMenuItemFromCartItem(item: any): MenuItem {
     price_display: formatVND(item.price),
     category_id: item.category_id || ''
   };
+}
+
+function formatPrice(price: number): string {
+  if (price === 0) return '0đ';
+  if (price >= 1000) {
+    return `${Math.round(price / 1000).toLocaleString('vi-VN')}K`;
+  }
+  return `${price}đ`;
 }
 
 // Multilingual translations map
@@ -2749,17 +2738,279 @@ function selectSubCategory(subId: string) {
   activeSubCategoryId.value = subId;
 }
 
+function goBack() {
+  router.push({ name: 'reception-dashboard' });
+}
+
+function handleKeyDown(e: KeyboardEvent) {
+  if (e.key === 'Escape') {
+    goBack();
+  }
+}
+
 onMounted(() => {
   startSessionTimer();
+  window.addEventListener('keydown', handleKeyDown);
 });
 
 onUnmounted(() => {
   stopSessionTimer();
+  window.removeEventListener('keydown', handleKeyDown);
 });
 </script>
 
 <style scoped>
 @import '@/styles/orderingScreen.css';
+
+/* Custom Menu Grid and Card Styling */
+.menu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+  padding: 12px;
+}
+
+.menu-card {
+  background: linear-gradient(145deg, #2d2d2d 0%, #252525 100%);
+  border: 1px solid #404040;
+  border-radius: 8px;
+  padding: 10px;
+  min-height: 130px;
+  max-height: 140px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.menu-card:hover {
+  border-color: #ff8f00;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 143, 0, 0.2);
+}
+
+.menu-card.in-cart {
+  border-color: #4caf50;
+  background: linear-gradient(145deg, #2d3d2d 0%, #253525 100%);
+}
+
+.menu-card.out-of-stock {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Badge số lượng */
+.qty-badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 24px;
+  height: 24px;
+  background: #4caf50;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  z-index: 2;
+}
+
+/* Favorite star */
+.favorite-star {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  font-size: 14px;
+  z-index: 2;
+}
+
+/* Tên món */
+.item-name {
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.3;
+  margin: 14px 0 4px 0; /* Clear space for absolute badges at the top */
+  
+  /* 1 dòng, ellipsis */
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Tooltip khi hover */
+.menu-card:hover .item-name {
+  overflow: visible;
+  white-space: normal;
+  position: relative;
+  z-index: 10;
+}
+
+/* Badge TRONG GÓI */
+.badge-included {
+  display: inline-block;
+  background: #2e7d32;
+  color: white;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 4px 0;
+  align-self: flex-start;
+}
+
+/* Giá món */
+.item-price {
+  color: #ff8f00;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  margin: 4px 0;
+}
+
+/* Footer: ĐVT + Icon Info */
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+  padding-top: 6px;
+  border-top: 1px solid #404040;
+}
+
+.unit-label {
+  color: #888;
+  font-size: 11px;
+}
+
+/* Nút chi tiết dạng icon */
+.info-btn {
+  width: 28px;
+  height: 28px;
+  background: #1976d2;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.info-btn:hover {
+  background: #1565c0;
+  transform: scale(1.1);
+}
+
+.info-btn::before {
+  content: "ℹ";
+}
+
+/* Stamp HẾT MÓN */
+.out-of-stock-stamp {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-15deg);
+  background: #d32f2f;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  z-index: 3;
+}
+
+/* Responsive configurations for Menu */
+@media (min-width: 1920px) {
+  .menu-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 14px;
+  }
+  
+  .menu-card {
+    min-height: 130px;
+    max-height: 150px;
+  }
+}
+
+@media (max-width: 1366px) {
+  .menu-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 10px;
+  }
+  
+  .menu-card {
+    min-height: 110px;
+    max-height: 130px;
+    padding: 10px;
+  }
+  
+  .item-name {
+    font-size: 12px;
+  }
+}
+
+.category-container-main {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  width: 100%;
+}
+
+.category-btn-main {
+  flex: 1 0 calc(20% - 8px);
+  justify-content: center;
+  box-sizing: border-box;
+  min-width: 140px;
+}
+
+@media (max-width: 1024px) {
+  .category-btn-main {
+    flex: 1 0 calc(33.333% - 8px);
+  }
+}
+
+.category-container-sub {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  width: 100%;
+}
+
+.category-btn-sub {
+  flex: 1 0 calc(12.5% - 8px);
+  justify-content: center;
+  box-sizing: border-box;
+  min-width: 90px;
+  text-align: center;
+}
+
+@media (max-width: 1200px) {
+  .category-btn-sub {
+    flex: 1 0 calc(16.666% - 8px);
+  }
+}
+
+@media (max-width: 768px) {
+  .category-btn-sub {
+    flex: 1 0 calc(25% - 8px);
+  }
+}
 
 .scrollbar-none::-webkit-scrollbar {
 
@@ -2854,5 +3105,41 @@ onUnmounted(() => {
 }
 .slide-enter-from, .slide-leave-to {
   opacity: 0;
+}
+
+/* Quay lai Button Scoped Styles */
+.back-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: #1976d2;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.back-btn:hover {
+  background: #1565c0;
+  transform: translateX(-4px);
+}
+
+.back-btn:active {
+  transform: translateX(-2px);
+}
+
+.back-icon {
+  font-size: 14px;
+}
+
+@media (max-width: 1366px) {
+  .back-btn .back-text {
+    display: none;
+  }
 }
 </style>

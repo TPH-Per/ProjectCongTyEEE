@@ -1,0 +1,10 @@
+graph TD
+    classDef interaction fill:#9f9,stroke:#333,stroke-width:2px;
+
+    subgraph "Staff Module Interaction"
+        M_Staff[Waiter / Staff POS] <--> M_Floor[Table Session Management]
+        M_Staff <--> M_Tablet[Tablet Ordering Interface]
+        M_Staff <--> M_Cashier[Cashier Checkout POS]
+    end
+
+    class M_Staff,M_Floor,M_Tablet,M_Cashier interaction;

@@ -1,0 +1,12 @@
+graph TD
+    classDef system fill:#bbf,stroke:#333,stroke-width:2px;
+
+    subgraph "POS Payment Processing Workflow"
+        B1[POS truy xuất hóa đơn tạm tính của phiên bàn ăn hiện tại] --> B2[Tra cứu CRM tích điểm, tự động áp tỷ lệ chiết khấu theo hạng thành viên]
+        B2 --> B3[Kiểm tra tính hợp lệ của Voucher, khấu trừ trực tiếp vào tổng bill]
+        B3 --> B4[Thu thập MST, địa chỉ công ty và đẩy dữ liệu sang hệ thống HĐĐT Nghị định 123]
+        B4 --> B5[Tạo mã VietQR động theo đúng số tiền cuối cùng của hóa đơn]
+        B5 --> B6[Đóng phiên bàn ăn, vô hiệu hóa mã QR cũ, cập nhật sơ đồ bàn cần dọn dẹp]
+    end
+
+    class B1,B2,B3,B4,B5,B6 system;

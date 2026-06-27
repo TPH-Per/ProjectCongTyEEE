@@ -1,0 +1,11 @@
+graph TD
+    classDef system fill:#bbf,stroke:#333,stroke-width:2px;
+
+    subgraph "POS Kitchen Ticket Workflow"
+        B1[Phân chia đơn hàng KDS theo khu vực phụ trách] --> B2[Kiểm tra lượng tồn kho thực tế, tự động đồng bộ trạng thái Hết món lên POS]
+        B2 --> B3[Cảnh báo nguyên liệu sắp hết hạn & áp dụng quy tắc FEFO/FIFO]
+        B3 --> B4[Khởi chạy bộ đếm thời gian trôi qua, cảnh báo màu: Xanh <5p, Vàng 5-10p, Đỏ >10p]
+        B4 --> B5[Gửi thông báo hoàn thành món ăn tới Tablet nhân viên phục vụ]
+    end
+
+    class B1,B2,B3,B4,B5 system;

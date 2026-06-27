@@ -2,20 +2,20 @@
   <div class="flex h-screen overflow-hidden bg-gray-50">
     <!-- Sidebar -->
     <Transition name="sidebar-slide">
-      <aside v-if="!isFullscreen" class="w-64 border-r border-[hsl(var(--border))] bg-white flex flex-col shrink-0 shadow-sm overflow-hidden">
-      <div class="p-5 border-b border-[hsl(var(--border))]">
+      <aside v-if="!isFullscreen" class="w-64 border-r bg-white flex flex-col shrink-0 shadow-sm overflow-hidden">
+      <div class="p-5 border-b">
         <div class="flex items-center gap-3">
           <TextLogo size="md" />
         </div>
       </div>
       <nav class="flex-1 px-4 space-y-2 py-6 overflow-y-auto">
         <div
-          class="text-[11px] font-extrabold text-[hsl(var(--muted-foreground))] uppercase tracking-wider mb-2"
+          class="text-[11px] font-extrabold text-gray-500 uppercase tracking-wider mb-2"
         >{{ $t('auto_hoat_dong', 'Hoạt động') }}</div>
         <RouterLink
           to="/reception/dashboard"
-          class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-sm font-semibold text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--muted))]"
-          active-class="bg-[hsl(var(--primary))]/10 text-[hsl(var(--primary))] hover:bg-[hsl(var(--primary))]/10"
+          class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-sm font-semibold text-gray-600 hover:bg-gray-100"
+          active-class="bg-red-50 text-red-600 hover:bg-red-50"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -35,8 +35,8 @@
           </svg>{{ $t('auto_bang_dieu_khien', 'Bảng điều khiển') }}</RouterLink>
         <RouterLink
           to="/reception/floors"
-          class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-sm font-semibold text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--muted))]"
-          active-class="bg-[hsl(var(--primary))]/10 text-[hsl(var(--primary))] hover:bg-[hsl(var(--primary))]/10"
+          class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-sm font-semibold text-gray-600 hover:bg-gray-100"
+          active-class="bg-red-50 text-red-600 hover:bg-red-50"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -57,8 +57,8 @@
           </svg>{{ $t('auto_so_do_ban', 'Sơ đồ bàn') }}</RouterLink>
         <RouterLink
           to="/reception/order"
-          class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-sm font-semibold text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--muted))]"
-          active-class="bg-[hsl(var(--primary))]/10 text-[hsl(var(--primary))] hover:bg-[hsl(var(--primary))]/10"
+          class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-sm font-semibold text-gray-600 hover:bg-gray-100"
+          active-class="bg-red-50 text-red-600 hover:bg-red-50"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -79,8 +79,8 @@
           </svg>{{ $t('auto_chon_mon', 'Chọn món') }}</RouterLink>
         <RouterLink
           to="/reception/close-shift"
-          class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-sm font-semibold text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--muted))]"
-          active-class="bg-[hsl(var(--primary))]/10 text-[hsl(var(--primary))] hover:bg-[hsl(var(--primary))]/10"
+          class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-sm font-semibold text-gray-600 hover:bg-gray-100"
+          active-class="bg-red-50 text-red-600 hover:bg-red-50"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -97,7 +97,7 @@
             <polyline points="22 4 12 14.01 9 11.01" />
           </svg>{{ $t('auto_tong_ket_ca', 'Tổng Kết Ca') }}</RouterLink>
       </nav>
-      <div class="p-4 border-t border-[hsl(var(--border))] relative">
+      <div class="p-4 border-t relative">
         <!-- Backdrop to close dropdown on click outside -->
         <div
           v-if="isDropdownOpen"
@@ -108,7 +108,7 @@
         <!-- Dropdown Menu -->
         <div
           v-if="isDropdownOpen"
-          class="absolute bottom-full left-4 right-4 mb-2 bg-white border border-[hsl(var(--border))] rounded-xl shadow-lg py-1.5 z-50"
+          class="absolute bottom-full left-4 right-4 mb-2 bg-white border rounded-xl shadow-lg py-1.5 z-50"
         >
           <button
             @click="handleSignOut"
@@ -129,14 +129,14 @@
               <polyline points="16 17 21 12 16 7" />
               <line x1="21" x2="9" y1="12" y2="12" />
             </svg>
-
+            <span>{{ $t('auto_dang_xuat', 'Đăng xuất') }}</span>
           </button>
         </div>
 
         <!-- User Profile Card -->
         <div
           @click="isDropdownOpen = !isDropdownOpen"
-          class="flex items-center gap-3 px-3 py-2 rounded-xl bg-[hsl(var(--muted))] cursor-pointer select-none"
+          class="flex items-center gap-3 px-3 py-2 rounded-xl bg-gray-100 cursor-pointer select-none"
         >
           <img
             :src="stickerUrl"
@@ -144,10 +144,10 @@
             class="w-8 h-8 object-contain drop-shadow-sm rounded-full"
           />
           <div class="flex-1 min-w-0">
-            <div class="text-xs font-bold text-[hsl(var(--foreground))] truncate">
+            <div class="text-xs font-bold text-gray-900 truncate">
               {{ profile?.full_name || $t('auto_thu_ngan', 'Thu ngân') }}
             </div>
-            <div class="text-[10px] text-[hsl(var(--muted-foreground))] font-semibold">
+            <div class="text-[10px] text-gray-500 font-semibold">
               {{ roleLabel }}
             </div>
           </div>
@@ -158,24 +158,24 @@
     <main class="flex-1 flex flex-col overflow-hidden">
       <header
         v-if="!isFullscreen"
-        class="h-16 border-b border-[hsl(var(--border))] bg-white flex items-center justify-between px-6 shrink-0 shadow-sm z-10"
+        class="h-16 border-b bg-white flex items-center justify-between px-6 shrink-0 shadow-sm z-10"
       >
         <div
-          class="font-bold text-xl text-[hsl(var(--foreground))]"
+          class="font-bold text-xl text-gray-800"
           id="reception-header-title"
         >{{ headerTitle }}</div>
-        <div class="flex items-center gap-4">
+        <div class="flex items-center gap-3">
           <span
             v-if="branchLabel"
-            class="text-sm font-semibold text-[hsl(var(--muted-foreground))] hidden sm:inline"
+            class="text-sm font-semibold text-gray-500 hidden sm:inline"
           >{{ branchLabel }}</span>
           <!-- Single LanguageSwitcher + avatar pair -->
-          <div class="flex items-center gap-2 ml-2 border-l pl-4 border-[hsl(var(--border))]">
+          <div class="flex items-center gap-2 ml-4 border-l pl-4 border-gray-200">
             <LanguageSwitcher />
             <img
               :src="stickerUrl"
               alt="User Avatar"
-              class="w-8 h-8 rounded-full border border-[hsl(var(--border))] object-contain bg-[hsl(var(--muted))]"
+              class="w-8 h-8 rounded-full border border-gray-200 object-contain bg-gray-100"
             />
           </div>
         </div>
@@ -203,9 +203,6 @@ const isDropdownOpen = ref(false)
 
 const isFullscreen = computed(() => route.meta.fullscreen === true);
 
-// headerTitle is the single source of truth — the template no longer hardcodes
-// 'Bảng điều khiển'. Falls back to the dashboard label when the route doesn't
-// match any of the known reception paths.
 const headerTitle = computed(() => {
   if (route.path.includes('/reception/close-shift')) return 'Tổng Kết Ca'
   if (route.path.includes('/reception/floors')) return 'Sơ đồ bàn & Đặt chỗ'
@@ -214,9 +211,6 @@ const headerTitle = computed(() => {
   return 'Bảng điều khiển'
 })
 
-// Map DB role → human label. If the role isn't recognised yet (e.g. brand
-// new value during onboarding), we show the raw value rather than a wrong
-// label.
 const ROLE_LABELS: Record<string, string> = {
   admin: 'Quản trị',
   manager: 'Quản lý',
@@ -230,10 +224,6 @@ const roleLabel = computed(() => {
   return ROLE_LABELS[r] ?? r
 })
 
-// Branch label is intentionally defensive: we only show it if the JWT or
-// profile actually carries a branch. We don't try to resolve the human name
-// here because no composable returns it yet; showing the UUID prefix is
-// better than fabricating "Chi nhánh 1" and confusing the operator.
 const branchLabel = computed(() => {
   const bid = profile.value?.branch_id
   if (!bid) return ''

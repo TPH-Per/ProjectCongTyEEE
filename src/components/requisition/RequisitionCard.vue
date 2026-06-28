@@ -18,7 +18,7 @@
     </div>
     
     <div class="flex justify-between items-center my-2">
-      <div class="card-station font-semibold text-gray-200">
+      <div class="card-station font-semibold text-foreground">
         📍 {{ requisition.station }}
       </div>
       <span class="card-status" :class="`status-${requisition.status}`">
@@ -26,7 +26,7 @@
       </span>
     </div>
 
-    <div class="card-meta text-xs text-gray-400">
+    <div class="card-meta text-xs text-muted-foreground">
       <span>Người yêu cầu: <strong>{{ requisition.actor }}</strong></span>
       <span class="mx-2">|</span>
       <span>Mức ưu tiên: 
@@ -36,7 +36,7 @@
       </span>
     </div>
 
-    <div class="card-items text-sm text-gray-300 line-clamp-2 mt-2">
+    <div class="card-items text-sm text-muted-foreground line-clamp-2 mt-2">
       📦 <span v-for="(item, idx) in requisition.items" :key="item.id">
         {{ item.name }} ({{ item.requestedQty }}{{ item.unit }}){{ idx < requisition.items.length - 1 ? ', ' : '' }}
       </span>

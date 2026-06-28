@@ -95,7 +95,7 @@
           <h4 class="text-sm font-bold text-[#FF9800] uppercase tracking-wider flex items-center gap-2">
             📊 Phân Tích Nhu Cầu & Dự Báo (Prep & Forecast)
           </h4>
-          <span class="bg-[#2196F3]/20 text-[#2196F3] text-[10px] px-2.5 py-0.5 rounded font-bold uppercase">
+          <span class="bg-[#2196F3]/20 text-blue-600 text-[10px] px-2.5 py-0.5 rounded font-bold uppercase">
             AI Assistant
           </span>
         </div>
@@ -103,13 +103,13 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
           <!-- Prep list correlation -->
           <div class="p-3 bg-card/50 rounded-lg border border-border">
-            <span class="font-bold text-gray-300 block mb-1">📋 Đối chiếu Prep List ca này:</span>
-            <p class="text-gray-400">Hạng mục sơ chế chưa hoàn tất: <strong class="text-yellow-500">Cắt thái rau thập cẩm</strong>, <strong class="text-yellow-500">Nấu nước lẩu Sukiyaki</strong>. Đề xuất chuẩn bị thêm nguyên vật liệu thô.</p>
+            <span class="font-bold text-muted-foreground block mb-1">📋 Đối chiếu Prep List ca này:</span>
+            <p class="text-muted-foreground">Hạng mục sơ chế chưa hoàn tất: <strong class="text-yellow-500">Cắt thái rau thập cẩm</strong>, <strong class="text-yellow-500">Nấu nước lẩu Sukiyaki</strong>. Đề xuất chuẩn bị thêm nguyên vật liệu thô.</p>
           </div>
           <!-- Sales Forecast -->
           <div class="p-3 bg-card/50 rounded-lg border border-border">
-            <span class="font-bold text-gray-300 block mb-1">📈 Dự báo Doanh thu & Khách đặt:</span>
-            <p class="text-gray-400">Khách đặt: Tiệc buffet nướng 30 người lúc 19:00. Nhu cầu thịt bò Wagyu dự báo tăng <strong class="text-orange-500">+2.0 kg</strong> so với ngày thường.</p>
+            <span class="font-bold text-muted-foreground block mb-1">📈 Dự báo Doanh thu & Khách đặt:</span>
+            <p class="text-muted-foreground">Khách đặt: Tiệc buffet nướng 30 người lúc 19:00. Nhu cầu thịt bò Wagyu dự báo tăng <strong class="text-orange-500">+2.0 kg</strong> so với ngày thường.</p>
           </div>
         </div>
 
@@ -117,7 +117,7 @@
         <div class="mt-4 p-3 bg-[#FF9800]/10 border border-[#FF9800]/30 rounded-lg flex items-center justify-between flex-wrap gap-2">
           <div class="text-xs">
             <span class="font-bold text-[#FF9800] block">💡 Đề xuất xuất kho tự động:</span>
-            <span class="text-gray-300">Thịt bò Wagyu (5kg: 3kg bù hụt + 2kg dự phòng), Nước lẩu (8L: 5L bù hụt + 3L dự phòng), Tôm sú lớn (3kg bù hụt)</span>
+            <span class="text-muted-foreground">Thịt bò Wagyu (5kg: 3kg bù hụt + 2kg dự phòng), Nước lẩu (8L: 5L bù hụt + 3L dự phòng), Tôm sú lớn (3kg bù hụt)</span>
           </div>
           <button 
             type="button"

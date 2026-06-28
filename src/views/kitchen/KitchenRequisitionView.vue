@@ -7,12 +7,12 @@
         <!-- Logo -->
         <div class="flex items-center gap-2">
           <span class="logo-brand text-[#FF9800] font-extrabold tracking-wider">NGƯU CÁT</span>
-          <span class="tag-req bg-gray-800 text-[#FF9800] border border-[#FF9800]/30 text-xs px-2.5 py-0.5 rounded font-bold">KHO</span>
+          <span class="tag-req bg-muted text-[#FF9800] border border-[#FF9800]/30 text-xs px-2.5 py-0.5 rounded font-bold">KHO</span>
         </div>
         <div class="h-6 w-[1px] bg-muted"></div>
-        <span class="text-sm font-bold text-gray-200 uppercase tracking-wide">Yêu cầu xuất kho bếp (Kitchen Requisition)</span>
+        <span class="text-sm font-bold text-foreground uppercase tracking-wide">Yêu cầu xuất kho bếp (Kitchen Requisition)</span>
         <div class="h-6 w-[1px] bg-muted"></div>
-        <span class="text-xs text-gray-400 font-bold uppercase">Trạm: Bếp Nướng</span>
+        <span class="text-xs text-muted-foreground font-bold uppercase">Trạm: Bếp Nướng</span>
       </div>
 
       <!-- Chef Info & Clock -->
@@ -95,10 +95,10 @@
               :key="task.id"
               class="prep-task flex items-center justify-between text-xs p-2 rounded-lg bg-card/20 border border-border/70"
             >
-              <span class="text-gray-300 font-medium truncate flex-1 pr-2">{{ task.name }}</span>
+              <span class="text-muted-foreground font-medium truncate flex-1 pr-2">{{ task.name }}</span>
               <span 
                 class="font-bold px-2 py-0.5 rounded text-[10px] uppercase font-mono"
-                :class="task.completed ? 'bg-green-950/40 text-green-500' : 'bg-yellow-950/40 text-yellow-500'"
+                :class="task.completed ? 'bg-green-100 text-green-500' : 'bg-yellow-950/40 text-yellow-500'"
               >
                 {{ task.completed ? 'Đã xong' : 'Sơ chế' }}
               </span>
@@ -166,7 +166,7 @@
               <div v-else class="status-waiting-panel bg-card rounded-xl p-8 text-center max-w-[600px] mx-auto border border-border">
                 <div class="text-4xl mb-4">⌛</div>
                 <h3 class="text-lg font-bold text-foreground uppercase mb-2">Đang chờ xử lý kho</h3>
-                <p class="text-sm text-gray-400 mb-6">Yêu cầu đã gửi tới Bộ phận Kho chính. Thủ kho Nam đang chuẩn bị soạn hàng (picking).</p>
+                <p class="text-sm text-muted-foreground mb-6">Yêu cầu đã gửi tới Bộ phận Kho chính. Thủ kho Nam đang chuẩn bị soạn hàng (picking).</p>
                 <div class="flex gap-3 justify-center">
                   <button class="bg-[#FF9800] text-xs font-bold px-4 py-2.5 rounded-xl text-foreground hover:bg-[#F57C00]" @click="activeTab = 'warehouse'">
                     🏢 Đóng vai thủ kho để xử lý ➔
@@ -185,12 +185,12 @@
                 <div class="text-center mb-6">
                   <span class="text-4xl">⚠️</span>
                   <h3 class="text-xl font-bold text-foreground mt-3 uppercase tracking-wide">PHÊ DUYỆT PHƯƠNG ÁN THAY THẾ</h3>
-                  <p class="text-sm text-gray-400 mt-1">Kho thiếu hàng và đề xuất sản phẩm thay thế. Bếp trưởng cần phê duyệt phương án:</p>
+                  <p class="text-sm text-muted-foreground mt-1">Kho thiếu hàng và đề xuất sản phẩm thay thế. Bếp trưởng cần phê duyệt phương án:</p>
                 </div>
                 
                 <div class="bg-background p-4 rounded-xl border border-border mb-6">
-                  <span class="text-xs text-gray-400 block uppercase font-bold mb-1">Ghi chú từ thủ kho Nam:</span>
-                  <p class="text-red-400 font-semibold italic">"{{ activeActionReq.rejectionReason || 'Hết hàng chính tại kho' }}"</p>
+                  <span class="text-xs text-muted-foreground block uppercase font-bold mb-1">Ghi chú từ thủ kho Nam:</span>
+                  <p class="text-red-700 font-semibold italic">"{{ activeActionReq.rejectionReason || 'Hết hàng chính tại kho' }}"</p>
                 </div>
 
                 <div class="space-y-4 mb-6">
@@ -199,7 +199,7 @@
                       <span class="text-2xl">{{ item.icon }}</span>
                       <div>
                         <span class="font-bold text-foreground text-base block">{{ item.name }}</span>
-                        <span class="text-xs text-gray-400">Yêu cầu gốc: {{ item.requestedQty }} {{ item.unit }}</span>
+                        <span class="text-xs text-muted-foreground">Yêu cầu gốc: {{ item.requestedQty }} {{ item.unit }}</span>
                       </div>
                     </div>
                     <div class="text-right">
@@ -223,7 +223,7 @@
               <div v-else class="status-waiting-panel bg-card rounded-xl p-8 text-center max-w-[600px] mx-auto border border-border">
                 <div class="text-4xl mb-4">⌛</div>
                 <h3 class="text-lg font-bold text-foreground uppercase mb-2">Đang chờ Bếp trưởng duyệt</h3>
-                <p class="text-sm text-gray-400 mb-6">Đã gửi phương án thay thế nguyên liệu. Chờ Chef Luc phê duyệt duyệt để chuẩn bị hàng.</p>
+                <p class="text-sm text-muted-foreground mb-6">Đã gửi phương án thay thế nguyên liệu. Chờ Chef Luc phê duyệt duyệt để chuẩn bị hàng.</p>
                 <div class="flex gap-3 justify-center">
                   <button class="bg-[#FF9800] text-xs font-bold px-4 py-2.5 rounded-xl text-foreground hover:bg-[#F57C00]" @click="activeTab = 'chef'">
                     👨‍🍳 Đóng vai Chef Luc để duyệt ➔
@@ -248,7 +248,7 @@
               <div v-else class="status-waiting-panel bg-card rounded-xl p-8 text-center max-w-[600px] mx-auto border border-border">
                 <div class="text-4xl mb-4">🚚</div>
                 <h3 class="text-lg font-bold text-foreground uppercase mb-2">Đang bàn giao nhận hàng</h3>
-                <p class="text-sm text-gray-400 mb-6">Nguyên vật liệu đã xuất kho. Chờ Bếp trưởng Chef Luc nghiệm nghiệm chất lượng, số lượng, nhiệt độ và ký nhận bàn giao.</p>
+                <p class="text-sm text-muted-foreground mb-6">Nguyên vật liệu đã xuất kho. Chờ Bếp trưởng Chef Luc nghiệm nghiệm chất lượng, số lượng, nhiệt độ và ký nhận bàn giao.</p>
                 <div class="flex gap-3 justify-center">
                   <button class="bg-[#FF9800] text-xs font-bold px-4 py-2.5 rounded-xl text-foreground hover:bg-[#F57C00]" @click="activeTab = 'chef'">
                     👨‍🍳 Đóng vai Chef Luc để nhận hàng ➔
@@ -267,25 +267,25 @@
                 <h3 class="text-xl font-bold text-foreground mt-3 uppercase tracking-wide">
                   PHIẾU YÊU CẦU {{ activeActionReq.status === 'delivered' ? 'ĐÃ HOÀN TẤT' : 'BỊ TỪ CHỐI' }}
                 </h3>
-                <p class="text-sm text-gray-400 mt-1 font-mono">Mã số: #{{ activeActionReq.id }}</p>
+                <p class="text-sm text-muted-foreground mt-1 font-mono">Mã số: #{{ activeActionReq.id }}</p>
               </div>
 
               <!-- General info -->
               <div class="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-background rounded-xl border border-border mb-6 text-sm">
                 <div>
-                  <span class="text-[10px] text-gray-500 block uppercase font-bold">Người tạo:</span>
+                  <span class="text-[10px] text-muted-foreground block uppercase font-bold">Người tạo:</span>
                   <span class="text-foreground font-semibold">{{ activeActionReq.actor }}</span>
                 </div>
                 <div>
-                  <span class="text-[10px] text-gray-500 block uppercase font-bold">Bộ phận:</span>
+                  <span class="text-[10px] text-muted-foreground block uppercase font-bold">Bộ phận:</span>
                   <span class="text-foreground font-semibold">{{ activeActionReq.station }}</span>
                 </div>
                 <div>
-                  <span class="text-[10px] text-gray-500 block uppercase font-bold">Ngày giờ:</span>
+                  <span class="text-[10px] text-muted-foreground block uppercase font-bold">Ngày giờ:</span>
                   <span class="text-foreground font-semibold font-mono">{{ activeActionReq.date }}</span>
                 </div>
                 <div>
-                  <span class="text-[10px] text-gray-500 block uppercase font-bold">Trạng thái:</span>
+                  <span class="text-[10px] text-muted-foreground block uppercase font-bold">Trạng thái:</span>
                   <span class="font-bold uppercase text-xs" :class="activeActionReq.status === 'delivered' ? 'text-green-500' : 'text-red-500'">
                     {{ activeActionReq.status === 'delivered' ? 'Đã Giao Nhận' : 'Bị Từ Chối' }}
                   </span>
@@ -293,23 +293,23 @@
               </div>
 
               <!-- Rejection Reason if any -->
-              <div v-if="activeActionReq.status === 'rejected'" class="p-4 bg-red-950/20 text-red-400 border border-red-800/40 rounded-xl mb-6 text-sm">
+              <div v-if="activeActionReq.status === 'rejected'" class="p-4 bg-red-100 text-red-700 border border-red-300 rounded-xl mb-6 text-sm">
                 <strong>Lý do từ chối:</strong> {{ activeActionReq.rejectionReason || 'Chưa cập nhật lý do từ chối.' }}
               </div>
 
               <!-- Items list -->
               <div class="space-y-4 mb-6">
-                <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Danh sách nguyên vật liệu:</h4>
+                <h4 class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Danh sách nguyên vật liệu:</h4>
                 <div v-for="item in activeActionReq.items" :key="item.id" class="bg-background p-3.5 rounded-lg border border-border flex justify-between items-center">
                   <div class="flex items-center gap-3">
                     <span class="text-2xl">{{ item.icon }}</span>
                     <div>
                       <span class="font-bold text-foreground block">{{ item.name }}</span>
-                      <span class="text-xs text-gray-400">Yêu cầu: {{ item.requestedQty }} {{ item.unit }}</span>
+                      <span class="text-xs text-muted-foreground">Yêu cầu: {{ item.requestedQty }} {{ item.unit }}</span>
                     </div>
                   </div>
                   <div class="text-right">
-                    <span class="text-xs text-gray-400 block font-mono">Thực giao:</span>
+                    <span class="text-xs text-muted-foreground block font-mono">Thực giao:</span>
                     <span class="text-sm font-bold" :class="item.deliveredQty > 0 ? 'text-green-500' : 'text-red-500'">
                       {{ item.deliveredQty }} {{ item.unit }}
                     </span>
@@ -319,22 +319,22 @@
 
               <!-- Financial impact (COGS Update node: U2) -->
               <div v-if="activeActionReq.status === 'delivered' && getCogsValue(activeActionReq) > 0" class="p-4 bg-[#FF9800]/10 border border-[#FF9800]/20 rounded-xl mb-6 flex justify-between items-center text-sm">
-                <span class="text-gray-300 font-medium">💰 Giá vốn COGS ghi nhận vào bếp:</span>
+                <span class="text-muted-foreground font-medium">💰 Giá vốn COGS ghi nhận vào bếp:</span>
                 <span class="text-[#FF9800] text-lg font-black font-mono">+{{ formatCurrency(getCogsValue(activeActionReq)) }} VND</span>
               </div>
 
               <!-- Digital signature display -->
               <div v-if="activeActionReq.status === 'delivered' && activeActionReq.signatureImage" class="p-4 bg-background rounded-xl border border-border mb-6 flex flex-col items-center">
-                <span class="text-xs text-gray-400 uppercase font-bold mb-2">Chữ ký xác nhận kỹ thuật số (Digital Signature):</span>
+                <span class="text-xs text-muted-foreground uppercase font-bold mb-2">Chữ ký xác nhận kỹ thuật số (Digital Signature):</span>
                 <img :src="activeActionReq.signatureImage" alt="Chef Signature" class="max-h-[80px] bg-slate-900 border border-border rounded px-3 py-1" />
               </div>
 
               <!-- Timeline of audits -->
               <div class="bg-background rounded-xl border border-border p-4 text-xs space-y-3">
-                <span class="text-gray-400 block font-bold uppercase mb-1">⏳ LỊCH SỬ PHÊ DUYỆT (AUDIT LOGS)</span>
+                <span class="text-muted-foreground block font-bold uppercase mb-1">⏳ LỊCH SỬ PHÊ DUYỆT (AUDIT LOGS)</span>
                 <div v-for="log in activeActionReq.auditLogs" :key="log.id" class="flex justify-between border-b border-border pb-2 last:border-0 last:pb-0">
-                  <span class="text-gray-300">👤 {{ log.actor }}: {{ log.action }}</span>
-                  <span class="text-gray-500 font-mono">{{ log.timestamp }}</span>
+                  <span class="text-muted-foreground">👤 {{ log.actor }}: {{ log.action }}</span>
+                  <span class="text-muted-foreground font-mono">{{ log.timestamp }}</span>
                 </div>
               </div>
 
@@ -363,11 +363,11 @@
           <div v-if="activeTab === 'warehouse'" class="p-6 animate-fade-in">
             <div class="flex justify-between items-center mb-6">
               <h2 class="text-xl font-bold text-foreground uppercase">Xử Lý Phiếu Kho (Storekeeper)</h2>
-              <span class="text-xs text-gray-400 font-medium">Bếp trưởng gửi yêu cầu, thủ kho phê duyệt</span>
+              <span class="text-xs text-muted-foreground font-medium">Bếp trưởng gửi yêu cầu, thủ kho phê duyệt</span>
             </div>
             
             <div class="space-y-4">
-              <div v-if="pendingRequisitions.length === 0" class="text-center py-12 text-gray-500 bg-card rounded-xl border border-border">
+              <div v-if="pendingRequisitions.length === 0" class="text-center py-12 text-muted-foreground bg-card rounded-xl border border-border">
                 ☕ Không có phiếu yêu cầu nào đang chờ xử lý.
               </div>
               <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -381,10 +381,10 @@
                     <span class="text-sm font-bold text-foreground font-mono">#{{ req.id }}</span>
                     <span class="text-xs font-bold text-yellow-500 uppercase">{{ getPriorityLabel(req.priority) }}</span>
                   </div>
-                  <div class="text-xs text-gray-400 mt-1">
+                  <div class="text-xs text-muted-foreground mt-1">
                     Trạm: {{ req.station }} | Người tạo: {{ req.actor }}
                   </div>
-                  <div class="text-sm text-gray-300 mt-2 line-clamp-1 italic">
+                  <div class="text-sm text-muted-foreground mt-2 line-clamp-1 italic">
                     "{{ req.notes || 'Không có ghi chú' }}"
                   </div>
                   <div class="mt-3 flex justify-end">

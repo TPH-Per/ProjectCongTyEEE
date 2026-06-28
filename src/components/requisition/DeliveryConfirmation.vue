@@ -14,7 +14,7 @@
       </div>
       
       <h3 class="text-2xl font-black text-foreground uppercase tracking-wider mb-2">ĐÃ CẬP NHẬT HỆ THỐNG THÀNH CÔNG</h3>
-      <p class="text-sm text-gray-400 mb-6 max-w-md">Phiếu yêu cầu #{{ requisition.id }} đã hoàn tất bàn giao. Quy trình tự động hóa kho & tài chính đã thực hiện:</p>
+      <p class="text-sm text-muted-foreground mb-6 max-w-md">Phiếu yêu cầu #{{ requisition.id }} đã hoàn tất bàn giao. Quy trình tự động hóa kho & tài chính đã thực hiện:</p>
       
       <!-- Stepper of updates -->
       <div class="update-steps text-left w-full max-w-md bg-card/60 border border-border rounded-xl p-5 mb-8 space-y-3.5">
@@ -25,7 +25,7 @@
         <div class="flex items-center gap-3 text-sm text-green-500 font-semibold">
           <span class="step-check flex items-center justify-center w-5 h-5 rounded-full bg-green-500/20 text-[10px]">✓</span>
           <span>Khấu trừ Kho tổng Naka:
-            <ul class="list-disc pl-5 text-xs text-gray-400 mt-1 font-mono">
+            <ul class="list-disc pl-5 text-xs text-muted-foreground mt-1 font-mono">
               <li v-for="item in deliveryItems" :key="item.id" v-show="item.status === 'accepted'">
                 {{ item.name }}: -{{ item.deliveredQty }} {{ item.unit }}
               </li>
@@ -35,7 +35,7 @@
         <div class="flex items-center gap-3 text-sm text-green-500 font-semibold">
           <span class="step-check flex items-center justify-center w-5 h-5 rounded-full bg-green-500/20 text-[10px]">✓</span>
           <span>Cộng tồn kho trạm Bếp:
-            <ul class="list-disc pl-5 text-xs text-gray-400 mt-1 font-mono">
+            <ul class="list-disc pl-5 text-xs text-muted-foreground mt-1 font-mono">
               <li v-for="item in deliveryItems" :key="item.id" v-show="item.status === 'accepted'">
                 {{ item.name }}: +{{ item.deliveredQty }} {{ item.unit }}
               </li>
@@ -62,7 +62,7 @@
     <div class="flex justify-between items-center mb-6 pb-4 border-b border-border">
       <div>
         <h3 class="font-black text-foreground text-xl tracking-wide">KIỂM TRA GIAO NHẬN NGUYÊN LIỆU</h3>
-        <p class="text-xs text-gray-400 mt-1">Phiếu yêu cầu: #{{ requisition.id }} | Trạm: {{ requisition.station }}</p>
+        <p class="text-xs text-muted-foreground mt-1">Phiếu yêu cầu: #{{ requisition.id }} | Trạm: {{ requisition.station }}</p>
       </div>
       <button class="bg-muted text-foreground text-xs px-4 py-2 rounded-xl font-bold hover:bg-muted transition border border-border" @click="$emit('back')">
         ⬅ Quay lại danh sách
@@ -72,7 +72,7 @@
     <!-- Stepper indicator -->
     <div class="flex justify-between items-center mb-6 bg-background p-3.5 rounded-xl border border-border">
       <span class="text-xs font-bold text-[#FF9800] uppercase">Bước 3: Bếp kiểm tra & Giao nhận</span>
-      <div class="flex items-center gap-2 text-xs font-semibold text-gray-400">
+      <div class="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
         <span>Tạo Phiếu</span>
         <span>➔</span>
         <span>Kho Xuất</span>
@@ -99,7 +99,7 @@
             <span class="item-icon text-3xl">{{ item.icon }}</span>
             <div>
               <span class="item-name font-bold text-foreground text-lg block">{{ item.name }}</span>
-              <span class="text-xs text-gray-400 font-medium font-mono">
+              <span class="text-xs text-muted-foreground font-medium font-mono">
                 Số lượng kho giao: {{ item.deliveredQty }} {{ item.unit }}
               </span>
             </div>
@@ -107,8 +107,8 @@
           
           <div class="flex items-center gap-3">
             <span class="text-xs font-bold uppercase py-1 px-3 rounded-full font-mono" :class="{
-              'bg-green-950/40 text-green-500 border border-green-800/40': item.status === 'accepted',
-              'bg-red-950/40 text-red-500 border border-red-800/40': item.status === 'rejected',
+              'bg-green-100 text-green-500 border border-green-300': item.status === 'accepted',
+              'bg-red-100 text-red-500 border border-red-300': item.status === 'rejected',
               'bg-yellow-950/40 text-yellow-500 border border-yellow-800/40': item.status === 'pending'
             }">
               {{ item.status === 'accepted' ? 'Đã duyệt đạt' : item.status === 'rejected' ? 'Từ chối nhận' : 'Chờ kiểm tra' }}
@@ -122,7 +122,7 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
           <!-- 1. Quality rating check -->
           <div class="flex flex-col gap-1.5">
-            <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">⭐ 1. Kiểm tra Chất Lượng</span>
+            <span class="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">⭐ 1. Kiểm tra Chất Lượng</span>
             <div class="grid grid-cols-3 gap-1.5 mt-1">
               <button 
                 type="button"
@@ -154,7 +154,7 @@
           <!-- 2. Temperature check -->
           <div class="flex flex-col gap-1.5">
             <div class="flex justify-between items-baseline">
-              <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">🌡️ 2. Kiểm tra Nhiệt độ</span>
+              <span class="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">🌡️ 2. Kiểm tra Nhiệt độ</span>
               <span class="text-xs font-bold font-mono" :class="isTempSafe(item) ? 'text-green-500' : 'text-red-500'">
                 {{ item.temperature }}°C
               </span>
@@ -168,19 +168,19 @@
                 step="1"
                 class="temp-slider flex-1"
               />
-              <span v-if="!isTempSafe(item)" class="text-[10px] bg-red-950/40 text-red-400 border border-red-800/40 px-1.5 py-0.5 rounded font-bold uppercase animate-pulse">
+              <span v-if="!isTempSafe(item)" class="text-[10px] bg-red-100 text-red-700 border border-red-300 px-1.5 py-0.5 rounded font-bold uppercase animate-pulse">
                 Quá Ấm!
               </span>
-              <span v-else class="text-[10px] bg-green-950/40 text-green-500 border border-green-800/40 px-1.5 py-0.5 rounded font-bold uppercase">
+              <span v-else class="text-[10px] bg-green-100 text-green-500 border border-green-300 px-1.5 py-0.5 rounded font-bold uppercase">
                 An Toàn
               </span>
             </div>
-            <span class="text-[10px] text-gray-500 italic mt-0.5">Tiêu chuẩn: &le; 5°C đối với đồ tươi/lạnh</span>
+            <span class="text-[10px] text-muted-foreground italic mt-0.5">Tiêu chuẩn: &le; 5°C đối với đồ tươi/lạnh</span>
           </div>
 
           <!-- 3. Quantity check -->
           <div class="flex flex-col gap-1.5">
-            <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">⚖️ 3. Kiểm định Số lượng</span>
+            <span class="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">⚖️ 3. Kiểm định Số lượng</span>
             <div class="flex items-center gap-2 mt-1">
               <button 
                 type="button" 
@@ -199,13 +199,13 @@
                 class="qty-adjust bg-card hover:bg-muted text-foreground w-8 h-8 rounded-lg flex items-center justify-center font-bold"
                 @click="adjustItemQty(item, 1)"
               >+</button>
-              <span class="text-xs text-gray-400 font-bold uppercase">{{ item.unit }}</span>
+              <span class="text-xs text-muted-foreground font-bold uppercase">{{ item.unit }}</span>
             </div>
-            <span class="text-[10px] text-gray-500 font-mono mt-0.5">Yêu cầu gốc: {{ item.requestedQty }} {{ item.unit }}</span>
+            <span class="text-[10px] text-muted-foreground font-mono mt-0.5">Yêu cầu gốc: {{ item.requestedQty }} {{ item.unit }}</span>
           </div>
         </div>
         
-        <div v-if="item.rejectionReason" class="rejection-reason mt-3 text-xs bg-red-950/20 text-red-400 border border-red-800/40 p-2.5 rounded-lg flex items-start gap-1.5">
+        <div v-if="item.rejectionReason" class="rejection-reason mt-3 text-xs bg-red-100 text-red-700 border border-red-300 p-2.5 rounded-lg flex items-start gap-1.5">
           <strong>Lý do từ chối nhận hàng:</strong> {{ item.rejectionReason }}
         </div>
       </div>
@@ -217,7 +217,7 @@
         <h4 class="text-sm font-bold text-[#FF9800] uppercase tracking-wider flex items-center gap-2">
           ✍️ Ký Xác Nhận Nhận Bàn Giao (Digital Signature)
         </h4>
-        <button type="button" class="text-xs bg-card hover:bg-muted border border-border text-gray-300 font-bold px-3 py-1.5 rounded-lg transition" @click="clearSignature">
+        <button type="button" class="text-xs bg-card hover:bg-muted border border-border text-muted-foreground font-bold px-3 py-1.5 rounded-lg transition" @click="clearSignature">
           Xóa Chữ Ký
         </button>
       </div>
@@ -236,11 +236,11 @@
           @touchmove="draw"
           @touchend="stopDrawing"
         ></canvas>
-        <div v-if="!hasSigned" class="absolute pointer-events-none text-xs text-gray-500 font-bold uppercase z-0">
+        <div v-if="!hasSigned" class="absolute pointer-events-none text-xs text-muted-foreground font-bold uppercase z-0">
           Vẽ chữ ký của bạn tại đây để ký nhận bàn giao
         </div>
       </div>
-      <p class="text-[10px] text-gray-500 italic mt-2">Bằng cách ký nhận, Bếp trưởng xác nhận đã kiểm tra chất lượng, số lượng và nhiệt độ thực phẩm khớp với các số liệu kê khai.</p>
+      <p class="text-[10px] text-muted-foreground italic mt-2">Bằng cách ký nhận, Bếp trưởng xác nhận đã kiểm tra chất lượng, số lượng và nhiệt độ thực phẩm khớp với các số liệu kê khai.</p>
     </div>
     
     <!-- OVERALL ACTIONS -->

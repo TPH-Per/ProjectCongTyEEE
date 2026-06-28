@@ -7,7 +7,7 @@
       <div class="nav-list py-4">
         <div class="px-6 pb-4 mb-4 border-b border-border flex flex-col gap-3">
           <span class="text-primary text-lg font-black tracking-wider uppercase">NGƯU CÁT POS</span>
-          <button class="w-full text-center bg-gray-800 hover:bg-gray-700 text-xs font-bold py-2 rounded-lg border border-transparent hover:border-[#FF9800] transition" @click="navigateBack">
+          <button class="w-full text-center bg-muted hover:bg-muted text-xs font-bold py-2 rounded-lg border border-transparent hover:border-[#FF9800] transition" @click="navigateBack">
             📺 Quay lại KDS
           </button>
         </div>
@@ -28,7 +28,7 @@
       </div>
 
       <!-- App Info/Status -->
-      <div class="p-4 border-t border-border text-xs text-gray-500 flex flex-col gap-1">
+      <div class="p-4 border-t border-border text-xs text-muted-foreground flex flex-col gap-1">
         <div>📍 Chi nhánh: Quận 1, Tp.HCM</div>
         <div>👤 Nhân viên: Quản lý Nam</div>
         <div>🕒 Vận hành: Đang kết nối</div>
@@ -43,7 +43,7 @@
         <div class="flex justify-between items-center">
           <div>
             <h2 class="text-2xl font-black uppercase text-foreground tracking-wide">DASHBOARD TỒN KHO</h2>
-            <p class="text-xs text-gray-400 mt-1">Tổng quan giá trị và biến động kho hàng thời gian thực</p>
+            <p class="text-xs text-muted-foreground mt-1">Tổng quan giá trị và biến động kho hàng thời gian thực</p>
           </div>
           <button class="btn-primary" @click="activeTab = 'receive'">
             📥 Nhập kho mới
@@ -57,31 +57,31 @@
             <div class="kpi-value">{{ totalSkus }} món</div>
             <div class="kpi-trend up">
               <span>▲ 5%</span>
-              <span class="text-gray-500">so với tuần trước</span>
+              <span class="text-muted-foreground">so với tuần trước</span>
             </div>
           </div>
 
           <div class="kpi-card bg-card rounded-xl p-5 border-l-4 border-[#4CAF50]">
             <div class="kpi-label">Tổng giá trị kho tổng</div>
-            <div class="kpi-value text-[#4CAF50]">{{ formatCurrency(totalInventoryValue) }}</div>
+            <div class="kpi-value text-green-600">{{ formatCurrency(totalInventoryValue) }}</div>
             <div class="kpi-trend up">
               <span>▲ 3%</span>
-              <span class="text-gray-500">so với tuần trước</span>
+              <span class="text-muted-foreground">so với tuần trước</span>
             </div>
           </div>
 
           <div class="kpi-card bg-card rounded-xl p-5 border-l-4 border-[#FF9800]" :class="{ warning: expiringCount > 0 }">
             <div class="kpi-label">Nguyên liệu sắp hết hạn (&le; 7 ngày)</div>
             <div class="kpi-value text-[#FF9800]">{{ expiringCount }} món</div>
-            <div class="kpi-trend" :class="expiringCount > 0 ? 'down text-[#FF9800]' : 'text-gray-500'">
+            <div class="kpi-trend" :class="expiringCount > 0 ? 'down text-[#FF9800]' : 'text-muted-foreground'">
               <span>{{ expiringCount > 0 ? '⚠️ Cần kiểm tra' : '✓ An toàn' }}</span>
             </div>
           </div>
 
           <div class="kpi-card bg-card rounded-xl p-5 border-l-4 border-[#F44336]" :class="{ danger: lowStockCount > 0 }">
             <div class="kpi-label">Nguyên liệu tồn thấp (&le; min)</div>
-            <div class="kpi-value text-[#F44336]">{{ lowStockCount }} món</div>
-            <div class="kpi-trend" :class="lowStockCount > 0 ? 'down text-[#F44336]' : 'text-gray-500'">
+            <div class="kpi-value text-red-600">{{ lowStockCount }} món</div>
+            <div class="kpi-trend" :class="lowStockCount > 0 ? 'down text-red-600' : 'text-muted-foreground'">
               <span>{{ lowStockCount > 0 ? '🚨 Khẩn cấp đặt hàng' : '✓ Đầy đủ' }}</span>
             </div>
           </div>
@@ -94,13 +94,13 @@
             <div class="chart-title text-base font-bold text-foreground uppercase tracking-wider">Tồn kho theo danh mục hàng hóa (SKU)</div>
             <div class="flex-1 flex items-end justify-around pb-4 pt-8">
               <div v-for="cat in categoryChartData" :key="cat.name" class="flex flex-col items-center gap-2 group w-12">
-                <div class="text-[10px] text-gray-400 group-hover:text-foreground font-bold">{{ cat.count }} SKU</div>
+                <div class="text-[10px] text-muted-foreground group-hover:text-foreground font-bold">{{ cat.count }} SKU</div>
                 <div 
                   class="w-8 rounded-t-md transition-all duration-500 bg-gradient-to-t" 
                   :class="cat.color"
                   :style="{ height: `${(cat.count * 100) / 15}px` }"
                 ></div>
-                <div class="text-[10px] font-bold text-gray-500 group-hover:text-gray-300 truncate w-full text-center">{{ cat.name }}</div>
+                <div class="text-[10px] font-bold text-muted-foreground group-hover:text-muted-foreground truncate w-full text-center">{{ cat.name }}</div>
               </div>
             </div>
           </div>
@@ -143,7 +143,7 @@
               </svg>
 
               <!-- X Axis Days -->
-              <div class="flex justify-between text-[10px] text-gray-500 font-mono pt-3">
+              <div class="flex justify-between text-[10px] text-muted-foreground font-mono pt-3">
                 <span>T7 (20/6)</span>
                 <span>CN (21/6)</span>
                 <span>T2 (22/6)</span>
@@ -165,26 +165,26 @@
                 <div class="flex items-center gap-2">
                   <span class="text-lg">{{ item.icon }}</span>
                   <div>
-                    <span class="font-bold text-gray-200 block">{{ item.name }}</span>
-                    <span class="text-[10px] text-gray-500">Mã: {{ item.id }}</span>
+                    <span class="font-bold text-foreground block">{{ item.name }}</span>
+                    <span class="text-[10px] text-muted-foreground">Mã: {{ item.id }}</span>
                   </div>
                 </div>
                 <div class="text-right">
                   <span class="font-bold block" :class="item.mainStock <= item.minKitchenStock ? 'text-red-500' : 'text-[#FF9800]'">
                     Tồn: {{ item.mainStock }} {{ item.unit }}
                   </span>
-                  <span class="text-[10px] text-gray-400">Min yêu cầu: {{ item.minKitchenStock }}</span>
+                  <span class="text-[10px] text-muted-foreground">Min yêu cầu: {{ item.minKitchenStock }}</span>
                 </div>
               </div>
             </div>
           </div>
 
           <div class="bg-card rounded-xl p-5 border border-border">
-            <h3 class="text-sm font-bold text-foreground uppercase tracking-wider mb-4 text-[#2196F3]">📜 Giao dịch kho gần nhất</h3>
+            <h3 class="text-sm font-bold text-foreground uppercase tracking-wider mb-4 text-blue-600">📜 Giao dịch kho gần nhất</h3>
             <div class="overflow-x-auto text-xs">
               <table class="w-full text-left">
                 <thead>
-                  <tr class="border-b border-border text-gray-500 font-bold uppercase pb-2">
+                  <tr class="border-b border-border text-muted-foreground font-bold uppercase pb-2">
                     <th class="pb-2">Ngày giờ</th>
                     <th class="pb-2">Loại GD</th>
                     <th class="pb-2">Mặt hàng</th>
@@ -192,8 +192,8 @@
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-[#404040]/50">
-                  <tr v-for="log in recentLogs" :key="log.id" class="text-gray-300">
-                    <td class="py-2.5 font-mono text-gray-500">{{ log.time }}</td>
+                  <tr v-for="log in recentLogs" :key="log.id" class="text-muted-foreground">
+                    <td class="py-2.5 font-mono text-muted-foreground">{{ log.time }}</td>
                     <td class="py-2.5">
                       <span class="px-2 py-0.5 rounded text-[10px] font-bold" :class="getLogTypeClass(log.type)">
                         {{ log.typeLabel }}
@@ -216,7 +216,7 @@
         <div class="flex justify-between items-center">
           <div>
             <h2 class="text-2xl font-black uppercase text-foreground tracking-wide">QUẢN LÝ DANH MỤC NGUYÊN LIỆU</h2>
-            <p class="text-xs text-gray-400 mt-1">Tra cứu tồn kho, hạn dùng và thiết lập ngưỡng tồn tối thiểu</p>
+            <p class="text-xs text-muted-foreground mt-1">Tra cứu tồn kho, hạn dùng và thiết lập ngưỡng tồn tối thiểu</p>
           </div>
           <button class="btn-primary" @click="openAddIngredientModal">
             + Thêm nguyên liệu
@@ -248,7 +248,7 @@
         <div class="bg-card rounded-xl border border-border overflow-hidden">
           <table class="w-full text-left border-collapse text-sm">
             <thead>
-              <tr class="bg-background border-b border-border text-gray-400 text-xs font-bold uppercase">
+              <tr class="bg-background border-b border-border text-muted-foreground text-xs font-bold uppercase">
                 <th class="py-3 px-4">Mã SKU</th>
                 <th class="py-3 px-4">Tên nguyên liệu</th>
                 <th class="py-3 px-4">Danh mục</th>
@@ -261,21 +261,21 @@
               </tr>
             </thead>
             <tbody class="divide-y divide-[#404040]/60">
-              <tr v-for="item in filteredIngredients" :key="item.id" class="hover:bg-muted/30 transition">
-                <td class="py-3.5 px-4 font-mono text-xs text-gray-500">{{ item.id }}</td>
+              <tr v-for="item in filteredIngredients" :key="item.id" class="hover:bg-muted transition">
+                <td class="py-3.5 px-4 font-mono text-xs text-muted-foreground">{{ item.id }}</td>
                 <td class="py-3.5 px-4 font-bold text-foreground flex items-center gap-2">
                   <span class="text-lg">{{ item.icon }}</span>
                   <span>{{ item.name }}</span>
                 </td>
-                <td class="py-3.5 px-4 text-gray-400">{{ item.category }}</td>
+                <td class="py-3.5 px-4 text-muted-foreground">{{ item.category }}</td>
                 <td class="py-3.5 px-4 text-right font-mono font-bold">{{ item.mainStock }} {{ item.unit }}</td>
-                <td class="py-3.5 px-4 text-right font-mono text-gray-300">{{ item.kitchenStock }} {{ item.unit }}</td>
-                <td class="py-3.5 px-4 text-right font-mono text-gray-500">{{ item.minKitchenStock }} {{ item.unit }}</td>
+                <td class="py-3.5 px-4 text-right font-mono text-muted-foreground">{{ item.kitchenStock }} {{ item.unit }}</td>
+                <td class="py-3.5 px-4 text-right font-mono text-muted-foreground">{{ item.minKitchenStock }} {{ item.unit }}</td>
                 <td class="py-3.5 px-4 text-right font-mono text-[#FF9800]">{{ formatCurrency(item.unitPrice) }}</td>
                 <td class="py-3.5 px-4 text-center">
                   <span 
                     class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase"
-                    :class="item.mainStock <= item.minKitchenStock ? 'bg-red-950/40 text-red-500 border border-red-800/40' : 'bg-green-950/40 text-green-500 border border-green-850/40'"
+                    :class="item.mainStock <= item.minKitchenStock ? 'bg-red-100 text-red-500 border border-red-300' : 'bg-green-100 text-green-500 border border-green-850/40'"
                   >
                     {{ item.mainStock <= item.minKitchenStock ? 'Thấp' : 'Bình thường' }}
                   </span>
@@ -291,13 +291,13 @@
           </table>
           
           <!-- Empty State in Table -->
-          <div v-if="filteredIngredients.length === 0" class="p-12 text-center text-gray-500">
+          <div v-if="filteredIngredients.length === 0" class="p-12 text-center text-muted-foreground">
             📭 Không tìm thấy nguyên liệu nào khớp với bộ lọc.
           </div>
         </div>
 
         <!-- Pagination -->
-        <div class="flex justify-between items-center text-xs text-gray-500 font-bold px-2">
+        <div class="flex justify-between items-center text-xs text-muted-foreground font-bold px-2">
           <span>Hiển thị 1 - {{ filteredIngredients.length }} / {{ filteredIngredients.length }} nguyên liệu</span>
           <div class="flex gap-2">
             <button class="px-3 py-1.5 bg-card rounded hover:bg-muted transition disabled:opacity-50" disabled>Trước</button>
@@ -311,7 +311,7 @@
       <div v-else-if="activeTab === 'receive'" class="space-y-6 animate-fade-in">
         <div>
           <h2 class="text-2xl font-black uppercase text-foreground tracking-wide">NHẬP KHO TỪ NHÀ CUNG CẤP</h2>
-          <p class="text-xs text-gray-400 mt-1">Ghi nhận lô hàng nhập từ đối tác giao hàng, in tem nhãn và phân bổ kho</p>
+          <p class="text-xs text-muted-foreground mt-1">Ghi nhận lô hàng nhập từ đối tác giao hàng, in tem nhãn và phân bổ kho</p>
         </div>
 
         <!-- Form fields -->
@@ -322,21 +322,21 @@
             <h3 class="text-sm font-bold text-[#FF9800] uppercase tracking-wider border-b border-border pb-2">📋 Thông tin hóa đơn nhập</h3>
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div class="flex flex-col gap-1.5">
-                <label class="text-xs text-gray-400 font-bold">Số hóa đơn / Phiếu nhập</label>
+                <label class="text-xs text-muted-foreground font-bold">Số hóa đơn / Phiếu nhập</label>
                 <input v-model="receiveForm.invoiceNumber" class="bg-background border border-border rounded-xl px-4 py-2.5 text-sm text-foreground focus:outline-none focus:border-primary" />
               </div>
               <div class="flex flex-col gap-1.5">
-                <label class="text-xs text-gray-400 font-bold">Nhà cung cấp (NCC)</label>
+                <label class="text-xs text-muted-foreground font-bold">Nhà cung cấp (NCC)</label>
                 <select v-model="receiveForm.supplierId" class="bg-background border border-border rounded-xl px-4 py-2.5 text-sm text-foreground focus:outline-none focus:border-primary">
                   <option v-for="s in mockSuppliers" :key="s.id" :value="s.id">{{ s.name }} ({{ s.category }})</option>
                 </select>
               </div>
               <div class="flex flex-col gap-1.5">
-                <label class="text-xs text-gray-400 font-bold">Ngày nhận thực tế</label>
+                <label class="text-xs text-muted-foreground font-bold">Ngày nhận thực tế</label>
                 <input type="date" v-model="receiveForm.receiveDate" class="bg-background border border-border rounded-xl px-4 py-2.5 text-sm text-foreground focus:outline-none" />
               </div>
               <div class="flex flex-col gap-1.5">
-                <label class="text-xs text-gray-400 font-bold">Thủ kho tiếp nhận</label>
+                <label class="text-xs text-muted-foreground font-bold">Thủ kho tiếp nhận</label>
                 <input v-model="receiveForm.receivedBy" class="bg-background border border-border rounded-xl px-4 py-2.5 text-sm text-foreground focus:outline-none" />
               </div>
             </div>
@@ -355,7 +355,7 @@
             <div class="overflow-x-auto">
               <table class="w-full text-left text-xs border-collapse">
                 <thead>
-                  <tr class="bg-background text-gray-400 font-bold uppercase border-b border-border">
+                  <tr class="bg-background text-muted-foreground font-bold uppercase border-b border-border">
                     <th class="py-2.5 px-3">Nguyên liệu</th>
                     <th class="py-2.5 px-3 text-center">Số lượng</th>
                     <th class="py-2.5 px-3">Đơn vị</th>
@@ -366,7 +366,7 @@
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-[#404040]/40">
-                  <tr v-for="(row, idx) in receiveForm.items" :key="idx" class="hover:bg-background/30">
+                  <tr v-for="(row, idx) in receiveForm.items" :key="idx" class="hover:bg-background">
                     <td class="py-2 px-1">
                       <select v-model="row.ingredientId" class="bg-background border border-border rounded px-2 py-1.5 text-xs text-foreground max-w-[200px]">
                         <option v-for="ing in kitchenStore.inventoryList" :key="ing.id" :value="ing.id">
@@ -377,18 +377,18 @@
                     <td class="py-2 px-1 text-center">
                       <input type="number" v-model.number="row.quantity" min="1" class="w-16 bg-background border border-border rounded px-2 py-1 text-center font-bold text-xs" />
                     </td>
-                    <td class="py-2 px-3 text-gray-400">{{ getIngredientUnit(row.ingredientId) }}</td>
+                    <td class="py-2 px-3 text-muted-foreground">{{ getIngredientUnit(row.ingredientId) }}</td>
                     <td class="py-2 px-1 text-right">
                       <input type="number" v-model.number="row.unitPrice" min="0" class="w-24 bg-background border border-border rounded px-2 py-1 text-right font-mono font-bold text-xs text-[#FF9800]" />
                     </td>
                     <td class="py-2 px-1 text-center">
-                      <input type="date" v-model="row.expiryDate" class="bg-background border border-border rounded px-2 py-1 text-xs text-gray-300" />
+                      <input type="date" v-model="row.expiryDate" class="bg-background border border-border rounded px-2 py-1 text-xs text-muted-foreground" />
                     </td>
                     <td class="py-2 px-1 text-center">
                       <input v-model="row.batchNumber" placeholder="LOT-..." class="w-24 bg-background border border-border rounded px-2 py-1 text-center text-xs font-mono" />
                     </td>
                     <td class="py-2 px-1 text-center">
-                      <button class="text-red-500 hover:text-red-400 p-1 font-bold" @click="removeReceiveRow(idx)">❌</button>
+                      <button class="text-red-500 hover:text-red-700 p-1 font-bold" @click="removeReceiveRow(idx)">❌</button>
                     </td>
                   </tr>
                 </tbody>
@@ -396,14 +396,14 @@
             </div>
 
             <!-- Empty rows alert -->
-            <div v-if="receiveForm.items.length === 0" class="text-center py-6 text-gray-500 italic bg-background/40 rounded-xl border border-dashed border-border">
+            <div v-if="receiveForm.items.length === 0" class="text-center py-6 text-muted-foreground italic bg-background rounded-xl border border-dashed border-border">
               Nhấp vào nút "+ Thêm hàng nhập" ở trên để tạo phiếu nhập hàng
             </div>
           </section>
 
           <!-- Summary info -->
           <div class="bg-background rounded-xl p-4 flex justify-between items-center flex-wrap gap-4 text-sm font-bold border border-border">
-            <div class="text-gray-400">
+            <div class="text-muted-foreground">
               Tổng số dòng: <span class="text-foreground">{{ receiveForm.items.length }} SKU</span>
             </div>
             <div class="text-primary text-lg">
@@ -430,15 +430,15 @@
       <div v-else-if="activeTab === 'issue'" class="space-y-6 animate-fade-in">
         <div>
           <h2 class="text-2xl font-black uppercase text-foreground tracking-wide">YÊU CẦU XUẤT KHO CHO BẾP</h2>
-          <p class="text-xs text-gray-400 mt-1">Duyệt phiếu xuất nguyên liệu từ kho tổng sang kho trạm bếp nấu</p>
+          <p class="text-xs text-muted-foreground mt-1">Duyệt phiếu xuất nguyên liệu từ kho tổng sang kho trạm bếp nấu</p>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <!-- Pending requisitions sidebar list (1/3 width) -->
           <div class="bg-card rounded-xl border border-border p-4 flex flex-col gap-3 max-h-[500px] overflow-y-auto">
-            <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Phiếu yêu cầu chờ xuất kho</h3>
+            <h3 class="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Phiếu yêu cầu chờ xuất kho</h3>
             
-            <div v-if="pendingRequisitions.length === 0" class="text-center py-12 text-gray-500 text-xs">
+            <div v-if="pendingRequisitions.length === 0" class="text-center py-12 text-muted-foreground text-xs">
               📭 Tất cả phiếu yêu cầu đã được xử lý.
             </div>
 
@@ -446,21 +446,21 @@
               v-for="req in pendingRequisitions" 
               :key="req.id"
               class="p-4 rounded-xl border cursor-pointer hover:border-primary transition text-xs"
-              :class="selectedRequisitionId === req.id ? 'border-primary bg-primary/5' : 'border-border bg-background/40'"
+              :class="selectedRequisitionId === req.id ? 'border-primary bg-primary/5' : 'border-border bg-background'"
               @click="selectedRequisitionId = req.id"
             >
               <div class="flex justify-between font-bold mb-1.5">
                 <span class="text-foreground">{{ req.id }}</span>
                 <span class="text-orange-500">Chờ duyệt</span>
               </div>
-              <div class="text-gray-400 mb-1">Trạm: {{ req.station }} &bull; Người lập: {{ req.actor }}</div>
-              <div class="text-gray-500 text-[10px] font-mono">{{ req.date }}</div>
+              <div class="text-muted-foreground mb-1">Trạm: {{ req.station }} &bull; Người lập: {{ req.actor }}</div>
+              <div class="text-muted-foreground text-[10px] font-mono">{{ req.date }}</div>
             </div>
           </div>
 
           <!-- Active Requisition process panel (2/3 width) -->
           <div class="lg:col-span-2 bg-card rounded-xl border border-border p-6 flex flex-col justify-between min-h-[480px]">
-            <div v-if="!activeRequisition" class="flex-1 flex flex-col items-center justify-center text-center text-gray-500">
+            <div v-if="!activeRequisition" class="flex-1 flex flex-col items-center justify-center text-center text-muted-foreground">
               <span class="text-4xl mb-3">📦</span>
               <p class="text-sm font-bold">Vui lòng chọn một phiếu yêu cầu bên trái để xử lý xuất kho</p>
             </div>
@@ -474,19 +474,19 @@
                     <h3 class="text-base font-bold text-foreground mt-1">Yêu Cầu Kho Bếp - Trạm {{ activeRequisition.station }}</h3>
                   </div>
                   <div class="text-right">
-                    <span class="text-xs text-gray-400 block font-mono">{{ activeRequisition.date }}</span>
-                    <span class="text-xs text-gray-400">Người lập: <strong>Chef {{ activeRequisition.actor }}</strong></span>
+                    <span class="text-xs text-muted-foreground block font-mono">{{ activeRequisition.date }}</span>
+                    <span class="text-xs text-muted-foreground">Người lập: <strong>Chef {{ activeRequisition.actor }}</strong></span>
                   </div>
                 </div>
 
                 <!-- Items list -->
                 <div class="space-y-3">
-                  <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Danh sách mặt hàng xuất:</h4>
+                  <h4 class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Danh sách mặt hàng xuất:</h4>
                   
                   <div class="bg-background rounded-xl border border-border overflow-hidden">
                     <table class="w-full text-left text-xs">
                       <thead>
-                        <tr class="bg-card text-gray-400 font-bold uppercase border-b border-border">
+                        <tr class="bg-card text-muted-foreground font-bold uppercase border-b border-border">
                           <th class="py-2.5 px-3">Nguyên liệu</th>
                           <th class="py-2.5 px-3 text-center">Kho tổng còn</th>
                           <th class="py-2.5 px-3 text-center">Yêu cầu</th>
@@ -494,12 +494,12 @@
                         </tr>
                       </thead>
                       <tbody class="divide-y divide-[#404040]/40">
-                        <tr v-for="item in activeRequisition.items" :key="item.id" class="text-gray-300">
+                        <tr v-for="item in activeRequisition.items" :key="item.id" class="text-muted-foreground">
                           <td class="py-3 px-3 font-bold flex items-center gap-1.5">
                             <span>{{ item.icon }}</span>
                             <span>{{ item.name }}</span>
                           </td>
-                          <td class="py-3 px-3 text-center font-mono font-bold" :class="getMainStock(item.id) < item.requestedQty ? 'text-red-500' : 'text-gray-400'">
+                          <td class="py-3 px-3 text-center font-mono font-bold" :class="getMainStock(item.id) < item.requestedQty ? 'text-red-500' : 'text-muted-foreground'">
                             {{ getMainStock(item.id) }} {{ item.unit }}
                           </td>
                           <td class="py-3 px-3 text-center font-mono font-bold">{{ item.requestedQty }} {{ item.unit }}</td>
@@ -511,7 +511,7 @@
                               :max="item.requestedQty" 
                               class="w-16 bg-card border border-border rounded py-0.5 text-center font-bold text-foreground text-xs font-mono"
                             />
-                            <span class="ml-1 text-gray-500 font-bold uppercase">{{ item.unit }}</span>
+                            <span class="ml-1 text-muted-foreground font-bold uppercase">{{ item.unit }}</span>
                           </td>
                         </tr>
                       </tbody>
@@ -522,19 +522,19 @@
                 <!-- Digital signature preview for verification -->
                 <div class="p-4 bg-background rounded-xl border border-border flex justify-between items-center text-xs flex-wrap gap-4">
                   <div class="space-y-1">
-                    <span class="text-gray-400 block font-bold">Xác nhận Bếp trưởng:</span>
-                    <span class="text-[#4CAF50] font-bold">✓ Đã ký xác nhận từ thiết bị phụ</span>
+                    <span class="text-muted-foreground block font-bold">Xác nhận Bếp trưởng:</span>
+                    <span class="text-green-600 font-bold">✓ Đã ký xác nhận từ thiết bị phụ</span>
                   </div>
                   <div v-if="activeRequisition.signatureImage" class="border border-border bg-slate-900 rounded p-1.5 max-h-[50px] flex items-center justify-center">
                     <img :src="activeRequisition.signatureImage" alt="Chef Signature" class="max-h-[36px]" />
                   </div>
-                  <div v-else class="text-gray-500 italic">Chưa có chữ ký</div>
+                  <div v-else class="text-muted-foreground italic">Chưa có chữ ký</div>
                 </div>
               </div>
 
               <!-- Action buttons -->
               <div class="flex justify-end gap-3 pt-4 border-t border-border">
-                <button class="bg-red-950/20 border border-red-800/40 text-red-500 hover:bg-red-950/40 text-xs font-bold px-5 py-2.5 rounded-xl transition" @click="rejectRequisition">
+                <button class="bg-red-100 border border-red-300 text-red-500 hover:bg-red-100 text-xs font-bold px-5 py-2.5 rounded-xl transition" @click="rejectRequisition">
                   Từ chối
                 </button>
                 <button class="bg-[#4CAF50] hover:bg-[#43a047] text-xs font-bold px-6 py-2.5 rounded-xl text-foreground transition shadow-md" @click="approveRequisition">
@@ -551,10 +551,10 @@
         <div class="flex justify-between items-baseline flex-wrap gap-3">
           <div>
             <h2 class="text-2xl font-black uppercase text-foreground tracking-wide">KIỂM KÊ TỒN KHO ĐỊNH KỲ</h2>
-            <p class="text-xs text-gray-400 mt-1">Đối chiếu khối lượng đếm thực tế với số liệu lý thuyết trên hệ thống</p>
+            <p class="text-xs text-muted-foreground mt-1">Đối chiếu khối lượng đếm thực tế với số liệu lý thuyết trên hệ thống</p>
           </div>
           
-          <div class="flex items-center gap-3 text-xs text-gray-400 font-bold bg-card border border-border px-4 py-2 rounded-xl">
+          <div class="flex items-center gap-3 text-xs text-muted-foreground font-bold bg-card border border-border px-4 py-2 rounded-xl">
             <span>📅 Ngày kiểm kê: 27/06/2026</span>
             <span>👤 Nhân viên: Quản lý Nam</span>
           </div>
@@ -562,7 +562,7 @@
 
         <!-- Progress Bar Section -->
         <div class="bg-card rounded-xl p-5 border border-border space-y-3">
-          <div class="flex justify-between text-xs font-bold text-gray-300">
+          <div class="flex justify-between text-xs font-bold text-muted-foreground">
             <span>Tiến độ kiểm đếm nguyên liệu</span>
             <span class="text-[#FF9800]">{{ stocktakeCheckedCount }}/{{ stocktakeTotalCount }} SKU ({{ stocktakeProgress }}%)</span>
           </div>
@@ -577,7 +577,7 @@
             v-for="tab in stocktakeTabs" 
             :key="tab.key" 
             class="px-4 py-2 rounded-lg text-xs font-bold transition"
-            :class="stocktakeFilter === tab.key ? 'bg-primary text-primary-foreground' : 'bg-card text-gray-400 hover:text-foreground'"
+            :class="stocktakeFilter === tab.key ? 'bg-primary text-primary-foreground' : 'bg-card text-muted-foreground hover:text-foreground'"
             @click="stocktakeFilter = tab.key"
           >
             {{ tab.label }}
@@ -588,7 +588,7 @@
         <div class="bg-card rounded-xl border border-border overflow-hidden">
           <table class="w-full text-left text-sm border-collapse">
             <thead>
-              <tr class="bg-background border-b border-border text-gray-500 text-xs font-bold uppercase">
+              <tr class="bg-background border-b border-border text-muted-foreground text-xs font-bold uppercase">
                 <th class="py-3 px-4">Vị trí lưu kho</th>
                 <th class="py-3 px-4">Nguyên liệu</th>
                 <th class="py-3 px-4 text-center">Tồn hệ thống (Lý thuyết)</th>
@@ -602,14 +602,14 @@
                 v-for="item in filteredStocktakeItems" 
                 :key="item.id" 
                 class="hover:bg-muted/20 transition"
-                :class="item.diff > 0 ? 'bg-green-950/10' : item.diff < 0 ? 'bg-red-950/10' : ''"
+                :class="item.diff > 0 ? 'bg-green-100' : item.diff < 0 ? 'bg-red-100' : ''"
               >
-                <td class="py-3 px-4 text-xs font-bold text-gray-400">{{ item.location }}</td>
+                <td class="py-3 px-4 text-xs font-bold text-muted-foreground">{{ item.location }}</td>
                 <td class="py-3 px-4 font-bold text-foreground flex items-center gap-2">
                   <span>{{ item.icon }}</span>
                   <span>{{ item.name }}</span>
                 </td>
-                <td class="py-3 px-4 text-center font-mono font-bold text-gray-300">
+                <td class="py-3 px-4 text-center font-mono font-bold text-muted-foreground">
                   {{ item.theoretical }} {{ item.unit }}
                 </td>
                 <td class="py-3 px-4 text-center">
@@ -620,12 +620,12 @@
                     class="w-20 bg-background border border-border rounded px-2.5 py-1 text-center font-mono font-bold text-foreground text-xs"
                     @input="calculateStocktakeDiff(item)"
                   />
-                  <span class="ml-1.5 text-gray-500 font-bold uppercase text-[10px]">{{ item.unit }}</span>
+                  <span class="ml-1.5 text-muted-foreground font-bold uppercase text-[10px]">{{ item.unit }}</span>
                 </td>
                 <td class="py-3 px-4 text-center font-mono font-bold text-sm">
                   <span v-if="item.diff > 0" class="text-green-500">+{{ item.diff }} {{ item.unit }}</span>
                   <span v-else-if="item.diff < 0" class="text-red-500">{{ item.diff }} {{ item.unit }}</span>
-                  <span v-else class="text-gray-500">0</span>
+                  <span v-else class="text-muted-foreground">0</span>
                 </td>
                 <td class="py-3 px-4">
                   <input 
@@ -638,14 +638,14 @@
             </tbody>
           </table>
 
-          <div v-if="filteredStocktakeItems.length === 0" class="p-8 text-center text-gray-500 text-xs">
+          <div v-if="filteredStocktakeItems.length === 0" class="p-8 text-center text-muted-foreground text-xs">
             📭 Không có mặt hàng nào phù hợp với bộ lọc kiểm kê.
           </div>
         </div>
 
         <!-- Stocktake action buttons -->
         <div class="flex justify-end gap-3 pt-2">
-          <button class="bg-gray-800 border border-gray-700 hover:bg-gray-700 text-xs font-bold px-5 py-2.5 rounded-xl text-foreground transition" @click="resetStocktakeForm">
+          <button class="bg-muted border border-border hover:bg-muted text-xs font-bold px-5 py-2.5 rounded-xl text-foreground transition" @click="resetStocktakeForm">
             Đặt lại số liệu
           </button>
           <button class="bg-[#2196F3] hover:bg-[#1E88E5] text-xs font-bold px-5 py-2.5 rounded-xl text-foreground transition" @click="exportStocktakeExcel">
@@ -661,28 +661,28 @@
       <div v-else-if="activeTab === 'alerts'" class="space-y-6 animate-fade-in">
         <div>
           <h2 class="text-2xl font-black uppercase text-foreground tracking-wide">CẢNH BÁO TỒN KHO & HẠN DÙNG</h2>
-          <p class="text-xs text-gray-400 mt-1">Thông báo tức thời các nguyên liệu dưới ngưỡng tối thiểu hoặc gần hết hạn</p>
+          <p class="text-xs text-muted-foreground mt-1">Thông báo tức thời các nguyên liệu dưới ngưỡng tối thiểu hoặc gần hết hạn</p>
         </div>
 
         <!-- Alert Tabs -->
         <div class="flex gap-3">
           <button 
             class="px-5 py-2.5 rounded-xl text-xs font-bold border transition"
-            :class="alertTab === 'low' ? 'bg-red-950/20 border-red-600 text-red-500' : 'bg-card border-border text-gray-400'"
+            :class="alertTab === 'low' ? 'bg-red-100 border-red-600 text-red-500' : 'bg-card border-border text-muted-foreground'"
             @click="alertTab = 'low'"
           >
             Tồn kho thấp ({{ alertLowCount }})
           </button>
           <button 
             class="px-5 py-2.5 rounded-xl text-xs font-bold border transition"
-            :class="alertTab === 'expiring' ? 'bg-yellow-950/20 border-yellow-600 text-[#FF9800]' : 'bg-card border-border text-gray-400'"
+            :class="alertTab === 'expiring' ? 'bg-yellow-950/20 border-yellow-600 text-[#FF9800]' : 'bg-card border-border text-muted-foreground'"
             @click="alertTab = 'expiring'"
           >
             Sắp hết hạn ({{ alertExpiringCount }})
           </button>
           <button 
             class="px-5 py-2.5 rounded-xl text-xs font-bold border transition"
-            :class="alertTab === 'expired' ? 'bg-red-950/20 border-red-600 text-red-500' : 'bg-card border-border text-gray-400'"
+            :class="alertTab === 'expired' ? 'bg-red-100 border-red-600 text-red-500' : 'bg-card border-border text-muted-foreground'"
             @click="alertTab = 'expired'"
           >
             Đã hết hạn (0)
@@ -703,7 +703,7 @@
                   <span class="text-3xl">{{ item.icon }}</span>
                   <div>
                     <span class="font-bold text-foreground block text-sm">{{ item.name }}</span>
-                    <span class="text-[10px] text-gray-500 font-mono">SKU: {{ item.id }}</span>
+                    <span class="text-[10px] text-muted-foreground font-mono">SKU: {{ item.id }}</span>
                   </div>
                 </div>
                 <span class="severity-badge text-[10px] font-bold uppercase px-2 py-0.5 rounded-full" :class="item.severity">
@@ -714,15 +714,15 @@
               <!-- Stats box -->
               <div class="bg-background rounded-xl p-3 text-xs space-y-2 border border-border">
                 <div class="flex justify-between">
-                  <span class="text-gray-500">Tồn kho hiện tại:</span>
+                  <span class="text-muted-foreground">Tồn kho hiện tại:</span>
                   <span class="font-bold text-foreground">{{ item.currentStock }} {{ item.unit }}</span>
                 </div>
                 <div class="flex justify-between">
-                  <span class="text-gray-500">Mức tối thiểu:</span>
-                  <span class="font-bold text-gray-400">{{ item.minStock }} {{ item.unit }}</span>
+                  <span class="text-muted-foreground">Mức tối thiểu:</span>
+                  <span class="font-bold text-muted-foreground">{{ item.minStock }} {{ item.unit }}</span>
                 </div>
                 <div v-if="item.expiryDate" class="flex justify-between">
-                  <span class="text-gray-500">Hạn sử dụng (FEFO):</span>
+                  <span class="text-muted-foreground">Hạn sử dụng (FEFO):</span>
                   <span class="font-bold text-yellow-500">{{ item.expiryDate }}</span>
                 </div>
               </div>
@@ -739,7 +739,7 @@
             </div>
           </div>
 
-          <div v-if="activeAlertItems.length === 0" class="col-span-full py-16 text-center text-gray-500 bg-card rounded-2xl border border-dashed border-border">
+          <div v-if="activeAlertItems.length === 0" class="col-span-full py-16 text-center text-muted-foreground bg-card rounded-2xl border border-dashed border-border">
             📭 Tuyệt vời! Không có cảnh báo tồn kho nào cần xử lý.
           </div>
         </div>
@@ -749,37 +749,37 @@
       <div v-else-if="activeTab === 'reports'" class="space-y-6 animate-fade-in">
         <div>
           <h2 class="text-2xl font-black uppercase text-foreground tracking-wide">BÁO CÁO & PHÂN TÍCH HẠCH TOÁN KHO</h2>
-          <p class="text-xs text-gray-400 mt-1">Tổng hợp các chỉ số hạch toán giá vốn, tỷ lệ hao hụt và đề xuất tối ưu hóa</p>
+          <p class="text-xs text-muted-foreground mt-1">Tổng hợp các chỉ số hạch toán giá vốn, tỷ lệ hao hụt và đề xuất tối ưu hóa</p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
           
           <!-- Food Cost & Variance KPI -->
           <div class="bg-card rounded-xl p-5 border border-border space-y-4">
-            <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Chỉ số tài chính tháng 6</h3>
+            <h3 class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Chỉ số tài chính tháng 6</h3>
             
             <div class="space-y-3">
               <div class="p-3 bg-background rounded-lg">
-                <span class="text-[10px] text-gray-500 uppercase font-bold block">Tỷ lệ giá vốn (Food Cost)</span>
+                <span class="text-[10px] text-muted-foreground uppercase font-bold block">Tỷ lệ giá vốn (Food Cost)</span>
                 <span class="text-xl font-black text-foreground">28.4%</span>
                 <span class="text-[10px] text-green-500 block">▼ 1.2% so với tháng trước</span>
               </div>
               <div class="p-3 bg-background rounded-lg">
-                <span class="text-[10px] text-gray-500 uppercase font-bold block">Tỷ lệ hao hụt (Loss Ratio)</span>
+                <span class="text-[10px] text-muted-foreground uppercase font-bold block">Tỷ lệ hao hụt (Loss Ratio)</span>
                 <span class="text-xl font-black text-red-500">1.85%</span>
                 <span class="text-[10px] text-red-500 block">▲ 0.15% (Chênh lệch lớn ở Bò Wagyu)</span>
               </div>
               <div class="p-3 bg-background rounded-lg">
-                <span class="text-[10px] text-gray-500 uppercase font-bold block">Vòng quay tồn kho (Turnover Rate)</span>
+                <span class="text-[10px] text-muted-foreground uppercase font-bold block">Vòng quay tồn kho (Turnover Rate)</span>
                 <span class="text-xl font-black text-[#FF9800]">4.2 lần/tháng</span>
-                <span class="text-[10px] text-gray-500 block">Thời gian lưu kho trung bình: 7.1 ngày</span>
+                <span class="text-[10px] text-muted-foreground block">Thời gian lưu kho trung bình: 7.1 ngày</span>
               </div>
             </div>
           </div>
 
           <!-- ABC Analysis Widget (Value concentration) -->
           <div class="bg-card rounded-xl p-5 border border-border space-y-4">
-            <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Phân tích ABC giá trị kho tổng</h3>
+            <h3 class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Phân tích ABC giá trị kho tổng</h3>
             
             <div class="space-y-4">
               <div>
@@ -790,46 +790,46 @@
                 <div class="w-full bg-background h-2 rounded-full overflow-hidden">
                   <div class="bg-primary h-full" style="width: 73%"></div>
                 </div>
-                <span class="text-[10px] text-gray-500 block mt-1">Bò Wagyu, Tôm sú tươi, Rượu Sake Nhật.</span>
+                <span class="text-[10px] text-muted-foreground block mt-1">Bò Wagyu, Tôm sú tươi, Rượu Sake Nhật.</span>
               </div>
 
               <div>
                 <div class="flex justify-between text-xs font-bold mb-1">
-                  <span class="text-[#2196F3]">Nhóm B (Giá trị trung bình - 20%)</span>
+                  <span class="text-blue-600">Nhóm B (Giá trị trung bình - 20%)</span>
                   <span>45 SKU</span>
                 </div>
                 <div class="w-full bg-background h-2 rounded-full overflow-hidden">
                   <div class="bg-[#2196F3] h-full" style="width: 20%"></div>
                 </div>
-                <span class="text-[10px] text-gray-500 block mt-1">Rau nấm các loại, nước sốt lẩu pha sẵn.</span>
+                <span class="text-[10px] text-muted-foreground block mt-1">Rau nấm các loại, nước sốt lẩu pha sẵn.</span>
               </div>
 
               <div>
                 <div class="flex justify-between text-xs font-bold mb-1">
-                  <span class="text-gray-400">Nhóm C (Giá trị thấp - 7%)</span>
+                  <span class="text-muted-foreground">Nhóm C (Giá trị thấp - 7%)</span>
                   <span>186 SKU</span>
                 </div>
                 <div class="w-full bg-background h-2 rounded-full overflow-hidden">
                   <div class="bg-gray-600 h-full" style="width: 7%"></div>
                 </div>
-                <span class="text-[10px] text-gray-500 block mt-1">Gia vị khô, tăm muối, khăn giấy, than củi.</span>
+                <span class="text-[10px] text-muted-foreground block mt-1">Gia vị khô, tăm muối, khăn giấy, than củi.</span>
               </div>
             </div>
           </div>
 
           <!-- Optimization suggestions -->
           <div class="bg-card rounded-xl p-5 border border-border space-y-4">
-            <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider">💡 Đề xuất tối ưu hóa tồn kho</h3>
+            <h3 class="text-xs font-bold text-muted-foreground uppercase tracking-wider">💡 Đề xuất tối ưu hóa tồn kho</h3>
             
             <div class="space-y-3 text-xs">
               <div class="p-3 bg-[#FF9800]/5 border-l-3 border-[#FF9800] rounded">
                 <strong class="text-[#FF9800] block mb-1">Điều chỉnh Min/Max Bò Wagyu</strong>
-                <p class="text-gray-300 leading-normal">Mức tiêu thụ Wagyu đang tăng nhẹ ca tối. Đề xuất nâng mức Min kho tổng từ 5kg lên 8kg để tránh đứt hàng khi khách gọi thêm buffet.</p>
+                <p class="text-muted-foreground leading-normal">Mức tiêu thụ Wagyu đang tăng nhẹ ca tối. Đề xuất nâng mức Min kho tổng từ 5kg lên 8kg để tránh đứt hàng khi khách gọi thêm buffet.</p>
               </div>
 
               <div class="p-3 bg-[#4CAF50]/5 border-l-3 border-[#4CAF50] rounded">
-                <strong class="text-[#4CAF50] block mb-1">Thay đổi lịch đặt hàng Rau nấm</strong>
-                <p class="text-gray-300 leading-normal">Rau củ dập nát chiếm 80% waste log. Đề xuất đổi NCC sang GreenFarm để giao mỗi buổi sáng thay vì giao 2 ngày/lần.</p>
+                <strong class="text-green-600 block mb-1">Thay đổi lịch đặt hàng Rau nấm</strong>
+                <p class="text-muted-foreground leading-normal">Rau củ dập nát chiếm 80% waste log. Đề xuất đổi NCC sang GreenFarm để giao mỗi buổi sáng thay vì giao 2 ngày/lần.</p>
               </div>
             </div>
           </div>
@@ -842,7 +842,7 @@
         <div class="flex justify-between items-center">
           <div>
             <h2 class="text-2xl font-black uppercase text-foreground tracking-wide">DANH SÁCH NHÀ CUNG CẤP (NCC)</h2>
-            <p class="text-xs text-gray-400 mt-1">Quản lý danh sách đối tác cung cấp thực phẩm tươi sống và thiết bị cho nhà hàng Ngưu Cát</p>
+            <p class="text-xs text-muted-foreground mt-1">Quản lý danh sách đối tác cung cấp thực phẩm tươi sống và thiết bị cho nhà hàng Ngưu Cát</p>
           </div>
           <button class="btn-primary" @click="addNewSupplier">
             + Thêm đối tác
@@ -853,28 +853,28 @@
           <div 
             v-for="s in mockSuppliers" 
             :key="s.id"
-            class="bg-card rounded-xl border border-border p-5 space-y-4 hover:border-gray-500 transition flex flex-col justify-between"
+            class="bg-card rounded-xl border border-border p-5 space-y-4 hover:border-border transition flex flex-col justify-between"
           >
             <div class="space-y-3">
               <div class="flex justify-between items-start">
                 <div>
                   <h3 class="text-base font-bold text-foreground">{{ s.name }}</h3>
-                  <span class="text-[10px] text-gray-500 font-mono">Mã đối tác: {{ s.id }}</span>
+                  <span class="text-[10px] text-muted-foreground font-mono">Mã đối tác: {{ s.id }}</span>
                 </div>
-                <span class="px-2 py-0.5 bg-[#2196F3]/10 text-[#2196F3] border border-[#2196F3]/20 text-[10px] font-bold rounded">
+                <span class="px-2 py-0.5 bg-[#2196F3]/10 text-blue-600 border border-[#2196F3]/20 text-[10px] font-bold rounded">
                   {{ s.category }}
                 </span>
               </div>
 
-              <div class="space-y-1.5 text-xs text-gray-400">
-                <div>📞 Liên hệ: <strong class="text-gray-200">{{ s.contact }}</strong></div>
-                <div>📍 Địa chỉ: <span class="text-gray-300">{{ s.address }}</span></div>
+              <div class="space-y-1.5 text-xs text-muted-foreground">
+                <div>📞 Liên hệ: <strong class="text-foreground">{{ s.contact }}</strong></div>
+                <div>📍 Địa chỉ: <span class="text-muted-foreground">{{ s.address }}</span></div>
                 <div>📊 Đánh giá chất lượng: <span class="text-yellow-500">⭐⭐⭐⭐⭐ (5.0)</span></div>
               </div>
             </div>
 
             <div class="pt-3 border-t border-border flex justify-between items-center text-xs">
-              <span class="text-gray-500">Đơn mua chờ giao: <strong class="text-foreground">0</strong></span>
+              <span class="text-muted-foreground">Đơn mua chờ giao: <strong class="text-foreground">0</strong></span>
               <button class="text-primary font-bold hover:underline" @click="contactSupplier(s)">Đặt mua nhanh ➔</button>
             </div>
           </div>
@@ -885,14 +885,14 @@
       <div v-else-if="activeTab === 'history'" class="space-y-6 animate-fade-in">
         <div>
           <h2 class="text-2xl font-black uppercase text-foreground tracking-wide">LỊCH SỬ HOẠT ĐỘNG KHO</h2>
-          <p class="text-xs text-gray-400 mt-1">Nhật ký đối soát tất cả các giao dịch Nhập, Xuất, Điều chỉnh số lượng kho hàng</p>
+          <p class="text-xs text-muted-foreground mt-1">Nhật ký đối soát tất cả các giao dịch Nhập, Xuất, Điều chỉnh số lượng kho hàng</p>
         </div>
 
         <!-- History logs list -->
         <div class="bg-card rounded-xl border border-border overflow-hidden">
           <table class="w-full text-left text-sm border-collapse">
             <thead>
-              <tr class="bg-background border-b border-border text-gray-500 text-xs font-bold uppercase">
+              <tr class="bg-background border-b border-border text-muted-foreground text-xs font-bold uppercase">
                 <th class="py-3 px-4">Thời gian</th>
                 <th class="py-3 px-4">Giao dịch</th>
                 <th class="py-3 px-4">Đối tượng tác động</th>
@@ -902,8 +902,8 @@
               </tr>
             </thead>
             <tbody class="divide-y divide-[#404040]/40">
-              <tr v-for="log in fullTransactionLogs" :key="log.id" class="hover:bg-muted/20 transition text-gray-300">
-                <td class="py-3.5 px-4 font-mono text-xs text-gray-500">{{ log.time }}</td>
+              <tr v-for="log in fullTransactionLogs" :key="log.id" class="hover:bg-muted/20 transition text-muted-foreground">
+                <td class="py-3.5 px-4 font-mono text-xs text-muted-foreground">{{ log.time }}</td>
                 <td class="py-3.5 px-4">
                   <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase" :class="getLogTypeClass(log.type)">
                     {{ log.typeLabel }}
@@ -916,8 +916,8 @@
                 <td class="py-3.5 px-4 text-right font-mono font-bold" :class="log.qty >= 0 ? 'text-green-500' : 'text-red-500'">
                   {{ log.qty >= 0 ? '+' : '' }}{{ log.qty }} {{ log.unit }}
                 </td>
-                <td class="py-3.5 px-4 text-xs font-semibold text-gray-400">👤 {{ log.actor }}</td>
-                <td class="py-3.5 px-4 text-xs text-gray-500 italic">"{{ log.note }}"</td>
+                <td class="py-3.5 px-4 text-xs font-semibold text-muted-foreground">👤 {{ log.actor }}</td>
+                <td class="py-3.5 px-4 text-xs text-muted-foreground italic">"{{ log.note }}"</td>
               </tr>
             </tbody>
           </table>
@@ -932,26 +932,26 @@
       <div class="bg-card border border-border rounded-2xl w-full max-w-[500px] shadow-2xl overflow-hidden flex flex-col">
         <div class="px-6 py-4 bg-background border-b border-border flex justify-between items-center">
           <h3 class="text-lg font-bold text-primary">➕ THÊM NGUYÊN LIỆU MỚI</h3>
-          <button class="text-gray-400 hover:text-foreground" @click="showIngredientModal = false">✕</button>
+          <button class="text-muted-foreground hover:text-foreground" @click="showIngredientModal = false">✕</button>
         </div>
         <div class="p-6 space-y-4">
           <div class="flex flex-col gap-1.5">
-            <label class="text-xs text-gray-400 font-bold">Tên nguyên liệu</label>
+            <label class="text-xs text-muted-foreground font-bold">Tên nguyên liệu</label>
             <input v-model="ingredientForm.name" placeholder="Ví dụ: Ba chỉ bò Mỹ" class="bg-background border border-border rounded-xl px-4 py-2.5 text-sm text-foreground focus:outline-none focus:border-primary" />
           </div>
           <div class="grid grid-cols-2 gap-4">
             <div class="flex flex-col gap-1.5">
-              <label class="text-xs text-gray-400 font-bold">Biểu tượng (Emoji)</label>
+              <label class="text-xs text-muted-foreground font-bold">Biểu tượng (Emoji)</label>
               <input v-model="ingredientForm.icon" placeholder="🥩" class="bg-background text-center border border-border rounded-xl px-4 py-2.5 text-sm text-foreground focus:outline-none" />
             </div>
             <div class="flex flex-col gap-1.5">
-              <label class="text-xs text-gray-400 font-bold">Đơn vị tính</label>
+              <label class="text-xs text-muted-foreground font-bold">Đơn vị tính</label>
               <input v-model="ingredientForm.unit" placeholder="kg" class="bg-background text-center border border-border rounded-xl px-4 py-2.5 text-sm text-foreground focus:outline-none" />
             </div>
           </div>
           <div class="grid grid-cols-2 gap-4">
             <div class="flex flex-col gap-1.5">
-              <label class="text-xs text-gray-400 font-bold">Danh mục</label>
+              <label class="text-xs text-muted-foreground font-bold">Danh mục</label>
               <select v-model="ingredientForm.category" class="bg-background border border-border rounded-xl px-4 py-2.5 text-sm text-foreground focus:outline-none">
                 <option value="Thịt">Thịt bò & sườn</option>
                 <option value="Hải sản">Hải sản tươi</option>
@@ -960,17 +960,17 @@
               </select>
             </div>
             <div class="flex flex-col gap-1.5">
-              <label class="text-xs text-gray-400 font-bold">Ngưỡng tồn thấp (Min)</label>
+              <label class="text-xs text-muted-foreground font-bold">Ngưỡng tồn thấp (Min)</label>
               <input type="number" v-model.number="ingredientForm.minKitchenStock" class="bg-background border border-border rounded-xl px-4 py-2.5 text-sm text-foreground focus:outline-none" />
             </div>
           </div>
           <div class="grid grid-cols-2 gap-4">
             <div class="flex flex-col gap-1.5">
-              <label class="text-xs text-gray-400 font-bold">Tồn Kho Tổng ban đầu</label>
+              <label class="text-xs text-muted-foreground font-bold">Tồn Kho Tổng ban đầu</label>
               <input type="number" v-model.number="ingredientForm.mainStock" class="bg-background border border-border rounded-xl px-4 py-2.5 text-sm text-foreground focus:outline-none" />
             </div>
             <div class="flex flex-col gap-1.5">
-              <label class="text-xs text-gray-400 font-bold">Giá vốn (VND/đơn vị)</label>
+              <label class="text-xs text-muted-foreground font-bold">Giá vốn (VND/đơn vị)</label>
               <input type="number" v-model.number="ingredientForm.unitPrice" class="bg-background border border-border rounded-xl px-4 py-2.5 text-sm text-foreground focus:outline-none" />
             </div>
           </div>
@@ -1062,8 +1062,8 @@ const recentLogs = ref([
 ]);
 
 const getLogTypeClass = (type: string) => {
-  if (type === 'receive') return 'bg-green-950/40 text-green-500 border border-green-800/40';
-  if (type === 'issue') return 'bg-orange-950/40 text-orange-500 border border-orange-800/40';
+  if (type === 'receive') return 'bg-green-100 text-green-500 border border-green-300';
+  if (type === 'issue') return 'bg-orange-100 text-orange-500 border border-orange-800/40';
   return 'bg-blue-950/40 text-blue-500 border border-blue-800/40';
 };
 
@@ -1166,7 +1166,7 @@ const editIngredient = (item: any) => {
 const showStockHistory = (item: any) => {
   Swal.fire({
     title: `Lịch sử thẻ kho: ${item.name}`,
-    html: `<div class="text-left text-xs text-gray-300 space-y-2">
+    html: `<div class="text-left text-xs text-muted-foreground space-y-2">
       <div>• 27/06 10:45: Nhập kho +30 ${item.unit}</div>
       <div>• 26/06 14:00: Xuất bếp -5 ${item.unit}</div>
       <div>• 25/06 09:15: Đóng ca điều chỉnh -0.5 ${item.unit}</div>

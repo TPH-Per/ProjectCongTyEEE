@@ -43,7 +43,7 @@
           <div class="item-header flex items-center gap-3">
             <span class="item-icon">{{ item.icon }}</span>
             <span class="item-name font-bold text-foreground text-base">{{ item.name }}</span>
-            <span class="ml-auto text-sm text-gray-400">
+            <span class="ml-auto text-sm text-muted-foreground">
               Yêu cầu: <strong class="text-foreground">{{ item.requestedQty }} {{ item.unit }}</strong>
             </span>
           </div>
@@ -52,7 +52,7 @@
           <div class="verification-panel grid grid-cols-1 md:grid-cols-3 gap-4 mt-3 pt-3 border-t border-border">
             <div>
               <span class="stock-label">Tồn kho chính hiện tại:</span>
-              <div class="text-sm font-semibold text-gray-200 mt-1">
+              <div class="text-sm font-semibold text-foreground mt-1">
                 {{ item.mainStock }} {{ item.unit }}
               </div>
             </div>
@@ -93,7 +93,7 @@
                   :max="item.mainStock"
                   class="qty-deliver-input w-full"
                 />
-                <span class="text-xs text-gray-300 font-bold uppercase">{{ item.unit }}</span>
+                <span class="text-xs text-muted-foreground font-bold uppercase">{{ item.unit }}</span>
               </div>
               <div v-else>
                 <label :for="`sub-${item.id}`" class="sr-only">Đề xuất thay thế</label>
@@ -117,7 +117,7 @@
         <span>Tổng số lượng mặt hàng:</span>
         <span>{{ processedItems.length }} món</span>
       </div>
-      <div class="flex justify-between items-center text-sm font-semibold mt-2 text-[#4CAF50]">
+      <div class="flex justify-between items-center text-sm font-semibold mt-2 text-green-600">
         <span>Mặt hàng đủ điều kiện giao:</span>
         <span>{{ processedItems.filter(i => i.isAvailable).length }} / {{ processedItems.length }}</span>
       </div>

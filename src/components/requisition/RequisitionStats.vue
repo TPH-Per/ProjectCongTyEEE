@@ -5,8 +5,8 @@
     <div class="lg:col-span-2 space-y-6">
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
         <!-- Total -->
-        <div class="stat-card total bg-gray-800 border border-gray-700 rounded-xl p-4 text-center">
-          <span class="stat-label block text-xs text-gray-400 uppercase font-semibold">TỔNG YÊU CẦU</span>
+        <div class="stat-card total bg-muted border border-border rounded-xl p-4 text-center">
+          <span class="stat-label block text-xs text-muted-foreground uppercase font-semibold">TỔNG YÊU CẦU</span>
           <span class="stat-val block text-3xl font-bold text-foreground mt-1">{{ stats.total }}</span>
         </div>
         <!-- Pending -->
@@ -17,21 +17,21 @@
         <!-- Delivered -->
         <div class="stat-card delivered bg-blue-950/20 border border-blue-500/30 rounded-xl p-4 text-center">
           <span class="stat-label block text-xs text-blue-500 uppercase font-semibold">ĐÃ GIAO NHẬN</span>
-          <span class="stat-val block text-3xl font-bold text-[#2196F3] mt-1">{{ stats.delivered }}</span>
+          <span class="stat-val block text-3xl font-bold text-blue-600 mt-1">{{ stats.delivered }}</span>
         </div>
         <!-- Rejected -->
-        <div class="stat-card rejected bg-red-950/20 border border-red-500/30 rounded-xl p-4 text-center">
+        <div class="stat-card rejected bg-red-100 border border-red-500/30 rounded-xl p-4 text-center">
           <span class="stat-label block text-xs text-red-500 uppercase font-semibold">BỊ TỪ CHỐI</span>
-          <span class="stat-val block text-3xl font-bold text-[#F44336] mt-1">{{ stats.rejected }}</span>
+          <span class="stat-val block text-3xl font-bold text-red-600 mt-1">{{ stats.rejected }}</span>
         </div>
       </div>
 
       <!-- Priority Distribution -->
       <div class="chart-section bg-card rounded-xl border border-border p-5">
-        <h3 class="text-sm font-bold text-gray-200 uppercase mb-4">Phân Bố Mức Độ Ưu Tiên</h3>
+        <h3 class="text-sm font-bold text-foreground uppercase mb-4">Phân Bố Mức Độ Ưu Tiên</h3>
         <div class="space-y-3">
           <div>
-            <div class="flex justify-between text-xs text-gray-400 mb-1">
+            <div class="flex justify-between text-xs text-muted-foreground mb-1">
               <span>Ưu tiên CAO (High):</span>
               <span class="font-bold text-red-500">{{ stats.highPriority }} phiếu</span>
             </div>
@@ -40,7 +40,7 @@
             </div>
           </div>
           <div>
-            <div class="flex justify-between text-xs text-gray-400 mb-1">
+            <div class="flex justify-between text-xs text-muted-foreground mb-1">
               <span>Ưu tiên TRUNG BÌNH (Medium):</span>
               <span class="font-bold text-orange-500">{{ stats.mediumPriority }} phiếu</span>
             </div>
@@ -49,7 +49,7 @@
             </div>
           </div>
           <div>
-            <div class="flex justify-between text-xs text-gray-400 mb-1">
+            <div class="flex justify-between text-xs text-muted-foreground mb-1">
               <span>Ưu tiên THẤP (Low):</span>
               <span class="font-bold text-green-500">{{ stats.lowPriority }} phiếu</span>
             </div>
@@ -62,7 +62,7 @@
 
       <!-- High Demand Items -->
       <div class="bg-card rounded-xl border border-border p-5">
-        <h3 class="text-sm font-bold text-gray-200 uppercase mb-3">Nguyên Liệu Được Yêu Cầu Nhiều Nhất</h3>
+        <h3 class="text-sm font-bold text-foreground uppercase mb-3">Nguyên Liệu Được Yêu Cầu Nhiều Nhất</h3>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div 
             v-for="(item, idx) in topItems" 
@@ -73,7 +73,7 @@
             <span class="text-2xl">{{ item.icon }}</span>
             <div>
               <span class="block text-sm font-semibold text-foreground">{{ item.name }}</span>
-              <span class="block text-xs text-gray-400">Đã yêu cầu xuất: {{ item.totalQty }} {{ item.unit }}</span>
+              <span class="block text-xs text-muted-foreground">Đã yêu cầu xuất: {{ item.totalQty }} {{ item.unit }}</span>
             </div>
           </div>
         </div>
@@ -82,11 +82,11 @@
 
     <!-- Audit Logs Side Panel (Right 1 col) -->
     <div class="audit-log bg-card rounded-xl border border-border p-5 flex flex-col max-h-[500px]">
-      <h3 class="text-sm font-bold text-gray-200 uppercase mb-4 flex items-center gap-2">
+      <h3 class="text-sm font-bold text-foreground uppercase mb-4 flex items-center gap-2">
         ⏳ NHẬT KÝ HOẠT ĐỘNG (AUDIT TRAIL)
       </h3>
       <div class="logs-container flex-1 overflow-y-auto space-y-4 pr-1">
-        <div v-if="allLogs.length === 0" class="text-center py-8 text-gray-500 text-sm">
+        <div v-if="allLogs.length === 0" class="text-center py-8 text-muted-foreground text-sm">
           Chưa có nhật ký hoạt động nào.
         </div>
         <div 
@@ -95,11 +95,11 @@
           :key="log.id" 
           class="log-entry text-xs p-3 bg-background border border-border rounded-lg space-y-1"
         >
-          <div class="flex justify-between text-gray-400 font-mono">
+          <div class="flex justify-between text-muted-foreground font-mono">
             <span>👤 {{ log.actor }}</span>
             <span>{{ log.timestamp }}</span>
           </div>
-          <p class="text-gray-200 font-medium">{{ log.action }}</p>
+          <p class="text-foreground font-medium">{{ log.action }}</p>
         </div>
       </div>
     </div>

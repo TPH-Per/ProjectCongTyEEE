@@ -3,7 +3,7 @@
     <button
       type="button"
       @click="isOpen = !isOpen"
-      class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white border border-gray-200 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+      class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-background border border-border shadow-sm hover:bg-accent focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
     >
       <span class="text-lg leading-none">{{ currentFlag }}</span>
     </button>
@@ -11,7 +11,7 @@
     <!-- Dropdown menu -->
     <div
       v-if="isOpen"
-      class="origin-top-right absolute right-0 mt-2 w-48 rounded-xl shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-50 overflow-hidden border border-gray-100"
+      class="origin-top-right absolute right-0 mt-2 w-48 rounded-xl shadow-lg bg-background ring-1 ring-black ring-opacity-5 focus:outline-none z-50 overflow-hidden border border-border"
       @click.away="isOpen = false"
     >
       <div class="py-1">
@@ -19,8 +19,8 @@
           v-for="locale in availableLocales"
           :key="locale"
           @click="selectLocale(locale)"
-          class="w-full text-left px-4 py-2 text-sm flex items-center gap-3 hover:bg-gray-50 transition-colors"
-          :class="currentLocale === locale ? 'bg-blue-50/50 text-blue-700 font-medium' : 'text-gray-700'"
+          class="w-full text-left px-4 py-2 text-sm flex items-center gap-3 hover:bg-accent transition-colors"
+          :class="currentLocale === locale ? 'bg-primary/10 text-primary font-bold' : 'text-foreground'"
         >
           <span class="text-xl leading-none">{{ getFlag(locale) }}</span>
           {{ getNativeLabel(locale) }}

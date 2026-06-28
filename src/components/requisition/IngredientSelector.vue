@@ -14,7 +14,7 @@
 
     <!-- Search Results / Inventory items -->
     <div class="ingredient-list max-h-[350px] overflow-y-auto pr-1">
-      <div v-if="filteredItems.length === 0" class="text-center py-8 text-gray-400">
+      <div v-if="filteredItems.length === 0" class="text-center py-8 text-muted-foreground">
         Không tìm thấy nguyên liệu nào khớp.
       </div>
       <div 
@@ -47,7 +47,7 @@
               class="quantity-input"
               @change="updateQty(item.id, selectedQuantities[item.id])"
             />
-            <span class="text-xs text-gray-300 font-bold uppercase">{{ item.unit }}</span>
+            <span class="text-xs text-muted-foreground font-bold uppercase">{{ item.unit }}</span>
           </div>
         </div>
 

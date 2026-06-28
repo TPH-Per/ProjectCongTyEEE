@@ -41,7 +41,7 @@
 
     <!-- Requisition Items Grid -->
     <div class="requisitions-container pr-1">
-      <div v-if="filteredRequisitions.length === 0" class="text-center py-12 text-gray-500 bg-card rounded-xl border border-border">
+      <div v-if="filteredRequisitions.length === 0" class="text-center py-12 text-muted-foreground bg-card rounded-xl border border-border">
         📭 Không tìm thấy phiếu yêu cầu xuất kho nào khớp với bộ lọc.
       </div>
       <div v-else class="space-y-4">

@@ -7,7 +7,7 @@
         <!-- Logo / Brand -->
         <div class="flex items-center gap-2">
           <span class="logo-brand text-[#FF9800] font-extrabold tracking-wider text-xl">NGƯU CÁT</span>
-          <span class="tag-kds text-xs bg-gray-800 text-gray-400 border border-gray-700 px-2 py-0.5 rounded font-bold uppercase">EXPO</span>
+          <span class="tag-kds text-xs bg-muted text-muted-foreground border border-border px-2 py-0.5 rounded font-bold uppercase">EXPO</span>
         </div>
       </div>
 
@@ -31,7 +31,7 @@
 
         <!-- Notification Bell -->
         <div class="notification-bell" @click="clearLocalNotifications">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
           </svg>
           <span v-if="notificationCount > 0" class="notification-badge">{{ notificationCount }}</span>
@@ -96,17 +96,17 @@
       
       <!-- Cột Trái (60%): Món cần kiểm tra (QC Active List) -->
       <div class="w-[60%] flex flex-col overflow-y-auto space-y-4 pr-2">
-        <h2 class="text-lg font-bold text-gray-200 uppercase tracking-wider flex items-center gap-2">
+        <h2 class="text-lg font-bold text-foreground uppercase tracking-wider flex items-center gap-2">
           📋 QC Active Queue
-          <span class="text-xs font-semibold px-2 py-0.5 bg-gray-700 text-gray-400 rounded-full">
+          <span class="text-xs font-semibold px-2 py-0.5 bg-muted text-muted-foreground rounded-full">
             {{ filteredQcOrders.length }} đơn hàng
           </span>
         </h2>
 
         <div v-if="filteredQcOrders.length === 0" class="flex-1 flex flex-col items-center justify-center bg-[#252525] rounded-2xl border border-border/50 p-8 text-center">
           <span class="text-5xl mb-3">🛎️</span>
-          <h3 class="text-lg font-bold text-gray-300">Không có đơn hàng nào cần kiểm tra</h3>
-          <p class="text-sm text-gray-500 mt-1">Đơn hàng hoàn tất sơ chế & chế biến tại KDS sẽ tự động hiển thị tại đây.</p>
+          <h3 class="text-lg font-bold text-muted-foreground">Không có đơn hàng nào cần kiểm tra</h3>
+          <p class="text-sm text-muted-foreground mt-1">Đơn hàng hoàn tất sơ chế & chế biến tại KDS sẽ tự động hiển thị tại đây.</p>
         </div>
 
         <div 
@@ -215,7 +215,7 @@
             </span>
           </h2>
 
-          <div v-if="activeRemakes.length === 0" class="p-6 bg-background rounded-lg border border-border/30 text-center text-gray-500 text-sm">
+          <div v-if="activeRemakes.length === 0" class="p-6 bg-background rounded-lg border border-border/30 text-center text-muted-foreground text-sm">
             Không có món nào đang làm lại.
           </div>
 
@@ -229,7 +229,7 @@
               <span class="remake-priority">P1 - HIGH</span>
             </div>
 
-            <div class="text-sm text-gray-200 mt-2">
+            <div class="text-sm text-foreground mt-2">
               <div v-for="item in remake.items" :key="item.name" class="font-semibold">
                 {{ item.qty }}x {{ item.name }}
               </div>
@@ -240,7 +240,7 @@
             </div>
 
             <div class="flex justify-between items-center mt-3 pt-2 border-t border-border/50">
-              <span class="text-xs text-gray-400 font-mono">
+              <span class="text-xs text-muted-foreground font-mono">
                 Bắt đầu: {{ formatWaitTime(remake.elapsedTime || 0) }}
               </span>
               <span class="remake-status" :class="remake.status === 'Preparing' ? 'cooking' : 'waiting'">
@@ -268,18 +268,18 @@
             </div>
           </div>
 
-          <div class="mt-4 p-3 bg-card rounded-lg border border-border/50 text-xs text-gray-400">
+          <div class="mt-4 p-3 bg-card rounded-lg border border-border/50 text-xs text-muted-foreground">
             <div class="flex justify-between mb-1">
               <span>Tổng số lượng QC:</span>
-              <span class="text-gray-200 font-bold">{{ stats.totalQC }} món</span>
+              <span class="text-foreground font-bold">{{ stats.totalQC }} món</span>
             </div>
             <div class="flex justify-between mb-1">
               <span>Đạt tiêu chuẩn lần đầu:</span>
-              <span class="text-green-400 font-bold">{{ stats.firstPass }} món</span>
+              <span class="text-green-700 font-bold">{{ stats.firstPass }} món</span>
             </div>
             <div class="flex justify-between">
               <span>Waste logged:</span>
-              <span class="text-red-400 font-bold">{{ wasteLog.length }} món</span>
+              <span class="text-red-700 font-bold">{{ wasteLog.length }} món</span>
             </div>
           </div>
         </div>
@@ -297,7 +297,7 @@
         <div class="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
           <!-- Item Summary -->
           <div>
-            <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Món ăn không đạt</label>
+            <label class="text-xs text-muted-foreground uppercase font-bold block mb-1">Món ăn không đạt</label>
             <div class="p-3 bg-background border border-border rounded-xl text-sm font-semibold">
               <div v-for="item in selectedQcOrder.items" :key="item.id">
                 {{ item.qty }}x {{ item.name }}
@@ -333,7 +333,7 @@
 
           <!-- Severity selection -->
           <div>
-            <label class="text-xs text-gray-400 uppercase font-bold block mb-2">Mức độ nghiêm trọng</label>
+            <label class="text-xs text-muted-foreground uppercase font-bold block mb-2">Mức độ nghiêm trọng</label>
             <div class="severity-group">
               <div 
                 @click="qcFailSeverity = 'Thấp'"
@@ -364,7 +364,7 @@
 
           <!-- Notes -->
           <div>
-            <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Ghi chú thêm</label>
+            <label class="text-xs text-muted-foreground uppercase font-bold block mb-1">Ghi chú thêm</label>
             <textarea 
               v-model="qcFailNotes" 
               rows="3" 
@@ -396,17 +396,17 @@
     <div v-if="showQcPassModal && selectedQcOrder" class="modal-overlay" @click.self="showQcPassModal = false">
       <div class="modal-content max-w-[500px]">
         <div class="modal-header border-b border-border pb-4 mb-4">
-          <h3 class="text-lg font-bold text-green-400 flex items-center gap-2">
+          <h3 class="text-lg font-bold text-green-700 flex items-center gap-2">
             🎉 Món đã đạt chuẩn QC!
           </h3>
-          <p class="text-xs text-gray-400 mt-0.5">Bàn {{ getTableCode(selectedQcOrder.table) }} &bull; Ticket #{{ selectedQcOrder.id.slice(0, 8) }}</p>
+          <p class="text-xs text-muted-foreground mt-0.5">Bàn {{ getTableCode(selectedQcOrder.table) }} &bull; Ticket #{{ selectedQcOrder.id.slice(0, 8) }}</p>
         </div>
 
         <div class="space-y-4">
           <div>
-            <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Tóm tắt các món ra bàn</label>
+            <label class="text-xs text-muted-foreground uppercase font-bold block mb-1">Tóm tắt các món ra bàn</label>
             <div class="p-3 bg-background border border-green-900/30 rounded-xl space-y-1">
-              <div v-for="item in selectedQcOrder.items" :key="item.id" class="flex justify-between text-sm text-gray-200">
+              <div v-for="item in selectedQcOrder.items" :key="item.id" class="flex justify-between text-sm text-foreground">
                 <span>{{ item.qty }}x {{ item.name }}</span>
                 <span class="text-green-500 font-semibold">Đạt chuẩn ✓</span>
               </div>
@@ -416,16 +416,16 @@
           <!-- Time statistics -->
           <div class="bg-background p-3 rounded-xl border border-border">
             <div class="flex justify-between text-xs mb-1">
-              <span class="text-gray-400">Thời gian chế biến:</span>
-              <span class="text-gray-200 font-bold font-mono">{{ formatWaitTime(selectedQcOrder.waitTime) }}</span>
+              <span class="text-muted-foreground">Thời gian chế biến:</span>
+              <span class="text-foreground font-bold font-mono">{{ formatWaitTime(selectedQcOrder.waitTime) }}</span>
             </div>
             <div class="flex justify-between text-xs mb-1">
-              <span class="text-gray-400">Thời gian tiêu chuẩn:</span>
-              <span class="text-gray-200 font-bold font-mono">15:00</span>
+              <span class="text-muted-foreground">Thời gian tiêu chuẩn:</span>
+              <span class="text-foreground font-bold font-mono">15:00</span>
             </div>
             <div class="flex justify-between text-xs pt-1.5 border-t border-border">
-              <span class="text-green-400 font-bold">Trạng thái:</span>
-              <span class="text-green-400 font-bold">
+              <span class="text-green-700 font-bold">Trạng thái:</span>
+              <span class="text-green-700 font-bold">
                 {{ selectedQcOrder.waitTime < 900 ? 'SỚM HƠN ' + formatWaitTime(900 - selectedQcOrder.waitTime) : 'TRỄ' }}
               </span>
             </div>
@@ -433,7 +433,7 @@
 
           <!-- Runner actions -->
           <div class="space-y-2">
-            <label class="text-xs text-gray-400 uppercase font-bold block">Gọi staff/runner lấy món</label>
+            <label class="text-xs text-muted-foreground uppercase font-bold block">Gọi staff/runner lấy món</label>
             <div class="grid grid-cols-3 gap-2">
               <button @click="triggerRunnerCall('bell')" class="py-2.5 px-2 bg-muted hover:bg-[#4d4d4d] border border-border text-xs font-bold rounded-lg transition-all flex flex-col items-center justify-center gap-1.5">
                 <span>🔔</span>
@@ -449,9 +449,9 @@
               </button>
             </div>
             
-            <div class="mt-2 text-xs text-gray-400 flex justify-between items-center bg-card p-2.5 rounded-lg border border-border">
+            <div class="mt-2 text-xs text-muted-foreground flex justify-between items-center bg-card p-2.5 rounded-lg border border-border">
               <span>Staff phụ trách (Runner):</span>
-              <span class="text-gray-200 font-bold">Nguyễn Văn A (Runner)</span>
+              <span class="text-foreground font-bold">Nguyễn Văn A (Runner)</span>
             </div>
           </div>
         </div>
@@ -484,16 +484,16 @@
         
         <!-- Body -->
         <div class="p-6 max-h-[400px] overflow-y-auto space-y-4">
-          <div v-if="kitchenStore.delayedTickets.length === 0" class="text-center py-8 text-gray-400">
+          <div v-if="kitchenStore.delayedTickets.length === 0" class="text-center py-8 text-muted-foreground">
             Không có đơn hàng nào bị trễ.
           </div>
           <div v-else v-for="ticket in kitchenStore.delayedTickets" :key="ticket.id" class="p-4 bg-background border border-red-500/30 rounded-xl flex items-center justify-between gap-4">
             <div class="space-y-1">
               <div class="flex items-center gap-2">
                 <span class="bg-[#C62828] text-white text-xs px-2.5 py-0.5 rounded-full font-bold">Bàn {{ ticket.table }}</span>
-                <span class="text-gray-400 text-xs font-mono">{{ ticket.time }}</span>
+                <span class="text-muted-foreground text-xs font-mono">{{ ticket.time }}</span>
               </div>
-              <div class="text-sm font-semibold text-gray-200">
+              <div class="text-sm font-semibold text-foreground">
                 <div v-for="item in ticket.items" :key="item.id" class="inline-block mr-3">
                   {{ item.name }} x{{ item.qty }}
                 </div>
@@ -501,14 +501,14 @@
             </div>
             <div class="text-right">
               <div class="text-red-500 font-bold text-sm">{{ Math.floor(ticket.waitTime / 60) }} phút</div>
-              <div class="text-xs text-gray-500">Thời gian chờ</div>
+              <div class="text-xs text-muted-foreground">Thời gian chờ</div>
             </div>
           </div>
         </div>
         
         <!-- Footer -->
         <div class="p-4 bg-background border-t border-border flex justify-end">
-          <button @click="kitchenStore.showDelayedOrdersModal = false" class="px-5 py-2 rounded-xl bg-gray-700 hover:bg-gray-600 text-foreground font-bold text-sm transition-all">Đóng</button>
+          <button @click="kitchenStore.showDelayedOrdersModal = false" class="px-5 py-2 rounded-xl bg-muted hover:bg-gray-600 text-foreground font-bold text-sm transition-all">Đóng</button>
         </div>
       </div>
     </div>

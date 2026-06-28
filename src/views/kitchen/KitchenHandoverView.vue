@@ -10,13 +10,13 @@
           <span class="tag-handover bg-[#9C27B0]/20 text-[#9C27B0] border border-[#9C27B0]/30 text-xs px-2.5 py-0.5 rounded font-bold">BÀN GIAO</span>
         </div>
         <div class="h-6 w-[1px] bg-muted"></div>
-        <h2 class="text-lg font-bold text-gray-200 uppercase tracking-wide">Bàn Giao Ca Bếp (Shift Handover)</h2>
+        <h2 class="text-lg font-bold text-foreground uppercase tracking-wide">Bàn Giao Ca Bếp (Shift Handover)</h2>
       </div>
 
       <!-- Action buttons -->
       <div class="flex items-center gap-3">
         <button 
-          class="bg-gray-800 border border-gray-700 hover:bg-gray-700 text-xs font-bold px-4 py-2 rounded-xl transition"
+          class="bg-muted border border-border hover:bg-muted text-xs font-bold px-4 py-2 rounded-xl transition"
           @click="activeSubTab = activeSubTab === 'wizard' ? 'history' : 'wizard'"
         >
           {{ activeSubTab === 'wizard' ? '⏳ Xem Lịch Sử Ca' : '✍️ Bàn Giao Ca Mới' }}
@@ -32,10 +32,10 @@
       <div class="max-w-4xl mx-auto space-y-6">
         <div class="flex justify-between items-center mb-4">
           <h3 class="text-lg font-bold text-foreground uppercase tracking-wider">Lịch Sử Nhật Ký Bàn Giao Ca</h3>
-          <span class="text-xs text-gray-400">Ghi nhận hoạt động đóng ca bếp</span>
+          <span class="text-xs text-muted-foreground">Ghi nhận hoạt động đóng ca bếp</span>
         </div>
 
-        <div v-if="kitchenStore.handoverLogs.length === 0" class="text-center py-12 text-gray-500 bg-card rounded-xl border border-border">
+        <div v-if="kitchenStore.handoverLogs.length === 0" class="text-center py-12 text-muted-foreground bg-card rounded-xl border border-border">
           📭 Chưa có nhật ký bàn giao ca nào được lưu.
         </div>
         
@@ -51,50 +51,50 @@
                 <h4 class="text-base font-bold text-foreground mt-1">{{ log.shift }}</h4>
               </div>
               <div class="text-right">
-                <span class="text-xs text-gray-400 block font-mono">{{ log.date }}</span>
-                <span class="text-xs bg-[#4CAF50]/10 text-[#4CAF50] border border-[#4CAF50]/30 px-2 py-0.5 rounded-full font-bold">Hoàn tất đóng ca</span>
+                <span class="text-xs text-muted-foreground block font-mono">{{ log.date }}</span>
+                <span class="text-xs bg-[#4CAF50]/10 text-green-600 border border-[#4CAF50]/30 px-2 py-0.5 rounded-full font-bold">Hoàn tất đóng ca</span>
               </div>
             </div>
 
             <!-- Handover detail details -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 bg-background p-4 rounded-xl border border-border text-xs">
               <div>
-                <span class="text-gray-500 block">Chef bàn giao:</span>
+                <span class="text-muted-foreground block">Chef bàn giao:</span>
                 <strong class="text-foreground text-sm">👤 {{ log.outgoingChef }}</strong>
               </div>
               <div>
-                <span class="text-gray-500 block">Chef ca sau nhận:</span>
+                <span class="text-muted-foreground block">Chef ca sau nhận:</span>
                 <strong class="text-foreground text-sm">👤 {{ log.incomingChef }}</strong>
               </div>
               <div>
-                <span class="text-gray-500 block">Nhiệt độ Tủ mát:</span>
+                <span class="text-muted-foreground block">Nhiệt độ Tủ mát:</span>
                 <strong class="text-sm" :class="log.fridgeTemp > 5 ? 'text-red-500' : 'text-green-500'">🌡️ {{ log.fridgeTemp }}°C</strong>
               </div>
               <div>
-                <span class="text-gray-500 block">Nhiệt độ Tủ đông:</span>
+                <span class="text-muted-foreground block">Nhiệt độ Tủ đông:</span>
                 <strong class="text-sm" :class="log.freezerTemp > -15 ? 'text-red-500' : 'text-green-500'">🌡️ {{ log.freezerTemp }}°C</strong>
               </div>
             </div>
 
             <!-- Notes -->
-            <div class="mb-4 text-sm text-gray-300 bg-background/40 p-3 rounded-lg border border-border">
+            <div class="mb-4 text-sm text-muted-foreground bg-background p-3 rounded-lg border border-border">
               <span class="font-bold text-[#FF9800] block text-xs uppercase mb-1">Ghi chú bàn giao:</span>
               <p class="italic">"{{ log.notes }}"</p>
             </div>
 
             <!-- Waste notes if any -->
-            <div v-if="log.wasteNotes" class="mb-4 text-sm text-red-300 bg-red-950/20 p-3 rounded-lg border border-red-800/40">
-              <span class="font-bold text-[#F44336] block text-xs uppercase mb-1">Hao hụt ghi nhận (Waste Log):</span>
+            <div v-if="log.wasteNotes" class="mb-4 text-sm text-red-700 bg-red-100 p-3 rounded-lg border border-red-300">
+              <span class="font-bold text-red-600 block text-xs uppercase mb-1">Hao hụt ghi nhận (Waste Log):</span>
               <p>{{ log.wasteNotes }}</p>
             </div>
 
             <!-- Inventory state -->
             <div class="mb-4">
-              <span class="font-bold text-gray-400 block text-xs uppercase mb-2">Số liệu kiểm kê tồn kho bếp đóng ca:</span>
+              <span class="font-bold text-muted-foreground block text-xs uppercase mb-2">Số liệu kiểm kê tồn kho bếp đóng ca:</span>
               <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
                 <div v-for="item in log.items" :key="item.id" class="flex justify-between items-center p-2 bg-background rounded border border-border text-xs">
                   <span class="text-foreground">{{ item.icon }} {{ item.name }}</span>
-                  <span class="font-mono text-gray-300">
+                  <span class="font-mono text-muted-foreground">
                     {{ item.actual }} {{ item.unit }}
                     <span v-if="item.diff !== 0" :class="item.diff < 0 ? 'text-red-500' : 'text-green-500'" class="ml-1 font-bold">
                       ({{ item.diff < 0 ? '' : '+' }}{{ item.diff }})
@@ -106,7 +106,7 @@
 
             <!-- Digital Signature image -->
             <div v-if="log.signatureImage" class="flex flex-col items-center pt-3 border-t border-border">
-              <span class="text-[10px] text-gray-500 uppercase font-bold mb-1">Chữ ký số Bếp trưởng ca sau:</span>
+              <span class="text-[10px] text-muted-foreground uppercase font-bold mb-1">Chữ ký số Bếp trưởng ca sau:</span>
               <img :src="log.signatureImage" alt="Incoming Chef Signature" class="max-h-[60px] bg-slate-900 border border-border rounded px-3 py-0.5" />
             </div>
           </div>
@@ -129,7 +129,7 @@
         </div>
         
         <h3 class="text-2xl font-black text-foreground uppercase tracking-wider mb-2">BÀN GIAO CA THÀNH CÔNG</h3>
-        <p class="text-sm text-gray-400 mb-6">Phiếu bàn giao ca đóng bếp đã được đồng bộ lên POS và lưu trữ nhật ký hoạt động.</p>
+        <p class="text-sm text-muted-foreground mb-6">Phiếu bàn giao ca đóng bếp đã được đồng bộ lên POS và lưu trữ nhật ký hoạt động.</p>
         
         <div class="flex gap-3 justify-center">
           <button class="bg-[#FF9800] text-xs font-bold px-5 py-3 rounded-xl text-foreground hover:bg-[#F57C00] shadow-md" @click="activeSubTab = 'history'">
@@ -149,7 +149,7 @@
           <div class="flex items-center gap-3">
             <span class="text-xs font-bold text-[#FF9800] uppercase tracking-wider">Tiến trình bàn giao ca:</span>
           </div>
-          <div class="flex items-center gap-3 text-xs font-semibold text-gray-400">
+          <div class="flex items-center gap-3 text-xs font-semibold text-muted-foreground">
             <span :class="wizardStep === 1 ? 'text-[#FF9800] font-bold' : wizardStep > 1 ? 'text-green-500 font-bold' : ''">
               {{ wizardStep > 1 ? '✓ ' : '' }}1. Vệ Sinh & Thiết Bị
             </span>
@@ -175,41 +175,41 @@
 
             <div class="space-y-4">
               <!-- Check 1 -->
-              <label class="flex items-start gap-3 cursor-pointer p-4 rounded-xl bg-background border border-border hover:border-gray-500 transition">
+              <label class="flex items-start gap-3 cursor-pointer p-4 rounded-xl bg-background border border-border hover:border-border transition">
                 <input 
                   type="checkbox" 
                   v-model="checklist.stopOrders"
-                  class="w-6 h-6 rounded border-gray-600 text-[#FF9800] focus:ring-[#FF9800] bg-card mt-0.5"
+                  class="w-6 h-6 rounded border-border text-[#FF9800] focus:ring-[#FF9800] bg-card mt-0.5"
                 />
                 <div>
                   <span class="font-bold text-foreground block">Dừng tiếp nhận Order mới (Trừ khách đang ăn dở)</span>
-                  <span class="text-xs text-gray-400">Đóng cổng tiếp nhận đơn hàng trên POS trạm, đảm bảo không phát sinh món mới.</span>
+                  <span class="text-xs text-muted-foreground">Đóng cổng tiếp nhận đơn hàng trên POS trạm, đảm bảo không phát sinh món mới.</span>
                 </div>
               </label>
 
               <!-- Check 2 -->
-              <label class="flex items-start gap-3 cursor-pointer p-4 rounded-xl bg-background border border-border hover:border-gray-500 transition">
+              <label class="flex items-start gap-3 cursor-pointer p-4 rounded-xl bg-background border border-border hover:border-border transition">
                 <input 
                   type="checkbox" 
                   v-model="checklist.cleanArea"
-                  class="w-6 h-6 rounded border-gray-600 text-[#FF9800] focus:ring-[#FF9800] bg-card mt-0.5"
+                  class="w-6 h-6 rounded border-border text-[#FF9800] focus:ring-[#FF9800] bg-card mt-0.5"
                 />
                 <div>
                   <span class="font-bold text-foreground block">Vệ sinh sạch sẽ khu vực chế biến</span>
-                  <span class="text-xs text-gray-400">Lau chùi bề mặt bếp nướng/lẩu, vệ sinh thớt cắt thái, quét dọn và lau sàn sạch sẽ.</span>
+                  <span class="text-xs text-muted-foreground">Lau chùi bề mặt bếp nướng/lẩu, vệ sinh thớt cắt thái, quét dọn và lau sàn sạch sẽ.</span>
                 </div>
               </label>
 
               <!-- Check 3 -->
-              <label class="flex items-start gap-3 cursor-pointer p-4 rounded-xl bg-background border border-border hover:border-gray-500 transition">
+              <label class="flex items-start gap-3 cursor-pointer p-4 rounded-xl bg-background border border-border hover:border-border transition">
                 <input 
                   type="checkbox" 
                   v-model="checklist.powerOff"
-                  class="w-6 h-6 rounded border-gray-600 text-[#FF9800] focus:ring-[#FF9800] bg-card mt-0.5"
+                  class="w-6 h-6 rounded border-border text-[#FF9800] focus:ring-[#FF9800] bg-card mt-0.5"
                 />
                 <div>
                   <span class="font-bold text-foreground block">Tắt các thiết bị điện không sử dụng</span>
-                  <span class="text-xs text-gray-400">Ngắt điện lò nướng, lò chiên, tắt máy xay, lò vi sóng để đảm bảo phòng chống cháy nổ.</span>
+                  <span class="text-xs text-muted-foreground">Ngắt điện lò nướng, lò chiên, tắt máy xay, lò vi sóng để đảm bảo phòng chống cháy nổ.</span>
                 </div>
               </label>
             </div>
@@ -234,7 +234,7 @@
 
             <!-- Table of stock comparison -->
             <div class="bg-background rounded-xl border border-border overflow-hidden">
-              <div class="grid grid-cols-4 gap-2 bg-card p-3 text-xs font-bold text-gray-400 uppercase tracking-wide">
+              <div class="grid grid-cols-4 gap-2 bg-card p-3 text-xs font-bold text-muted-foreground uppercase tracking-wide">
                 <div class="col-span-2">Nguyên Liệu</div>
                 <div class="text-center">Lý Thuyết</div>
                 <div class="text-center">Thực Tế</div>
@@ -249,11 +249,11 @@
                     <span class="text-xl">{{ item.icon }}</span>
                     <div>
                       <span class="font-bold text-foreground block">{{ item.name }}</span>
-                      <span class="text-[10px] text-gray-500 font-mono">Đơn vị: {{ item.unit }}</span>
+                      <span class="text-[10px] text-muted-foreground font-mono">Đơn vị: {{ item.unit }}</span>
                     </div>
                   </div>
                   
-                  <div class="text-center font-mono font-bold text-gray-300">
+                  <div class="text-center font-mono font-bold text-muted-foreground">
                     {{ item.theoretical }} {{ item.unit }}
                   </div>
                   
@@ -265,28 +265,28 @@
                       class="w-16 text-center bg-card border border-border rounded py-1 text-foreground font-mono font-bold text-xs"
                       @input="calculateDiff(item)"
                     />
-                    <span class="text-xs text-gray-500 font-bold uppercase">{{ item.unit }}</span>
+                    <span class="text-xs text-muted-foreground font-bold uppercase">{{ item.unit }}</span>
                     
                     <!-- Discrepancy indicator -->
                     <span 
                       v-if="item.diff !== 0" 
                       class="text-xs font-bold font-mono px-1.5 py-0.5 rounded text-right"
-                      :class="item.diff < 0 ? 'text-[#F44336]' : 'text-[#4CAF50]'"
+                      :class="item.diff < 0 ? 'text-red-600' : 'text-green-600'"
                     >
                       {{ item.diff < 0 ? '' : '+' }}{{ item.diff }}
                     </span>
-                    <span v-else class="text-[#4CAF50] text-xs">✓</span>
+                    <span v-else class="text-green-600 text-xs">✓</span>
                   </div>
                 </div>
               </div>
             </div>
 
             <!-- Waste Log report warning if there's significant shortage -->
-            <div v-if="hasSignificantShortage" class="bg-red-950/20 border border-red-800/40 rounded-xl p-4 animate-fade-in">
-              <span class="text-xs font-bold text-[#F44336] uppercase tracking-wider block mb-2">
+            <div v-if="hasSignificantShortage" class="bg-red-100 border border-red-300 rounded-xl p-4 animate-fade-in">
+              <span class="text-xs font-bold text-red-600 uppercase tracking-wider block mb-2">
                 ⚠️ HỒ SƠ HAO HỤT (WASTE LOG REQUIRED)
               </span>
-              <p class="text-xs text-red-300 mb-3">Phát hiện chênh lệch hao hụt lớn (&le; -0.5) so với lý thuyết. Bắt buộc ghi nhận biên bản Waste Log:</p>
+              <p class="text-xs text-red-700 mb-3">Phát hiện chênh lệch hao hụt lớn (&le; -0.5) so với lý thuyết. Bắt buộc ghi nhận biên bản Waste Log:</p>
               <textarea 
                 v-model="wasteNotes"
                 placeholder="Giải trình lý do hao hụt (ví dụ: Thịt bò Wagyu bị cháy hủy món bàn 4, Rau bị dập nát hủy bỏ 0.5kg ca sáng...)"
@@ -297,27 +297,27 @@
 
             <!-- Safety Checklists -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <label class="flex items-start gap-3 cursor-pointer p-3.5 rounded-xl bg-background border border-border hover:border-gray-500 transition">
+              <label class="flex items-start gap-3 cursor-pointer p-3.5 rounded-xl bg-background border border-border hover:border-border transition">
                 <input 
                   type="checkbox" 
                   v-model="checklist.fefoCheck"
-                  class="w-5.5 h-5.5 rounded border-gray-600 text-[#FF9800] focus:ring-[#FF9800] bg-card mt-0.5"
+                  class="w-5.5 h-5.5 rounded border-border text-[#FF9800] focus:ring-[#FF9800] bg-card mt-0.5"
                 />
                 <div>
                   <span class="font-semibold text-foreground block text-sm">Kiểm tra hạn sử dụng (FEFO)</span>
-                  <span class="text-xs text-gray-400">Rà soát ngày, xếp các khay hạn sử dụng ngắn ra ngoài để ca sau dùng trước.</span>
+                  <span class="text-xs text-muted-foreground">Rà soát ngày, xếp các khay hạn sử dụng ngắn ra ngoài để ca sau dùng trước.</span>
                 </div>
               </label>
 
-              <label class="flex items-start gap-3 cursor-pointer p-3.5 rounded-xl bg-background border border-border hover:border-gray-500 transition">
+              <label class="flex items-start gap-3 cursor-pointer p-3.5 rounded-xl bg-background border border-border hover:border-border transition">
                 <input 
                   type="checkbox" 
                   v-model="checklist.wrapFood"
-                  class="w-5.5 h-5.5 rounded border-gray-600 text-[#FF9800] focus:ring-[#FF9800] bg-card mt-0.5"
+                  class="w-5.5 h-5.5 rounded border-border text-[#FF9800] focus:ring-[#FF9800] bg-card mt-0.5"
                 />
                 <div>
                   <span class="font-semibold text-foreground block text-sm">Bọc màng co & dán nhãn ngày</span>
-                  <span class="text-xs text-gray-400">Toàn bộ khay thịt/rau củ thừa bọc màng thực phẩm kín, dán nhãn ca và ngày sơ chế.</span>
+                  <span class="text-xs text-muted-foreground">Toàn bộ khay thịt/rau củ thừa bọc màng thực phẩm kín, dán nhãn ca và ngày sơ chế.</span>
                 </div>
               </label>
             </div>
@@ -326,38 +326,38 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-5 p-4 bg-background rounded-xl border border-border">
               <div class="space-y-2">
                 <div class="flex justify-between items-baseline">
-                  <span class="text-xs font-bold text-gray-400 uppercase">🌡️ Nhiệt độ Tủ Mát</span>
+                  <span class="text-xs font-bold text-muted-foreground uppercase">🌡️ Nhiệt độ Tủ Mát</span>
                   <span class="text-sm font-bold font-mono" :class="fridgeTemp > 5 ? 'text-red-500' : 'text-green-500'">
                     {{ fridgeTemp }}°C
                   </span>
                 </div>
                 <div class="flex items-center gap-3">
                   <input v-model.number="fridgeTemp" type="range" min="-5" max="15" step="1" class="temp-slider flex-1" />
-                  <span v-if="fridgeTemp > 5" class="text-[10px] bg-red-950/40 text-red-400 border border-red-800/40 px-1.5 py-0.5 rounded font-bold">LỖI!</span>
-                  <span v-else class="text-[10px] bg-green-950/40 text-green-500 border border-green-800/40 px-1.5 py-0.5 rounded font-bold">OK</span>
+                  <span v-if="fridgeTemp > 5" class="text-[10px] bg-red-100 text-red-700 border border-red-300 px-1.5 py-0.5 rounded font-bold">LỖI!</span>
+                  <span v-else class="text-[10px] bg-green-100 text-green-500 border border-green-300 px-1.5 py-0.5 rounded font-bold">OK</span>
                 </div>
-                <span class="text-[10px] text-gray-500 block italic">Yêu cầu tiêu chuẩn: &le; 5°C</span>
+                <span class="text-[10px] text-muted-foreground block italic">Yêu cầu tiêu chuẩn: &le; 5°C</span>
               </div>
 
               <div class="space-y-2">
                 <div class="flex justify-between items-baseline">
-                  <span class="text-xs font-bold text-gray-400 uppercase">🌡️ Nhiệt độ Tủ Đông</span>
+                  <span class="text-xs font-bold text-muted-foreground uppercase">🌡️ Nhiệt độ Tủ Đông</span>
                   <span class="text-sm font-bold font-mono" :class="freezerTemp > -15 ? 'text-red-500' : 'text-green-500'">
                     {{ freezerTemp }}°C
                   </span>
                 </div>
                 <div class="flex items-center gap-3">
                   <input v-model.number="freezerTemp" type="range" min="-30" max="-5" step="1" class="temp-slider flex-1" />
-                  <span v-if="freezerTemp > -15" class="text-[10px] bg-red-950/40 text-red-400 border border-red-800/40 px-1.5 py-0.5 rounded font-bold">LỖI!</span>
-                  <span v-else class="text-[10px] bg-green-950/40 text-green-500 border border-green-800/40 px-1.5 py-0.5 rounded font-bold">OK</span>
+                  <span v-if="freezerTemp > -15" class="text-[10px] bg-red-100 text-red-700 border border-red-300 px-1.5 py-0.5 rounded font-bold">LỖI!</span>
+                  <span v-else class="text-[10px] bg-green-100 text-green-500 border border-green-300 px-1.5 py-0.5 rounded font-bold">OK</span>
                 </div>
-                <span class="text-[10px] text-gray-500 block italic">Yêu cầu tiêu chuẩn: &le; -18°C</span>
+                <span class="text-[10px] text-muted-foreground block italic">Yêu cầu tiêu chuẩn: &le; -18°C</span>
               </div>
             </div>
 
             <div class="flex justify-between pt-4 border-t border-border">
               <button 
-                class="px-6 py-2.5 bg-gray-800 border border-gray-700 hover:bg-gray-700 text-foreground font-bold rounded-xl text-xs uppercase transition"
+                class="px-6 py-2.5 bg-muted border border-border hover:bg-muted text-foreground font-bold rounded-xl text-xs uppercase transition"
                 @click="wizardStep = 1"
               >
                 Quay lại
@@ -383,12 +383,12 @@
               <!-- Left side: note inputs -->
               <div class="space-y-4">
                 <div class="flex flex-col gap-1.5">
-                  <label for="shift-select" class="text-xs text-gray-400 uppercase font-bold">Ca làm việc đóng cửa</label>
-                  <input id="shift-select" type="text" v-model="shiftName" disabled class="bg-background border border-border rounded-xl px-4 py-2.5 text-sm text-gray-300 opacity-80" />
+                  <label for="shift-select" class="text-xs text-muted-foreground uppercase font-bold">Ca làm việc đóng cửa</label>
+                  <input id="shift-select" type="text" v-model="shiftName" disabled class="bg-background border border-border rounded-xl px-4 py-2.5 text-sm text-muted-foreground opacity-80" />
                 </div>
 
                 <div class="flex flex-col gap-1.5">
-                  <label for="incoming-select" class="text-xs text-gray-400 uppercase font-bold">Bếp trưởng ca sau tiếp quản</label>
+                  <label for="incoming-select" class="text-xs text-muted-foreground uppercase font-bold">Bếp trưởng ca sau tiếp quản</label>
                   <select 
                     id="incoming-select" 
                     v-model="incomingChef"
@@ -403,7 +403,7 @@
                 </div>
 
                 <div class="flex flex-col gap-1.5">
-                  <label for="notes-handover" class="text-xs text-gray-400 uppercase font-bold">Sổ bàn giao / Ghi chú ca sau (Notes)</label>
+                  <label for="notes-handover" class="text-xs text-muted-foreground uppercase font-bold">Sổ bàn giao / Ghi chú ca sau (Notes)</label>
                   <textarea 
                     id="notes-handover" 
                     v-model="handoverNotes"
@@ -417,13 +417,13 @@
               <!-- Right side: canvas signature -->
               <div class="space-y-4">
                 <div class="flex justify-between items-baseline">
-                  <span class="text-xs text-gray-400 uppercase font-bold">✍️ Chữ ký số Chef ca sau (Chef Minh)</span>
-                  <button type="button" class="text-[10px] bg-background hover:bg-card border border-border text-gray-300 font-bold px-2 py-1 rounded" @click="clearSignature">
+                  <span class="text-xs text-muted-foreground uppercase font-bold">✍️ Chữ ký số Chef ca sau (Chef Minh)</span>
+                  <button type="button" class="text-[10px] bg-background hover:bg-card border border-border text-muted-foreground font-bold px-2 py-1 rounded" @click="clearSignature">
                     Xóa Chữ Ký
                   </button>
                 </div>
 
-                <div class="signature-canvas-container bg-background/40 border-2 border-dashed border-border rounded-xl h-[175px] relative overflow-hidden flex items-center justify-center">
+                <div class="signature-canvas-container bg-background border-2 border-dashed border-border rounded-xl h-[175px] relative overflow-hidden flex items-center justify-center">
                   <canvas 
                     ref="canvasRef"
                     width="400"
@@ -437,7 +437,7 @@
                     @touchmove="draw"
                     @touchend="stopDrawing"
                   ></canvas>
-                  <div v-if="!hasSigned" class="absolute pointer-events-none text-xs text-gray-500 font-bold uppercase z-0 text-center px-4">
+                  <div v-if="!hasSigned" class="absolute pointer-events-none text-xs text-muted-foreground font-bold uppercase z-0 text-center px-4">
                     Ký tên của Bếp trưởng ca sau tại đây để hoàn tất bàn giao ca bếp
                   </div>
                 </div>
@@ -450,7 +450,7 @@
 
             <div class="flex justify-between pt-4 border-t border-border">
               <button 
-                class="px-6 py-2.5 bg-gray-800 border border-gray-700 hover:bg-gray-700 text-foreground font-bold rounded-xl text-xs uppercase transition"
+                class="px-6 py-2.5 bg-muted border border-border hover:bg-muted text-foreground font-bold rounded-xl text-xs uppercase transition"
                 @click="wizardStep = 2"
               >
                 Quay lại

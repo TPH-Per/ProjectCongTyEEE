@@ -2,17 +2,17 @@
   <div class="min-h-screen bg-gray-50 p-6">
 
     <div v-if="loading" class="flex h-64 items-center justify-center text-gray-500 font-semibold">
-      {{ t('auto_ang_t_i_d_li_u') }}
+      {{ $t('manager_marketing.loading') }}
     </div>
     <div v-else>
       <!-- Page Header -->
       <div class="mb-6">
-      <h1 class="text-2xl font-bold text-gray-800">{{ t('auto_ph_n_t_ch_marketing') }}</h1>
-      <p class="text-sm text-gray-500 mt-1">{{ t('auto_th_ng_6___2026___t_ng_kh_ch__2') }}</p>
+      <h1 class="text-2xl font-bold text-gray-800">{{ $t('manager_marketing.title') }}</h1>
+      <p class="text-sm text-gray-500 mt-1">{{ $t('manager_marketing.subtitle') }}</p>
     </div>
 
     <!-- SNS Channel Attribution -->
-    <h2 class="text-base font-bold text-gray-700 mb-3">{{ t('auto_ngu_n_kh_ch_theo_k_nh') }}</h2>
+    <h2 class="text-base font-bold text-gray-700 mb-3">{{ $t('manager_marketing.guest_source') }}</h2>
     <div class="grid grid-cols-5 gap-3 mb-6">
       <div
         v-for="ch in channels"
@@ -37,10 +37,10 @@
     <div class="grid grid-cols-3 gap-4 mb-6">
       <!-- Marketing Cost Input Form -->
       <div class="col-span-1 kawaii-card p-5">
-        <h2 class="text-base font-bold text-gray-800 mb-4">{{ t('auto_nh_p_chi_ph__marketing') }}</h2>
+        <h2 class="text-base font-bold text-gray-800 mb-4">{{ $t('manager_marketing.input_cost') }}</h2>
         <!-- Month picker -->
         <div class="mb-4">
-          <label class="block text-xs font-semibold text-gray-500 mb-1">{{ t('auto_th_ng') }}</label>
+          <label class="block text-xs font-semibold text-gray-500 mb-1">{{ $t('manager_marketing.month') }}</label>
           <input
             v-model="selectedMonth"
             type="month"
@@ -58,30 +58,30 @@
                 class="kawaii-input w-full text-sm pr-6"
                 @input="recalc"
               />
-              <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400">{{ t('auto_') }}</span>
+              <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400">đ</span>
             </div>
           </div>
         </div>
         <!-- Total display -->
         <div class="bg-pink-50 rounded-xl p-3 mb-3">
           <div class="flex justify-between items-center mb-1">
-            <span class="text-xs font-semibold text-gray-600">{{ t('auto_t_ng_chi_ph_') }}</span>
+            <span class="text-xs font-semibold text-gray-600">{{ $t('manager_marketing.total_cost') }}</span>
             <span class="text-base font-extrabold text-pink-600">{{ formattedTotal }}</span>
           </div>
           <div class="flex justify-between items-center">
-            <span class="text-xs font-semibold text-gray-600">{{ t('auto_cpa__chi_ph____kh_ch_digital_') }}</span>
+            <span class="text-xs font-semibold text-gray-600">{{ $t('manager_marketing.cpa') }}</span>
             <span class="text-sm font-bold text-gray-700">{{ formattedCPA }}</span>
           </div>
         </div>
         <button class="kawaii-btn-primary w-full py-2.5 text-sm font-semibold">
-          {{ t('auto_l_u_chi_ph') }}
+          {{ $t('manager_marketing.save_cost') }}
         </button>
       </div>
 
       <!-- Campaign Table -->
       <div class="col-span-2 kawaii-card overflow-hidden">
         <div class="px-5 py-4 border-b border-gray-100">
-          <h2 class="text-base font-bold text-gray-800">{{ t('auto_b_ng_chi_n_d_ch') }}</h2>
+          <h2 class="text-base font-bold text-gray-800">{{ $t('manager_marketing.campaign_table') }}</h2>
         </div>
         <div class="overflow-x-auto">
           <table class="w-full text-sm">
@@ -119,49 +119,49 @@
 
     <!-- Event Revenue Extraction -->
     <div class="kawaii-card p-5">
-      <h2 class="text-base font-bold text-gray-800 mb-4">{{ t('auto_tr_ch_xu_t_doanh_thu_theo_s__k') }}</h2>
+      <h2 class="text-base font-bold text-gray-800 mb-4">{{ $t('manager_marketing.extract_revenue') }}</h2>
       <div class="flex flex-wrap items-end gap-4">
         <div>
-          <label class="block text-xs font-semibold text-gray-500 mb-1">{{ t('auto_t__ng_y') }}</label>
+          <label class="block text-xs font-semibold text-gray-500 mb-1">{{ $t('manager_marketing.from_date') }}</label>
           <input v-model="dateFrom" type="date" class="kawaii-input text-sm" />
         </div>
         <div>
-          <label class="block text-xs font-semibold text-gray-500 mb-1">{{ t('auto___n_ng_y') }}</label>
+          <label class="block text-xs font-semibold text-gray-500 mb-1">{{ $t('manager_marketing.to_date') }}</label>
           <input v-model="dateTo" type="date" class="kawaii-input text-sm" />
         </div>
         <button
           class="kawaii-btn-primary px-5 py-2.5 text-sm font-semibold"
           @click="showResult = true"
         >
-          📊 Xem Doanh Thu
+          {{ $t('manager_marketing.view_revenue') }}
         </button>
         <button
           class="kawaii-btn-ghost px-4 py-2.5 text-sm"
           @click="showResult = false"
         >
-          {{ t('auto_x_a') }}
+          {{ $t('manager_marketing.clear') }}
         </button>
       </div>
       <!-- Result display -->
       <transition name="fade">
         <div v-if="showResult" class="mt-5 bg-gradient-to-r from-pink-50 to-orange-50 rounded-2xl p-5 border border-pink-100">
-          <p class="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wider">{{ t('auto_k_t_qu_') }}</p>
+          <p class="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wider">{{ $t('manager_marketing.result') }}</p>
           <div class="flex flex-wrap gap-8 items-center">
             <div>
-              <p class="text-xs text-gray-500">{{ t('auto_ng_y_15_16_06_2026') }}</p>
-              <p class="text-2xl font-extrabold text-gray-800 mt-1">34,200,000<span class="text-base font-normal text-gray-500">{{ t('auto_') }}</span></p>
-              <p class="text-xs text-green-600 font-medium mt-0.5">{{ t('auto___t_ng_doanh_thu_k__ch_n') }}</p>
+              <p class="text-xs text-gray-500">{{ $t('manager_marketing.event_date') }}</p>
+              <p class="text-2xl font-extrabold text-gray-800 mt-1">34,200,000<span class="text-base font-normal text-gray-500">đ</span></p>
+              <p class="text-xs text-green-600 font-medium mt-0.5">{{ $t('manager_marketing.revenue_increase') }}</p>
             </div>
             <div class="w-px h-12 bg-pink-200"></div>
             <div>
-              <p class="text-xs text-gray-500">{{ t('auto_t_ng_kh_ch') }}</p>
+              <p class="text-xs text-gray-500">{{ $t('manager_marketing.total_guests') }}</p>
               <p class="text-2xl font-extrabold text-gray-800 mt-1">186</p>
-              <p class="text-xs text-gray-400 font-medium mt-0.5">{{ t('auto_l__t_gh__th_m') }}</p>
+              <p class="text-xs text-gray-400 font-medium mt-0.5">{{ $t('manager_marketing.visits') }}</p>
             </div>
             <div class="w-px h-12 bg-pink-200"></div>
             <div>
-              <p class="text-xs text-gray-500">{{ t('auto_chi_ti_u_tb___kh_ch') }}</p>
-              <p class="text-2xl font-extrabold text-pink-600 mt-1">183,871<span class="text-base font-normal text-pink-400">{{ t('auto_') }}</span></p>
+              <p class="text-xs text-gray-500">{{ $t('manager_marketing.avg_spend') }}</p>
+              <p class="text-2xl font-extrabold text-pink-600 mt-1">183,871<span class="text-base font-normal text-pink-400">đ</span></p>
             </div>
           </div>
         </div>
@@ -173,10 +173,10 @@
 
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-const { t } = useI18n()
 import { ref, computed, onMounted } from 'vue'
 import { useMarketing } from '@/composables/useMarketing'
 
+const { t } = useI18n()
 const { listForPeriod } = useMarketing()
 
 const loading = ref(true)
@@ -187,10 +187,10 @@ const showResult = ref(false)
 
 const campaigns = ref<any[]>([])
 
-const channels = [
+const channels = computed(() => [
   {
     icon: '🗺️',
-    name: 'Google Map',
+    name: t('manager_marketing.channel_google'),
     guests: 89,
     pct: '35.9%',
     revenue: '4,450,000đ',
@@ -200,7 +200,7 @@ const channels = [
   },
   {
     icon: '💙',
-    name: 'Facebook',
+    name: t('manager_marketing.channel_facebook'),
     guests: 67,
     pct: '27.0%',
     revenue: '3,350,000đ',
@@ -210,7 +210,7 @@ const channels = [
   },
   {
     icon: '🎵',
-    name: 'TikTok',
+    name: t('manager_marketing.channel_tiktok'),
     guests: 52,
     pct: '20.9%',
     revenue: '2,600,000đ',
@@ -220,7 +220,7 @@ const channels = [
   },
   {
     icon: '💬',
-    name: 'Zalo OA',
+    name: t('manager_marketing.channel_zalo'),
     guests: 31,
     pct: '12.5%',
     revenue: '1,550,000đ',
@@ -230,7 +230,7 @@ const channels = [
   },
   {
     icon: '👤',
-    name: 'Người quen giới thiệu',
+    name: t('manager_marketing.channel_referral'),
     guests: 9,
     pct: '3.6%',
     revenue: '450,000đ',
@@ -238,14 +238,14 @@ const channels = [
     pillClass: 'bg-gray-100 text-gray-600',
     glowColor: 'bg-gray-300',
   },
-]
+])
 
-const costFields = [
-  { key: 'fb', label: 'FB Ads (đ)' },
-  { key: 'tiktok', label: 'TikTok Ads (đ)' },
-  { key: 'google', label: 'Google Ads (đ)' },
-  { key: 'other', label: 'Khác (đ)' },
-]
+const costFields = computed(() => [
+  { key: 'fb', label: t('manager_marketing.cost_fb') },
+  { key: 'tiktok', label: t('manager_marketing.cost_tiktok') },
+  { key: 'google', label: t('manager_marketing.cost_google') },
+  { key: 'other', label: t('manager_marketing.cost_other') },
+])
 
 const costs = ref<Record<string, number>>({ fb: 5000000, tiktok: 3000000, google: 2000000, other: 500000 })
 
@@ -254,11 +254,20 @@ const digitalGuests = computed(() => 89 + 67 + 52 + 31) // Google + FB + TikTok 
 const cpa = computed(() => Math.round(totalCost.value / digitalGuests.value))
 
 const formattedTotal = computed(() => totalCost.value.toLocaleString('vi-VN') + 'đ')
-const formattedCPA = computed(() => cpa.value.toLocaleString('vi-VN') + 'đ / khách')
+const formattedCPA = computed(() => cpa.value.toLocaleString('vi-VN') + ` ${t('manager_marketing.per_guest')}`)
 
 function recalc() { /* reactivity handled by computed */ }
 
-const campaignColumns = ['Mã', 'Tên Chiến Dịch', 'Ngày', 'Loại', 'Khách', 'Doanh Thu', 'Chi Phí', 'CPA']
+const campaignColumns = computed(() => [
+  t('manager_marketing.col_code'),
+  t('manager_marketing.col_name'),
+  t('manager_marketing.col_date'),
+  t('manager_marketing.col_type'),
+  t('manager_marketing.col_guests'),
+  t('manager_marketing.col_revenue'),
+  t('manager_marketing.col_cost'),
+  t('manager_marketing.col_cpa')
+])
 
 onMounted(async () => {
   loading.value = true
@@ -329,4 +338,5 @@ onMounted(async () => {
 .fade-enter-active, .fade-leave-active { transition: opacity 0.3s, transform 0.3s; }
 .fade-enter-from, .fade-leave-to { opacity: 0; transform: translateY(-8px); }
 </style>
+
 

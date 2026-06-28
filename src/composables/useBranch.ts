@@ -5,6 +5,10 @@ import type { Branch } from '@/types/database'
 
 const STORAGE_KEY = 'ngu-cat.selectedBranch'
 
+export function throwBranchGuard(): never {
+  throw new Error('No active branch selected. Please select a branch first.')
+}
+
 /**
  * Active-branch selector for admin/superadmin who can view multiple branches.
  *
@@ -30,15 +34,68 @@ export function useBranch() {
     else localStorage.removeItem(STORAGE_KEY)
   }
 
+  // CREATE
+  async function createBranch(input: {
+    name: string;
+    address: string;
+    phone: string;
+    capacity: number;
+    manager_id?: string;
+    operating_hours?: Record<string, { open: string; close: string }>;
+  }): Promise<Branch> {
+    const { data, error } = await supabase
+      .from('branches')
+      .insert(input)
+      .select()
+      .single()
+    if (error) throw error
+    return data as Branch
+  }
+
+  // UPDATE
+  async function updateBranch(id: string, patch: Partial<Branch>): Promise<Branch> {
+    const { data, error } = await supabase
+      .from('branches')
+      .update({ ...patch, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .select()
+      .single()
+    if (error) throw error
+    return data as Branch
+  }
+
+  // TOGGLE ACTIVE STATUS
+  async function toggleBranchStatus(id: string, isActive: boolean): Promise<void> {
+    const { error } = await supabase
+      .from('branches')
+      .update({ is_active: isActive })
+      .eq('id', id)
+    if (error) throw error
+  }
+
+  // LIST (with manager profile joined, one query)
   async function listBranches(): Promise<Branch[]> {
     const { data, error } = await supabase
       .from('branches')
-      .select('id, code, name, address, phone, is_active')
-      .eq('is_active', true)
-      .order('name')
+      .select(`
+        *,
+        manager:manager_id (
+          id,
+          raw_user_meta_data
+        )
+      `)
+      .order('created_at', { ascending: false })
     if (error) throw error
     return (data ?? []) as Branch[]
   }
 
-  return { activeBranchId, selectedBranchId, selectBranch, listBranches }
+  return {
+    activeBranchId,
+    selectedBranchId,
+    selectBranch,
+    createBranch,
+    updateBranch,
+    toggleBranchStatus,
+    listBranches
+  }
 }

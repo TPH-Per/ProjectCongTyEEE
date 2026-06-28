@@ -34,13 +34,13 @@
       <div class="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center text-3xl mb-4 text-[#c62828] animate-bounce">
         ⚠️
       </div>
-      <h2 class="text-lg font-bold text-gray-900 tracking-tight">{{ $t('auto_quyen_truy_cap_bi_tu_choi') }}</h2>
-      <p class="text-sm text-gray-500 font-medium max-w-sm mt-1 mb-6">{{ $t('auto_vui_long_chon_mot_ban_an_dang') }}</p>
+      <h2 class="text-lg font-bold text-gray-900 tracking-tight">{{ $t('reception_order.quyen_truy_cap_bi_tu_choi') }}</h2>
+      <p class="text-sm text-gray-500 font-medium max-w-sm mt-1 mb-6">{{ $t('reception_order.vui_long_chon_mot_ban_an_dang') }}</p>
       <router-link 
         to="/reception/floors" 
         class="px-5 py-3 bg-[#c62828] hover:bg-[#b71c1c] text-white font-bold text-xs rounded-lg shadow-sm transition-all active:scale-95 flex items-center gap-2"
       >
-        <span>{{ $t('auto_di_toi_so_do_ban') }}</span>
+        <span>{{ $t('reception_order.di_toi_so_do_ban') }}</span>
       </router-link>
     </div>
 
@@ -54,33 +54,33 @@
           <button 
             class="back-btn mr-2"
             @click="goBack"
-            aria-label="Quay lại"
+            :aria-label="$t('reception_order.quay_lai_aria')"
           >
             <span class="back-icon">⬅️</span>
-            <span class="back-text font-bold text-xs ml-1">{{ $t('auto_quay_lai', 'Quay lại') }}</span>
+            <span class="back-text font-bold text-xs ml-1">{{ $t('reception_order.quay_lai') }}</span>
           </button>
 
           <!-- Restaurant logo -->
           <div class="flex items-center gap-2 font-bold text-base text-[#ff8f00]">
             <span class="text-xl">🐮</span>
-            <span>NGƯU CÁT POS</span>
+            <span>{{ $t('reception_order.nguu_cat_pos') }}</span>
           </div>
           
           <!-- Order Number -->
           <div class="flex flex-col gap-0.5 border-l border-[#4a4a4a] pl-4">
-            <span class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">{{ $t('auto_hoa_don') }}</span>
+            <span class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">{{ $t('reception_order.hoa_don') }}</span>
             <span class="text-xs font-bold font-mono text-gray-200">{{ activeOrder.orderNumber || 'WB_00001843' }}</span>
           </div>
 
           <!-- Customer Name -->
           <div class="flex flex-col gap-0.5 border-l border-[#4a4a4a] pl-4">
-            <span class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">{{ $t('auto_khach_hang') }}</span>
+            <span class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">{{ $t('reception_order.khach_hang') }}</span>
             <span class="text-xs font-bold text-gray-200 truncate max-w-[120px]">{{ activeOrder.customerName || 'Ngoc' }}</span>
           </div>
 
           <!-- Open Time -->
           <div class="flex flex-col gap-0.5 border-l border-[#4a4a4a] pl-4">
-            <span class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">{{ $t('auto_gio_mo') }}</span>
+            <span class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">{{ $t('reception_order.gio_mo') }}</span>
             <span class="text-xs font-mono text-gray-300">{{ activeOrder.openedTime || '11:30 24/06/2026' }}</span>
           </div>
 
@@ -103,7 +103,7 @@
         <div class="flex items-center gap-3">
           <!-- Session countdown timer -->
           <div class="flex items-center gap-2 bg-[#3a3a3a] border border-[#4a4a4a] px-3 py-1 rounded-lg text-xs font-semibold">
-            <span class="text-gray-400 uppercase tracking-wide text-[10px]">{{ $t('auto_thoi_gian') }}</span>
+            <span class="text-gray-400 uppercase tracking-wide text-[10px]">{{ $t('reception_order.thoi_gian') }}</span>
             <span 
               :class="[
                 'font-mono font-bold px-1 rounded text-xs',
@@ -122,7 +122,7 @@
             <input 
               v-model="searchQuery" 
               type="text" 
-              :placeholder="$t('auto_tim_kiem')" 
+              :placeholder="$t('reception_order.tim_kiem')" 
               class="bg-transparent border-none text-xs text-white placeholder-gray-500 focus:outline-none w-full"
             />
             <button v-if="searchQuery" @click="searchQuery = ''" class="text-gray-400 hover:text-white text-xs ml-1">✕</button>
@@ -133,14 +133,14 @@
             <button 
               @click="printDraftBill" 
               class="p-1.5 bg-[#3a3a3a] hover:bg-[#4a4a4a] border border-[#4a4a4a] rounded-lg transition-colors" 
-              :title="$t('auto_xem_hoa_don_tam_tinh')"
+              :title="$t('reception_order.xem_hoa_don_tam_tinh')"
             >
               🖨️
             </button>
             <button 
               @click="openSettingsConfig" 
               class="p-1.5 bg-[#3a3a3a] hover:bg-[#4a4a4a] border border-[#4a4a4a] rounded-lg transition-colors" 
-              :title="$t('auto_cau_hinh_goi_ngon_ngu')"
+              :title="$t('reception_order.cau_hinh_goi_ngon_ngu')"
             >
               ⚙️
             </button>
@@ -168,9 +168,9 @@
         >
           <div class="flex items-center gap-2">
             <span>⏰</span>
-            <span>{{ $t('auto_thoi_gian_do_uong_premium_da_k') }}</span>
+            <span>{{ $t('reception_order.thoi_gian_do_uong_premium_da_k') }}</span>
           </div>
-          <button @click="openPinModal" class="px-2.5 py-1 bg-amber-700 text-white text-[10px] rounded hover:bg-amber-600 font-bold transition-all">{{ $t('auto_mo_khoa_pin') }}</button>
+          <button @click="openPinModal" class="px-2.5 py-1 bg-amber-700 text-white text-[10px] rounded hover:bg-amber-600 font-bold transition-all">{{ $t('reception_order.mo_khoa_pin') }}</button>
         </div>
       </transition>
 
@@ -183,8 +183,8 @@
           <!-- Cart Header -->
           <div class="p-4 border-b border-[#3a3a3a] flex items-center justify-between shrink-0 select-none">
             <div class="flex flex-col">
-              <span class="font-bold text-xs text-gray-200">BÀN PHỤC VỤ</span>
-              <span class="text-sm font-black text-[#ff8f00] mt-0.5">{{ activeTableArea }} - Bàn {{ activeOrder.tableCode }}</span>
+              <span class="font-bold text-xs text-gray-200">{{ $t('reception_order.ban_phuc_vu') }}</span>
+              <span class="text-sm font-black text-[#ff8f00] mt-0.5">{{ activeTableArea }} - {{ $t('reception_order.ban_text') }} {{ activeOrder.tableCode }}</span>
             </div>
             
             <div class="flex items-center gap-2">
@@ -192,7 +192,7 @@
                 @click="clearCart" 
                 :disabled="activeOrder.items.length === 0"
                 class="px-2.5 py-1 text-[11px] font-bold bg-red-950/40 hover:bg-red-900/40 border border-red-900/50 text-red-400 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-              >{{ $t('auto_xoa_het') }}</button>
+              >{{ $t('reception_order.xoa_het') }}</button>
             </div>
           </div>
 
@@ -201,17 +201,17 @@
             <div class="w-full text-left text-xs">
               <!-- Columns headers -->
               <div class="grid grid-cols-[45%_22%_13%_20%] font-bold text-gray-500 uppercase tracking-wider pb-2 border-b border-[#3a3a3a] px-1 select-none">
-                <div>{{ $t('auto_ten_mon') }}</div>
-                <div class="text-right">{{ $t('auto_don_gia') }}</div>
+                <div>{{ $t('reception_order.ten_mon') }}</div>
+                <div class="text-right">{{ $t('reception_order.don_gia') }}</div>
                 <div class="text-center">VAT</div>
-                <div class="text-right">{{ $t('auto_thanh_tien') }}</div>
+                <div class="text-right">{{ $t('reception_order.thanh_tien') }}</div>
               </div>
 
               <!-- Cart Empty state -->
               <div v-if="activeOrder.items.length === 0" class="py-20 text-center text-gray-500 select-none">
                 <div class="text-4xl mb-3">🛒</div>
-                <p class="font-bold text-gray-400">{{ $t('auto_hoa_don_trong') }}</p>
-                <p class="text-[10px] text-gray-500 mt-1 max-w-[200px] mx-auto leading-relaxed">{{ $t('auto_vui_long_chon_mon_an_tu_thuc_d') }}</p>
+                <p class="font-bold text-gray-400">{{ $t('reception_order.hoa_don_trong') }}</p>
+                <p class="text-[10px] text-gray-500 mt-1 max-w-[200px] mx-auto leading-relaxed">{{ $t('reception_order.vui_long_chon_mon_an_tu_thuc_d') }}</p>
               </div>
 
               <!-- Cart items rows -->
@@ -223,7 +223,7 @@
                 >
                   <div class="pr-2">
                     <div class="font-bold text-gray-100 leading-tight">{{ item.name }}</div>
-                    <div class="text-[10px] text-gray-500 mt-0.5">ĐVT: {{ item.unit }}</div>
+                    <div class="text-[10px] text-gray-500 mt-0.5">{{ $t('reception_order.dvt') }}: {{ item.unit }}</div>
                     
                     <!-- Counter Controls -->
                     <div class="flex items-center gap-1 mt-2 select-none">
@@ -243,7 +243,7 @@
                       <button 
                         @click="removeItem(item.id)" 
                         class="text-red-500 hover:text-red-400 text-xs ml-2.5 opacity-0 group-hover:opacity-100 transition-opacity"
-                        :title="$t('auto_xoa_mon_khoi_gio')"
+                        :title="$t('reception_order.xoa_mon_khoi_gio')"
                       >
                         ✕
                       </button>
@@ -251,14 +251,14 @@
                   </div>
 
                   <div class="text-right font-mono font-bold text-gray-300 mt-0.5">
-                    <span v-if="isItemInPackage(item, activeSettings.package)" class="text-emerald-500 text-[10px] block leading-tight">{{ $t('auto_trong_goi') }}</span>
+                    <span v-if="isItemInPackage(item, activeSettings.package)" class="text-emerald-500 text-[10px] block leading-tight">{{ $t('reception_order.trong_goi') }}</span>
                     <span v-else>{{ formatVND(item.price) }}</span>
                   </div>
 
                   <div class="text-center font-mono text-gray-400 mt-0.5">10%</div>
 
                   <div class="text-right font-mono font-bold text-[#ff8f00] mt-0.5">
-                    <span v-if="isItemInPackage(item, activeSettings.package)" class="text-emerald-500 text-xs">{{ $t('auto_0d') }}</span>
+                    <span v-if="isItemInPackage(item, activeSettings.package)" class="text-emerald-500 text-xs">{{ $t('reception_order.0d') }}</span>
                     <span v-else>{{ formatVND(item.price * item.quantity) }}</span>
                   </div>
                 </div>
@@ -269,27 +269,27 @@
           <!-- Sticky summary footer -->
           <div class="border-t border-[#3a3a3a] bg-[#1e1e1e] p-4 text-xs font-semibold text-gray-300 space-y-2 select-none shrink-0">
             <div class="flex justify-between items-center">
-              <span class="text-gray-400">{{ $t('auto_tam_tinh_mon_goi') }}</span>
+              <span class="text-gray-400">{{ $t('reception_order.tam_tinh_mon_goi') }}</span>
               <span class="font-mono text-gray-200">{{ formatVND(summary.subtotal) }}</span>
             </div>
             <div class="flex justify-between items-center text-gray-400">
-              <span>{{ $t('auto_phi_dich_vu_5') }}</span>
+              <span>{{ $t('reception_order.phi_dich_vu_5') }}</span>
               <span class="font-mono">{{ formatVND(summary.serviceCharge) }}</span>
             </div>
             <div class="flex justify-between items-center text-gray-400">
-              <span>{{ $t('auto_thue_gtgt_vat_10') }}</span>
+              <span>{{ $t('reception_order.thue_gtgt_vat_10') }}</span>
               <span class="font-mono">{{ formatVND(summary.vat) }}</span>
             </div>
             
             <div class="flex justify-between items-center pt-2 border-t border-[#3a3a3a]">
-              <span class="text-gray-400 flex items-center gap-1.5">{{ $t('auto_tong_so_luong_mon') }}</span>
+              <span class="text-gray-400 flex items-center gap-1.5">{{ $t('reception_order.tong_so_luong_mon') }}</span>
               <span class="bg-[#ff8f00] text-white font-mono px-2 py-0.5 rounded-full text-[10px] font-bold">
-                {{ activeOrder.items.reduce((sum, item) => sum + item.quantity, 0) }} món
+                {{ activeOrder.items.reduce((sum, item) => sum + item.quantity, 0) }} {{ $t('reception_order.mon') }}
               </span>
             </div>
             
             <div class="flex justify-between items-center text-sm font-bold text-white pt-1">
-              <span>TỔNG THANH TOÁN:</span>
+              <span>{{ $t('reception_order.tong_thanh_toan_label') }}</span>
               <span class="text-xl font-mono text-[#ff8f00]">{{ formatVND(summary.grandTotal) }}</span>
             </div>
             
@@ -297,19 +297,19 @@
               <button 
                 @click="holdOrder"
                 class="py-2 bg-[#2d2d2d] hover:bg-[#333333] border border-[#4a4a4a] text-white text-xs font-bold rounded-lg transition-all"
-              >{{ $t('auto_tam_luu', '⏸️ Tạm lưu') }}</button>
+              >{{ $t('reception_order.tam_luu') }}</button>
               <button
                 @click="sendToKitchen"
                 :disabled="activeOrder.items.length === 0 || kitchenLoading"
                 class="py-2 bg-[#1976d2] hover:bg-[#1565c0] text-white text-xs font-bold rounded-lg disabled:opacity-40 disabled:cursor-not-allowed transition-all"
-              >{{ kitchenLoading ? '...' : $t('auto_gui_bep', '🍳 Gửi Bếp') }}</button>
+              >{{ kitchenLoading ? '...' : $t('reception_order.gui_bep') }}</button>
             </div>
             
             <button 
               @click="checkoutTable"
               class="w-full py-2.5 bg-[#c62828] hover:bg-[#b71c1c] text-white text-xs font-bold rounded-xl shadow-md transition-all active:scale-95 flex items-center justify-center gap-2 mt-2"
             >
-              💸 IN THANH TOÁN (BILL)
+              💸 {{ $t('reception_order.in_thanh_toan_bill') }}
             </button>
           </div>
         </aside>
@@ -328,7 +328,7 @@
               <div class="flex flex-wrap items-center gap-3">
                 <div class="flex gap-1.5">
                   <button 
-                    v-for="f in [{id: 'favorites', label: '⭐ Yêu thích'}, {id: 'popular', label: '🔥 Bán chạy'}, {id: 'recent', label: '🕒 Mới gọi'}]"
+                    v-for="f in [{id: 'favorites', label: '⭐ ' + t('reception_order.yeu_thich_star')}, {id: 'popular', label: '🔥 ' + t('reception_order.ban_chay_fire')}, {id: 'recent', label: '🕒 ' + t('reception_order.moi_goi_clock')}]"
                     :key="f.id"
                     @click="toggleQuickFilter(activeQuickFilter === f.id ? '' : (f.id as any))"
                     :class="[
@@ -349,9 +349,9 @@
                     v-model="activeStatusFilter" 
                     class="bg-[#3a3a3a] text-xs text-gray-200 border border-[#4a4a4a] rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-[#ff8f00] cursor-pointer"
                   >
-                    <option value="all">{{ $t('auto_tat_ca_mon') }}</option>
-                    <option value="available">{{ $t('auto_con_mon') }}</option>
-                    <option value="unavailable">{{ $t('auto_het_mon') }}</option>
+                    <option value="all">{{ $t('reception_order.tat_ca_mon') }}</option>
+                    <option value="available">{{ $t('reception_order.con_mon') }}</option>
+                    <option value="unavailable">{{ $t('reception_order.het_mon') }}</option>
                   </select>
 
                   <!-- Price Sort -->
@@ -359,16 +359,16 @@
                     v-model="priceSort" 
                     class="bg-[#3a3a3a] text-xs text-gray-200 border border-[#4a4a4a] rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-[#ff8f00] cursor-pointer"
                   >
-                    <option value="">{{ $t('auto_khong_sap_xep') }}</option>
-                    <option value="asc">{{ $t('auto_gia_thap_cao') }}</option>
-                    <option value="desc">{{ $t('auto_gia_cao_thap') }}</option>
+                    <option value="">{{ $t('reception_order.khong_sap_xep') }}</option>
+                    <option value="asc">{{ $t('reception_order.gia_thap_cao') }}</option>
+                    <option value="desc">{{ $t('reception_order.gia_cao_thap') }}</option>
                   </select>
                 </div>
               </div>
               
               <!-- Right: Toggle to show only course package elements -->
               <div v-if="activeSettings.package" class="flex items-center gap-2 bg-[#3a3a3a] border border-[#4a4a4a] px-3 py-1 rounded-full text-xs">
-                <span class="text-gray-400 font-bold text-[10px] uppercase">Chỉ món trong gói ({{ activeSettings.package }}):</span>
+                <span class="text-gray-400 font-bold text-[10px] uppercase">{{ $t('reception_order.chi_mon_trong_goi') }} ({{ activeSettings.package }}):</span>
                 <button 
                   @click="showOnlyPackageItems = !showOnlyPackageItems"
                   :class="[
@@ -389,14 +389,14 @@
             <!-- Loading Spinner -->
             <div v-if="isGridLoading" class="h-64 flex flex-col items-center justify-center text-gray-400 select-none">
               <div class="w-8 h-8 border-4 border-[#ff8f00] border-t-transparent rounded-full animate-spin"></div>
-              <p class="text-xs font-bold mt-4">{{ $t('auto_dang_loc_danh_muc_san_pham') }}</p>
+              <p class="text-xs font-bold mt-4">{{ $t('reception_order.dang_loc_danh_muc_san_pham') }}</p>
             </div>
 
             <!-- Empty Items layout -->
             <div v-else-if="finalFilteredItems.length === 0" class="h-64 flex flex-col items-center justify-center text-gray-500 text-center border border-dashed border-[#4a4a4a] rounded-2xl p-6 select-none">
               <div class="text-4xl mb-2">🍽️</div>
-              <h4 class="font-bold text-gray-400 text-xs">{{ $t('auto_khong_tim_thay_mon_an_nao_khop') }}</h4>
-              <p class="text-[10px] text-gray-500 mt-1 max-w-[280px]">{{ $t('auto_thuc_don_hien_tai_khong_co_mon') }}</p>
+              <h4 class="font-bold text-gray-400 text-xs">{{ $t('reception_order.khong_tim_thay_mon_an_nao_khop') }}</h4>
+              <p class="text-[10px] text-gray-500 mt-1 max-w-[280px]">{{ $t('reception_order.thuc_don_hien_tai_khong_co_mon') }}</p>
             </div>
 
             <!-- Responsive Product Card Grid -->
@@ -424,9 +424,9 @@
                   {{ getJpAndViNames(product.name).vi }}
                 </h3>
 
-                <!-- Badge TRONG GÓI hoặc Giá -->
+                <!-- Badge {{ $t('reception_order.trong_goi_upper') }} hoặc Giá -->
                 <div v-if="isItemInPackage(product, activeSettings.package) || product.price === 0" class="badge-included">
-                  TRONG GÓI
+                  {{ $t('reception_order.trong_goi_upper') }}
                 </div>
                 <div v-else class="item-price">
                   {{ formatPrice(product.price) }}
@@ -434,18 +434,18 @@
 
                 <!-- Footer: ĐVT + Icon Info -->
                 <div class="card-footer">
-                  <span class="unit-label">ĐVT: {{ product.unit }}</span>
+                  <span class="unit-label">{{ $t('reception_order.dvt') }}: {{ product.unit }}</span>
                   <button 
                     class="info-btn" 
                     @click.stop="openDetailPanel(product)"
-                    :title="'Chi tiết: ' + product.name"
+                    :title="t('reception_order.chi_tiet_title') + ': ' + product.name"
                   >
                   </button>
                 </div>
 
                 <!-- Stamp HẾT MÓN -->
                 <div v-if="!getEnrichedItem(product).isAvailable" class="out-of-stock-stamp">
-                  HẾT
+                  {{ $t('reception_order.het_upper') }}
                 </div>
               </div>
             </div>
@@ -463,7 +463,7 @@
                   border: activeSubCategoryId === 'all' ? '2px solid white' : '2px solid transparent'
                 }"
                 class="category-btn-sub px-4 py-2 rounded-xl text-xs font-bold text-white transition-all active:scale-95 shadow-sm flex items-center justify-center"
-              >{{ $t('auto_tat_ca') }}</button>
+              >{{ $t('reception_order.tat_ca') }}</button>
               
               <button 
                 v-for="sub in activeSubcategoriesList"
@@ -522,7 +522,7 @@
             
             <!-- Header Modal with Clean Colors -->
             <header class="bg-gradient-to-r from-[#1976d2] to-[#1565c0] text-white px-6 py-4 flex justify-between items-center shrink-0">
-              <h3 class="text-base font-bold tracking-tight select-none">{{ $t('auto_chi_tiet_mon_an') }}</h3>
+              <h3 class="text-base font-bold tracking-tight select-none">{{ $t('reception_order.chi_tiet_mon_an') }}</h3>
               <button 
                 @click="isDetailPanelOpen = false"
                 class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center font-bold text-sm transition-all select-none active:scale-90"
@@ -544,7 +544,7 @@
                     <span 
                       v-if="!getEnrichedItem(selectedProductForDetail).isAvailable"
                       class="absolute inset-0 bg-red-950/20 backdrop-blur-xs flex items-center justify-center font-black text-white text-xs uppercase"
-                    >{{ $t('auto_het_hang') }}</span>
+                    >{{ $t('reception_order.het_hang') }}</span>
                   </div>
                   
                   <span 
@@ -553,14 +553,14 @@
                       getEnrichedItem(selectedProductForDetail).isAvailable ? 'bg-emerald-50 text-emerald-700 border-emerald-150' : 'bg-red-50 text-red-700 border-red-150'
                     ]"
                   >
-                    ● {{ getEnrichedItem(selectedProductForDetail).isAvailable ? 'Còn hàng phục vụ' : 'Hết hàng' }}
+                    ● {{ getEnrichedItem(selectedProductForDetail).isAvailable ? t('reception_order.con_hang_phuc_vu_text') : t('reception_order.het_hang_text') }}
                   </span>
                 </div>
 
                 <!-- Column Right (60% width -> 6 cols) -->
                 <div class="md:col-span-6 space-y-4 font-bold text-xs text-gray-700">
                   <div class="space-y-1">
-                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('auto_ten_mon') }}</label>
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('reception_order.ten_mon') }}</label>
                     <input 
                       type="text" 
                       :value="selectedProductForDetail.name" 
@@ -571,7 +571,7 @@
 
                   <div class="grid grid-cols-2 gap-4">
                     <div class="space-y-1">
-                      <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('auto_ma_mon') }}</label>
+                      <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('reception_order.ma_mon') }}</label>
                       <input 
                         type="text" 
                         :value="selectedProductForDetail.id" 
@@ -580,7 +580,7 @@
                       />
                     </div>
                     <div class="space-y-1">
-                      <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('auto_don_vi_tinh') }}</label>
+                      <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('reception_order.don_vi_tinh') }}</label>
                       <input 
                         type="text" 
                         :value="selectedProductForDetail.unit" 
@@ -593,7 +593,7 @@
                   <div class="grid grid-cols-2 gap-4">
                     <!-- Qty Editor -->
                     <div class="space-y-1">
-                      <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('auto_so_luong') }}</label>
+                      <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('reception_order.so_luong') }}</label>
                       <div class="flex items-center gap-2">
                         <button 
                           @click="modalItemQty = Math.max(1, modalItemQty - 1)" 
@@ -613,10 +613,10 @@
                       </div>
                     </div>
                     <div class="space-y-1">
-                      <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('auto_don_gia_vnd') }}</label>
+                      <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('reception_order.don_gia_vnd') }}</label>
                       <input 
                         type="text" 
-                        :value="isItemInPackage(selectedProductForDetail, activeSettings.package) ? '0đ (Trong gói)' : formatVND(selectedProductForDetail.price)" 
+                        :value="isItemInPackage(selectedProductForDetail, activeSettings.package) ? t('reception_order.0d_trong_goi') : formatVND(selectedProductForDetail.price)" 
                         readonly 
                         class="w-full bg-gray-150 border border-gray-205 rounded-lg px-3 py-2 font-bold text-[#c62828] focus:outline-none"
                       />
@@ -626,21 +626,21 @@
                   <!-- VAT and Service charges (VAT default checked, Service unchecked) -->
                   <div class="flex items-center gap-6 py-1 select-none text-[#c62828]">
                     <label class="flex items-center gap-2 cursor-pointer font-bold">
-                      <input type="checkbox" v-model="modalVAT" class="w-4 h-4 accent-[#1976d2]" />{{ $t('auto_bao_gom_vat') }}</label>
+                      <input type="checkbox" v-model="modalVAT" class="w-4 h-4 accent-[#1976d2]" />{{ $t('reception_order.bao_gom_vat') }}</label>
                     <label class="flex items-center gap-2 cursor-pointer font-bold">
-                      <input type="checkbox" v-model="modalPPV" class="w-4 h-4 accent-[#1976d2]" />{{ $t('auto_bao_gom_ppv') }}</label>
+                      <input type="checkbox" v-model="modalPPV" class="w-4 h-4 accent-[#1976d2]" />{{ $t('reception_order.bao_gom_ppv') }}</label>
                   </div>
 
                   <div class="grid grid-cols-2 gap-4">
                     <div class="space-y-1">
-                      <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('auto_loai_tien_te') }}</label>
+                      <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('reception_order.loai_tien_te') }}</label>
                       <select v-model="modalCurrency" class="w-full bg-gray-50 border border-[#e0e0e0] rounded-lg px-3 py-2 font-bold text-gray-800 focus:outline-none">
-                        <option value="VND">{{ $t('auto_vnd_viet_nam_dong') }}</option>
-                        <option value="USD">{{ $t('auto_usd_do_la_my') }}</option>
+                        <option value="VND">{{ $t('reception_order.vnd_viet_nam_dong') }}</option>
+                        <option value="USD">{{ $t('reception_order.usd_do_la_my') }}</option>
                       </select>
                     </div>
                     <div class="space-y-1">
-                      <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('auto_ty_gia') }}</label>
+                      <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('reception_order.ty_gia') }}</label>
                       <input 
                         type="text" 
                         v-model="modalRate" 
@@ -651,20 +651,20 @@
                   </div>
 
                   <div class="space-y-1">
-                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('auto_ghi_chu') }}</label>
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('reception_order.ghi_chu') }}</label>
                     <textarea 
                       v-model="modalItemNote" 
-                      :placeholder="$t('auto_them_ghi_chu_dac_thu_it_da_nhi')" 
+                      :placeholder="$t('reception_order.them_ghi_chu_dac_thu_it_da_nhi')" 
                       class="w-full border border-[#e0e0e0] rounded-lg p-2.5 font-bold text-gray-855 h-20 resize-none focus:outline-none focus:border-[#1976d2]"
                     ></textarea>
                   </div>
 
                   <!-- Menu Classification Info (Requirement) -->
                   <div class="border-t border-[#f0f0f0] pt-4 mt-2">
-                    <h5 class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">{{ $t('auto_phan_nhom_thuc_don_he_thong') }}</h5>
+                    <h5 class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">{{ $t('reception_order.phan_nhom_thuc_don_he_thong') }}</h5>
                     <div class="grid grid-cols-2 gap-3 bg-gray-50 p-3 rounded-xl border border-[#e0e0e0] text-[11px]">
                       <div>
-                        <span class="text-gray-400 font-semibold">{{ $t('auto_nhom_san_pham') }}</span>
+                        <span class="text-gray-400 font-semibold">{{ $t('reception_order.nhom_san_pham') }}</span>
                         <div class="text-gray-800 font-bold mt-0.5">
                           {{ translateCategoryId(selectedProductForDetail.category_id) }}
                           <span v-if="getItemSubcategoryId(selectedProductForDetail.id)">
@@ -673,15 +673,15 @@
                         </div>
                       </div>
                       <div>
-                        <span class="text-gray-400 font-semibold">{{ $t('auto_goi_buffet') }}</span>
+                        <span class="text-gray-400 font-semibold">{{ $t('reception_order.goi_buffet') }}</span>
                         <div class="text-gray-800 font-bold mt-0.5">{{ getEligibleBuffetGroups(selectedProductForDetail) }}</div>
                       </div>
                       <div>
-                        <span class="text-gray-400 font-semibold">{{ $t('auto_goi_set_menu') }}</span>
+                        <span class="text-gray-400 font-semibold">{{ $t('reception_order.goi_set_menu') }}</span>
                         <div class="text-gray-800 font-bold mt-0.5">{{ getSetMenuGroup(selectedProductForDetail) }}</div>
                       </div>
                       <div>
-                        <span class="text-gray-400 font-semibold">{{ $t('auto_goi_do_uong') }}</span>
+                        <span class="text-gray-400 font-semibold">{{ $t('reception_order.goi_do_uong') }}</span>
                         <div class="text-gray-800 font-bold mt-0.5">{{ getDrinkGroup(selectedProductForDetail) }}</div>
                       </div>
                     </div>
@@ -702,14 +702,14 @@
                       {{ selectedProductForDetail.name }}
                     </h3>
                     <p class="text-[10px] text-gray-400 font-bold uppercase mt-0.5">
-                      Mã: {{ selectedProductForDetail.id }} • Đơn vị: {{ selectedProductForDetail.unit }}
+                      {{ $t('reception_order.ma') }}: {{ selectedProductForDetail.id }} • {{ $t('reception_order.don_vi') }}: {{ selectedProductForDetail.unit }}
                     </p>
                   </div>
 
                   <div class="grid grid-cols-2 gap-3">
                     <!-- Qty editor -->
                     <div class="space-y-1">
-                      <label class="block text-[9px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('auto_so_luong') }}</label>
+                      <label class="block text-[9px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('reception_order.so_luong') }}</label>
                       <div class="flex items-center gap-1">
                         <button 
                           @click="modalItemQty = Math.max(1, modalItemQty - 1)" 
@@ -729,10 +729,10 @@
                       </div>
                     </div>
                     <div class="space-y-1">
-                      <label class="block text-[9px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('auto_don_gia_vnd') }}</label>
+                      <label class="block text-[9px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('reception_order.don_gia_vnd') }}</label>
                       <input 
                         type="text" 
-                        :value="isItemInPackage(selectedProductForDetail, activeSettings.package) ? '0đ (Trong gói)' : formatVND(selectedProductForDetail.price)" 
+                        :value="isItemInPackage(selectedProductForDetail, activeSettings.package) ? t('reception_order.0d_trong_goi') : formatVND(selectedProductForDetail.price)" 
                         readonly 
                         class="w-full bg-gray-150 border border-gray-205 rounded-lg px-2.5 py-1.5 font-bold text-[#c62828] focus:outline-none"
                       />
@@ -743,43 +743,43 @@
                   <div class="flex items-center gap-3.5 select-none text-[#c62828] text-[11px]">
                     <label class="flex items-center gap-1 cursor-pointer font-bold">
                       <input type="checkbox" v-model="modalVAT" class="w-3.5 h-3.5 accent-[#1976d2]" />
-                      VAT (%)
+                      {{ $t('reception_order.vat_percent') }}
                     </label>
                     <label class="flex items-center gap-1 cursor-pointer font-bold">
                       <input type="checkbox" v-model="modalPPV" class="w-3.5 h-3.5 accent-[#1976d2]" />
-                      PPV (%)
+                      {{ $t('reception_order.ppv_percent') }}
                     </label>
                   </div>
 
                   <div class="grid grid-cols-2 gap-3">
                     <div class="space-y-1">
-                      <label class="block text-[9px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('auto_tien_te') }}</label>
+                      <label class="block text-[9px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('reception_order.tien_te') }}</label>
                       <select v-model="modalCurrency" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2 py-1.5 font-bold text-gray-850 focus:outline-none text-[11px]">
                         <option value="VND">VND</option>
                         <option value="USD">USD</option>
                       </select>
                     </div>
                     <div class="space-y-1">
-                      <label class="block text-[9px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('auto_ty_gia') }}</label>
+                      <label class="block text-[9px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('reception_order.ty_gia') }}</label>
                       <input type="text" v-model="modalRate" readonly class="w-full bg-gray-150 border border-gray-205 rounded-lg px-2 py-1.5 font-bold text-gray-800 focus:outline-none" />
                     </div>
                   </div>
 
                   <div class="space-y-1">
-                    <label class="block text-[9px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('auto_ghi_chu_chung') }}</label>
+                    <label class="block text-[9px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('reception_order.ghi_chu_chung') }}</label>
                     <textarea 
                       v-model="modalItemNote" 
-                      :placeholder="$t('auto_them_ghi_chu_cho_ca_mon_an')" 
+                      :placeholder="$t('reception_order.them_ghi_chu_cho_ca_mon_an')" 
                       class="w-full border border-[#e0e0e0] rounded-lg p-2 font-bold text-gray-850 h-16 resize-none focus:outline-none focus:border-[#1976d2]"
                     ></textarea>
                   </div>
 
                   <!-- Menu Classification Info (Requirement) -->
                   <div class="border-t border-[#f0f0f0] pt-4 mt-2">
-                    <h5 class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">{{ $t('auto_phan_nhom_thuc_don_he_thong') }}</h5>
+                    <h5 class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">{{ $t('reception_order.phan_nhom_thuc_don_he_thong') }}</h5>
                     <div class="grid grid-cols-2 gap-3 bg-gray-50 p-3 rounded-xl border border-[#e0e0e0] text-[11px]">
                       <div>
-                        <span class="text-gray-400 font-semibold">{{ $t('auto_nhom_san_pham') }}</span>
+                        <span class="text-gray-400 font-semibold">{{ $t('reception_order.nhom_san_pham') }}</span>
                         <div class="text-gray-800 font-bold mt-0.5">
                           {{ translateCategoryId(selectedProductForDetail.category_id) }}
                           <span v-if="getItemSubcategoryId(selectedProductForDetail.id)">
@@ -788,15 +788,15 @@
                         </div>
                       </div>
                       <div>
-                        <span class="text-gray-400 font-semibold">{{ $t('auto_goi_buffet') }}</span>
+                        <span class="text-gray-400 font-semibold">{{ $t('reception_order.goi_buffet') }}</span>
                         <div class="text-gray-800 font-bold mt-0.5">{{ getEligibleBuffetGroups(selectedProductForDetail) }}</div>
                       </div>
                       <div>
-                        <span class="text-gray-400 font-semibold">{{ $t('auto_goi_set_menu') }}</span>
+                        <span class="text-gray-400 font-semibold">{{ $t('reception_order.goi_set_menu') }}</span>
                         <div class="text-gray-800 font-bold mt-0.5">{{ getSetMenuGroup(selectedProductForDetail) }}</div>
                       </div>
                       <div>
-                        <span class="text-gray-400 font-semibold">{{ $t('auto_goi_do_uong') }}</span>
+                        <span class="text-gray-400 font-semibold">{{ $t('reception_order.goi_do_uong') }}</span>
                         <div class="text-gray-800 font-bold mt-0.5">{{ getDrinkGroup(selectedProductForDetail) }}</div>
                       </div>
                     </div>
@@ -831,7 +831,7 @@
                       <div>
                         <h5 class="text-xs font-bold text-gray-900 uppercase tracking-wide">{{ activeGroup.title }}</h5>
                         <p class="text-[10px] text-[#ff8f00] font-bold mt-0.5">
-                          (Tối thiểu {{ activeGroup.minSelection }} - Tối đa {{ activeGroup.maxSelection }})
+                          ({{ $t('reception_order.toi_thieu') }} {{ activeGroup.minSelection }} - {{ $t('reception_order.toi_da') }} {{ activeGroup.maxSelection }})
                         </p>
                       </div>
                       <span class="text-[10px] font-bold bg-[#1976d2] text-white px-2 py-0.5 rounded-full shadow-sm font-mono">
@@ -893,7 +893,7 @@
                             <input 
                               type="text" 
                               v-model="option.note"
-                              :placeholder="$t('auto_them_ghi_chu_rieng_cho_lua_cho')"
+                              :placeholder="$t('reception_order.them_ghi_chu_rieng_cho_lua_cho')"
                               class="w-full bg-white border border-[#e0e0e0] rounded-lg px-2.5 py-1.5 text-[11px] font-semibold text-gray-800 focus:outline-none focus:border-[#ff8f00]"
                             />
                           </div>
@@ -918,13 +918,13 @@
                         <span v-else>✅</span>
                       </span>
                       <span v-if="activeGroupSelectedCount < activeGroup.minSelection">
-                        Vui lòng chọn thêm ít nhất {{ activeGroup.minSelection - activeGroupSelectedCount }} lựa chọn nữa
+                        {{ $t('reception_order.vui_long_chon_them_it_nhat') }} {{ activeGroup.minSelection - activeGroupSelectedCount }} {{ $t('reception_order.lua_chon_nua') }}
                       </span>
                       <span v-else-if="activeGroupSelectedCount > activeGroup.maxSelection">
-                        Đã vượt quá giới hạn tối đa cho phép {{ activeGroup.maxSelection }} lựa chọn
+                        {{ $t('reception_order.da_vuot_qua_gioi_han_toi_da') }} {{ activeGroup.maxSelection }} {{ $t('reception_order.lua_chon') }}
                       </span>
                       <span v-else>
-                        Đã chọn đủ số lượng yêu cầu cho nhóm {{ activeGroup.title }}
+                        {{ $t('reception_order.da_chon_du_so_luong') }} {{ activeGroup.title }}
                       </span>
                     </div>
 
@@ -939,7 +939,7 @@
               <button 
                 @click="isDetailPanelOpen = false"
                 class="px-5 py-2.5 bg-[#f5f5f5] hover:bg-[#e0e0e0] border border-[#e0e0e0] text-gray-700 text-xs font-bold rounded-xl active:scale-95 transition-all"
-              >{{ $t('auto_huy_bo_esc') }}</button>
+              >{{ $t('reception_order.huy_bo_esc') }}</button>
               
               <button 
                 @click="saveDetailPanelQty"
@@ -950,7 +950,7 @@
                 ]"
               >
                 <span>➕</span>
-                <span>{{ $t('auto_them_vao_gio_hang') }}</span>
+                <span>{{ $t('reception_order.them_vao_gio_hang') }}</span>
               </button>
             </footer>
 
@@ -977,12 +977,12 @@
 
           <h3 class="text-[17px] font-bold text-gray-900 tracking-tight mb-4 flex items-center gap-2 select-none border-b border-[#f0f0f0] pb-3">
             <span>🏆</span> 
-            <span>Cấu hình Gói Course Phục Vụ cho Bàn {{ activeOrder.tableCode }}</span>
+            <span>{{ $t('reception_order.cau_hinh_goi_course_phuc_vu') }} {{ activeOrder.tableCode }}</span>
           </h3>
 
           <!-- PACKAGE GRID (2 cols) -->
           <div class="mb-4">
-            <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2.5 select-none">{{ $t('auto_1_chon_goi_an_phuc_vu_course_p') }}</h4>
+            <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2.5 select-none">{{ $t('reception_order.1_chon_goi_an_phuc_vu_course_p') }}</h4>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 select-none">
               <div 
                 v-for="(price, name) in packagePrices" 
@@ -1007,11 +1007,11 @@
                 <div>
                   <h5 class="text-sm font-bold text-gray-900 leading-tight">{{ name }}</h5>
                   <p class="text-[10px] text-gray-400 font-semibold mt-1">
-                    {{ name.includes('Buffet') ? 'Thời lượng phục vụ 2 tiếng tiêu chuẩn' : 'Menu gọi theo bữa tiệc chọn lọc' }}
+                    {{ name.includes('Buffet') ? t('reception_order.thoi_luong_phuc_vu_2_tieng') : t('reception_order.menu_goi_theo_bua_tiec') }}
                   </p>
                 </div>
                 <div class="text-right border-t border-[#f0f0f0] pt-2 mt-3">
-                  <span class="text-sm font-bold text-[#c62828]">{{ price.toLocaleString('vi-VN') }}đ / Vé</span>
+                  <span class="text-sm font-bold text-[#c62828]">{{ price.toLocaleString('vi-VN') }}đ / {{ $t('reception_order.ve') }}</span>
                 </div>
               </div>
             </div>
@@ -1019,7 +1019,7 @@
 
           <!-- DRINK GROUP SELECTOR CARDS -->
           <div class="mb-4 border-t border-[#f0f0f0] pt-3.5">
-            <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 select-none">{{ $t('auto_2_chon_nhom_do_uong_kem_theo_d') }}</h4>
+            <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 select-none">{{ $t('reception_order.2_chon_nhom_do_uong_kem_theo_d') }}</h4>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 select-none">
               
               <div 
@@ -1033,8 +1033,8 @@
                 <div class="flex items-center gap-2">
                   <span class="text-lg">🥤</span>
                   <div>
-                    <h6 class="text-xs font-bold text-gray-800">{{ $t('auto_nhom_a_soft_drink') }}</h6>
-                    <p class="text-[9px] text-gray-400 font-medium">{{ $t('auto_nuoc_ngot_uong_khong_gioi_han') }}</p>
+                    <h6 class="text-xs font-bold text-gray-800">{{ $t('reception_order.nhom_a_soft_drink') }}</h6>
+                    <p class="text-[9px] text-gray-400 font-medium">{{ $t('reception_order.nuoc_ngot_uong_khong_gioi_han') }}</p>
                   </div>
                 </div>
                 <span class="w-4 h-4 rounded-full border border-gray-300 flex items-center justify-center text-[8px] font-black" :class="tempSettings.drinkGroup === 'A' ? 'bg-[#ff8f00] text-white border-[#ff8f00]' : 'text-transparent'">✓</span>
@@ -1051,8 +1051,8 @@
                 <div class="flex items-center gap-2">
                   <span class="text-lg">🍺</span>
                   <div>
-                    <h6 class="text-xs font-bold text-gray-800">{{ $t('auto_nhom_b_premium_drink') }}</h6>
-                    <p class="text-[9px] text-gray-400 font-medium">{{ $t('auto_ruou_bia_cao_cap_uong_trong_2') }}</p>
+                    <h6 class="text-xs font-bold text-gray-800">{{ $t('reception_order.nhom_b_premium_drink') }}</h6>
+                    <p class="text-[9px] text-gray-400 font-medium">{{ $t('reception_order.ruou_bia_cao_cap_uong_trong_2') }}</p>
                   </div>
                 </div>
                 <span class="w-4 h-4 rounded-full border border-gray-300 flex items-center justify-center text-[8px] font-black" :class="tempSettings.drinkGroup === 'B' ? 'bg-[#ff8f00] text-white border-[#ff8f00]' : 'text-transparent'">✓</span>
@@ -1069,8 +1069,8 @@
                 <div class="flex items-center gap-2">
                   <span class="text-lg">🍶</span>
                   <div>
-                    <h6 class="text-xs font-bold text-gray-800">{{ $t('auto_nhom_c_premium_alt') }}</h6>
-                    <p class="text-[9px] text-gray-400 font-medium">{{ $t('auto_ruou_bia_thay_the_dung_2_gio_f') }}</p>
+                    <h6 class="text-xs font-bold text-gray-800">{{ $t('reception_order.nhom_c_premium_alt') }}</h6>
+                    <p class="text-[9px] text-gray-400 font-medium">{{ $t('reception_order.ruou_bia_thay_the_dung_2_gio_f') }}</p>
                   </div>
                 </div>
                 <span class="w-4 h-4 rounded-full border border-gray-300 flex items-center justify-center text-[8px] font-black" :class="tempSettings.drinkGroup === 'C' ? 'bg-[#ff8f00] text-white border-[#ff8f00]' : 'text-transparent'">✓</span>
@@ -1087,8 +1087,8 @@
                 <div class="flex items-center gap-2">
                   <span class="text-lg">🍷</span>
                   <div>
-                    <h6 class="text-xs font-bold text-gray-800">{{ $t('auto_nhom_d_a_la_carte') }}</h6>
-                    <p class="text-[9px] text-gray-400 font-medium">{{ $t('auto_goi_do_uong_le_tinh_tien_rieng') }}</p>
+                    <h6 class="text-xs font-bold text-gray-800">{{ $t('reception_order.nhom_d_a_la_carte') }}</h6>
+                    <p class="text-[9px] text-gray-400 font-medium">{{ $t('reception_order.goi_do_uong_le_tinh_tien_rieng') }}</p>
                   </div>
                 </div>
                 <span class="w-4 h-4 rounded-full border border-gray-300 flex items-center justify-center text-[8px] font-black" :class="tempSettings.drinkGroup === 'D' ? 'bg-[#ff8f00] text-white border-[#ff8f00]' : 'text-transparent'">✓</span>
@@ -1099,7 +1099,7 @@
 
           <!-- LANGUAGES CHOICE -->
           <div class="mb-4 border-t border-[#f0f0f0] pt-3.5">
-            <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 select-none">{{ $t('auto_3_ngon_ngu_giao_dien_hien_thi') }}</h4>
+            <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 select-none">{{ $t('reception_order.3_ngon_ngu_giao_dien_hien_thi') }}</h4>
             <div class="flex flex-wrap gap-2 select-none">
               <button 
                 v-for="lang in ['VI', 'EN', 'JP', 'KO', 'ZH']"
@@ -1113,7 +1113,7 @@
                     : 'bg-gray-50 border-gray-205 text-gray-600 hover:bg-gray-100'
                 ]"
               >
-                <span v-if="lang === 'VI'">{{ $t('auto_tieng_viet') }}</span>
+                <span v-if="lang === 'VI'">{{ $t('reception_order.tieng_viet') }}</span>
                 <span v-else-if="lang === 'EN'">🇺🇸 English</span>
                 <span v-else-if="lang === 'JP'">🇯🇵 日本語</span>
                 <span v-else-if="lang === 'KO'">🇰🇷 한국어</span>
@@ -1127,18 +1127,18 @@
             <button 
               @click="cancelPackageSelection"
               class="flex-1 py-2.5 bg-gray-50 border border-[#e0e0e0] hover:bg-gray-100 text-gray-700 text-xs font-bold rounded-xl transition-all"
-            >{{ $t('auto_huy_bo_quay_lai') }}</button>
+            >{{ $t('reception_order.huy_bo_quay_lai') }}</button>
             
             <button 
               v-if="activeSettings.isLocked"
               @click="openPinModal"
               class="flex-1 py-2.5 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-xl shadow-sm transition-all"
-            >{{ $t('auto_pin_sua_cau_hinh') }}</button>
+            >{{ $t('reception_order.pin_sua_cau_hinh') }}</button>
             <button 
               v-else
               @click="confirmPackageSelection"
               class="flex-1 py-2.5 bg-[#c62828] hover:bg-[#b71c1c] text-white text-xs font-bold rounded-xl shadow-sm transition-all"
-            >{{ $t('auto_xac_nhan_khoa_course') }}</button>
+            >{{ $t('reception_order.xac_nhan_khoa_course') }}</button>
           </div>
 
         </div>
@@ -1159,8 +1159,8 @@
           </button>
 
           <span class="text-3xl block mb-2">🔐</span>
-          <h4 class="text-sm font-bold text-gray-900 mb-1">{{ $t('auto_ma_pin_xac_thuc_quan_ly') }}</h4>
-          <p class="text-[10px] text-gray-400 font-semibold mb-4 leading-normal">{{ $t('auto_nhap_ma_pin_cua_quan_ly_de_mo') }}</p>
+          <h4 class="text-sm font-bold text-gray-900 mb-1">{{ $t('reception_order.ma_pin_xac_thuc_quan_ly') }}</h4>
+          <p class="text-[10px] text-gray-400 font-semibold mb-4 leading-normal">{{ $t('reception_order.nhap_ma_pin_cua_quan_ly_de_mo') }}</p>
 
           <!-- Input dots -->
           <div class="flex justify-center gap-3.5 mb-5 select-none">
@@ -1213,6 +1213,10 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
+
+
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useRestaurantStore } from '@/stores/restaurantStore';
@@ -1243,7 +1247,7 @@ function getMenuItemFromCartItem(item: any): MenuItem {
   return {
     id: item.id,
     name: item.name.split(' [')[0],
-    unit: item.unit || 'Vé',
+    unit: item.unit || t('reception_order.ve'),
     price: item.price,
     price_display: formatVND(item.price),
     category_id: item.category_id || ''
@@ -1251,7 +1255,7 @@ function getMenuItemFromCartItem(item: any): MenuItem {
 }
 
 function formatPrice(price: number): string {
-  if (price === 0) return '0đ';
+  if (price === 0) return t('reception_order.0d');
   if (price >= 1000) {
     return `${Math.round(price / 1000).toLocaleString('vi-VN')}K`;
   }
@@ -1261,34 +1265,34 @@ function formatPrice(price: number): string {
 // Multilingual translations map
 const uiTranslations = {
   VI: {
-    table: 'Bàn',
-    guests: 'Khách',
-    time: 'Giờ mở',
-    timeLeft: 'còn lại',
-    subtotal: 'Tạm tính',
-    vat: 'Thuế GTGT (10%)',
-    serviceCharge: 'Phí phục vụ',
-    grandTotal: 'TỔNG CỘNG',
-    checkout: 'Thanh toán',
-    draftPrint: 'Xem tạm tính',
-    emptyCart: 'Giỏ hàng trống',
-    emptyCartSub: 'Hãy chọn món từ menu bên phải để bắt đầu order',
-    outOfStock: 'Hết hàng',
-    favorites: 'Món yêu thích',
-    recent: 'Mới gọi',
-    popular: 'Bán chạy',
-    searchPlaceholder: 'Tìm món ăn theo tên hoặc phân loại...',
-    available: 'Còn hàng',
-    unavailable: 'Hết hàng',
-    all: 'Tất cả',
-    back: 'Quay lại',
-    saveOrder: 'Lưu thay đổi',
-    holdOrder: 'Tạm lưu',
-    sendKitchen: 'Gửi vào bếp',
-    cancelChanges: 'Hủy thay đổi',
-    courseLocked: 'Khóa Course',
-    guestWalkIn: 'Khách vãng lai',
-    courseLockedSuccess: 'Khóa Course cấu hình phục vụ thành công.'
+    table: t('reception_order.ban_text'),
+    guests: t('reception_order.khach_text'),
+    time: t('reception_order.gio_mo_text'),
+    timeLeft: t('reception_order.con_lai_text'),
+    subtotal: t('reception_order.tam_tinh_text'),
+    vat: t('reception_order.thue_gtgt_10_text'),
+    serviceCharge: t('reception_order.phi_phuc_vu_text'),
+    grandTotal: t('reception_order.tong_cong_text'),
+    checkout: t('reception_order.thanh_toan_text'),
+    draftPrint: t('reception_order.xem_tam_tinh_text'),
+    emptyCart: t('reception_order.gio_hang_trong_text'),
+    emptyCartSub: t('reception_order.hay_chon_mon_tu_menu_text'),
+    outOfStock: t('reception_order.het_hang_text'),
+    favorites: t('reception_order.mon_yeu_thich_text'),
+    recent: t('reception_order.moi_goi_text'),
+    popular: t('reception_order.ban_chay_text'),
+    searchPlaceholder: t('reception_order.tim_mon_an_theo_ten_text'),
+    available: t('reception_order.con_hang_text'),
+    unavailable: t('reception_order.het_hang_text'),
+    all: t('reception_order.tat_ca_text'),
+    back: t('reception_order.quay_lai_text'),
+    saveOrder: t('reception_order.luu_thay_doi_text'),
+    holdOrder: t('reception_order.tam_luu_text'),
+    sendKitchen: t('reception_order.gui_vao_bep_text'),
+    cancelChanges: t('reception_order.huy_thay_doi_text'),
+    courseLocked: t('reception_order.khoa_course_text'),
+    guestWalkIn: t('reception_order.khach_vang_lai_text'),
+    courseLockedSuccess: t('reception_order.khoa_course_thanh_cong')
   },
   EN: {
     table: 'Table',
@@ -1442,11 +1446,7 @@ const activeSettings = computed(() => {
   return tableSettings.value[code];
 });
 
-// Translation reactive reference
-const t = computed(() => {
-  const lang = activeSettings.value.language || 'VI';
-  return uiTranslations[lang as keyof typeof uiTranslations] || uiTranslations.VI;
-});
+
 
 // Selected course price
 const selectedPackagePrice = computed(() => {
@@ -1553,15 +1553,15 @@ function getMockOptionsForItem(itemId: string): OptionGroup[] {
     return [
       {
         id: 'broth_group',
-        title: 'Nước Lẩu Đi Kèm',
+        title: t('reception_order.nuoc_lau_di_kem'),
         minSelection: 2,
         maxSelection: 2,
         options: [
-          { id: 'opt_sukiyaki', name: 'Lẩu Sukiyaki ngọt thanh', price: 0, quantity: 0, note: '' },
-          { id: 'opt_kimchi', name: 'Lẩu Kimchi chua cay', price: 0, quantity: 0, note: '' },
-          { id: 'opt_mala', name: 'Lẩu Mala Tứ Xuyên cay nồng', price: 30000, quantity: 0, note: '' },
-          { id: 'opt_mushroom', name: 'Lẩu Nấm thảo dược bổ dưỡng', price: 0, quantity: 0, note: '' },
-          { id: 'opt_soy', name: 'Lẩu Sữa Đậu Nành thơm ngậy', price: 20000, quantity: 0, note: '' }
+          { id: 'opt_sukiyaki', name: t('reception_order.lau_sukiyaki_ngot_thanh'), price: 0, quantity: 0, note: '' },
+          { id: 'opt_kimchi', name: t('reception_order.lau_kimchi_chua_cay'), price: 0, quantity: 0, note: '' },
+          { id: 'opt_mala', name: t('reception_order.lau_mala_tu_xuyen'), price: 30000, quantity: 0, note: '' },
+          { id: 'opt_mushroom', name: t('reception_order.lau_nam_thao_duoc'), price: 0, quantity: 0, note: '' },
+          { id: 'opt_soy', name: t('reception_order.lau_sua_dau_nanh'), price: 20000, quantity: 0, note: '' }
         ]
       }
     ];
@@ -1571,24 +1571,24 @@ function getMockOptionsForItem(itemId: string): OptionGroup[] {
     return [
       {
         id: 'soup_group',
-        title: 'Chọn Nước Lẩu Gói Buffet',
+        title: t('reception_order.chon_nuoc_lau_goi_buffet'),
         minSelection: 1,
         maxSelection: 1,
         options: [
-          { id: 'bf_suki', name: 'Lẩu Sukiyaki tiêu chuẩn', price: 0, quantity: 0, note: '' },
-          { id: 'bf_kimchi', name: 'Lẩu Kimchi Hàn Quốc', price: 0, quantity: 0, note: '' },
-          { id: 'bf_mushroom', name: 'Lẩu Nấm thảo mộc thanh đạm', price: 0, quantity: 0, note: '' }
+          { id: 'bf_suki', name: t('reception_order.lau_sukiyaki_tieu_chuan'), price: 0, quantity: 0, note: '' },
+          { id: 'bf_kimchi', name: t('reception_order.lau_kimchi_han_quoc'), price: 0, quantity: 0, note: '' },
+          { id: 'bf_mushroom', name: t('reception_order.lau_nam_thao_moc'), price: 0, quantity: 0, note: '' }
         ]
       },
       {
         id: 'gift_group',
-        title: 'Chọn Món Tặng Kèm (Tối đa 2)',
+        title: t('reception_order.chon_mon_tang_kem'),
         minSelection: 0,
         maxSelection: 2,
         options: [
-          { id: 'gift_beef', name: 'Thăn vai bò Úc tươi ngọt', price: 0, quantity: 0, note: '' },
-          { id: 'gift_beer', name: 'Lon bia Sapporo mát lạnh', price: 0, quantity: 0, note: '' },
-          { id: 'gift_salad', name: 'Đĩa Salad bắp cải giòn ngon', price: 0, quantity: 0, note: '' }
+          { id: 'gift_beef', name: t('reception_order.than_vai_bo_uc'), price: 0, quantity: 0, note: '' },
+          { id: 'gift_beer', name: t('reception_order.lon_bia_sapporo'), price: 0, quantity: 0, note: '' },
+          { id: 'gift_salad', name: t('reception_order.dia_salad_bap_cai'), price: 0, quantity: 0, note: '' }
         ]
       }
     ];
@@ -1598,13 +1598,13 @@ function getMockOptionsForItem(itemId: string): OptionGroup[] {
     return [
       {
         id: 'lunch_side',
-        title: 'Món Ăn Kèm (Chọn 1)',
+        title: t('reception_order.mon_an_kem_chon_1'),
         minSelection: 1,
         maxSelection: 1,
         options: [
-          { id: 'side_soup', name: 'Canh Rong Biển nóng hổi', price: 0, quantity: 0, note: '' },
-          { id: 'side_kimchi', name: 'Đĩa Kimchi cải thảo chua cay', price: 0, quantity: 0, note: '' },
-          { id: 'side_tea', name: 'Ly Hồng trà ngọt mát', price: 0, quantity: 0, note: '' }
+          { id: 'side_soup', name: t('reception_order.canh_rong_bien'), price: 0, quantity: 0, note: '' },
+          { id: 'side_kimchi', name: t('reception_order.dia_kimchi_cai_thao'), price: 0, quantity: 0, note: '' },
+          { id: 'side_tea', name: t('reception_order.ly_hong_tra'), price: 0, quantity: 0, note: '' }
         ]
       }
     ];
@@ -1615,7 +1615,7 @@ function getMockOptionsForItem(itemId: string): OptionGroup[] {
 
 // Active table order
 const activeTableArea = computed(() => {
-  if (!selectedTableCode.value) return 'Khu vực';
+  if (!selectedTableCode.value) return t('reception_order.khu_vuc');
   return restaurantStore.getTableAreaName(selectedTableCode.value);
 });
 
@@ -1641,13 +1641,13 @@ const allTables = computed(() => {
 
 const activeTableStatus = computed(() => {
   const code = selectedTableCode.value;
-  if (!code) return 'Trống';
+  if (!code) return t('reception_order.trong_text');
   const tbl = restaurantStore.getTableByCode(code);
-  if (!tbl) return 'Trống';
-  if (tbl.status === 'Available') return 'Trống';
-  if (tbl.status === 'Reserved') return 'Đã đặt';
-  if (tbl.status === 'Arrived') return 'Khách đến';
-  if (tbl.status === 'Serving') return 'Đang ăn';
+  if (!tbl) return t('reception_order.trong_text');
+  if (tbl.status === 'Available') return t('reception_order.trong_text');
+  if (tbl.status === 'Reserved') return t('reception_order.da_dat_text');
+  if (tbl.status === 'Arrived') return t('reception_order.khach_den_text');
+  if (tbl.status === 'Serving') return t('reception_order.dang_an_text');
   return tbl.status;
 });
 
@@ -1732,12 +1732,12 @@ const formattedTimeLeft = computed(() => {
 watch(timerSecondsLeft, (newVal) => {
   if (newVal === 1799) {
     // 30 mins left
-    triggerToast('warning', 'Thời gian ăn còn lại 30 phút. Vui lòng hoàn thành món gọi!');
+    triggerToast('warning', t('reception_order.thoi_gian_an_con_lai_30_phut'));
   } else if (newVal === 599) {
     // 10 mins left
-    triggerToast('error', 'Thời gian sắp hết (Còn 10 phút)! Premium drinks sẽ bị ẩn sau khi hết giờ.');
+    triggerToast('error', t('reception_order.thoi_gian_sap_het_10_phut'));
   } else if (newVal === 0) {
-    triggerToast('error', 'Phiên ăn 2 giờ đã kết thúc. Gói Premium Drinks đã được tự động khóa.');
+    triggerToast('error', t('reception_order.phien_an_2_gio_da_ket_thuc'));
   }
 });
 
@@ -1998,7 +1998,7 @@ const menuHierarchy = computed(() => {
       if (buffetLauCat && buffetLauCat.items) {
         subcategories.push({
           id: 'buffet_lau',
-          name: 'BUFFET LẨU',
+          name: t('reception_order.buffet_lau_upper'),
           items: buffetLauCat.items
         });
       }
@@ -2055,14 +2055,14 @@ function selectCategory(catId: string) {
 function getEligibleBuffetGroups(product: MenuItem) {
   const pkgs = ['Buffet 1390', 'Buffet 1150', 'Buffet 680', 'Buffet 490', 'Buffet 380', 'Kids Meal'];
   const matches = pkgs.filter(p => isItemInPackage(product, p));
-  return matches.length > 0 ? matches.join(', ') : 'Không áp dụng';
+  return matches.length > 0 ? matches.join(', ') : t('reception_order.khong_ap_dung');
 }
 
 function getSetMenuGroup(product: MenuItem) {
   if (['set_lunch', 'set_tiec_chieu_dai', 'set_tiec_chieu_dai_jp', 'set_vietravel'].includes(product.category_id)) {
     return translateCategoryId(product.category_id);
   }
-  return 'Không áp dụng';
+  return t('reception_order.khong_ap_dung');
 }
 
 function getDrinkGroup(product: MenuItem) {
@@ -2070,7 +2070,7 @@ function getDrinkGroup(product: MenuItem) {
     const subCat = getItemSubcategoryId(product.id);
     return translateSubCategoryId(subCat) || translateCategoryId(product.category_id);
   }
-  return 'Không áp dụng';
+  return t('reception_order.khong_ap_dung');
 }
 
 // Item card filter lists
@@ -2186,7 +2186,7 @@ function getCartItemQty(itemId: string): number {
 function handleCardClick(product: MenuItem) {
   const enriched = getEnrichedItem(product);
   if (!enriched.isAvailable) {
-    triggerToast('error', `Món ${product.name} tạm thời hết hàng.`);
+    triggerToast('error', t('reception_order.mon_tam_thoi_het_hang', { name: product.name }));
     return;
   }
   addToCart(product);
@@ -2198,12 +2198,12 @@ function addToCart(product: MenuItem) {
   // Validate Rule 1: Limit 10 items/round
   const currentQty = getCartItemQty(product.id);
   if (currentQty >= 10) {
-    triggerToast('warning', `Đã đạt giới hạn tối đa 10 phần món ${product.name} mỗi lượt gọi.`);
+    triggerToast('warning', t('reception_order.da_dat_gioi_han_toi_da_10_phan', { name: product.name }));
     return;
   }
 
   restaurantStore.addOrderItem(selectedTableCode.value, product);
-  triggerToast('success', `Đã thêm ${product.name} vào hóa đơn`);
+  triggerToast('success', t('reception_order.da_them_vao_hoa_don', { name: product.name }));
 }
 
 function updateQty(itemId: string, change: number) {
@@ -2211,7 +2211,7 @@ function updateQty(itemId: string, change: number) {
   
   const currentQty = getCartItemQty(itemId);
   if (change > 0 && currentQty >= 10) {
-    triggerToast('warning', 'Mỗi lượt gọi tối đa 10 phần/món ăn.');
+    triggerToast('warning', t('reception_order.moi_luot_goi_toi_da_10_phan'));
     return;
   }
   
@@ -2220,17 +2220,17 @@ function updateQty(itemId: string, change: number) {
 
 function removeItem(itemId: string) {
   if (!selectedTableCode.value) return;
-  if (confirm('Xóa món này khỏi đơn của bàn?')) {
+  if (confirm(t('reception_order.xoa_mon_nay_khoi_don'))) {
     restaurantStore.removeOrderItem(selectedTableCode.value, itemId);
-    triggerToast('info', 'Đã xóa món ăn khỏi giỏ hàng.');
+    triggerToast('info', t('reception_order.da_xoa_mon_khoi_gio'));
   }
 }
 
 function clearCart() {
   if (!selectedTableCode.value) return;
-  if (confirm('Bạn có chắc chắn muốn xóa toàn bộ món ăn trong giỏ hàng không?')) {
+  if (confirm(t('reception_order.ban_co_chac_muon_xoa_toan_bo_mon'))) {
     activeOrder.value.items = [];
-    triggerToast('success', 'Đã xóa toàn bộ món ăn trong giỏ hàng.');
+    triggerToast('success', t('reception_order.da_xoa_toan_bo_mon'));
   }
 }
 
@@ -2252,7 +2252,7 @@ function addOptionQty(option: any) {
     option.quantity = 1;
   } else {
     if (count >= max) {
-      triggerToast('warning', `Đã chọn giới hạn tối đa ${max} lựa chọn.`);
+      triggerToast('warning', t('reception_order.da_chon_gioi_han_toi_da', { max }));
       return;
     }
     option.quantity++;
@@ -2294,7 +2294,7 @@ function saveDetailPanelQty() {
   if (!selectedTableCode.value || !selectedProductForDetail.value) return;
   
   if (modalItemQty.value > 10) {
-    triggerToast('warning', 'Số lượng gọi món vượt quá giới hạn 10 phần.');
+    triggerToast('warning', t('reception_order.so_luong_goi_mon_vuot_qua'));
     return;
   }
 
@@ -2313,12 +2313,12 @@ function saveDetailPanelQty() {
       if (added) added.quantity = modalItemQty.value;
     }
     
-    triggerToast('success', `Đã thêm: ${product.name} (${modalItemQty.value} phần)`);
+    triggerToast('success', t('reception_order.da_them_mon_phan', { name: product.name, qty: modalItemQty.value }));
     isDetailPanelOpen.value = false;
   } else {
     // ─── Complex Item Submission ───
     if (!isSelectionValid.value) {
-      triggerToast('error', 'Vui lòng hoàn thành các lựa chọn bắt buộc.');
+      triggerToast('error', t('reception_order.vui_long_hoan_thanh_lua_chon'));
       return;
     }
 
@@ -2359,7 +2359,7 @@ function saveDetailPanelQty() {
       addedItem.quantity = modalItemQty.value;
     }
 
-    triggerToast('success', `Đã thêm món có tùy chọn: ${customizedItem.name}`);
+    triggerToast('success', t('reception_order.da_them_mon_co_tuy_chon', { name: customizedItem.name }));
     isDetailPanelOpen.value = false;
   }
 }
@@ -2368,10 +2368,10 @@ function saveDetailPanelQty() {
 function toggleFavorite(itemId: string) {
   if (favoriteIds.value.includes(itemId)) {
     favoriteIds.value = favoriteIds.value.filter(id => id !== itemId);
-    triggerToast('info', 'Đã bỏ yêu thích món.');
+    triggerToast('info', t('reception_order.da_bo_yeu_thich_mon'));
   } else {
     favoriteIds.value.push(itemId);
-    triggerToast('success', 'Đã lưu món vào danh mục yêu thích.');
+    triggerToast('success', t('reception_order.da_luu_mon_vao_yeu_thich'));
   }
 }
 
@@ -2398,7 +2398,7 @@ function openSettingsConfig() {
 
 function selectPackageOption(packageName: string) {
   if (activeSettings.value.isLocked) {
-    triggerToast('error', 'Cấu hình đã bị khóa. Vui lòng nhập mã PIN để đổi.');
+    triggerToast('error', t('reception_order.cau_hinh_da_bi_khoa'));
     return;
   }
   tempSettings.value.package = packageName;
@@ -2406,7 +2406,7 @@ function selectPackageOption(packageName: string) {
 
 function selectDrinkOption(group: string) {
   if (activeSettings.value.isLocked) {
-    triggerToast('error', 'Nhóm thức uống đã được khóa. Hãy nhập PIN để thay đổi.');
+    triggerToast('error', t('reception_order.nhom_thuc_uong_da_bi_khoa'));
     return;
   }
   tempSettings.value.drinkGroup = group;
@@ -2414,7 +2414,7 @@ function selectDrinkOption(group: string) {
 
 function confirmPackageSelection() {
   if (!tempSettings.value.package) {
-    triggerToast('warning', 'Vui lòng lựa chọn một gói buffet/set phục vụ.');
+    triggerToast('warning', t('reception_order.vui_long_chon_goi_buffet'));
     return;
   }
   
@@ -2427,9 +2427,9 @@ function confirmPackageSelection() {
     
     // Update order header name to show package
     const order = activeOrder.value;
-    order.customerName = order.customerName === t.value.guestWalkIn ? `Khách (${tempSettings.value.package})` : order.customerName;
+    order.customerName = order.customerName === t('reception_order.guestWalkIn') ? `Khách (${tempSettings.value.package})` : order.customerName;
     
-    triggerToast('success', t.value.courseLockedSuccess);
+    triggerToast('success', t('reception_order.courseLockedSuccess'));
   }
   isPackageModalOpen.value = false;
 }
@@ -2460,11 +2460,11 @@ function enterPinDigit(digit: string) {
       const code = selectedTableCode.value;
       if (code && tableSettings.value[code]) {
         tableSettings.value[code].isLocked = false; // Unlock course
-        triggerToast('success', 'Mở khóa cấu hình thành công! Bạn có thể sửa đổi gói course.');
+        triggerToast('success', t('reception_order.mo_khoa_cau_hinh_thanh_cong'));
       }
       isPinModalOpen.value = false;
     } else {
-      triggerToast('error', 'Mã PIN sai! Vui lòng thử lại.');
+      triggerToast('error', t('reception_order.ma_pin_sai'));
       enteredPin.value = ''; // Reset
     }
   }
@@ -2476,27 +2476,27 @@ function clearLastPinDigit() {
 
 // Operational Actions
 function printDraftBill() {
-  alert(`=== HÓA ĐƠN TẠM TÍNH (DRAFT) ===\nBàn: ${selectedTableCode.value}\nGói: ${activeSettings.value.package}\nSố lượng khách: ${activeOrder.value.guestCount}\nTổng cộng tạm tính: ${formatVND(summary.value.grandTotal)}\n\n(In thử POS nháp thành công)`);
-  triggerToast('info', 'Đã gửi lệnh in tạm tính hóa đơn.');
+  alert(t('reception_order.hoa_don_tam_tinh_alert', { table: selectedTableCode.value, package: activeSettings.value.package, guests: activeOrder.value.guestCount, total: formatVND(summary.value.grandTotal) }));
+  triggerToast('info', t('reception_order.da_gui_lenh_in_tam_tinh'));
 }
 
 async function checkoutTable() {
   const code = selectedTableCode.value
   if (!code) return
   const ok = await Swal.fire({
-    title: 'Xác nhận thanh toán',
-    text: `Đóng bàn ${code}? Tổng tạm tính: ${formatVND(summary.value.grandTotal)}`,
+    title: t('reception_order.xac_nhan_thanh_toan'),
+    text: t('reception_order.dong_ban_tam_tinh', { code, total: formatVND(summary.value.grandTotal) }),
     icon: 'question',
     showCancelButton: true,
-    confirmButtonText: 'Tiến hành thanh toán',
-    cancelButtonText: 'Huỷ',
+    confirmButtonText: t('reception_order.tien_hanh_thanh_toan'),
+    cancelButtonText: t('reception_order.huy_text'),
   })
   if (!ok.isConfirmed) return
   try {
     // Resolve the mock table code to the real DB UUID — the checkout route
     // expects `tables.id` (UUID), not the human-readable code (e.g. 'A01').
     const { branchId } = useAuth()
-    if (!branchId.value) throw new Error('Tài khoản chưa gán chi nhánh.')
+    if (!branchId.value) throw new Error(t('reception_order.tai_khoan_chua_gan_chi_nhanh'))
     const { data: tableRow, error: tErr } = await supabase
       .from('tables')
       .select('id')
@@ -2504,23 +2504,23 @@ async function checkoutTable() {
       .eq('code', code)
       .maybeSingle()
     if (tErr) throw tErr
-    if (!tableRow) throw new Error(`Không tìm thấy bàn ${code} trong DB.`)
+    if (!tableRow) throw new Error(t('reception_order.khong_tim_thay_ban', { code }))
     router.push(`/reception/checkout/${(tableRow as { id: string }).id}`)
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)
-    Swal.fire('Lỗi', msg, 'error')
+    Swal.fire(t('reception_order.loi_text'), msg, 'error')
   }
 }
 
 function cancelChanges() {
-  if (confirm('Hủy bỏ toàn bộ món ăn đã chọn trong giỏ hàng hiện tại?')) {
+  if (confirm(t('reception_order.huy_bo_toan_bo_mon_an'))) {
     activeOrder.value.items = [];
-    triggerToast('warning', 'Đã làm trống giỏ hàng món.');
+    triggerToast('warning', t('reception_order.da_lam_trong_gio_hang'));
   }
 }
 
 function holdOrder() {
-  triggerToast('info', 'Đã lưu tạm đơn hàng (Hold).');
+  triggerToast('info', t('reception_order.da_luu_tam_don_hang'));
   router.push('/reception/floors');
 }
 
@@ -2575,18 +2575,18 @@ async function ensureMenuDbIds(branch: string, items: { id: string; name: string
 
 async function sendToKitchen() {
   if (activeOrder.value.items.length === 0) {
-    triggerToast('error', 'Chưa có món ăn nào để gửi nhà bếp nấu.')
+    triggerToast('error', t('reception_order.chua_co_mon_an_de_gui_bep'))
     return
   }
   const code = selectedTableCode.value
   if (!code) {
-    triggerToast('error', 'Chưa chọn bàn.')
+    triggerToast('error', t('reception_order.chua_chon_ban'))
     return
   }
   kitchenLoading.value = true
   try {
     const { branchId } = useAuth()
-    if (!branchId.value) throw new Error('Tài khoản chưa gán chi nhánh.')
+    if (!branchId.value) throw new Error(t('reception_order.tai_khoan_chua_gan_chi_nhanh'))
     const { addItem } = useOrder()
     // 1. Resolve the real `tables.id` from the mock table code.
     const { data: tableRow, error: tableErr } = await supabase
@@ -2596,7 +2596,7 @@ async function sendToKitchen() {
       .eq('code', code)
       .maybeSingle()
     if (tableErr) throw tableErr
-    if (!tableRow) throw new Error(`Không tìm thấy bàn với mã ${code} trong DB.`)
+    if (!tableRow) throw new Error(t('reception_order.khong_tim_thay_ban', { code }))
     const tableId: string = (tableRow as { id: string }).id
 
     // 2. Find-or-create the in-progress order for this table.
@@ -2661,16 +2661,16 @@ async function sendToKitchen() {
       })
       sent++
     }
-    if (sent > 0) triggerToast('success', `Đã gửi ${sent} món đến KDS.`)
+    if (sent > 0) triggerToast('success', t('reception_order.da_gui_mon_den_kds', { sent }))
     if (skipped.length > 0) {
       triggerToast(
         'warning',
-        `Bỏ qua ${skipped.length} món chưa map DB (${skipped.slice(0, 3).join(', ')}${skipped.length > 3 ? '…' : ''}).`,
+        t('reception_order.bo_qua_mon_chua_map_db', { length: skipped.length, items: skipped.slice(0, 3).join(', ') + (skipped.length > 3 ? '…' : '') }),
       )
     }
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)
-    triggerToast('error', `Gửi bếp thất bại: ${msg}`)
+    triggerToast('error', t('reception_order.gui_bep_that_bai', { msg }))
   } finally {
     kitchenLoading.value = false
   }
@@ -2687,7 +2687,7 @@ function saveOrder() {
         table.customerName = table.customerName || activeOrder.value.customerName;
         const now = new Date();
         table.checkInTime = table.checkInTime || now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
-        table.occupiedDuration = '1 phút';
+        table.occupiedDuration = t('reception_order.mot_phut');
       } else {
         table.status = 'Available';
         table.billAmount = '';
@@ -2696,7 +2696,7 @@ function saveOrder() {
         table.occupiedDuration = '';
       }
     }
-    triggerToast('success', 'Đã lưu cấu hình món ăn của bàn thành công.');
+    triggerToast('success', t('reception_order.da_luu_cau_hinh_mon_an'));
     router.push('/reception/floors');
   }
 }
@@ -2714,7 +2714,7 @@ watch(activeSubCategoryId, (newSubId) => {
       'biz_700': 'Biz 700',
       'set_drink': 'SET DRINK',
       'set_550jp': 'Set 550JP',
-      'buffet_lau': 'Buffet Lẩu',
+      'buffet_lau': t('reception_order.buffet_lau'),
       'a_la_carte': 'A la carte'
     };
     const pkgName = pkgMap[newSubId];
@@ -2729,7 +2729,7 @@ watch(activeSubCategoryId, (newSubId) => {
       } else {
         tableSettings.value[selectedTableCode.value].package = pkgName;
       }
-      triggerToast('success', `Đã cấu hình gói ${pkgName} cho bàn ${selectedTableCode.value}`);
+      triggerToast('success', t('reception_order.da_cau_hinh_goi', { pkgName, tableCode: selectedTableCode.value }));
     }
   }
 });
@@ -2854,7 +2854,7 @@ onUnmounted(() => {
   z-index: 10;
 }
 
-/* Badge TRONG GÓI */
+/* Badge {{ $t('reception_order.trong_goi_upper') }} */
 .badge-included {
   display: inline-block;
   background: #2e7d32;

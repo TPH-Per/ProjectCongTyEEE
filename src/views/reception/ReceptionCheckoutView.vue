@@ -11,7 +11,7 @@
       </RouterLink>
       <div>
         <h2 class="text-2xl font-bold text-gray-900">
-          {{ t('auto_thanh_to_n', { table_name: tableInfo?.code || (tableId as string) }) }}
+          {{ $t('reception.checkout.title', { table_name: tableInfo?.code || (tableId as string) }) }}
         </h2>
         <div class="flex items-center gap-2">
           <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
@@ -24,7 +24,7 @@
 
     <!-- Empty / missing order state -->
     <div v-if="!loading && (!orderInfo || orderItems.length === 0)" class="kawaii-card p-8 text-center text-gray-500">
-      {{ t('auto_ch_a_c_h_a___n___ang_m___b_n_n', 'Chưa có hoá đơn đang mở cho bàn này.') }}
+      {{ $t('reception.checkout.no_open_invoice') }}
     </div>
 
     <template v-else>
@@ -36,8 +36,8 @@
           </svg>
         </div>
         <div>
-          <h3 class="text-sm font-bold text-blue-900 mb-1">{{ t('auto_k_ch_b_n_l__t_n__thu_ng_n_h_i_') }}</h3>
-          <p class="text-blue-800 font-medium italic">{{ t('auto__d__em_ch_o_anh_ch___h_m_nay_a') }}</p>
+          <h3 class="text-sm font-bold text-blue-900 mb-1">{{ $t('reception.checkout.script_title') }}</h3>
+          <p class="text-blue-800 font-medium italic">{{ $t('reception.checkout.script_content') }}</p>
         </div>
       </div>
 
@@ -52,14 +52,14 @@
           <!-- Member Check -->
           <div class="bg-white border rounded-2xl p-6 shadow-sm">
             <h3 class="text-base font-bold text-gray-900 mb-4 border-b pb-3">
-              1. {{ t('auto_x_c__nh_n_kh_ch_h_ng', 'Xác định khách hàng') }}
+              {{ $t('reception.checkout.step1_title') }}
             </h3>
             <div class="flex gap-3 mb-6">
               <input
                 v-model="customerPhone"
                 type="tel"
                 inputmode="tel"
-                placeholder="Nhập số điện thoại khách hàng..."
+                :placeholder="$t('reception.checkout.phone_placeholder')"
                 class="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-base focus:outline-none focus:border-red-500 font-semibold"
                 @keydown.enter="findCustomer"
               />
@@ -68,7 +68,7 @@
                 :disabled="!customerPhone.trim() || customerLoading"
                 class="bg-gray-900 text-white px-6 py-3 rounded-xl font-bold hover:bg-black transition-colors disabled:opacity-50"
               >
-                {{ customerLoading ? '...' : 'Tra Cứu' }}
+                {{ customerLoading ? '...' : $t('reception.checkout.search') }}
               </button>
             </div>
             <div v-if="customerInfo" class="bg-green-50 border border-green-200 rounded-xl p-4 flex gap-4">
@@ -82,42 +82,42 @@
                     <div class="text-sm text-gray-600 mb-2">SĐT: {{ customerInfo.phone }}</div>
                   </div>
                   <div class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-bold border border-red-200">
-                    Thành Viên
+                    {{ $t('reception.checkout.member') }}
                   </div>
                 </div>
               </div>
             </div>
             <p v-else-if="customerSearched && !customerInfo" class="text-sm text-gray-500">
-              Không tìm thấy khách hàng với SĐT này.
+              {{ $t('reception.checkout.customer_not_found') }}
             </p>
           </div>
 
           <!-- Promo & Revenue Type -->
           <div class="bg-white border rounded-2xl p-6 shadow-sm">
             <h3 class="text-base font-bold text-gray-900 mb-4 border-b pb-3">
-              2. Phân loại hoá đơn &amp; voucher
+              {{ $t('reception.checkout.step2_title') }}
             </h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label class="block text-sm font-bold text-gray-700 mb-2">Loại doanh thu (bắt buộc)</label>
+                <label class="block text-sm font-bold text-gray-700 mb-2">{{ $t('reception.checkout.revenue_type') }}</label>
                 <select
                   v-model="revenueType"
                   class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-base font-semibold focus:outline-none focus:border-red-500 text-gray-900"
                 >
-                  <option value="dinner">Bữa tối (Dinner)</option>
-                  <option value="lunch">Bữa trưa (Lunch)</option>
-                  <option value="wine">Rượu (Wine)</option>
-                  <option value="delivery">Giao hàng (Delivery)</option>
-                  <option value="other">Khác</option>
+                  <option value="dinner">{{ $t('reception.checkout.dinner') }}</option>
+                  <option value="lunch">{{ $t('reception.checkout.lunch') }}</option>
+                  <option value="wine">{{ $t('reception.checkout.wine') }}</option>
+                  <option value="delivery">{{ $t('reception.checkout.delivery') }}</option>
+                  <option value="other">{{ $t('reception.checkout.other') }}</option>
                 </select>
               </div>
               <div>
-                <label class="block text-sm font-bold text-gray-700 mb-2">Nhập phiếu giảm giá (voucher)</label>
+                <label class="block text-sm font-bold text-gray-700 mb-2">{{ $t('reception.checkout.enter_voucher') }}</label>
                 <div class="flex gap-2">
                   <input
                     v-model="voucherCode"
                     type="text"
-                    placeholder="VD: TET2024..."
+                    :placeholder="$t('reception.checkout.voucher_placeholder')"
                     class="flex-1 w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-base focus:outline-none focus:border-red-500 uppercase font-semibold text-gray-900"
                   />
                   <button
@@ -125,10 +125,10 @@
                     :disabled="!voucherCode.trim()"
                     class="bg-gray-200 text-gray-700 px-4 py-3 rounded-xl font-bold hover:bg-gray-300 transition-colors shrink-0 disabled:opacity-50"
                   >
-                    Áp Dụng
+                    {{ $t('reception.checkout.apply') }}
                   </button>
                 </div>
-                <p v-if="voucherApplied" class="text-xs text-green-700 mt-2">✓ Voucher sẽ được áp dụng khi thanh toán (Edge Function kiểm tra).</p>
+                <p v-if="voucherApplied" class="text-xs text-green-700 mt-2">{{ $t('reception.checkout.voucher_applied_notice') }}</p>
               </div>
             </div>
           </div>
@@ -136,7 +136,7 @@
           <!-- Payment method (simulated) -->
           <div class="bg-white border rounded-2xl p-6 shadow-sm">
             <h3 class="text-base font-bold text-gray-900 mb-4 border-b pb-3">
-              3. Phương thức thanh toán (MÔ PHỎNG)
+              {{ $t('reception.checkout.step3_title') }}
             </h3>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
               <button
@@ -157,7 +157,7 @@
 
             <!-- Cash inputs -->
             <div v-if="paymentMethod === 'cash'" class="space-y-3">
-              <label class="block text-sm font-bold text-gray-700">Tiền khách đưa (VND)</label>
+              <label class="block text-sm font-bold text-gray-700">{{ $t('reception.checkout.received_amount') }}</label>
               <input
                 v-model.number="receivedAmount"
                 type="number"
@@ -175,29 +175,29 @@
                 >{{ quick.toLocaleString('vi-VN') }}</button>
               </div>
               <div v-if="change > 0" class="bg-green-50 border border-green-200 rounded-xl p-3 text-sm text-green-800">
-                Tiền thối lại: <b>{{ change.toLocaleString('vi-VN') }}đ</b>
+                {{ $t('reception.checkout.change_amount') }} <b>{{ change.toLocaleString('vi-VN') }}đ</b>
               </div>
               <div v-else-if="receivedAmount && receivedAmount > 0 && receivedAmount < totalAmount" class="bg-yellow-50 border border-yellow-200 rounded-xl p-3 text-sm text-yellow-800">
-                Khách đưa chưa đủ (thiếu {{ (totalAmount - receivedAmount).toLocaleString('vi-VN') }}đ).
+                {{ $t('reception.checkout.insufficient_amount', { amount: (totalAmount - receivedAmount).toLocaleString('vi-VN') }) }}
               </div>
             </div>
 
             <!-- Card/Transfer inputs -->
             <div v-else-if="paymentMethod === 'card' || paymentMethod === 'transfer'" class="space-y-3">
-              <label class="block text-sm font-bold text-gray-700">Mã tham chiếu (tuỳ chọn)</label>
+              <label class="block text-sm font-bold text-gray-700">{{ $t('reception.checkout.reference_code') }}</label>
               <input
                 v-model="paymentReference"
                 type="text"
-                :placeholder="paymentMethod === 'card' ? '4 số cuối thẻ' : 'Mã giao dịch'"
+                :placeholder="paymentMethod === 'card' ? $t('reception.checkout.card_last_4') : $t('reception.checkout.transaction_code')"
                 class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-base focus:outline-none focus:border-red-500 font-semibold"
               />
               <p class="text-xs text-yellow-700 bg-yellow-50 border border-yellow-200 rounded-lg p-2">
-                ⚠️ Mô phỏng: không tích hợp cổng thanh toán thật. Trạng thái sẽ được ghi nhận trong DB với reference.
+                {{ $t('reception.checkout.simulation_notice') }}
               </p>
             </div>
 
             <div v-else-if="paymentMethod === 'voucher'" class="text-sm text-gray-600 bg-gray-50 border rounded-xl p-3">
-              Thanh toán bằng voucher đã được áp dụng ở mục 2.
+              {{ $t('reception.checkout.voucher_payment_notice') }}
             </div>
           </div>
         </div>
@@ -205,14 +205,14 @@
         <!-- Right Column: Bill Summary -->
         <div class="bg-white border rounded-2xl p-0 shadow-sm flex flex-col overflow-hidden">
           <div class="p-6 border-b bg-gray-50">
-            <h3 class="text-lg font-bold text-gray-900">{{ t('auto_t_ng_k_t_h_a___n') }}</h3>
+            <h3 class="text-lg font-bold text-gray-900">{{ $t('reception.checkout.invoice_summary') }}</h3>
             <p class="text-sm text-gray-500">
-              {{ tableInfo?.code || '—' }} — {{ guestCount }} khách
+              {{ tableInfo?.code || '—' }} — {{ guestCount }} {{ $t('reception.checkout.guest_count') }}
             </p>
           </div>
 
           <div class="p-6 flex-1 overflow-y-auto">
-            <div v-if="loading" class="text-sm text-gray-500 py-6 text-center">Đang tải hoá đơn...</div>
+            <div v-if="loading" class="text-sm text-gray-500 py-6 text-center">{{ $t('reception.checkout.loading_invoice') }}</div>
             <div v-else class="space-y-3 mb-6">
               <div
                 v-for="item in orderItems"
@@ -226,28 +226,28 @@
                   {{ Number(item.line_total || item.unit_price * item.quantity).toLocaleString('vi-VN') }}đ
                 </span>
               </div>
-              <div v-if="orderItems.length === 0" class="text-center text-gray-500">Chưa có món nào</div>
+              <div v-if="orderItems.length === 0" class="text-center text-gray-500">{{ $t('reception.checkout.no_items') }}</div>
             </div>
 
             <div class="space-y-3 pt-4 border-t" v-if="orderItems.length > 0">
               <div class="flex justify-between items-center">
-                <span class="text-gray-500">Tạm tính</span>
+                <span class="text-gray-500">{{ $t('reception.checkout.subtotal') }}</span>
                 <span class="font-semibold text-gray-900">{{ Number(subTotal).toLocaleString('vi-VN') }}đ</span>
               </div>
               <div class="flex justify-between items-center text-gray-500">
-                <span>VAT</span>
+                <span>{{ $t('reception.checkout.vat') }}</span>
                 <span>{{ Number(vat).toLocaleString('vi-VN') }}đ</span>
               </div>
               <div class="flex justify-between items-center text-green-600" v-if="voucherApplied">
-                <span class="font-bold">Voucher</span>
-                <span class="font-bold">(sẽ áp dụng)</span>
+                <span class="font-bold">{{ $t('reception.checkout.voucher') }}</span>
+                <span class="font-bold">{{ $t('reception.checkout.will_apply') }}</span>
               </div>
             </div>
           </div>
 
           <div class="p-6 bg-gray-50 border-t">
             <div class="flex justify-between items-end mb-6">
-              <span class="text-gray-700 font-bold">Thành tiền</span>
+              <span class="text-gray-700 font-bold">{{ $t('reception.checkout.total_amount') }}</span>
               <span class="text-3xl font-black text-red-600">{{ Number(totalAmount).toLocaleString('vi-VN') }}đ</span>
             </div>
 
@@ -261,10 +261,10 @@
                 <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
                 <rect width="12" height="8" x="6" y="14" />
               </svg>
-              {{ loading ? 'Đang xử lý...' : 'In Hóa Đơn & Đóng Bàn' }}
+              {{ loading ? $t('reception.checkout.processing') : $t('reception.checkout.print_invoice_close_table') }}
             </button>
             <p v-if="!canCheckout && paymentMethod === 'cash'" class="text-xs text-yellow-700 text-center">
-              Vui lòng nhập số tiền khách đưa (≥ tổng bill).
+              {{ $t('reception.checkout.enter_amount_warning') }}
             </p>
           </div>
         </div>
@@ -311,12 +311,12 @@ const paymentMethod = ref<'cash' | 'card' | 'transfer' | 'voucher' | 'other'>('c
 const receivedAmount = ref<number | null>(null)
 const paymentReference = ref('')
 
-const paymentMethods: { value: typeof paymentMethod.value; label: string; icon: string }[] = [
-  { value: 'cash', label: 'Tiền mặt', icon: '💵' },
-  { value: 'card', label: 'Thẻ', icon: '💳' },
-  { value: 'transfer', label: 'Chuyển khoản', icon: '🏦' },
-  { value: 'voucher', label: 'Voucher', icon: '🎟️' },
-]
+const paymentMethods = computed<{ value: typeof paymentMethod.value; label: string; icon: string }[]>(() => [
+  { value: 'cash', label: t('reception.checkout.cash'), icon: '💵' },
+  { value: 'card', label: t('reception.checkout.card'), icon: '💳' },
+  { value: 'transfer', label: t('reception.checkout.transfer'), icon: '🏦' },
+  { value: 'voucher', label: t('reception.checkout.voucher_label'), icon: '🎟️' },
+])
 
 const quickAmounts = computed<number[]>(() => {
   // Round up to nearest 50k for quick-cash buttons, up to 1.5x total.
@@ -365,10 +365,10 @@ const canCheckout = computed(() => {
 })
 
 const statusLine = computed(() => {
-  if (loading.value) return 'Đang tải...'
-  if (!orderInfo.value) return 'Không có order đang mở'
-  if (checkoutLoading.value) return 'Đang xử lý thanh toán...'
-  return 'Sẵn sàng thanh toán'
+  if (loading.value) return t('reception.checkout.loading')
+  if (!orderInfo.value) return t('reception.checkout.no_open_order')
+  if (checkoutLoading.value) return t('reception.checkout.processing_payment')
+  return t('reception.checkout.ready_to_pay')
 })
 
 function selectPaymentMethod(m: typeof paymentMethod.value) {
@@ -405,14 +405,14 @@ function applyVoucher() {
   voucherApplied.value = true
   Swal.fire({
     icon: 'info',
-    title: 'Voucher sẽ được kiểm tra khi thanh toán',
-    text: `Mã: ${voucherCode.value.toUpperCase()}. Hệ thống sẽ xác minh hạn & lượt dùng.`,
+    title: t('reception.checkout.voucher_will_be_checked'),
+    text: t('reception.checkout.voucher_check_msg', { code: voucherCode.value.toUpperCase() }),
   })
 }
 
 async function loadOrder() {
   if (!branchId.value) {
-    error.value = 'Tài khoản chưa gán chi nhánh. Liên hệ admin.'
+    error.value = t('reception.checkout.no_branch_error')
     return
   }
   loading.value = true
@@ -464,7 +464,7 @@ async function loadOrder() {
 async function handleCheckout() {
   if (!orderInfo.value) return
   if (!canCheckout.value) {
-    error.value = 'Điều kiện thanh toán chưa đủ (kiểm tra phương thức và số tiền).'
+    error.value = t('reception.checkout.payment_condition_not_met')
     return
   }
   // Edge Function expects camelCase keys. See useCheckout & checkout/index.ts.
@@ -494,17 +494,17 @@ async function handleCheckout() {
     })
     await Swal.fire({
       icon: 'success',
-      title: 'Thanh toán thành công',
+      title: t('reception.checkout.payment_success'),
       html:
-        `Hoá đơn: <b>${result.invoiceNumber}</b><br/>` +
-        `Tổng: <b>${Number(result.total).toLocaleString('vi-VN')}đ</b><br/>` +
-        `Tiền thối: <b>${Number(result.change).toLocaleString('vi-VN')}đ</b>`,
+        `${t('reception.checkout.invoice_label')} <b>${result.invoiceNumber}</b><br/>` +
+        `${t('reception.checkout.total_label')} <b>${Number(result.total).toLocaleString('vi-VN')}đ</b><br/>` +
+        `${t('reception.checkout.change_label')} <b>${Number(result.change).toLocaleString('vi-VN')}đ</b>`,
     })
     router.push('/reception/dashboard')
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)
     error.value = msg
-    Swal.fire('Lỗi', 'Thanh toán thất bại: ' + msg, 'error')
+    Swal.fire(t('reception.checkout.error'), t('reception.checkout.payment_failed') + msg, 'error')
   }
 }
 

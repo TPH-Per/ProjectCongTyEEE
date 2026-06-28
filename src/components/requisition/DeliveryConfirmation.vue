@@ -14,13 +14,13 @@
       </div>
       
       <h3 class="text-2xl font-black text-foreground uppercase tracking-wider mb-2">ĐÃ CẬP NHẬT HỆ THỐNG THÀNH CÔNG</h3>
-      <p class="text-sm text-muted-foreground mb-6 max-w-md">Phiếu yêu cầu #{{ requisition.id }} đã hoàn tất bàn giao. Quy trình tự động hóa kho & tài chính đã thực hiện:</p>
+      <p class="text-sm text-muted-foreground mb-6 max-w-md">Phiếu yêu cầu #{{ requisition.requisition_number }} đã hoàn tất bàn giao. Quy trình tự động hóa kho & tài chính đã thực hiện:</p>
       
       <!-- Stepper of updates -->
       <div class="update-steps text-left w-full max-w-md bg-card/60 border border-border rounded-xl p-5 mb-8 space-y-3.5">
         <div class="flex items-center gap-3 text-sm text-green-500 font-semibold">
           <span class="step-check flex items-center justify-center w-5 h-5 rounded-full bg-green-500/20 text-[10px]">✓</span>
-          <span>Đồng bộ POS trạm {{ requisition.station }}</span>
+          <span>Đồng bộ dữ liệu xuất kho</span>
         </div>
         <div class="flex items-center gap-3 text-sm text-green-500 font-semibold">
           <span class="step-check flex items-center justify-center w-5 h-5 rounded-full bg-green-500/20 text-[10px]">✓</span>
@@ -62,7 +62,7 @@
     <div class="flex justify-between items-center mb-6 pb-4 border-b border-border">
       <div>
         <h3 class="font-black text-foreground text-xl tracking-wide">KIỂM TRA GIAO NHẬN NGUYÊN LIỆU</h3>
-        <p class="text-xs text-muted-foreground mt-1">Phiếu yêu cầu: #{{ requisition.id }} | Trạm: {{ requisition.station }}</p>
+        <p class="text-xs text-muted-foreground mt-1">Phiếu yêu cầu: #{{ requisition.requisition_number }} | Loại: {{ requisition.type }}</p>
       </div>
       <button class="bg-muted text-foreground text-xs px-4 py-2 rounded-xl font-bold hover:bg-muted transition border border-border" @click="$emit('back')">
         ⬅ Quay lại danh sách
@@ -96,7 +96,6 @@
       >
         <div class="flex flex-wrap items-center justify-between gap-4">
           <div class="flex items-center gap-3">
-            <span class="item-icon text-3xl">{{ item.icon }}</span>
             <div>
               <span class="item-name font-bold text-foreground text-lg block">{{ item.name }}</span>
               <span class="text-xs text-muted-foreground font-medium font-mono">
@@ -261,8 +260,8 @@
 
 <script setup lang="ts">
 import { ref, watch, computed, onMounted } from 'vue';
-import type { Requisition } from '@/stores/kitchen';
-import { useKitchenStore } from '@/stores/kitchen';
+import { useRequisition, type Requisition } from '@/composables/useRequisition';
+import { useInventory } from '@/composables/useInventory';
 import Swal from 'sweetalert2';
 
 const props = defineProps<{
@@ -274,12 +273,13 @@ const emit = defineEmits<{
   (e: 'success'): void;
 }>();
 
-const kitchenStore = useKitchenStore();
+const { confirmDelivery, rejectRequisition } = useRequisition();
+const { inventory } = useInventory();
 
 interface DeliveryConfirmationItem {
-  id: string;
+  id: string; // requisition_item_id
+  ingredient_id: string;
   name: string;
-  icon: string;
   unit: string;
   requestedQty: number;
   deliveredQty: number;
@@ -300,28 +300,30 @@ let ctx: CanvasRenderingContext2D | null = null;
 const hasSigned = ref(false);
 
 watch(() => props.requisition, (newReq) => {
-  deliveryItems.value = newReq.items.map(item => {
+  if (!newReq.requisition_items) return;
+  deliveryItems.value = newReq.requisition_items.map(item => {
     // Find matching inventory item to retrieve unitPrice
-    const invItem = kitchenStore.inventoryList.find(i => i.id === item.id);
-    const price = invItem ? invItem.unitPrice : 100000;
+    const invItem = inventory.value.find(i => i.ingredient_id === item.ingredient_id);
+    const price = invItem ? invItem.unit_cost : 100000;
     
+    const itemName = item.ingredients?.name_vi || 'Sản phẩm';
     // Set default safe temperature: Meat/fish is 2C, Veg is 8C, others 4C
     let defaultTemp = 3;
-    if (item.name.includes('Rau')) defaultTemp = 8;
-    if (item.name.includes('Sukiyaki')) defaultTemp = 15; // broth room temp
+    if (itemName.includes('Rau')) defaultTemp = 8;
+    if (itemName.includes('lẩu')) defaultTemp = 15; // broth room temp
     
     return {
       id: item.id,
-      name: item.name,
-      icon: item.icon,
+      ingredient_id: item.ingredient_id,
+      name: itemName,
       unit: item.unit,
-      requestedQty: item.requestedQty,
-      deliveredQty: item.deliveredQty,
-      status: item.status === 'rejected' ? 'rejected' : 'pending',
-      quality: item.status === 'rejected' ? 'bad' : 'good',
+      requestedQty: item.requested_quantity,
+      deliveredQty: item.approved_quantity || item.requested_quantity, // default to approved or requested
+      status: 'pending',
+      quality: 'good',
       temperature: defaultTemp,
       unitPrice: price,
-      rejectionReason: item.rejectionReason || ''
+      rejectionReason: ''
     };
   });
 }, { immediate: true });
@@ -426,8 +428,8 @@ const clearSignature = () => {
   hasSigned.value = false;
 };
 
-const rejectAll = () => {
-  Swal.fire({
+const rejectAll = async () => {
+  const res = await Swal.fire({
     title: 'Từ chối toàn bộ kiện hàng?',
     text: 'Bạn có chắc chắn muốn từ chối nhận tất cả nguyên liệu trong phiếu giao này?',
     icon: 'warning',
@@ -437,9 +439,11 @@ const rejectAll = () => {
     background: '#2D2D2D',
     color: '#FFF',
     confirmButtonColor: '#F44336'
-  }).then((res) => {
-    if (res.isConfirmed) {
-      kitchenStore.updateRequisitionStatus(props.requisition.id, 'rejected', 'Chef Luc', 'Từ chối nhận toàn bộ kiện hàng do lỗi bàn giao kiểm định.');
+  });
+
+  if (res.isConfirmed) {
+    try {
+      await rejectRequisition(props.requisition.id, 'Từ chối nhận toàn bộ kiện hàng do lỗi bàn giao kiểm định.');
       Swal.fire({
         title: 'Đã từ chối nhận hàng',
         text: 'Kiện hàng đã được đánh dấu trả về bộ phận kho.',
@@ -448,11 +452,13 @@ const rejectAll = () => {
         color: '#FFF'
       });
       emit('success');
+    } catch (err: any) {
+      Swal.fire('Lỗi', err.message, 'error');
     }
-  });
+  }
 };
 
-const confirmAll = () => {
+const confirmAll = async () => {
   // Check if signature is drawn
   if (!hasSigned.value) {
     Swal.fire({
@@ -466,46 +472,39 @@ const confirmAll = () => {
     return;
   }
 
-  // Update item deliveries on store
-  deliveryItems.value.forEach(item => {
-    kitchenStore.updateRequisitionItemDelivery(
-      props.requisition.id,
-      item.id,
-      item.deliveredQty,
-      item.status === 'accepted' ? 'approved' : 'rejected',
-      item.status === 'rejected' ? item.rejectionReason : undefined
-    );
-  });
-
-  // Extract canvas signature image data url
-  const sigImgUrl = canvasRef.value ? canvasRef.value.toDataURL() : undefined;
-
   // Check if there is any item accepted
   const anyAccepted = deliveryItems.value.some(i => i.status === 'accepted');
-  const finalStatus = anyAccepted ? 'delivered' : 'rejected';
 
-  // Update requisition status with signature
-  kitchenStore.updateRequisitionStatus(
-    props.requisition.id, 
-    finalStatus, 
-    'Chef Luc',
-    finalStatus === 'rejected' ? 'Từ chối nhận toàn bộ do lỗi kiểm kê.' : undefined,
-    sigImgUrl
-  );
+  if (!anyAccepted) {
+    try {
+      await rejectRequisition(props.requisition.id, 'Từ chối nhận toàn bộ do lỗi kiểm kê.');
+      Swal.fire({
+        title: 'Đã trả hàng',
+        text: 'Đã hoàn trả toàn bộ phiếu giao hàng về bộ phận kho.',
+        icon: 'success',
+        background: '#2D2D2D',
+        color: '#FFF',
+        confirmButtonColor: '#4CAF50'
+      });
+      emit('success');
+    } catch (err: any) {
+      Swal.fire('Lỗi', err.message, 'error');
+    }
+    return;
+  }
 
-  if (finalStatus === 'delivered') {
+  // Prepare payload for confirmDelivery
+  const actualQtys = deliveryItems.value.map(item => ({
+    requisition_item_id: item.id,
+    actual_quantity: item.status === 'accepted' ? item.deliveredQty : 0
+  }));
+
+  try {
+    await confirmDelivery(props.requisition.id, actualQtys);
     // Show system update transition screen first
     showSystemUpdate.value = true;
-  } else {
-    Swal.fire({
-      title: 'Đã trả hàng',
-      text: 'Đã hoàn trả toàn bộ phiếu giao hàng về bộ phận kho.',
-      icon: 'success',
-      background: '#2D2D2D',
-      color: '#FFF',
-      confirmButtonColor: '#4CAF50'
-    });
-    emit('success');
+  } catch (err: any) {
+    Swal.fire('Lỗi', err.message, 'error');
   }
 };
 

@@ -104,7 +104,7 @@ void t
     <div class="login-card relative">
 
       <!--
-        Brand: now text-only ("Ngưu Cát" in the Cormorant Garamond
+        Brand: now text-only (t('login.nguu_cat_1') in the Cormorant Garamond
         premium serif) with the Vietnamese subtitle. The previous
         gradient orb has been removed per UX feedback — admins said
         the orb read as a low-resolution orange blob and didn't carry
@@ -112,8 +112,8 @@ void t
         renders identically in every browser.
       -->
       <div class="brand-header">
-        <h1 class="brand-title">{{ $t('auto_nguu_cat') }}</h1>
-        <p class="brand-subtitle">{{ $t('auto_he_thong_quan_ly_nha_hang') }}</p>
+        <h1 class="brand-title">{{ $t('login.nguu_cat') }}</h1>
+        <p class="brand-subtitle">{{ $t('login.he_thong_quan_ly') }}</p>
       </div>
 
       <form @submit.prevent="onSubmit" class="login-form">
@@ -141,8 +141,8 @@ void t
             <button
               type="button"
               class="login-password-toggle"
-              :aria-label="showPassword ? $t('auto_an_mat_khau') : $t('auto_hien_mat_khau')"
-              :title="showPassword ? $t('auto_an_mat_khau') : $t('auto_hien_mat_khau')"
+              :aria-label="showPassword ? $t('login.an_mat_khau') : $t('login.hien_mat_khau')"
+              :title="showPassword ? $t('login.an_mat_khau') : $t('login.hien_mat_khau')"
               @click="showPassword = !showPassword"
             >
               <EyeOff v-if="showPassword" :size="18" />
@@ -157,7 +157,7 @@ void t
             type="checkbox"
             class="login-remember-checkbox"
           />
-          <span>{{ $t('auto_ghi_nho_dang_nhap') }}</span>
+          <span>{{ $t('login.ghi_nho_dang_nhap') }}</span>
         </label>
 
         <p v-if="errorMsg" class="login-error">{{ errorMsg }}</p>
@@ -170,7 +170,7 @@ void t
           {{ submitting ? 'Signing in…' : 'Sign in' }}
         </button>
 
-        <p class="login-hint">{{ $t('auto_tai_khoan_duoc_cap_boi_quan_ly') }}</p>
+        <p class="login-hint">{{ $t('login.tai_khoan_duoc_cap') }}</p>
       </form>
     </div>
   </div>

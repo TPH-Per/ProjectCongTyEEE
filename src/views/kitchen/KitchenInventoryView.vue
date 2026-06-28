@@ -6,7 +6,7 @@
     <aside class="sidebar flex flex-col justify-between shrink-0">
       <div class="nav-list py-4">
         <div class="px-6 pb-4 mb-4 border-b border-border flex flex-col gap-3">
-          <span class="text-primary text-lg font-black tracking-wider uppercase">NGƯU CÁT POS</span>
+          <span class="text-primary text-lg font-black tracking-wider uppercase">{{ $t('kitchen_inventory.brand_pos') }}</span>
           <button class="w-full text-center bg-muted hover:bg-muted text-xs font-bold py-2 rounded-lg border border-transparent hover:border-[#FF9800] transition" @click="navigateBack">
             📺 Quay lại KDS
           </button>
@@ -29,9 +29,9 @@
 
       <!-- App Info/Status -->
       <div class="p-4 border-t border-border text-xs text-muted-foreground flex flex-col gap-1">
-        <div>📍 Chi nhánh: Quận 1, Tp.HCM</div>
-        <div>👤 Nhân viên: Quản lý Nam</div>
-        <div>🕒 Vận hành: Đang kết nối</div>
+        <div>{{ $t('kitchen_inventory.branch') }}</div>
+        <div>{{ $t('kitchen_inventory.employee') }}</div>
+        <div>{{ $t('kitchen_inventory.operation_status') }}</div>
       </div>
     </aside>
 
@@ -42,36 +42,36 @@
       <div v-if="activeTab === 'dashboard'" class="space-y-6 animate-fade-in">
         <div class="flex justify-between items-center">
           <div>
-            <h2 class="text-2xl font-black uppercase text-foreground tracking-wide">DASHBOARD TỒN KHO</h2>
-            <p class="text-xs text-muted-foreground mt-1">Tổng quan giá trị và biến động kho hàng thời gian thực</p>
+            <h2 class="text-2xl font-black uppercase text-foreground tracking-wide">{{ $t('kitchen_inventory.dashboard_title') }}</h2>
+            <p class="text-xs text-muted-foreground mt-1">{{ $t('kitchen_inventory.dashboard_desc') }}</p>
           </div>
           <button class="btn-primary" @click="activeTab = 'receive'">
-            📥 Nhập kho mới
+            📥 {{ t('kitchen.receive') }} mới
           </button>
         </div>
 
         <!-- KPI Cards Grid -->
         <div class="dashboard-grid">
           <div class="kpi-card bg-card rounded-xl p-5 border-l-4 border-[#2196F3]">
-            <div class="kpi-label">Tổng số SKU nguyên liệu</div>
+            <div class="kpi-label">{{ $t('kitchen_inventory.total_sku') }}</div>
             <div class="kpi-value">{{ totalSkus }} món</div>
             <div class="kpi-trend up">
               <span>▲ 5%</span>
-              <span class="text-muted-foreground">so với tuần trước</span>
+              <span class="text-muted-foreground">{{ $t('kitchen_inventory.vs_last_week') }}</span>
             </div>
           </div>
 
           <div class="kpi-card bg-card rounded-xl p-5 border-l-4 border-[#4CAF50]">
-            <div class="kpi-label">Tổng giá trị kho tổng</div>
+            <div class="kpi-label">{{ $t('kitchen_inventory.total_value') }}</div>
             <div class="kpi-value text-green-600">{{ formatCurrency(totalInventoryValue) }}</div>
             <div class="kpi-trend up">
               <span>▲ 3%</span>
-              <span class="text-muted-foreground">so với tuần trước</span>
+              <span class="text-muted-foreground">{{ $t('kitchen_inventory.vs_last_week') }}</span>
             </div>
           </div>
 
           <div class="kpi-card bg-card rounded-xl p-5 border-l-4 border-[#FF9800]" :class="{ warning: expiringCount > 0 }">
-            <div class="kpi-label">Nguyên liệu sắp hết hạn (&le; 7 ngày)</div>
+            <div class="kpi-label">{{ $t('kitchen_inventory.expiring_soon') }}</div>
             <div class="kpi-value text-[#FF9800]">{{ expiringCount }} món</div>
             <div class="kpi-trend" :class="expiringCount > 0 ? 'down text-[#FF9800]' : 'text-muted-foreground'">
               <span>{{ expiringCount > 0 ? '⚠️ Cần kiểm tra' : '✓ An toàn' }}</span>
@@ -79,7 +79,7 @@
           </div>
 
           <div class="kpi-card bg-card rounded-xl p-5 border-l-4 border-[#F44336]" :class="{ danger: lowStockCount > 0 }">
-            <div class="kpi-label">Nguyên liệu tồn thấp (&le; min)</div>
+            <div class="kpi-label">{{ $t('kitchen_inventory.low_stock') }}</div>
             <div class="kpi-value text-red-600">{{ lowStockCount }} món</div>
             <div class="kpi-trend" :class="lowStockCount > 0 ? 'down text-red-600' : 'text-muted-foreground'">
               <span>{{ lowStockCount > 0 ? '🚨 Khẩn cấp đặt hàng' : '✓ Đầy đủ' }}</span>
@@ -91,7 +91,7 @@
         <div class="chart-grid">
           <!-- Tồn kho theo danh mục (Custom CSS/SVG Bar Chart) -->
           <div class="chart-card bg-card rounded-xl p-5 flex flex-col justify-between h-[320px]">
-            <div class="chart-title text-base font-bold text-foreground uppercase tracking-wider">Tồn kho theo danh mục hàng hóa (SKU)</div>
+            <div class="chart-title text-base font-bold text-foreground uppercase tracking-wider">{{ $t('kitchen_inventory.stock_by_category') }}</div>
             <div class="flex-1 flex items-end justify-around pb-4 pt-8">
               <div v-for="cat in categoryChartData" :key="cat.name" class="flex flex-col items-center gap-2 group w-12">
                 <div class="text-[10px] text-muted-foreground group-hover:text-foreground font-bold">{{ cat.count }} SKU</div>
@@ -107,7 +107,7 @@
 
           <!-- Biến động kho 7 ngày qua (Custom SVG Line Chart representation) -->
           <div class="chart-card bg-card rounded-xl p-5 flex flex-col justify-between h-[320px]">
-            <div class="chart-title text-base font-bold text-foreground uppercase tracking-wider">Giá trị xuất kho bếp 7 ngày qua</div>
+            <div class="chart-title text-base font-bold text-foreground uppercase tracking-wider">{{ $t('kitchen_inventory.kitchen_issue_7d') }}</div>
             <div class="flex-1 flex flex-col justify-end pt-6 relative">
               
               <!-- Draw SVG Grid & line -->
@@ -180,15 +180,15 @@
           </div>
 
           <div class="bg-card rounded-xl p-5 border border-border">
-            <h3 class="text-sm font-bold text-foreground uppercase tracking-wider mb-4 text-blue-600">📜 Giao dịch kho gần nhất</h3>
+            <h3 class="text-sm font-bold text-foreground uppercase tracking-wider mb-4 text-blue-600">{{ $t('kitchen_inventory.recent_transactions') }}</h3>
             <div class="overflow-x-auto text-xs">
               <table class="w-full text-left">
                 <thead>
                   <tr class="border-b border-border text-muted-foreground font-bold uppercase pb-2">
-                    <th class="pb-2">Ngày giờ</th>
+                    <th class="pb-2">{{ $t('kitchen_inventory.datetime') }}</th>
                     <th class="pb-2">Loại GD</th>
-                    <th class="pb-2">Mặt hàng</th>
-                    <th class="pb-2 text-right">Lượng</th>
+                    <th class="pb-2">{{ $t('kitchen_inventory.item') }}</th>
+                    <th class="pb-2 text-right">{{ $t('kitchen_inventory.amount') }}</th>
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-[#404040]/50">
@@ -215,8 +215,8 @@
       <div v-else-if="activeTab === 'ingredients'" class="space-y-6 animate-fade-in">
         <div class="flex justify-between items-center">
           <div>
-            <h2 class="text-2xl font-black uppercase text-foreground tracking-wide">QUẢN LÝ DANH MỤC NGUYÊN LIỆU</h2>
-            <p class="text-xs text-muted-foreground mt-1">Tra cứu tồn kho, hạn dùng và thiết lập ngưỡng tồn tối thiểu</p>
+            <h2 class="text-2xl font-black uppercase text-foreground tracking-wide">{{ $t('kitchen_inventory.ingredients_title') }}</h2>
+            <p class="text-xs text-muted-foreground mt-1">{{ $t('kitchen_inventory.ingredients_desc') }}</p>
           </div>
           <button class="btn-primary" @click="openAddIngredientModal">
             + Thêm nguyên liệu
@@ -231,16 +231,16 @@
             placeholder="🔍 Tìm nguyên liệu..."
           />
           <select v-model="categoryFilter" class="filter-select bg-background border border-border rounded-lg px-4 py-2.5 text-sm text-foreground min-w-[160px]">
-            <option value="">Tất cả danh mục</option>
-            <option value="Thịt">Thịt bò & sườn</option>
-            <option value="Hải sản">Hải sản tươi</option>
-            <option value="Rau củ">Rau củ quả</option>
-            <option value="Gia vị">Nước dùng & Gia vị</option>
+            <option value="">{{ $t('kitchen_inventory.all_categories') }}</option>
+            <option :value="$t('kitchen_inventory.meat')">{{ $t('kitchen_inventory.beef_ribs') }}</option>
+            <option :value="$t('kitchen_inventory.seafood')">{{ $t('kitchen_inventory.fresh_seafood') }}</option>
+            <option :value="$t('kitchen_inventory.veg')">{{ $t('kitchen_inventory.vegetables') }}</option>
+            <option :value="$t('kitchen_inventory.spices')">{{ $t('kitchen_inventory.broth_spices') }}</option>
           </select>
           <select v-model="stockFilter" class="filter-select bg-background border border-border rounded-lg px-4 py-2.5 text-sm text-foreground min-w-[160px]">
-            <option value="">Tất cả trạng thái</option>
-            <option value="low">Tồn kho thấp</option>
-            <option value="good">Tồn an toàn</option>
+            <option value="">{{ $t('kitchen_inventory.all_status') }}</option>
+            <option value="low">{{ $t('kitchen_inventory.low_stock_status') }}</option>
+            <option value="good">{{ $t('kitchen_inventory.safe_stock') }}</option>
           </select>
         </div>
 
@@ -249,15 +249,15 @@
           <table class="w-full text-left border-collapse text-sm">
             <thead>
               <tr class="bg-background border-b border-border text-muted-foreground text-xs font-bold uppercase">
-                <th class="py-3 px-4">Mã SKU</th>
-                <th class="py-3 px-4">Tên nguyên liệu</th>
-                <th class="py-3 px-4">Danh mục</th>
-                <th class="py-3 px-4 text-right">Kho Tổng</th>
-                <th class="py-3 px-4 text-right">Kho Bếp</th>
-                <th class="py-3 px-4 text-right">Min Ngưỡng</th>
-                <th class="py-3 px-4 text-right">Giá Vốn</th>
-                <th class="py-3 px-4 text-center">Trạng Thái</th>
-                <th class="py-3 px-4 text-center">Thao tác</th>
+                <th class="py-3 px-4">{{ $t('kitchen_inventory.sku') }}</th>
+                <th class="py-3 px-4">{{ $t('kitchen_inventory.ingredient_name') }}</th>
+                <th class="py-3 px-4">{{ $t('kitchen_inventory.category') }}</th>
+                <th class="py-3 px-4 text-right">{{ $t('kitchen_inventory.main_stock') }}</th>
+                <th class="py-3 px-4 text-right">{{ $t('kitchen_inventory.kitchen_stock') }}</th>
+                <th class="py-3 px-4 text-right">{{ $t('kitchen_inventory.min_threshold') }}</th>
+                <th class="py-3 px-4 text-right">{{ $t('kitchen_inventory.cost_price') }}</th>
+                <th class="py-3 px-4 text-center">{{ $t('kitchen_inventory.status') }}</th>
+                <th class="py-3 px-4 text-center">{{ $t('kitchen_inventory.action') }}</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-[#404040]/60">
@@ -307,11 +307,11 @@
         </div>
       </div>
 
-      <!-- SUB-PAGE: NHẬP KHO -->
+      <!-- SUB-PAGE: {{ t('kitchen.receive') }} -->
       <div v-else-if="activeTab === 'receive'" class="space-y-6 animate-fade-in">
         <div>
-          <h2 class="text-2xl font-black uppercase text-foreground tracking-wide">NHẬP KHO TỪ NHÀ CUNG CẤP</h2>
-          <p class="text-xs text-muted-foreground mt-1">Ghi nhận lô hàng nhập từ đối tác giao hàng, in tem nhãn và phân bổ kho</p>
+          <h2 class="text-2xl font-black uppercase text-foreground tracking-wide">{{ t('kitchen.receive') }} TỪ NHÀ CUNG CẤP</h2>
+          <p class="text-xs text-muted-foreground mt-1">{{ $t('kitchen_inventory.receive_desc') }}</p>
         </div>
 
         <!-- Form fields -->
@@ -319,24 +319,24 @@
           
           <!-- Invoice section -->
           <section class="space-y-4">
-            <h3 class="text-sm font-bold text-[#FF9800] uppercase tracking-wider border-b border-border pb-2">📋 Thông tin hóa đơn nhập</h3>
+            <h3 class="text-sm font-bold text-[#FF9800] uppercase tracking-wider border-b border-border pb-2">{{ $t('kitchen_inventory.invoice_info') }}</h3>
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div class="flex flex-col gap-1.5">
-                <label class="text-xs text-muted-foreground font-bold">Số hóa đơn / Phiếu nhập</label>
+                <label class="text-xs text-muted-foreground font-bold">{{ $t('kitchen_inventory.invoice_no') }}</label>
                 <input v-model="receiveForm.invoiceNumber" class="bg-background border border-border rounded-xl px-4 py-2.5 text-sm text-foreground focus:outline-none focus:border-primary" />
               </div>
               <div class="flex flex-col gap-1.5">
-                <label class="text-xs text-muted-foreground font-bold">Nhà cung cấp (NCC)</label>
+                <label class="text-xs text-muted-foreground font-bold">{{ $t('kitchen_inventory.supplier') }}</label>
                 <select v-model="receiveForm.supplierId" class="bg-background border border-border rounded-xl px-4 py-2.5 text-sm text-foreground focus:outline-none focus:border-primary">
                   <option v-for="s in mockSuppliers" :key="s.id" :value="s.id">{{ s.name }} ({{ s.category }})</option>
                 </select>
               </div>
               <div class="flex flex-col gap-1.5">
-                <label class="text-xs text-muted-foreground font-bold">Ngày nhận thực tế</label>
+                <label class="text-xs text-muted-foreground font-bold">{{ $t('kitchen_inventory.received_date') }}</label>
                 <input type="date" v-model="receiveForm.receiveDate" class="bg-background border border-border rounded-xl px-4 py-2.5 text-sm text-foreground focus:outline-none" />
               </div>
               <div class="flex flex-col gap-1.5">
-                <label class="text-xs text-muted-foreground font-bold">Thủ kho tiếp nhận</label>
+                <label class="text-xs text-muted-foreground font-bold">{{ $t('kitchen_inventory.received_by') }}</label>
                 <input v-model="receiveForm.receivedBy" class="bg-background border border-border rounded-xl px-4 py-2.5 text-sm text-foreground focus:outline-none" />
               </div>
             </div>
@@ -345,7 +345,7 @@
           <!-- Items section -->
           <section class="space-y-4">
             <div class="flex justify-between items-center">
-              <h3 class="text-sm font-bold text-[#FF9800] uppercase tracking-wider">🥩 Danh mục nguyên liệu nhập</h3>
+              <h3 class="text-sm font-bold text-[#FF9800] uppercase tracking-wider">{{ $t('kitchen_inventory.receive_list') }}</h3>
               <button class="bg-[#2196F3] hover:bg-[#1E88E5] text-white text-xs font-bold px-3 py-1.5 rounded-lg transition" @click="addReceiveRow">
                 + Thêm hàng nhập
               </button>
@@ -356,20 +356,20 @@
               <table class="w-full text-left text-xs border-collapse">
                 <thead>
                   <tr class="bg-background text-muted-foreground font-bold uppercase border-b border-border">
-                    <th class="py-2.5 px-3">Nguyên liệu</th>
-                    <th class="py-2.5 px-3 text-center">Số lượng</th>
-                    <th class="py-2.5 px-3">Đơn vị</th>
-                    <th class="py-2.5 px-3 text-right">Đơn giá (VND)</th>
-                    <th class="py-2.5 px-3 text-center">Hạn sử dụng</th>
-                    <th class="py-2.5 px-3 text-center">Số Lô</th>
-                    <th class="py-2.5 px-3 text-center">Xóa</th>
+                    <th class="py-2.5 px-3">{{ $t('kitchen_inventory.ingredient') }}</th>
+                    <th class="py-2.5 px-3 text-center">{{ $t('kitchen_inventory.quantity') }}</th>
+                    <th class="py-2.5 px-3">{{ $t('kitchen_inventory.unit_short') }}</th>
+                    <th class="py-2.5 px-3 text-right">{{ $t('kitchen_inventory.unit_price') }}</th>
+                    <th class="py-2.5 px-3 text-center">{{ $t('kitchen_inventory.expiry_date') }}</th>
+                    <th class="py-2.5 px-3 text-center">{{ $t('kitchen_inventory.batch_no') }}</th>
+                    <th class="py-2.5 px-3 text-center">{{ $t('kitchen_inventory.delete') }}</th>
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-[#404040]/40">
                   <tr v-for="(row, idx) in receiveForm.items" :key="idx" class="hover:bg-background">
                     <td class="py-2 px-1">
                       <select v-model="row.ingredientId" class="bg-background border border-border rounded px-2 py-1.5 text-xs text-foreground max-w-[200px]">
-                        <option v-for="ing in kitchenStore.inventoryList" :key="ing.id" :value="ing.id">
+                        <option v-for="ing in mappedInventoryList" :key="ing.id" :value="ing.id">
                           {{ ing.icon }} {{ ing.name }}
                         </option>
                       </select>
@@ -397,7 +397,7 @@
 
             <!-- Empty rows alert -->
             <div v-if="receiveForm.items.length === 0" class="text-center py-6 text-muted-foreground italic bg-background rounded-xl border border-dashed border-border">
-              Nhấp vào nút "+ Thêm hàng nhập" ở trên để tạo phiếu nhập hàng
+              Nhấp vào nút t('kitchen_inventory.add_incoming') ở trên để tạo phiếu nhập hàng
             </div>
           </section>
 
@@ -420,7 +420,7 @@
               Lưu nháp
             </button>
             <button class="bg-primary hover:bg-[#E55F2A] disabled:opacity-50 text-xs font-bold px-6 py-2.5 rounded-xl text-foreground transition shadow-md" :disabled="receiveForm.items.length === 0" @click="submitReceive">
-              ✓ Xác nhận Nhập Kho
+              ✓ Xác nhận {{ t('kitchen.receive') }}
             </button>
           </div>
         </div>
@@ -429,14 +429,14 @@
       <!-- SUB-PAGE: XUẤT KHO -->
       <div v-else-if="activeTab === 'issue'" class="space-y-6 animate-fade-in">
         <div>
-          <h2 class="text-2xl font-black uppercase text-foreground tracking-wide">YÊU CẦU XUẤT KHO CHO BẾP</h2>
-          <p class="text-xs text-muted-foreground mt-1">Duyệt phiếu xuất nguyên liệu từ kho tổng sang kho trạm bếp nấu</p>
+          <h2 class="text-2xl font-black uppercase text-foreground tracking-wide">{{ $t('kitchen_inventory.issue_title') }}</h2>
+          <p class="text-xs text-muted-foreground mt-1">{{ $t('kitchen_inventory.issue_desc') }}</p>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <!-- Pending requisitions sidebar list (1/3 width) -->
           <div class="bg-card rounded-xl border border-border p-4 flex flex-col gap-3 max-h-[500px] overflow-y-auto">
-            <h3 class="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Phiếu yêu cầu chờ xuất kho</h3>
+            <h3 class="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">{{ $t('kitchen_inventory.pending_requests') }}</h3>
             
             <div v-if="pendingRequisitions.length === 0" class="text-center py-12 text-muted-foreground text-xs">
               📭 Tất cả phiếu yêu cầu đã được xử lý.
@@ -451,7 +451,7 @@
             >
               <div class="flex justify-between font-bold mb-1.5">
                 <span class="text-foreground">{{ req.id }}</span>
-                <span class="text-orange-500">Chờ duyệt</span>
+                <span class="text-orange-500">{{ $t('kitchen_inventory.pending_approval') }}</span>
               </div>
               <div class="text-muted-foreground mb-1">Trạm: {{ req.station }} &bull; Người lập: {{ req.actor }}</div>
               <div class="text-muted-foreground text-[10px] font-mono">{{ req.date }}</div>
@@ -462,7 +462,7 @@
           <div class="lg:col-span-2 bg-card rounded-xl border border-border p-6 flex flex-col justify-between min-h-[480px]">
             <div v-if="!activeRequisition" class="flex-1 flex flex-col items-center justify-center text-center text-muted-foreground">
               <span class="text-4xl mb-3">📦</span>
-              <p class="text-sm font-bold">Vui lòng chọn một phiếu yêu cầu bên trái để xử lý xuất kho</p>
+              <p class="text-sm font-bold">{{ $t('kitchen_inventory.select_request') }}</p>
             </div>
 
             <div v-else class="space-y-6 flex-1 flex flex-col justify-between">
@@ -475,22 +475,22 @@
                   </div>
                   <div class="text-right">
                     <span class="text-xs text-muted-foreground block font-mono">{{ activeRequisition.date }}</span>
-                    <span class="text-xs text-muted-foreground">Người lập: <strong>Chef {{ activeRequisition.actor }}</strong></span>
+                    <span class="text-xs text-muted-foreground">{{ $t('kitchen_inventory.created_by') }} <strong>Chef {{ activeRequisition.actor }}</strong></span>
                   </div>
                 </div>
 
                 <!-- Items list -->
                 <div class="space-y-3">
-                  <h4 class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Danh sách mặt hàng xuất:</h4>
+                  <h4 class="text-xs font-bold text-muted-foreground uppercase tracking-wider">{{ $t('kitchen_inventory.issue_item_list') }}</h4>
                   
                   <div class="bg-background rounded-xl border border-border overflow-hidden">
                     <table class="w-full text-left text-xs">
                       <thead>
                         <tr class="bg-card text-muted-foreground font-bold uppercase border-b border-border">
-                          <th class="py-2.5 px-3">Nguyên liệu</th>
-                          <th class="py-2.5 px-3 text-center">Kho tổng còn</th>
-                          <th class="py-2.5 px-3 text-center">Yêu cầu</th>
-                          <th class="py-2.5 px-3 text-center">Duyệt xuất</th>
+                          <th class="py-2.5 px-3">{{ $t('kitchen_inventory.ingredient') }}</th>
+                          <th class="py-2.5 px-3 text-center">{{ $t('kitchen_inventory.main_stock_remains') }}</th>
+                          <th class="py-2.5 px-3 text-center">{{ $t('kitchen_inventory.request') }}</th>
+                          <th class="py-2.5 px-3 text-center">{{ $t('kitchen_inventory.approve_issue') }}</th>
                         </tr>
                       </thead>
                       <tbody class="divide-y divide-[#404040]/40">
@@ -550,20 +550,20 @@
       <div v-else-if="activeTab === 'stocktake'" class="space-y-6 animate-fade-in">
         <div class="flex justify-between items-baseline flex-wrap gap-3">
           <div>
-            <h2 class="text-2xl font-black uppercase text-foreground tracking-wide">KIỂM KÊ TỒN KHO ĐỊNH KỲ</h2>
-            <p class="text-xs text-muted-foreground mt-1">Đối chiếu khối lượng đếm thực tế với số liệu lý thuyết trên hệ thống</p>
+            <h2 class="text-2xl font-black uppercase text-foreground tracking-wide">{{ $t('kitchen_inventory.stocktake_title') }}</h2>
+            <p class="text-xs text-muted-foreground mt-1">{{ $t('kitchen_inventory.stocktake_desc') }}</p>
           </div>
           
           <div class="flex items-center gap-3 text-xs text-muted-foreground font-bold bg-card border border-border px-4 py-2 rounded-xl">
-            <span>📅 Ngày kiểm kê: 27/06/2026</span>
-            <span>👤 Nhân viên: Quản lý Nam</span>
+            <span>{{ $t('kitchen_inventory.stocktake_date') }}</span>
+            <span>{{ $t('kitchen_inventory.employee') }}</span>
           </div>
         </div>
 
         <!-- Progress Bar Section -->
         <div class="bg-card rounded-xl p-5 border border-border space-y-3">
           <div class="flex justify-between text-xs font-bold text-muted-foreground">
-            <span>Tiến độ kiểm đếm nguyên liệu</span>
+            <span>{{ $t('kitchen_inventory.stocktake_progress') }}</span>
             <span class="text-[#FF9800]">{{ stocktakeCheckedCount }}/{{ stocktakeTotalCount }} SKU ({{ stocktakeProgress }}%)</span>
           </div>
           <div class="w-full bg-background h-2.5 rounded-full overflow-hidden border border-border">
@@ -589,12 +589,12 @@
           <table class="w-full text-left text-sm border-collapse">
             <thead>
               <tr class="bg-background border-b border-border text-muted-foreground text-xs font-bold uppercase">
-                <th class="py-3 px-4">Vị trí lưu kho</th>
-                <th class="py-3 px-4">Nguyên liệu</th>
-                <th class="py-3 px-4 text-center">Tồn hệ thống (Lý thuyết)</th>
-                <th class="py-3 px-4 text-center">Đếm thực tế</th>
-                <th class="py-3 px-4 text-center">Chênh lệch</th>
-                <th class="py-3 px-4">Lý do/Ghi chú điều chỉnh</th>
+                <th class="py-3 px-4">{{ $t('kitchen_inventory.storage_location') }}</th>
+                <th class="py-3 px-4">{{ $t('kitchen_inventory.ingredient') }}</th>
+                <th class="py-3 px-4 text-center">{{ $t('kitchen_inventory.system_stock') }}</th>
+                <th class="py-3 px-4 text-center">{{ $t('kitchen_inventory.actual_count') }}</th>
+                <th class="py-3 px-4 text-center">{{ $t('kitchen_inventory.variance') }}</th>
+                <th class="py-3 px-4">{{ $t('kitchen_inventory.adjust_reason') }}</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-[#404040]/40">
@@ -660,8 +660,8 @@
       <!-- SUB-PAGE: CẢNH BÁO -->
       <div v-else-if="activeTab === 'alerts'" class="space-y-6 animate-fade-in">
         <div>
-          <h2 class="text-2xl font-black uppercase text-foreground tracking-wide">CẢNH BÁO TỒN KHO & HẠN DÙNG</h2>
-          <p class="text-xs text-muted-foreground mt-1">Thông báo tức thời các nguyên liệu dưới ngưỡng tối thiểu hoặc gần hết hạn</p>
+          <h2 class="text-2xl font-black uppercase text-foreground tracking-wide">{{ $t('kitchen_inventory.alerts_title') }}</h2>
+          <p class="text-xs text-muted-foreground mt-1">{{ $t('kitchen_inventory.alerts_desc') }}</p>
         </div>
 
         <!-- Alert Tabs -->
@@ -714,15 +714,15 @@
               <!-- Stats box -->
               <div class="bg-background rounded-xl p-3 text-xs space-y-2 border border-border">
                 <div class="flex justify-between">
-                  <span class="text-muted-foreground">Tồn kho hiện tại:</span>
+                  <span class="text-muted-foreground">{{ $t('kitchen_inventory.current_stock') }}</span>
                   <span class="font-bold text-foreground">{{ item.currentStock }} {{ item.unit }}</span>
                 </div>
                 <div class="flex justify-between">
-                  <span class="text-muted-foreground">Mức tối thiểu:</span>
+                  <span class="text-muted-foreground">{{ $t('kitchen_inventory.min_level') }}</span>
                   <span class="font-bold text-muted-foreground">{{ item.minStock }} {{ item.unit }}</span>
                 </div>
                 <div v-if="item.expiryDate" class="flex justify-between">
-                  <span class="text-muted-foreground">Hạn sử dụng (FEFO):</span>
+                  <span class="text-muted-foreground">{{ $t('kitchen_inventory.fefo_expiry') }}</span>
                   <span class="font-bold text-yellow-500">{{ item.expiryDate }}</span>
                 </div>
               </div>
@@ -748,88 +748,88 @@
       <!-- SUB-PAGE: BÁO CÁO & PHÂN TÍCH -->
       <div v-else-if="activeTab === 'reports'" class="space-y-6 animate-fade-in">
         <div>
-          <h2 class="text-2xl font-black uppercase text-foreground tracking-wide">BÁO CÁO & PHÂN TÍCH HẠCH TOÁN KHO</h2>
-          <p class="text-xs text-muted-foreground mt-1">Tổng hợp các chỉ số hạch toán giá vốn, tỷ lệ hao hụt và đề xuất tối ưu hóa</p>
+          <h2 class="text-2xl font-black uppercase text-foreground tracking-wide">{{ $t('kitchen_inventory.reports_title') }}</h2>
+          <p class="text-xs text-muted-foreground mt-1">{{ $t('kitchen_inventory.reports_desc') }}</p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
           
           <!-- Food Cost & Variance KPI -->
           <div class="bg-card rounded-xl p-5 border border-border space-y-4">
-            <h3 class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Chỉ số tài chính tháng 6</h3>
+            <h3 class="text-xs font-bold text-muted-foreground uppercase tracking-wider">{{ $t('kitchen_inventory.financial_index_june') }}</h3>
             
             <div class="space-y-3">
               <div class="p-3 bg-background rounded-lg">
-                <span class="text-[10px] text-muted-foreground uppercase font-bold block">Tỷ lệ giá vốn (Food Cost)</span>
+                <span class="text-[10px] text-muted-foreground uppercase font-bold block">{{ $t('kitchen_inventory.food_cost') }}</span>
                 <span class="text-xl font-black text-foreground">28.4%</span>
-                <span class="text-[10px] text-green-500 block">▼ 1.2% so với tháng trước</span>
+                <span class="text-[10px] text-green-500 block">{{ $t('kitchen_inventory.down_1_2') }}</span>
               </div>
               <div class="p-3 bg-background rounded-lg">
-                <span class="text-[10px] text-muted-foreground uppercase font-bold block">Tỷ lệ hao hụt (Loss Ratio)</span>
+                <span class="text-[10px] text-muted-foreground uppercase font-bold block">{{ $t('kitchen_inventory.loss_ratio') }}</span>
                 <span class="text-xl font-black text-red-500">1.85%</span>
-                <span class="text-[10px] text-red-500 block">▲ 0.15% (Chênh lệch lớn ở Bò Wagyu)</span>
+                <span class="text-[10px] text-red-500 block">{{ $t('kitchen_inventory.up_0_15_wagyu') }}</span>
               </div>
               <div class="p-3 bg-background rounded-lg">
-                <span class="text-[10px] text-muted-foreground uppercase font-bold block">Vòng quay tồn kho (Turnover Rate)</span>
-                <span class="text-xl font-black text-[#FF9800]">4.2 lần/tháng</span>
-                <span class="text-[10px] text-muted-foreground block">Thời gian lưu kho trung bình: 7.1 ngày</span>
+                <span class="text-[10px] text-muted-foreground uppercase font-bold block">{{ $t('kitchen_inventory.turnover_rate') }}</span>
+                <span class="text-xl font-black text-[#FF9800]">{{ $t('kitchen_inventory.4_2_times') }}</span>
+                <span class="text-[10px] text-muted-foreground block">{{ $t('kitchen_inventory.avg_storage_time') }}</span>
               </div>
             </div>
           </div>
 
           <!-- ABC Analysis Widget (Value concentration) -->
           <div class="bg-card rounded-xl p-5 border border-border space-y-4">
-            <h3 class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Phân tích ABC giá trị kho tổng</h3>
+            <h3 class="text-xs font-bold text-muted-foreground uppercase tracking-wider">{{ $t('kitchen_inventory.abc_analysis') }}</h3>
             
             <div class="space-y-4">
               <div>
                 <div class="flex justify-between text-xs font-bold mb-1">
-                  <span class="text-primary">Nhóm A (Giá trị cao - 73%)</span>
+                  <span class="text-primary">{{ $t('kitchen_inventory.group_a') }}</span>
                   <span>14 SKU</span>
                 </div>
                 <div class="w-full bg-background h-2 rounded-full overflow-hidden">
                   <div class="bg-primary h-full" style="width: 73%"></div>
                 </div>
-                <span class="text-[10px] text-muted-foreground block mt-1">Bò Wagyu, Tôm sú tươi, Rượu Sake Nhật.</span>
+                <span class="text-[10px] text-muted-foreground block mt-1">{{ $t('kitchen_inventory.group_a_desc') }}</span>
               </div>
 
               <div>
                 <div class="flex justify-between text-xs font-bold mb-1">
-                  <span class="text-blue-600">Nhóm B (Giá trị trung bình - 20%)</span>
+                  <span class="text-blue-600">{{ $t('kitchen_inventory.group_b') }}</span>
                   <span>45 SKU</span>
                 </div>
                 <div class="w-full bg-background h-2 rounded-full overflow-hidden">
                   <div class="bg-[#2196F3] h-full" style="width: 20%"></div>
                 </div>
-                <span class="text-[10px] text-muted-foreground block mt-1">Rau nấm các loại, nước sốt lẩu pha sẵn.</span>
+                <span class="text-[10px] text-muted-foreground block mt-1">{{ $t('kitchen_inventory.group_b_desc') }}</span>
               </div>
 
               <div>
                 <div class="flex justify-between text-xs font-bold mb-1">
-                  <span class="text-muted-foreground">Nhóm C (Giá trị thấp - 7%)</span>
+                  <span class="text-muted-foreground">{{ $t('kitchen_inventory.group_c') }}</span>
                   <span>186 SKU</span>
                 </div>
                 <div class="w-full bg-background h-2 rounded-full overflow-hidden">
                   <div class="bg-gray-600 h-full" style="width: 7%"></div>
                 </div>
-                <span class="text-[10px] text-muted-foreground block mt-1">Gia vị khô, tăm muối, khăn giấy, than củi.</span>
+                <span class="text-[10px] text-muted-foreground block mt-1">{{ $t('kitchen_inventory.group_c_desc') }}</span>
               </div>
             </div>
           </div>
 
           <!-- Optimization suggestions -->
           <div class="bg-card rounded-xl p-5 border border-border space-y-4">
-            <h3 class="text-xs font-bold text-muted-foreground uppercase tracking-wider">💡 Đề xuất tối ưu hóa tồn kho</h3>
+            <h3 class="text-xs font-bold text-muted-foreground uppercase tracking-wider">{{ $t('kitchen_inventory.optimization_proposals') }}</h3>
             
             <div class="space-y-3 text-xs">
               <div class="p-3 bg-[#FF9800]/5 border-l-3 border-[#FF9800] rounded">
-                <strong class="text-[#FF9800] block mb-1">Điều chỉnh Min/Max Bò Wagyu</strong>
-                <p class="text-muted-foreground leading-normal">Mức tiêu thụ Wagyu đang tăng nhẹ ca tối. Đề xuất nâng mức Min kho tổng từ 5kg lên 8kg để tránh đứt hàng khi khách gọi thêm buffet.</p>
+                <strong class="text-[#FF9800] block mb-1">{{ $t('kitchen_inventory.adj_wagyu') }}</strong>
+                <p class="text-muted-foreground leading-normal">{{ $t('kitchen_inventory.adj_wagyu_desc') }}</p>
               </div>
 
               <div class="p-3 bg-[#4CAF50]/5 border-l-3 border-[#4CAF50] rounded">
-                <strong class="text-green-600 block mb-1">Thay đổi lịch đặt hàng Rau nấm</strong>
-                <p class="text-muted-foreground leading-normal">Rau củ dập nát chiếm 80% waste log. Đề xuất đổi NCC sang GreenFarm để giao mỗi buổi sáng thay vì giao 2 ngày/lần.</p>
+                <strong class="text-green-600 block mb-1">{{ $t('kitchen_inventory.change_veg') }}</strong>
+                <p class="text-muted-foreground leading-normal">{{ $t('kitchen_inventory.change_veg_desc') }}</p>
               </div>
             </div>
           </div>
@@ -841,8 +841,8 @@
       <div v-else-if="activeTab === 'suppliers'" class="space-y-6 animate-fade-in">
         <div class="flex justify-between items-center">
           <div>
-            <h2 class="text-2xl font-black uppercase text-foreground tracking-wide">DANH SÁCH NHÀ CUNG CẤP (NCC)</h2>
-            <p class="text-xs text-muted-foreground mt-1">Quản lý danh sách đối tác cung cấp thực phẩm tươi sống và thiết bị cho nhà hàng Ngưu Cát</p>
+            <h2 class="text-2xl font-black uppercase text-foreground tracking-wide">{{ $t('kitchen_inventory.suppliers_title') }}</h2>
+            <p class="text-xs text-muted-foreground mt-1">{{ $t('kitchen_inventory.suppliers_desc') }}</p>
           </div>
           <button class="btn-primary" @click="addNewSupplier">
             + Thêm đối tác
@@ -867,15 +867,15 @@
               </div>
 
               <div class="space-y-1.5 text-xs text-muted-foreground">
-                <div>📞 Liên hệ: <strong class="text-foreground">{{ s.contact }}</strong></div>
-                <div>📍 Địa chỉ: <span class="text-muted-foreground">{{ s.address }}</span></div>
-                <div>📊 Đánh giá chất lượng: <span class="text-yellow-500">⭐⭐⭐⭐⭐ (5.0)</span></div>
+                <div>{{ $t('kitchen_inventory.contact') }} <strong class="text-foreground">{{ s.contact }}</strong></div>
+                <div>{{ $t('kitchen_inventory.address') }} <span class="text-muted-foreground">{{ s.address }}</span></div>
+                <div>{{ $t('kitchen_inventory.quality_rating') }} <span class="text-yellow-500">⭐⭐⭐⭐⭐ (5.0)</span></div>
               </div>
             </div>
 
             <div class="pt-3 border-t border-border flex justify-between items-center text-xs">
-              <span class="text-muted-foreground">Đơn mua chờ giao: <strong class="text-foreground">0</strong></span>
-              <button class="text-primary font-bold hover:underline" @click="contactSupplier(s)">Đặt mua nhanh ➔</button>
+              <span class="text-muted-foreground">{{ $t('kitchen_inventory.pending_po') }} <strong class="text-foreground">0</strong></span>
+              <button class="text-primary font-bold hover:underline" @click="contactSupplier(s)">{{ $t('kitchen_inventory.buy_now') }}</button>
             </div>
           </div>
         </div>
@@ -884,8 +884,8 @@
       <!-- SUB-PAGE: LỊCH SỬ GIAO DỊCH KHO -->
       <div v-else-if="activeTab === 'history'" class="space-y-6 animate-fade-in">
         <div>
-          <h2 class="text-2xl font-black uppercase text-foreground tracking-wide">LỊCH SỬ HOẠT ĐỘNG KHO</h2>
-          <p class="text-xs text-muted-foreground mt-1">Nhật ký đối soát tất cả các giao dịch Nhập, Xuất, Điều chỉnh số lượng kho hàng</p>
+          <h2 class="text-2xl font-black uppercase text-foreground tracking-wide">{{ $t('kitchen_inventory.history_title') }}</h2>
+          <p class="text-xs text-muted-foreground mt-1">{{ $t('kitchen_inventory.history_desc') }}</p>
         </div>
 
         <!-- History logs list -->
@@ -893,12 +893,12 @@
           <table class="w-full text-left text-sm border-collapse">
             <thead>
               <tr class="bg-background border-b border-border text-muted-foreground text-xs font-bold uppercase">
-                <th class="py-3 px-4">Thời gian</th>
-                <th class="py-3 px-4">Giao dịch</th>
-                <th class="py-3 px-4">Đối tượng tác động</th>
-                <th class="py-3 px-4 text-right">Lượng đổi</th>
-                <th class="py-3 px-4">Nhân viên hạch toán</th>
-                <th class="py-3 px-4">Chi tiết biên bản/Ghi chú</th>
+                <th class="py-3 px-4">{{ $t('kitchen_inventory.time') }}</th>
+                <th class="py-3 px-4">{{ $t('kitchen_inventory.transaction') }}</th>
+                <th class="py-3 px-4">{{ $t('kitchen_inventory.affected_item') }}</th>
+                <th class="py-3 px-4 text-right">{{ $t('kitchen_inventory.amount_change') }}</th>
+                <th class="py-3 px-4">{{ $t('kitchen_inventory.accountant') }}</th>
+                <th class="py-3 px-4">{{ $t('kitchen_inventory.note_detail') }}</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-[#404040]/40">
@@ -931,53 +931,53 @@
     <div v-if="showIngredientModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm" @click.self="showIngredientModal = false">
       <div class="bg-card border border-border rounded-2xl w-full max-w-[500px] shadow-2xl overflow-hidden flex flex-col">
         <div class="px-6 py-4 bg-background border-b border-border flex justify-between items-center">
-          <h3 class="text-lg font-bold text-primary">➕ THÊM NGUYÊN LIỆU MỚI</h3>
+          <h3 class="text-lg font-bold text-primary">{{ $t('kitchen_inventory.add_new_ingredient') }}</h3>
           <button class="text-muted-foreground hover:text-foreground" @click="showIngredientModal = false">✕</button>
         </div>
         <div class="p-6 space-y-4">
           <div class="flex flex-col gap-1.5">
-            <label class="text-xs text-muted-foreground font-bold">Tên nguyên liệu</label>
+            <label class="text-xs text-muted-foreground font-bold">{{ $t('kitchen_inventory.ingredient_name') }}</label>
             <input v-model="ingredientForm.name" placeholder="Ví dụ: Ba chỉ bò Mỹ" class="bg-background border border-border rounded-xl px-4 py-2.5 text-sm text-foreground focus:outline-none focus:border-primary" />
           </div>
           <div class="grid grid-cols-2 gap-4">
             <div class="flex flex-col gap-1.5">
-              <label class="text-xs text-muted-foreground font-bold">Biểu tượng (Emoji)</label>
+              <label class="text-xs text-muted-foreground font-bold">{{ $t('kitchen_inventory.emoji') }}</label>
               <input v-model="ingredientForm.icon" placeholder="🥩" class="bg-background text-center border border-border rounded-xl px-4 py-2.5 text-sm text-foreground focus:outline-none" />
             </div>
             <div class="flex flex-col gap-1.5">
-              <label class="text-xs text-muted-foreground font-bold">Đơn vị tính</label>
+              <label class="text-xs text-muted-foreground font-bold">{{ $t('kitchen_inventory.unit') }}</label>
               <input v-model="ingredientForm.unit" placeholder="kg" class="bg-background text-center border border-border rounded-xl px-4 py-2.5 text-sm text-foreground focus:outline-none" />
             </div>
           </div>
           <div class="grid grid-cols-2 gap-4">
             <div class="flex flex-col gap-1.5">
-              <label class="text-xs text-muted-foreground font-bold">Danh mục</label>
+              <label class="text-xs text-muted-foreground font-bold">{{ $t('kitchen_inventory.category') }}</label>
               <select v-model="ingredientForm.category" class="bg-background border border-border rounded-xl px-4 py-2.5 text-sm text-foreground focus:outline-none">
-                <option value="Thịt">Thịt bò & sườn</option>
-                <option value="Hải sản">Hải sản tươi</option>
-                <option value="Rau củ">Rau củ quả</option>
-                <option value="Gia vị">Nước dùng & Gia vị</option>
+                <option :value="$t('kitchen_inventory.meat')">{{ $t('kitchen_inventory.beef_ribs') }}</option>
+                <option :value="$t('kitchen_inventory.seafood')">{{ $t('kitchen_inventory.fresh_seafood') }}</option>
+                <option :value="$t('kitchen_inventory.veg')">{{ $t('kitchen_inventory.vegetables') }}</option>
+                <option :value="$t('kitchen_inventory.spices')">{{ $t('kitchen_inventory.broth_spices') }}</option>
               </select>
             </div>
             <div class="flex flex-col gap-1.5">
-              <label class="text-xs text-muted-foreground font-bold">Ngưỡng tồn thấp (Min)</label>
+              <label class="text-xs text-muted-foreground font-bold">{{ $t('kitchen_inventory.min_stock_level') }}</label>
               <input type="number" v-model.number="ingredientForm.minKitchenStock" class="bg-background border border-border rounded-xl px-4 py-2.5 text-sm text-foreground focus:outline-none" />
             </div>
           </div>
           <div class="grid grid-cols-2 gap-4">
             <div class="flex flex-col gap-1.5">
-              <label class="text-xs text-muted-foreground font-bold">Tồn Kho Tổng ban đầu</label>
+              <label class="text-xs text-muted-foreground font-bold">{{ $t('kitchen_inventory.initial_main_stock') }}</label>
               <input type="number" v-model.number="ingredientForm.mainStock" class="bg-background border border-border rounded-xl px-4 py-2.5 text-sm text-foreground focus:outline-none" />
             </div>
             <div class="flex flex-col gap-1.5">
-              <label class="text-xs text-muted-foreground font-bold">Giá vốn (VND/đơn vị)</label>
+              <label class="text-xs text-muted-foreground font-bold">{{ $t('kitchen_inventory.unit_cost') }}</label>
               <input type="number" v-model.number="ingredientForm.unitPrice" class="bg-background border border-border rounded-xl px-4 py-2.5 text-sm text-foreground focus:outline-none" />
             </div>
           </div>
         </div>
         <div class="px-6 py-4 bg-background border-t border-border flex justify-end gap-3">
-          <button class="bg-muted hover:bg-muted text-xs font-bold px-4 py-2 rounded-lg text-foreground" @click="showIngredientModal = false">Hủy</button>
-          <button class="bg-primary hover:bg-[#E55F2A] text-xs font-bold px-5 py-2 rounded-lg text-foreground" @click="submitAddIngredient">Xác nhận Thêm</button>
+          <button class="bg-muted hover:bg-muted text-xs font-bold px-4 py-2 rounded-lg text-foreground" @click="showIngredientModal = false">{{ $t('kitchen_inventory.cancel') }}</button>
+          <button class="bg-primary hover:bg-[#E55F2A] text-xs font-bold px-5 py-2 rounded-lg text-foreground" @click="submitAddIngredient">{{ $t('kitchen_inventory.confirm_add') }}</button>
         </div>
       </div>
     </div>
@@ -986,13 +986,44 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useKitchenStore } from '@/stores/kitchen';
 import Swal from 'sweetalert2';
+import { useInventory } from '@/composables/useInventory';
+import { useI18n } from 'vue-i18n';
 
 const router = useRouter();
 const kitchenStore = useKitchenStore();
+const { t } = useI18n();
+
+const { inventory, fetchInventory, addStock, adjustStock, subscribeToStockUpdates, unsubscribe } = useInventory();
+
+onMounted(() => {
+  fetchInventory();
+  subscribeToStockUpdates();
+});
+
+onUnmounted(() => {
+  unsubscribe();
+});
+
+const mappedInventoryList = computed(() => {
+  return inventory.value.map(item => ({
+    id: item.ingredient_id,
+    sku: item.sku,
+    name: item.name_vi,
+    icon: '🥩', 
+    unit: item.unit,
+    category: item.category_name_vi,
+    minKitchenStock: item.low_stock_threshold,
+    mainStock: item.quantity,
+    kitchenStock: 0,
+    unitPrice: item.unit_cost,
+    isLowStock: item.is_low_stock,
+    nextExpiryDate: item.next_expiry_date
+  }));
+});
 
 const navigateBack = () => {
   router.push('/kitchen/kds');
@@ -1003,8 +1034,8 @@ const activeTab = ref<string>('dashboard');
 // Navigation sidebar items
 const navItems = [
   { key: 'dashboard', label: 'Dashboard', icon: '📊' },
-  { key: 'ingredients', label: 'Nguyên liệu', icon: '🥩' },
-  { key: 'receive', label: 'Nhập kho', icon: '📥' },
+  { key: 'ingredients', label: t('kitchen_inventory.ingredient'), icon: '🥩' },
+  { key: 'receive', label: t('kitchen.receive'), icon: '📥' },
   { key: 'issue', label: 'Xuất kho', icon: '📤', badgeCount: () => pendingRequisitions.value.length },
   { key: 'stocktake', label: 'Kiểm kê', icon: '📝' },
   { key: 'alerts', label: 'Cảnh báo', icon: '⚠️', badgeCount: () => alertLowCount.value + alertExpiringCount.value },
@@ -1019,19 +1050,19 @@ const formatCurrency = (val: number) => {
 };
 
 // Global Store integration computes
-const totalSkus = computed(() => kitchenStore.inventoryList.length);
+const totalSkus = computed(() => mappedInventoryList.value.length);
 const totalInventoryValue = computed(() => {
-  return kitchenStore.inventoryList.reduce((acc, item) => acc + (item.mainStock * item.unitPrice), 0);
+  return mappedInventoryList.value.reduce((acc, item) => acc + (item.mainStock * item.unitPrice), 0);
 });
 
 const expiringCount = ref(2); // Mock count for expiring items
 const lowStockCount = computed(() => {
-  return kitchenStore.inventoryList.filter(item => item.mainStock <= item.minKitchenStock).length;
+  return mappedInventoryList.value.filter(item => item.mainStock <= item.minKitchenStock).length;
 });
 
 // Category stats SKU
 const categoryChartData = computed(() => {
-  const categories = ['Thịt', 'Hải sản', 'Rau củ', 'Gia vị'];
+  const categories = [t('kitchen_inventory.meat'), t('kitchen_inventory.seafood'), t('kitchen_inventory.veg'), t('kitchen_inventory.spices')];
   const colors = [
     'from-red-500 to-red-800',
     'from-blue-500 to-blue-800',
@@ -1039,7 +1070,7 @@ const categoryChartData = computed(() => {
     'from-yellow-500 to-yellow-800'
   ];
   return categories.map((cat, idx) => {
-    const count = kitchenStore.inventoryList.filter(item => item.category === cat).length;
+    const count = mappedInventoryList.value.filter(item => item.category === cat).length;
     return {
       name: cat,
       count: count || (idx === 0 ? 9 : idx === 1 ? 5 : idx === 2 ? 12 : 7), // mock fallback if empty
@@ -1050,12 +1081,12 @@ const categoryChartData = computed(() => {
 
 // Top alert items in Dashboard
 const topAlertItems = computed(() => {
-  return kitchenStore.inventoryList.filter(item => item.mainStock <= item.minKitchenStock).slice(0, 5);
+  return mappedInventoryList.value.filter(item => item.mainStock <= item.minKitchenStock).slice(0, 5);
 });
 
 // Mock Initial Logs list
 const recentLogs = ref([
-  { id: 'l1', time: '27/06 10:45', type: 'receive', typeLabel: 'Nhập kho', itemName: 'Thịt bò Wagyu', qty: 30 },
+  { id: 'l1', time: '27/06 10:45', type: 'receive', typeLabel: t('kitchen.receive'), itemName: 'Thịt bò Wagyu', qty: 30 },
   { id: 'l2', time: '27/06 09:30', type: 'issue', typeLabel: 'Xuất kho', itemName: 'Nước lẩu Sukiyaki', qty: -8 },
   { id: 'l3', time: '26/06 16:15', type: 'stocktake', typeLabel: 'Điều chỉnh', itemName: 'Rau thập cẩm', qty: -0.5 },
   { id: 'l4', time: '26/06 14:00', type: 'issue', typeLabel: 'Xuất kho', itemName: 'Thịt bò Wagyu', qty: -5 }
@@ -1070,13 +1101,13 @@ const getLogTypeClass = (type: string) => {
 // Full transactional logs sub-page
 const fullTransactionLogs = computed(() => {
   return recentLogs.value.map(log => {
-    const invItem = kitchenStore.inventoryList.find(i => i.name === log.itemName);
+    const invItem = mappedInventoryList.value.find(i => i.name === log.itemName);
     return {
       ...log,
       itemIcon: invItem?.icon || '📦',
       unit: invItem?.unit || 'kg',
       actor: 'Quản lý Nam',
-      note: log.type === 'receive' ? 'Nhập kho từ NCC Mekas Foods' : log.type === 'issue' ? 'Xuất kho phục vụ bếp ca sáng' : 'Đếm thực tế chênh lệch hao hụt'
+      note: log.type === 'receive' ? `${t('kitchen.receive')} từ NCC Mekas Foods` : log.type === 'issue' ? 'Xuất kho phục vụ bếp ca sáng' : 'Đếm thực tế chênh lệch hao hụt'
     };
   });
 });
@@ -1087,7 +1118,7 @@ const categoryFilter = ref('');
 const stockFilter = ref('');
 
 const filteredIngredients = computed(() => {
-  return kitchenStore.inventoryList.filter(item => {
+  return mappedInventoryList.value.filter(item => {
     const matchesSearch = item.name.toLowerCase().includes(searchQuery.value.toLowerCase()) || item.id.toLowerCase().includes(searchQuery.value.toLowerCase());
     const matchesCategory = categoryFilter.value === '' || item.category === categoryFilter.value;
     const matchesStock = stockFilter.value === '' || (stockFilter.value === 'low' && item.mainStock <= item.minKitchenStock) || (stockFilter.value === 'good' && item.mainStock > item.minKitchenStock);
@@ -1101,7 +1132,7 @@ const ingredientForm = ref({
   name: '',
   icon: '🥩',
   unit: 'kg',
-  category: 'Thịt',
+  category: t('kitchen_inventory.meat'),
   minKitchenStock: 5,
   mainStock: 10,
   unitPrice: 150000
@@ -1112,7 +1143,7 @@ const openAddIngredientModal = () => {
     name: '',
     icon: '🥩',
     unit: 'kg',
-    category: 'Thịt',
+    category: t('kitchen_inventory.meat'),
     minKitchenStock: 5,
     mainStock: 10,
     unitPrice: 150000
@@ -1127,8 +1158,9 @@ const submitAddIngredient = () => {
   }
   
   const newSku = `inv-${Date.now().toString().slice(-4)}`;
-  kitchenStore.inventoryList.push({
+  mappedInventoryList.value.push({
     id: newSku,
+    sku: newSku,
     name: ingredientForm.value.name,
     icon: ingredientForm.value.icon,
     unit: ingredientForm.value.unit,
@@ -1136,7 +1168,9 @@ const submitAddIngredient = () => {
     minKitchenStock: ingredientForm.value.minKitchenStock,
     mainStock: ingredientForm.value.mainStock,
     kitchenStock: 0,
-    unitPrice: ingredientForm.value.unitPrice
+    unitPrice: ingredientForm.value.unitPrice,
+    isLowStock: false,
+    nextExpiryDate: null
   });
 
   // Log transaction
@@ -1144,7 +1178,7 @@ const submitAddIngredient = () => {
     id: `log-${Date.now()}`,
     time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) + ' ' + new Date().toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' }),
     type: 'receive',
-    typeLabel: 'Nhập kho',
+    typeLabel: t('kitchen.receive'),
     itemName: ingredientForm.value.name,
     qty: ingredientForm.value.mainStock
   });
@@ -1167,7 +1201,7 @@ const showStockHistory = (item: any) => {
   Swal.fire({
     title: `Lịch sử thẻ kho: ${item.name}`,
     html: `<div class="text-left text-xs text-muted-foreground space-y-2">
-      <div>• 27/06 10:45: Nhập kho +30 ${item.unit}</div>
+      <div>• 27/06 10:45: ${t('kitchen.receive')} +30 ${item.unit}</div>
       <div>• 26/06 14:00: Xuất bếp -5 ${item.unit}</div>
       <div>• 25/06 09:15: Đóng ca điều chỉnh -0.5 ${item.unit}</div>
     </div>`,
@@ -1177,11 +1211,11 @@ const showStockHistory = (item: any) => {
   });
 };
 
-// ─── SUB-PAGE: NHẬP KHO (RECEIVE STOCK) ──────────────────────────────────
+// ─── SUB-PAGE: {{ t('kitchen.receive') }} (RECEIVE STOCK) ──────────────────────────────────
 const mockSuppliers = ref([
   { id: 'SUP-001', name: 'Mekas Foods', category: 'Thịt tươi', contact: '0901.234.567', address: 'Bình Tân, HCM' },
-  { id: 'SUP-002', name: 'Naka Seafood', category: 'Hải sản', contact: '0902.987.654', address: 'Vũng Tàu' },
-  { id: 'SUP-003', name: 'GreenFarm Sạch', category: 'Rau củ quả', contact: '0903.321.456', address: 'Đà Lạt, Lâm Đồng' }
+  { id: 'SUP-002', name: 'Naka Seafood', category: t('kitchen_inventory.seafood'), contact: '0902.987.654', address: 'Vũng Tàu' },
+  { id: 'SUP-003', name: 'GreenFarm Sạch', category: t('kitchen_inventory.vegetables'), contact: '0903.321.456', address: 'Đà Lạt, Lâm Đồng' }
 ]);
 
 const receiveForm = ref({
@@ -1210,7 +1244,7 @@ const removeReceiveRow = (idx: number) => {
 };
 
 const getIngredientUnit = (id: string) => {
-  const found = kitchenStore.inventoryList.find(i => i.id === id);
+  const found = mappedInventoryList.value.find(i => i.id === id);
   return found ? found.unit : 'kg';
 };
 
@@ -1223,30 +1257,24 @@ const resetReceiveForm = () => {
 };
 
 const saveReceiveDraft = () => {
-  Swal.fire({ title: 'Đã lưu nháp', text: 'Bản thảo phiếu nhập kho đã được lưu cục bộ!', icon: 'success', background: '#2D2D2D', color: '#FFF' });
+  Swal.fire({ title: 'Đã lưu nháp', text: `Bản thảo phiếu ${t('kitchen.receive')} đã được lưu cục bộ!`, icon: 'success', background: '#2D2D2D', color: '#FFF' });
 };
 
-const submitReceive = () => {
-  receiveForm.value.items.forEach(row => {
-    const item = kitchenStore.inventoryList.find(i => i.id === row.ingredientId);
-    if (item) {
-      item.mainStock += row.quantity;
-      
-      // Log transaction
-      recentLogs.value.unshift({
-        id: `log-${Date.now()}`,
-        time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) + ' ' + new Date().toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' }),
-        type: 'receive',
-        typeLabel: 'Nhập kho',
-        itemName: item.name,
-        qty: row.quantity
-      });
+const submitReceive = async () => {
+  try {
+    for (const row of receiveForm.value.items) {
+      const item = mappedInventoryList.value.find(i => i.id === row.ingredientId);
+      if (item && item.id) {
+        // Here we pass the UUID to addStock, not the SKU
+        await addStock(item.id, row.quantity, 'IN', `${t('kitchen.receive')} từ ${receiveForm.value.supplierId}`, row.expiryDate);
+      }
     }
-  });
-
-  Swal.fire({ title: 'Nhập kho thành công', text: 'Tồn kho tổng hệ thống đã được cập nhật cộng dồn!', icon: 'success', background: '#2D2D2D', color: '#FFF' });
-  resetReceiveForm();
-  activeTab.value = 'dashboard';
+    Swal.fire({ title: `${t('kitchen.receive')} thành công`, text: 'Tồn kho tổng hệ thống đã được cập nhật cộng dồn!', icon: 'success', background: '#2D2D2D', color: '#FFF' });
+    resetReceiveForm();
+    activeTab.value = 'dashboard';
+  } catch (err: any) {
+    Swal.fire({ title: 'Lỗi', text: err.message || 'Lỗi hệ thống', icon: 'error', background: '#2D2D2D', color: '#FFF' });
+  }
 };
 
 // ─── SUB-PAGE: XUẤT KHO (ISSUE TO KITCHEN) ────────────────────────────────
@@ -1264,7 +1292,7 @@ const activeRequisition = computed(() => {
 });
 
 const getMainStock = (itemId: string) => {
-  const found = kitchenStore.inventoryList.find(i => i.id === itemId);
+  const found = mappedInventoryList.value.find(i => i.id === itemId);
   return found ? found.mainStock : 0;
 };
 
@@ -1282,7 +1310,7 @@ const approveRequisition = () => {
   let isShortage = false;
 
   req.items.forEach(item => {
-    const mainInv = kitchenStore.inventoryList.find(i => i.id === item.id);
+    const mainInv = mappedInventoryList.value.find(i => i.id === item.id);
     if (mainInv && mainInv.mainStock < item.deliveredQty) {
       isShortage = true;
     }
@@ -1300,7 +1328,7 @@ const approveRequisition = () => {
   }
 
   req.items.forEach(item => {
-    const mainInv = kitchenStore.inventoryList.find(i => i.id === item.id);
+    const mainInv = mappedInventoryList.value.find(i => i.id === item.id);
     if (mainInv) {
       mainInv.mainStock = Math.max(0, mainInv.mainStock - item.deliveredQty);
       mainInv.kitchenStock += item.deliveredQty;
@@ -1340,7 +1368,7 @@ const stocktakeItems = ref<StocktakeItem[]>([]);
 
 // Populate initial list from kitchenStore
 onMounted(() => {
-  stocktakeItems.value = kitchenStore.inventoryList.map((item, idx) => ({
+  stocktakeItems.value = mappedInventoryList.value.map((item, idx) => ({
     id: item.id,
     name: item.name,
     icon: item.icon,
@@ -1391,30 +1419,23 @@ const resetStocktakeForm = () => {
 };
 
 const exportStocktakeExcel = () => {
-  Swal.fire({ title: 'Xuất File Thành Công', text: 'Tài liệu đối soát kiểm kê kho định kỳ dạng Excel đã được tải xuống!', icon: 'success', background: '#2D2D2D', color: '#FFF' });
+  Swal.fire({ title: 'Xuất File Thành Công', text: `Tài liệu đối soát ${t('kitchen.stocktake')} định kỳ dạng Excel đã được tải xuống!`, icon: 'success', background: '#2D2D2D', color: '#FFF' });
 };
 
-const submitStocktake = () => {
-  stocktakeItems.value.forEach(verifyItem => {
-    const inv = kitchenStore.inventoryList.find(i => i.id === verifyItem.id);
-    if (inv && verifyItem.checked) {
-      inv.mainStock = verifyItem.actual;
-      
-      if (verifyItem.diff !== 0) {
-        recentLogs.value.unshift({
-          id: `log-${Date.now()}`,
-          time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) + ' ' + new Date().toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' }),
-          type: 'adjust',
-          typeLabel: 'Điều chỉnh',
-          itemName: inv.name,
-          qty: verifyItem.diff
-        });
+const submitStocktake = async () => {
+  try {
+    for (const verifyItem of stocktakeItems.value) {
+      const inv = mappedInventoryList.value.find(i => i.id === verifyItem.id);
+      if (inv && verifyItem.checked && verifyItem.diff !== 0) {
+        // Adjust stock expects the UUID
+        await adjustStock(inv.id, verifyItem.actual);
       }
     }
-  });
-
-  Swal.fire({ title: 'Cập nhật hoàn tất', text: 'Báo cáo kiểm kê kho đã được lưu. Hệ thống tự động cân đối tồn kho!', icon: 'success', background: '#2D2D2D', color: '#FFF' });
-  activeTab.value = 'dashboard';
+    Swal.fire({ title: 'Cập nhật hoàn tất', text: `Báo cáo ${t('kitchen.stocktake')} đã được lưu!`, icon: 'success', background: '#2D2D2D', color: '#FFF' });
+    activeTab.value = 'dashboard';
+  } catch (err: any) {
+    Swal.fire({ title: 'Lỗi', text: err.message || 'Lỗi hệ thống', icon: 'error', background: '#2D2D2D', color: '#FFF' });
+  }
 };
 
 // ─── SUB-PAGE: CẢNH BÁO (ALERTS) ─────────────────────────────────────────
@@ -1435,7 +1456,7 @@ interface AlertItem {
 const mockAlerts = computed(() => {
   // Generate alerts dynamically from kitchenStore
   const alerts: AlertItem[] = [];
-  kitchenStore.inventoryList.forEach(item => {
+  mappedInventoryList.value.forEach(item => {
     if (item.mainStock <= item.minKitchenStock) {
       alerts.push({
         id: item.id,
@@ -1503,7 +1524,7 @@ const createPurchaseOrder = (item: any) => {
     confirmButtonColor: '#FF6B35',
     cancelButtonColor: '#424242',
     confirmButtonText: '⚡ Đặt hàng ngay',
-    cancelButtonText: 'Hủy',
+    cancelButtonText: t('kitchen_inventory.cancel'),
     background: '#2D2D2D',
     color: '#FFF'
   }).then((result) => {
@@ -1779,3 +1800,4 @@ const contactSupplier = (s: any) => {
   to { opacity: 1; transform: translateY(0); }
 }
 </style>
+

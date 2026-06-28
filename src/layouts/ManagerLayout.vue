@@ -10,54 +10,54 @@
       </div>
 
       <nav class="flex-1 px-3 space-y-1 py-4 overflow-y-auto">
-        <div class="text-[10px] font-extrabold text-[hsl(var(--muted-foreground))] uppercase tracking-wider px-3 mb-1">{{ $t('auto_bao_cao_phan_tich') }}</div>
+        <div class="text-[10px] font-extrabold text-[hsl(var(--muted-foreground))] uppercase tracking-wider px-3 mb-1">{{ $t('layout.analysis_reports') }}</div>
 
         <RouterLink to="/manager/dashboard" class="flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all text-sm font-semibold border border-transparent"
           :class="$route.path === '/manager/dashboard' ? 'bg-[hsl(var(--primary))]/12 text-[hsl(var(--primary))] font-extrabold border-[hsl(var(--primary))]/30' : 'text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]'">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
-          <span>{{ $t('auto_bang_dieu_khien') }}</span>
+          <span>{{ $t('layout.dashboard') }}</span>
         </RouterLink>
 
         <RouterLink to="/manager/revenue" class="flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all text-sm font-semibold border border-transparent"
           :class="$route.path === '/manager/revenue' ? 'bg-[hsl(var(--primary))]/12 text-[hsl(var(--primary))] font-extrabold border-[hsl(var(--primary))]/30' : 'text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]'">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="20" y2="10"/><line x1="18" x2="18" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="16"/></svg>
-          <span>{{ $t('auto_bao_cao_doanh_thu') }}</span>
+          <span>{{ $t('layout.revenue_report') }}</span>
         </RouterLink>
 
         <RouterLink to="/manager/cogs" class="flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all text-sm font-semibold border border-transparent"
           :class="$route.path === '/manager/cogs' ? 'bg-[hsl(var(--primary))]/12 text-[hsl(var(--primary))] font-extrabold border-[hsl(var(--primary))]/30' : 'text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]'">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
-          <span>{{ $t('auto_gia_von_cogs') }}</span>
+          <span>{{ $t('layout.cogs') }}</span>
         </RouterLink>
 
         <RouterLink to="/manager/marketing" class="flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all text-sm font-semibold border border-transparent"
           :class="$route.path === '/manager/marketing' ? 'bg-[hsl(var(--primary))]/12 text-[hsl(var(--primary))] font-extrabold border-[hsl(var(--primary))]/30' : 'text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]'">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-          <span>{{ $t('auto_phan_tich_marketing') }}</span>
+          <span>{{ $t('layout.marketing_analysis') }}</span>
         </RouterLink>
 
         <RouterLink to="/manager/crm" class="flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all text-sm font-semibold border border-transparent"
           :class="$route.path === '/manager/crm' ? 'bg-[hsl(var(--primary))]/12 text-[hsl(var(--primary))] font-extrabold border-[hsl(var(--primary))]/30' : 'text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]'">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-          <span>{{ $t('auto_khach_hang_crm') }}</span>
+          <span>{{ $t('layout.crm') }}</span>
         </RouterLink>
 
         <RouterLink to="/manager/inventory" class="flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all text-sm font-semibold border border-transparent"
           :class="$route.path === '/manager/inventory' ? 'bg-[hsl(var(--primary))]/12 text-[hsl(var(--primary))] font-extrabold border-[hsl(var(--primary))]/30' : 'text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]'">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
-          <span>{{ $t('auto_ton_kho') }}</span>
+          <span>{{ $t('layout.inventory') }}</span>
         </RouterLink>
 
-        <div class="text-[10px] font-extrabold text-[hsl(var(--muted-foreground))] uppercase tracking-wider px-3 mb-1 mt-5">{{ $t('auto_nghiep_vu') }}</div>
+        <div class="text-[10px] font-extrabold text-[hsl(var(--muted-foreground))] uppercase tracking-wider px-3 mb-1 mt-5">{{ $t('layout.operations') }}</div>
 
         <RouterLink to="/reception/dashboard" class="flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all text-sm font-semibold border border-transparent text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/><rect width="20" height="14" x="2" y="6" rx="2"/></svg>
-          <span>{{ $t('auto_thu_ngan') }}</span>
+          <span>{{ $t('layout.cashier') }}</span>
         </RouterLink>
 
         <RouterLink to="/staff/floor-plan" class="flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all text-sm font-semibold border border-transparent text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><line x1="3" x2="21" y1="9" y2="9"/><line x1="9" x2="9" y1="21" y2="9"/></svg>
-          <span>{{ $t('auto_ung_dung_phuc_vu') }}</span>
+          <span>{{ $t('layout.service_app') }}</span>
         </RouterLink>
       </nav>
 
@@ -78,7 +78,7 @@
           <img :src="stickerUrl" alt="Avatar" class="w-10 h-10 object-contain drop-shadow-sm bg-white/10 rounded-full" />
           <div class="flex-1 min-w-0">
             <div class="text-xs font-extrabold text-[hsl(var(--foreground))] truncate">
-              {{ profile?.full_name || $t('auto_quan_ly', 'Quản lý') }}
+              {{ profile?.full_name || $t('layout.manager', 'Quản lý') }}
             </div>
             <div class="text-[10px] text-[hsl(var(--muted-foreground))] font-semibold">
               {{ roleLabel }}
@@ -117,6 +117,7 @@
 
 <script setup lang="ts">
 import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
+import { useI18n } from 'vue-i18n'
 import { ref, computed } from 'vue'
 import { RouterView, RouterLink, useRoute, useRouter } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'
@@ -125,6 +126,7 @@ import TextLogo from '@/components/TextLogo.vue'
 
 const $route = useRoute()
 const $router = useRouter()
+const { t } = useI18n()
 const { signOut, profile, role } = useAuth()
 const { stickerUrl } = useUserSticker()
 
@@ -132,11 +134,11 @@ const isMobileMenuOpen = ref(false)
 const isDropdownOpen = ref(false)
 
 const ROLE_LABELS: Record<string, string> = {
-  admin: 'Quản trị',
-  manager: 'Quản lý',
-  reception: 'Thu ngân',
-  staff: 'Phục vụ',
-  kitchen: 'Bếp',
+  admin: t('layout.role_admin'),
+  manager: t('layout.role_manager'),
+  reception: t('layout.role_reception'),
+  staff: t('layout.role_staff'),
+  kitchen: t('layout.role_kitchen'),
 }
 const roleLabel = computed(() => {
   const r = role.value ?? profile.value?.role
@@ -147,7 +149,7 @@ const roleLabel = computed(() => {
 const branchLabel = computed(() => {
   const bid = profile.value?.branch_id
   if (!bid) return ''
-  return `Chi nhánh ${bid.slice(0, 8)}`
+  return t('layout.branch_id', { id: bid.slice(0, 8) })
 })
 
 async function handleSignOut() {

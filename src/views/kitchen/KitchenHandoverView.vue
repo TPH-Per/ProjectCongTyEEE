@@ -6,11 +6,11 @@
     <header class="flex justify-between items-center mb-6 pb-4 border-b border-border">
       <div class="flex items-center gap-4">
         <div class="flex items-center gap-2">
-          <span class="logo-brand text-[#FF9800] font-extrabold tracking-wider text-xl">NGƯU CÁT</span>
-          <span class="tag-handover bg-[#9C27B0]/20 text-[#9C27B0] border border-[#9C27B0]/30 text-xs px-2.5 py-0.5 rounded font-bold">BÀN GIAO</span>
+          <span class="logo-brand text-[#FF9800] font-extrabold tracking-wider text-xl">{{ $t('kitchen_handover.brand') }}</span>
+          <span class="tag-handover bg-[#9C27B0]/20 text-[#9C27B0] border border-[#9C27B0]/30 text-xs px-2.5 py-0.5 rounded font-bold">{{ $t('kitchen_handover.handover_badge') }}</span>
         </div>
         <div class="h-6 w-[1px] bg-muted"></div>
-        <h2 class="text-lg font-bold text-foreground uppercase tracking-wide">Bàn Giao Ca Bếp (Shift Handover)</h2>
+        <h2 class="text-lg font-bold text-foreground uppercase tracking-wide">{{ $t('kitchen_handover.title') }}</h2>
       </div>
 
       <!-- Action buttons -->
@@ -19,7 +19,7 @@
           class="bg-muted border border-border hover:bg-muted text-xs font-bold px-4 py-2 rounded-xl transition"
           @click="activeSubTab = activeSubTab === 'wizard' ? 'history' : 'wizard'"
         >
-          {{ activeSubTab === 'wizard' ? '⏳ Xem Lịch Sử Ca' : '✍️ Bàn Giao Ca Mới' }}
+          {{ activeSubTab === 'wizard' ? t('kitchen_handover.view_history') : t('kitchen_handover.new_handover') }}
         </button>
         <button class="bg-muted text-xs font-bold px-4 py-2 rounded-xl border border-transparent hover:border-[#FF9800] transition" @click="navigateBack">
           📺 Quay lại KDS
@@ -31,83 +31,35 @@
     <div v-if="activeSubTab === 'history'" class="animate-fade-in flex-1">
       <div class="max-w-4xl mx-auto space-y-6">
         <div class="flex justify-between items-center mb-4">
-          <h3 class="text-lg font-bold text-foreground uppercase tracking-wider">Lịch Sử Nhật Ký Bàn Giao Ca</h3>
-          <span class="text-xs text-muted-foreground">Ghi nhận hoạt động đóng ca bếp</span>
+          <h3 class="text-lg font-bold text-foreground uppercase tracking-wider">{{ $t('kitchen_handover.history_title') }}</h3>
+          <span class="text-xs text-muted-foreground">{{ $t('kitchen_handover.history_desc') }}</span>
         </div>
 
-        <div v-if="kitchenStore.handoverLogs.length === 0" class="text-center py-12 text-muted-foreground bg-card rounded-xl border border-border">
+        <div v-if="closedShifts.length === 0" class="text-center py-12 text-muted-foreground bg-card rounded-xl border border-border">
           📭 Chưa có nhật ký bàn giao ca nào được lưu.
         </div>
         
         <div v-else class="space-y-6">
           <div 
-            v-for="log in kitchenStore.handoverLogs" 
+            v-for="log in closedShifts" 
             :key="log.id"
             class="bg-card rounded-xl border border-border p-6 shadow-lg"
           >
             <div class="flex justify-between items-start flex-wrap gap-2 mb-4 border-b border-border pb-3">
               <div>
-                <span class="text-xs font-bold text-[#FF9800] block uppercase font-mono">Phiếu Bàn Giao: #{{ log.id }}</span>
-                <h4 class="text-base font-bold text-foreground mt-1">{{ log.shift }}</h4>
+                <span class="text-xs font-bold text-[#FF9800] block uppercase font-mono">Phiếu Bàn Giao: #{{ log.id.substring(0, 8) }}</span>
+                <h4 class="text-base font-bold text-foreground mt-1">{{ t('shift.type.' + log.shift_type.toLowerCase()) }}</h4>
               </div>
               <div class="text-right">
-                <span class="text-xs text-muted-foreground block font-mono">{{ log.date }}</span>
-                <span class="text-xs bg-[#4CAF50]/10 text-green-600 border border-[#4CAF50]/30 px-2 py-0.5 rounded-full font-bold">Hoàn tất đóng ca</span>
-              </div>
-            </div>
-
-            <!-- Handover detail details -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 bg-background p-4 rounded-xl border border-border text-xs">
-              <div>
-                <span class="text-muted-foreground block">Chef bàn giao:</span>
-                <strong class="text-foreground text-sm">👤 {{ log.outgoingChef }}</strong>
-              </div>
-              <div>
-                <span class="text-muted-foreground block">Chef ca sau nhận:</span>
-                <strong class="text-foreground text-sm">👤 {{ log.incomingChef }}</strong>
-              </div>
-              <div>
-                <span class="text-muted-foreground block">Nhiệt độ Tủ mát:</span>
-                <strong class="text-sm" :class="log.fridgeTemp > 5 ? 'text-red-500' : 'text-green-500'">🌡️ {{ log.fridgeTemp }}°C</strong>
-              </div>
-              <div>
-                <span class="text-muted-foreground block">Nhiệt độ Tủ đông:</span>
-                <strong class="text-sm" :class="log.freezerTemp > -15 ? 'text-red-500' : 'text-green-500'">🌡️ {{ log.freezerTemp }}°C</strong>
+                <span class="text-xs text-muted-foreground block font-mono">{{ new Date(log.ended_at || log.created_at).toLocaleString() }}</span>
+                <span class="text-xs bg-[#4CAF50]/10 text-green-600 border border-[#4CAF50]/30 px-2 py-0.5 rounded-full font-bold">{{ $t('kitchen_handover.closed_shift') }}</span>
               </div>
             </div>
 
             <!-- Notes -->
             <div class="mb-4 text-sm text-muted-foreground bg-background p-3 rounded-lg border border-border">
-              <span class="font-bold text-[#FF9800] block text-xs uppercase mb-1">Ghi chú bàn giao:</span>
-              <p class="italic">"{{ log.notes }}"</p>
-            </div>
-
-            <!-- Waste notes if any -->
-            <div v-if="log.wasteNotes" class="mb-4 text-sm text-red-700 bg-red-100 p-3 rounded-lg border border-red-300">
-              <span class="font-bold text-red-600 block text-xs uppercase mb-1">Hao hụt ghi nhận (Waste Log):</span>
-              <p>{{ log.wasteNotes }}</p>
-            </div>
-
-            <!-- Inventory state -->
-            <div class="mb-4">
-              <span class="font-bold text-muted-foreground block text-xs uppercase mb-2">Số liệu kiểm kê tồn kho bếp đóng ca:</span>
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                <div v-for="item in log.items" :key="item.id" class="flex justify-between items-center p-2 bg-background rounded border border-border text-xs">
-                  <span class="text-foreground">{{ item.icon }} {{ item.name }}</span>
-                  <span class="font-mono text-muted-foreground">
-                    {{ item.actual }} {{ item.unit }}
-                    <span v-if="item.diff !== 0" :class="item.diff < 0 ? 'text-red-500' : 'text-green-500'" class="ml-1 font-bold">
-                      ({{ item.diff < 0 ? '' : '+' }}{{ item.diff }})
-                    </span>
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Digital Signature image -->
-            <div v-if="log.signatureImage" class="flex flex-col items-center pt-3 border-t border-border">
-              <span class="text-[10px] text-muted-foreground uppercase font-bold mb-1">Chữ ký số Bếp trưởng ca sau:</span>
-              <img :src="log.signatureImage" alt="Incoming Chef Signature" class="max-h-[60px] bg-slate-900 border border-border rounded px-3 py-0.5" />
+              <span class="font-bold text-[#FF9800] block text-xs uppercase mb-1">{{ $t('kitchen_handover.handover_notes') }}</span>
+              <p class="italic whitespace-pre-line">{{ log.handover_note || t('kitchen_handover.no_notes') }}</p>
             </div>
           </div>
         </div>
@@ -117,8 +69,28 @@
     <!-- TAB: NEW HANDOVER WIZARD VIEW -->
     <div v-else class="flex-1 flex flex-col justify-center items-center">
       
+      <!-- START SHIFT SCREEN -->
+      <div v-if="!activeShift && !handoverSuccess" class="flex-1 flex flex-col justify-center items-center w-full">
+        <div class="bg-card rounded-2xl p-8 border border-border text-center max-w-[600px] w-full shadow-2xl animate-fade-in">
+          <h3 class="text-2xl font-black text-foreground uppercase tracking-wider mb-2">{{ t('shift.start') }}</h3>
+          <p class="text-sm text-muted-foreground mb-6">{{ $t('kitchen_handover.need_new_shift') }}</p>
+          
+          <div class="flex flex-col gap-4 max-w-sm mx-auto">
+            <select v-model="newShiftType" class="bg-background border border-border rounded-xl px-4 py-3 text-sm text-foreground focus:outline-none focus:border-[#FF9800]">
+              <option value="MORNING">{{ t('shift.type.morning') }}</option>
+              <option value="AFTERNOON">{{ t('shift.type.afternoon') }}</option>
+              <option value="EVENING">{{ t('shift.type.evening') }}</option>
+              <option value="NIGHT">{{ $t('kitchen_handover.night_shift') }}</option>
+            </select>
+            <button class="bg-[#FF9800] text-sm font-bold px-5 py-3 rounded-xl text-foreground hover:bg-[#F57C00] shadow-md transition disabled:opacity-50" @click="handleStartShift" :disabled="shiftLoading">
+              {{ t('shift.start') }}
+            </button>
+          </div>
+        </div>
+      </div>
+
       <!-- SUCCESS SCREEN -->
-      <div v-if="handoverSuccess" class="success-panel bg-card rounded-2xl p-8 border border-border text-center max-w-[600px] w-full animate-fade-in shadow-2xl">
+      <div v-else-if="handoverSuccess" class="success-panel bg-card rounded-2xl p-8 border border-border text-center max-w-[600px] w-full animate-fade-in shadow-2xl">
         <div class="success-checkmark mb-6">
           <div class="check-icon">
             <span class="icon-line line-tip animate-check-tip"></span>
@@ -128,8 +100,8 @@
           </div>
         </div>
         
-        <h3 class="text-2xl font-black text-foreground uppercase tracking-wider mb-2">BÀN GIAO CA THÀNH CÔNG</h3>
-        <p class="text-sm text-muted-foreground mb-6">Phiếu bàn giao ca đóng bếp đã được đồng bộ lên POS và lưu trữ nhật ký hoạt động.</p>
+        <h3 class="text-2xl font-black text-foreground uppercase tracking-wider mb-2">{{ $t('kitchen_handover.handover_badge') }} CA THÀNH CÔNG</h3>
+        <p class="text-sm text-muted-foreground mb-6">{{ $t('kitchen_handover.success_desc') }}</p>
         
         <div class="flex gap-3 justify-center">
           <button class="bg-[#FF9800] text-xs font-bold px-5 py-3 rounded-xl text-foreground hover:bg-[#F57C00] shadow-md" @click="activeSubTab = 'history'">
@@ -147,7 +119,7 @@
         <div class="flex justify-between items-center mb-8 bg-card p-5 rounded-xl border border-border flex-wrap gap-4">
           <!-- Stepper header -->
           <div class="flex items-center gap-3">
-            <span class="text-xs font-bold text-[#FF9800] uppercase tracking-wider">Tiến trình bàn giao ca:</span>
+            <span class="text-xs font-bold text-[#FF9800] uppercase tracking-wider">{{ $t('kitchen_handover.handover_progress') }}</span>
           </div>
           <div class="flex items-center gap-3 text-xs font-semibold text-muted-foreground">
             <span :class="wizardStep === 1 ? 'text-[#FF9800] font-bold' : wizardStep > 1 ? 'text-green-500 font-bold' : ''">
@@ -169,8 +141,8 @@
           <!-- STEP 1: END-OF-SHIFT (Vệ sinh & Thiết bị) -->
           <div v-if="wizardStep === 1" class="space-y-6 animate-fade-in">
             <div class="flex justify-between items-baseline mb-4 border-b border-border pb-3">
-              <h3 class="text-base font-bold text-foreground uppercase tracking-wider">1. Kết Thúc Ca Làm Việc & Vệ Sinh Bếp</h3>
-              <span class="text-xs text-[#FF9800]">Bắt buộc thực hiện cuối ca</span>
+              <h3 class="text-base font-bold text-foreground uppercase tracking-wider">{{ $t('kitchen_handover.step1_title') }}</h3>
+              <span class="text-xs text-[#FF9800]">{{ $t('kitchen_handover.mandatory_end_shift') }}</span>
             </div>
 
             <div class="space-y-4">
@@ -182,8 +154,8 @@
                   class="w-6 h-6 rounded border-border text-[#FF9800] focus:ring-[#FF9800] bg-card mt-0.5"
                 />
                 <div>
-                  <span class="font-bold text-foreground block">Dừng tiếp nhận Order mới (Trừ khách đang ăn dở)</span>
-                  <span class="text-xs text-muted-foreground">Đóng cổng tiếp nhận đơn hàng trên POS trạm, đảm bảo không phát sinh món mới.</span>
+                  <span class="font-bold text-foreground block">{{ $t('kitchen_handover.stop_orders') }}</span>
+                  <span class="text-xs text-muted-foreground">{{ $t('kitchen_handover.stop_orders_desc') }}</span>
                 </div>
               </label>
 
@@ -195,8 +167,8 @@
                   class="w-6 h-6 rounded border-border text-[#FF9800] focus:ring-[#FF9800] bg-card mt-0.5"
                 />
                 <div>
-                  <span class="font-bold text-foreground block">Vệ sinh sạch sẽ khu vực chế biến</span>
-                  <span class="text-xs text-muted-foreground">Lau chùi bề mặt bếp nướng/lẩu, vệ sinh thớt cắt thái, quét dọn và lau sàn sạch sẽ.</span>
+                  <span class="font-bold text-foreground block">{{ $t('kitchen_handover.clean_area') }}</span>
+                  <span class="text-xs text-muted-foreground">{{ $t('kitchen_handover.clean_area_desc') }}</span>
                 </div>
               </label>
 
@@ -208,8 +180,8 @@
                   class="w-6 h-6 rounded border-border text-[#FF9800] focus:ring-[#FF9800] bg-card mt-0.5"
                 />
                 <div>
-                  <span class="font-bold text-foreground block">Tắt các thiết bị điện không sử dụng</span>
-                  <span class="text-xs text-muted-foreground">Ngắt điện lò nướng, lò chiên, tắt máy xay, lò vi sóng để đảm bảo phòng chống cháy nổ.</span>
+                  <span class="font-bold text-foreground block">{{ $t('kitchen_handover.power_off') }}</span>
+                  <span class="text-xs text-muted-foreground">{{ $t('kitchen_handover.power_off_desc') }}</span>
                 </div>
               </label>
             </div>
@@ -228,16 +200,16 @@
           <!-- STEP 2: INVENTORY & SAFETY (Tồn kho & An toàn tủ lạnh) -->
           <div v-else-if="wizardStep === 2" class="space-y-6 animate-fade-in">
             <div class="flex justify-between items-baseline mb-4 border-b border-border pb-3">
-              <h3 class="text-base font-bold text-foreground uppercase tracking-wider">2. Kiểm Kê Kho Trạm Bếp & An Toàn Thực Phẩm</h3>
-              <span class="text-xs text-[#FF9800]">Nhập số liệu kiểm kê thực tế</span>
+              <h3 class="text-base font-bold text-foreground uppercase tracking-wider">{{ $t('kitchen_handover.step2_title') }}</h3>
+              <span class="text-xs text-[#FF9800]">{{ $t('kitchen_handover.input_actual_inventory') }}</span>
             </div>
 
             <!-- Table of stock comparison -->
             <div class="bg-background rounded-xl border border-border overflow-hidden">
               <div class="grid grid-cols-4 gap-2 bg-card p-3 text-xs font-bold text-muted-foreground uppercase tracking-wide">
-                <div class="col-span-2">Nguyên Liệu</div>
-                <div class="text-center">Lý Thuyết</div>
-                <div class="text-center">Thực Tế</div>
+                <div class="col-span-2">{{ $t('kitchen_handover.ingredient') }}</div>
+                <div class="text-center">{{ $t('kitchen_handover.theoretical') }}</div>
+                <div class="text-center">{{ $t('kitchen_handover.actual') }}</div>
               </div>
               <div class="divide-y divide-[#404040]">
                 <div 
@@ -304,8 +276,8 @@
                   class="w-5.5 h-5.5 rounded border-border text-[#FF9800] focus:ring-[#FF9800] bg-card mt-0.5"
                 />
                 <div>
-                  <span class="font-semibold text-foreground block text-sm">Kiểm tra hạn sử dụng (FEFO)</span>
-                  <span class="text-xs text-muted-foreground">Rà soát ngày, xếp các khay hạn sử dụng ngắn ra ngoài để ca sau dùng trước.</span>
+                  <span class="font-semibold text-foreground block text-sm">{{ $t('kitchen_handover.check_expiry') }}</span>
+                  <span class="text-xs text-muted-foreground">{{ $t('kitchen_handover.check_expiry_desc') }}</span>
                 </div>
               </label>
 
@@ -316,8 +288,8 @@
                   class="w-5.5 h-5.5 rounded border-border text-[#FF9800] focus:ring-[#FF9800] bg-card mt-0.5"
                 />
                 <div>
-                  <span class="font-semibold text-foreground block text-sm">Bọc màng co & dán nhãn ngày</span>
-                  <span class="text-xs text-muted-foreground">Toàn bộ khay thịt/rau củ thừa bọc màng thực phẩm kín, dán nhãn ca và ngày sơ chế.</span>
+                  <span class="font-semibold text-foreground block text-sm">{{ $t('kitchen_handover.wrap_food') }}</span>
+                  <span class="text-xs text-muted-foreground">{{ $t('kitchen_handover.wrap_food_desc') }}</span>
                 </div>
               </label>
             </div>
@@ -326,14 +298,14 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-5 p-4 bg-background rounded-xl border border-border">
               <div class="space-y-2">
                 <div class="flex justify-between items-baseline">
-                  <span class="text-xs font-bold text-muted-foreground uppercase">🌡️ Nhiệt độ Tủ Mát</span>
+                  <span class="text-xs font-bold text-muted-foreground uppercase">{{ $t('kitchen_handover.fridge_temp') }}</span>
                   <span class="text-sm font-bold font-mono" :class="fridgeTemp > 5 ? 'text-red-500' : 'text-green-500'">
                     {{ fridgeTemp }}°C
                   </span>
                 </div>
                 <div class="flex items-center gap-3">
                   <input v-model.number="fridgeTemp" type="range" min="-5" max="15" step="1" class="temp-slider flex-1" />
-                  <span v-if="fridgeTemp > 5" class="text-[10px] bg-red-100 text-red-700 border border-red-300 px-1.5 py-0.5 rounded font-bold">LỖI!</span>
+                  <span v-if="fridgeTemp > 5" class="text-[10px] bg-red-100 text-red-700 border border-red-300 px-1.5 py-0.5 rounded font-bold">{{ $t('kitchen_handover.error') }}</span>
                   <span v-else class="text-[10px] bg-green-100 text-green-500 border border-green-300 px-1.5 py-0.5 rounded font-bold">OK</span>
                 </div>
                 <span class="text-[10px] text-muted-foreground block italic">Yêu cầu tiêu chuẩn: &le; 5°C</span>
@@ -341,14 +313,14 @@
 
               <div class="space-y-2">
                 <div class="flex justify-between items-baseline">
-                  <span class="text-xs font-bold text-muted-foreground uppercase">🌡️ Nhiệt độ Tủ Đông</span>
+                  <span class="text-xs font-bold text-muted-foreground uppercase">{{ $t('kitchen_handover.freezer_temp') }}</span>
                   <span class="text-sm font-bold font-mono" :class="freezerTemp > -15 ? 'text-red-500' : 'text-green-500'">
                     {{ freezerTemp }}°C
                   </span>
                 </div>
                 <div class="flex items-center gap-3">
                   <input v-model.number="freezerTemp" type="range" min="-30" max="-5" step="1" class="temp-slider flex-1" />
-                  <span v-if="freezerTemp > -15" class="text-[10px] bg-red-100 text-red-700 border border-red-300 px-1.5 py-0.5 rounded font-bold">LỖI!</span>
+                  <span v-if="freezerTemp > -15" class="text-[10px] bg-red-100 text-red-700 border border-red-300 px-1.5 py-0.5 rounded font-bold">{{ $t('kitchen_handover.error') }}</span>
                   <span v-else class="text-[10px] bg-green-100 text-green-500 border border-green-300 px-1.5 py-0.5 rounded font-bold">OK</span>
                 </div>
                 <span class="text-[10px] text-muted-foreground block italic">Yêu cầu tiêu chuẩn: &le; -18°C</span>
@@ -375,35 +347,35 @@
           <!-- STEP 3: HANDOVER (Sổ bàn giao, Ký xác nhận ca sau) -->
           <div v-else-if="wizardStep === 3" class="space-y-6 animate-fade-in">
             <div class="flex justify-between items-baseline mb-4 border-b border-border pb-3">
-              <h3 class="text-base font-bold text-foreground uppercase tracking-wider">3. Bàn Giao Ca Sau & Ký Xác Nhận</h3>
-              <span class="text-xs text-[#FF9800]">Chef ca sau ký nhận bàn giao</span>
+              <h3 class="text-base font-bold text-foreground uppercase tracking-wider">{{ $t('kitchen_handover.step3') }} & Ký Xác Nhận</h3>
+              <span class="text-xs text-[#FF9800]">{{ $t('kitchen_handover.chef_sign') }}</span>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <!-- Left side: note inputs -->
               <div class="space-y-4">
                 <div class="flex flex-col gap-1.5">
-                  <label for="shift-select" class="text-xs text-muted-foreground uppercase font-bold">Ca làm việc đóng cửa</label>
-                  <input id="shift-select" type="text" v-model="shiftName" disabled class="bg-background border border-border rounded-xl px-4 py-2.5 text-sm text-muted-foreground opacity-80" />
+                  <label for="shift-select" class="text-xs text-muted-foreground uppercase font-bold">{{ $t('kitchen_handover.closed_shift_label') }}</label>
+                  <input id="shift-select" type="text" :value="t('shift.type.' + (activeShift?.shift_type?.toLowerCase() || ''))" disabled class="bg-background border border-border rounded-xl px-4 py-2.5 text-sm text-muted-foreground opacity-80" />
                 </div>
 
                 <div class="flex flex-col gap-1.5">
-                  <label for="incoming-select" class="text-xs text-muted-foreground uppercase font-bold">Bếp trưởng ca sau tiếp quản</label>
+                  <label for="incoming-select" class="text-xs text-muted-foreground uppercase font-bold">{{ $t('kitchen_handover.incoming_chef') }}</label>
                   <select 
                     id="incoming-select" 
                     v-model="incomingChef"
                     class="bg-background border border-border rounded-xl px-4 py-2.5 text-sm text-foreground focus:outline-none focus:border-[#FF9800]"
                   >
-                    <option value="" disabled>-- Chọn Bếp Trưởng Ca Sau --</option>
-                    <option value="Chef Minh">Chef Minh (Bếp chính)</option>
-                    <option value="Chef Luc">Chef Luc (Bếp trưởng)</option>
-                    <option value="Chef Kien">Chef Kiên (Quầy Bar)</option>
-                    <option value="Chef Hanh">Chef Hạnh (Bếp Lạnh)</option>
+                    <option value="" disabled>{{ $t('kitchen_handover.select_incoming_chef') }}</option>
+                    <option value="Chef Minh">{{ $t('kitchen_handover.chef_minh') }}</option>
+                    <option value="Chef Luc">{{ $t('kitchen_handover.chef_luc') }}</option>
+                    <option value="Chef Kien">{{ $t('kitchen_handover.chef_kien') }}</option>
+                    <option value="Chef Hanh">{{ $t('kitchen_handover.chef_hanh') }}</option>
                   </select>
                 </div>
 
                 <div class="flex flex-col gap-1.5">
-                  <label for="notes-handover" class="text-xs text-muted-foreground uppercase font-bold">Sổ bàn giao / Ghi chú ca sau (Notes)</label>
+                  <label for="notes-handover" class="text-xs text-muted-foreground uppercase font-bold">{{ $t('kitchen_handover.handover_notes_label') }}</label>
                   <textarea 
                     id="notes-handover" 
                     v-model="handoverNotes"
@@ -417,7 +389,7 @@
               <!-- Right side: canvas signature -->
               <div class="space-y-4">
                 <div class="flex justify-between items-baseline">
-                  <span class="text-xs text-muted-foreground uppercase font-bold">✍️ Chữ ký số Chef ca sau (Chef Minh)</span>
+                  <span class="text-xs text-muted-foreground uppercase font-bold">{{ $t('kitchen_handover.digital_signature') }}</span>
                   <button type="button" class="text-[10px] bg-background hover:bg-card border border-border text-muted-foreground font-bold px-2 py-1 rounded" @click="clearSignature">
                     Xóa Chữ Ký
                   </button>
@@ -474,16 +446,50 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
 import { ref, computed, watch, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { useKitchenStore } from '@/stores/kitchen';
 import Swal from 'sweetalert2';
+import { useKitchenShift } from '@/composables/useKitchenShift';
+import type { CountItem } from '@/composables/useKitchenShift';
+import { useInventory } from '@/composables/useInventory';
+import { useLanguageStore } from '@/stores/useLanguageStore';
+
+const { t } = useI18n();
 
 const router = useRouter();
-const kitchenStore = useKitchenStore();
+const languageStore = useLanguageStore();
+
+const { fetchShifts, startShift, closeShift, shifts, activeShift, loading: shiftLoading } = useKitchenShift();
+const { fetchInventory, inventory } = useInventory();
 
 const activeSubTab = ref<'wizard' | 'history'>('wizard');
 const wizardStep = ref(1);
+
+const closedShifts = computed(() => shifts.value.filter(s => s.status === 'CLOSED'));
+
+// Start shift logic
+const newShiftType = ref<'MORNING' | 'AFTERNOON' | 'EVENING' | 'NIGHT'>('MORNING');
+const handleStartShift = async () => {
+  try {
+    await startShift(newShiftType.value);
+    Swal.fire({
+      title: t('common.success', { default: t('kitchen_handover.shift_opened') }),
+      icon: 'success',
+      background: '#2D2D2D',
+      color: '#FFF',
+      confirmButtonColor: '#4CAF50'
+    });
+  } catch (e: any) {
+    Swal.fire({
+      title: t('common.error', { default: t('kitchen_handover.error_title') }),
+      text: e.message,
+      icon: 'error',
+      background: '#2D2D2D',
+      color: '#FFF',
+    });
+  }
+};
 
 // Step 1 checklists
 const checklist = ref({
@@ -511,24 +517,34 @@ interface HandoverInventoryItem {
 
 const inventoryVerifyList = ref<HandoverInventoryItem[]>([]);
 
-// Populate initial list from store
-onMounted(() => {
-  inventoryVerifyList.value = kitchenStore.inventoryList.map(item => ({
-    id: item.id,
-    name: item.name,
-    icon: item.icon,
+onMounted(async () => {
+  await fetchShifts();
+  await fetchInventory();
+  populateInventoryList();
+});
+
+const populateInventoryList = () => {
+  inventoryVerifyList.value = inventory.value.map(item => ({
+    id: item.ingredient_id,
+    name: item.name_vi,
+    icon: '📦',
     unit: item.unit,
-    theoretical: item.kitchenStock,
-    actual: item.kitchenStock, // defaults to theoretical
+    theoretical: item.quantity,
+    actual: item.quantity,
     diff: 0
   }));
+};
+
+watch(inventory, () => {
+  if (inventoryVerifyList.value.length === 0 && inventory.value.length > 0) {
+    populateInventoryList();
+  }
 });
 
 const calculateDiff = (item: HandoverInventoryItem) => {
   item.diff = (item.actual || 0) - item.theoretical;
 };
 
-// Check if there is significant shortage (diff <= -0.5)
 const hasSignificantShortage = computed(() => {
   return inventoryVerifyList.value.some(item => item.diff <= -0.5);
 });
@@ -539,26 +555,18 @@ const isStep1Complete = computed(() => {
 });
 
 const isStep2Complete = computed(() => {
-  // Check if temperatures are safe
   const tempsValid = fridgeTemp.value <= 15 && freezerTemp.value <= 0;
-  
-  // Check if food safety checks ticked
   const safetyTicks = checklist.value.fefoCheck && checklist.value.wrapFood;
-  
-  // Check if inventory has any negative fields and waste notes are filled if shortage
   const inventoryFilled = inventoryVerifyList.value.every(item => item.actual >= 0);
   const wasteLogged = !hasSignificantShortage.value || wasteNotes.value.trim().length > 5;
-  
   return tempsValid && safetyTicks && inventoryFilled && wasteLogged;
 });
 
 // Step 3 variables
-const shiftName = ref('Ca Sáng (06:00 - 14:00)');
-const incomingChef = ref('Chef Minh');
+const incomingChef = ref('');
 const handoverNotes = ref('');
 const handoverSuccess = ref(false);
 
-// Canvas signature board
 const canvasRef = ref<HTMLCanvasElement | null>(null);
 let isDrawing = false;
 let ctx: CanvasRenderingContext2D | null = null;
@@ -573,12 +581,10 @@ const startDrawing = (e: MouseEvent | TouchEvent) => {
   isDrawing = true;
   ctx = canvasRef.value?.getContext('2d') || null;
   if (!ctx || !canvasRef.value) return;
-  
   ctx.beginPath();
   const rect = canvasRef.value.getBoundingClientRect();
-  const x = ('touches' in e) ? e.touches[0].clientX - rect.left : e.clientX - rect.left;
-  const y = ('touches' in e) ? e.touches[0].clientY - rect.top : e.clientY - rect.top;
-  
+  const x = ('touches' in e) ? (e as TouchEvent).touches[0].clientX - rect.left : (e as MouseEvent).clientX - rect.left;
+  const y = ('touches' in e) ? (e as TouchEvent).touches[0].clientY - rect.top : (e as MouseEvent).clientY - rect.top;
   ctx.moveTo(x, y);
 };
 
@@ -586,9 +592,8 @@ const draw = (e: MouseEvent | TouchEvent) => {
   if (!isDrawing || !ctx || !canvasRef.value) return;
   e.preventDefault();
   const rect = canvasRef.value.getBoundingClientRect();
-  const x = ('touches' in e) ? e.touches[0].clientX - rect.left : e.clientX - rect.left;
-  const y = ('touches' in e) ? e.touches[0].clientY - rect.top : e.clientY - rect.top;
-  
+  const x = ('touches' in e) ? (e as TouchEvent).touches[0].clientX - rect.left : (e as MouseEvent).clientX - rect.left;
+  const y = ('touches' in e) ? (e as TouchEvent).touches[0].clientY - rect.top : (e as MouseEvent).clientY - rect.top;
   ctx.lineTo(x, y);
   ctx.strokeStyle = '#9C27B0';
   ctx.lineWidth = 3;
@@ -611,50 +616,40 @@ const clearSignature = () => {
   hasSigned.value = false;
 };
 
-const submitHandover = () => {
-  if (!isStep3Complete.value) return;
+const submitHandover = async () => {
+  if (!isStep3Complete.value || !activeShift.value) return;
 
-  const sigImgUrl = canvasRef.value ? canvasRef.value.toDataURL() : undefined;
+  try {
+    const counts: CountItem[] = inventoryVerifyList.value.map(i => ({
+      ingredient_id: i.id,
+      counted_quantity: i.actual,
+      note: i.diff < 0 ? wasteNotes.value : undefined
+    }));
+    
+    // Combine notes since we don't store signature image and other meta directly
+    const finalNote = `t('kitchen_handover.next_shift_receives') ${incomingChef.value}\nt('kitchen_handover.fridge_temp_label') ${fridgeTemp.value}°C\nt('kitchen_handover.freezer_temp_label') ${freezerTemp.value}°C\nt('kitchen_handover.note_label') ${handoverNotes.value}${hasSignificantShortage.value ? `\nt('kitchen_handover.loss_label') ${wasteNotes.value}` : ''}`;
+    
+    await closeShift(activeShift.value.id, finalNote, counts);
 
-  // Save log in Pinia store
-  kitchenStore.addHandoverLog({
-    shift: shiftName.value,
-    outgoingChef: 'Chef Luc',
-    incomingChef: incomingChef.value,
-    fridgeTemp: fridgeTemp.value,
-    freezerTemp: freezerTemp.value,
-    notes: handoverNotes.value,
-    wasteNotes: hasSignificantShortage.value ? wasteNotes.value : undefined,
-    items: inventoryVerifyList.value.map(item => ({
-      id: item.id,
-      name: item.name,
-      icon: item.icon,
-      unit: item.unit,
-      theoretical: item.theoretical,
-      actual: item.actual,
-      diff: item.diff
-    })),
-    signatureImage: sigImgUrl
-  });
+    Swal.fire({
+      title: t('common.success', { default: t('kitchen_handover.handover_success_title') }),
+      text: t('kitchen_handover.handover_success_desc'),
+      icon: 'success',
+      background: '#2D2D2D',
+      color: '#FFF',
+      confirmButtonColor: '#4CAF50'
+    });
 
-  // Apply new physical stocks to Pinia store inventory list (automatically syncs stocks)
-  inventoryVerifyList.value.forEach(verifyItem => {
-    const inv = kitchenStore.inventoryList.find(i => i.id === verifyItem.id);
-    if (inv) {
-      inv.kitchenStock = verifyItem.actual;
-    }
-  });
-
-  Swal.fire({
-    title: 'Bàn giao ca thành công',
-    text: 'Nhật ký ca làm việc đã được đóng và ghi sổ!',
-    icon: 'success',
-    background: '#2D2D2D',
-    color: '#FFF',
-    confirmButtonColor: '#4CAF50'
-  });
-
-  handoverSuccess.value = true;
+    handoverSuccess.value = true;
+  } catch (err: any) {
+    Swal.fire({
+      title: t('common.error', { default: t('kitchen_handover.error_title') }),
+      text: err.message,
+      icon: 'error',
+      background: '#2D2D2D',
+      color: '#FFF'
+    });
+  }
 };
 
 const resetWizard = () => {
@@ -673,17 +668,9 @@ const resetWizard = () => {
   handoverSuccess.value = false;
   wizardStep.value = 1;
   activeSubTab.value = 'wizard';
+  incomingChef.value = '';
   
-  // Re-populate inventory theoretical numbers
-  inventoryVerifyList.value = kitchenStore.inventoryList.map(item => ({
-    id: item.id,
-    name: item.name,
-    icon: item.icon,
-    unit: item.unit,
-    theoretical: item.kitchenStock,
-    actual: item.kitchenStock,
-    diff: 0
-  }));
+  populateInventoryList();
 };
 
 const navigateBack = () => {

@@ -353,7 +353,7 @@
           <!-- Tab 1: Chef list -->
           <div v-if="activeTab === 'chef'">
             <RequisitionList 
-              :requisitions="kitchenStore.requisitions"
+              :requisitions="(kitchenStore.requisitions as any[])"
               @create="showCreateModal = true"
               @select="handleChefRequisitionSelect"
             />
@@ -399,7 +399,7 @@
 
           <!-- Tab 3: Stats -->
           <div v-if="activeTab === 'stats'" class="animate-fade-in">
-            <RequisitionStats :requisitions="kitchenStore.requisitions" />
+            <RequisitionStats :requisitions="(kitchenStore.requisitions as any[])" />
           </div>
         </div>
       </main>
@@ -437,9 +437,9 @@ const activeTab = ref<'chef' | 'warehouse' | 'stats'>('chef');
 const showCreateModal = ref(false);
 
 // Active detail view settings
-const activeActionReq = ref<Requisition | null>(null);
+const activeActionReq = ref<any | null>(null);
 
-const pendingRequisitions = computed(() => {
+const pendingRequisitions = computed<any[]>(() => {
   // pending or substitute_proposed requisitions are visible in warehouse tab
   return kitchenStore.requisitions.filter(r => r.status === 'pending' || r.status === 'substitute_proposed');
 });
@@ -461,11 +461,11 @@ const getPriorityLabel = (pri: string) => {
   return 'Ưu tiên trung bình';
 };
 
-const handleChefRequisitionSelect = (req: Requisition) => {
+const handleChefRequisitionSelect = (req: any) => {
   activeActionReq.value = req;
 };
 
-const openWarehouseProcessing = (req: Requisition) => {
+const openWarehouseProcessing = (req: any) => {
   activeActionReq.value = req;
 };
 
@@ -482,8 +482,8 @@ const navigateBack = () => {
   router.push('/kitchen/kds');
 };
 
-const getCogsValue = (req: Requisition) => {
-  return req.items.reduce((sum, item) => {
+const getCogsValue = (req: any) => {
+  return req.items.reduce((sum: any, item: any) => {
     const invItem = kitchenStore.inventoryList.find(i => i.id === item.id);
     const price = invItem ? invItem.unitPrice : 100000;
     return sum + (item.deliveredQty * price);

@@ -20,32 +20,30 @@
       <div 
         v-else
         v-for="item in filteredItems" 
-        :key="item.id"
+        :key="item.ingredient_id"
         class="ingredient-item"
-        :class="{ selected: isSelected(item.id) }"
+        :class="{ selected: isSelected(item.ingredient_id) }"
         @click="toggleSelect(item)"
       >
         <div class="ingredient-header">
           <input 
             type="checkbox" 
-            :checked="isSelected(item.id)"
+            :checked="isSelected(item.ingredient_id)"
             class="ingredient-checkbox"
             @click.stop="toggleSelect(item)"
             aria-label="Chọn nguyên liệu"
           />
-          <span class="ingredient-icon">{{ item.icon }}</span>
-          <span class="ingredient-name">{{ item.name }}</span>
+          <span class="ingredient-name">{{ item.name_vi }}</span>
           
-          <div v-if="isSelected(item.id)" class="quantity-control flex items-center gap-2" @click.stop>
-            <label :for="`qty-${item.id}`" class="sr-only">Số lượng</label>
+          <div v-if="isSelected(item.ingredient_id)" class="quantity-control flex items-center gap-2" @click.stop>
+            <label :for="`qty-${item.ingredient_id}`" class="sr-only">Số lượng</label>
             <input 
-              :id="`qty-${item.id}`"
-              v-model.number="selectedQuantities[item.id]"
+              :id="`qty-${item.ingredient_id}`"
+              v-model.number="selectedQuantities[item.ingredient_id]"
               type="number"
               min="1"
-              :max="item.mainStock"
               class="quantity-input"
-              @change="updateQty(item.id, selectedQuantities[item.id])"
+              @change="updateQty(item.ingredient_id, selectedQuantities[item.ingredient_id])"
             />
             <span class="text-xs text-muted-foreground font-bold uppercase">{{ item.unit }}</span>
           </div>
@@ -54,14 +52,14 @@
         <div class="ingredient-stocks">
           <div class="stock-info">
             <span class="stock-label">Tồn kho bếp:</span>
-            <span class="stock-value font-mono" :class="getStockLevelClass(item.kitchenStock, item.minKitchenStock)">
-              {{ item.kitchenStock }} {{ item.unit }} (Tối thiểu: {{ item.minKitchenStock }}{{ item.unit }})
+            <span class="stock-value font-mono" :class="getStockLevelClass(item.quantity, item.low_stock_threshold)">
+              {{ item.quantity }} {{ item.unit }} (Tối thiểu: {{ item.low_stock_threshold }}{{ item.unit }})
             </span>
           </div>
           <div class="stock-info">
-            <span class="stock-label">Tồn kho chính:</span>
-            <span class="stock-value font-mono" :class="item.mainStock === 0 ? 'low' : 'good'">
-              {{ item.mainStock }} {{ item.unit }}
+            <span class="stock-label">Phân loại:</span>
+            <span class="stock-value font-mono good">
+              {{ item.category_name_vi }}
             </span>
           </div>
         </div>
@@ -72,28 +70,28 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
-import type { InventoryItem } from '@/stores/kitchen';
+import type { InventoryItemWithAlerts } from '@/composables/useInventory';
 
 const props = defineProps<{
-  inventory: InventoryItem[];
-  modelValue: Array<{ id: string; requestedQty: number }>;
+  inventory: InventoryItemWithAlerts[];
+  modelValue: Array<{ ingredient_id: string; requested_quantity: number }>;
 }>();
 
 const emit = defineEmits<{
-  (e: 'update:modelValue', value: Array<{ id: string; requestedQty: number }>): void;
+  (e: 'update:modelValue', value: Array<{ ingredient_id: string; requested_quantity: number }>): void;
 }>();
 
 const searchQuery = ref('');
 const selectedQuantities = ref<Record<string, number>>({});
 
 // Keep track of selections
-const selectedItemIds = computed(() => props.modelValue.map(i => i.id));
+const selectedItemIds = computed(() => props.modelValue.map(i => i.ingredient_id));
 
 // Watch modelValue to sync internal state
 watch(() => props.modelValue, (newVal) => {
   newVal.forEach(item => {
-    if (selectedQuantities.value[item.id] !== item.requestedQty) {
-      selectedQuantities.value[item.id] = item.requestedQty;
+    if (selectedQuantities.value[item.ingredient_id] !== item.requested_quantity) {
+      selectedQuantities.value[item.ingredient_id] = item.requested_quantity;
     }
   });
 }, { immediate: true, deep: true });
@@ -101,26 +99,26 @@ watch(() => props.modelValue, (newVal) => {
 const filteredItems = computed(() => {
   if (!searchQuery.value.trim()) return props.inventory;
   const q = searchQuery.value.toLowerCase();
-  return props.inventory.filter(i => i.name.toLowerCase().includes(q));
+  return props.inventory.filter(i => i.name_vi.toLowerCase().includes(q));
 });
 
 const isSelected = (id: string) => {
   return selectedItemIds.value.includes(id);
 };
 
-const toggleSelect = (item: InventoryItem) => {
+const toggleSelect = (item: InventoryItemWithAlerts) => {
   const current = [...props.modelValue];
-  const idx = current.findIndex(i => i.id === item.id);
+  const idx = current.findIndex(i => i.ingredient_id === item.ingredient_id);
   
   if (idx > -1) {
     // Unselect
     current.splice(idx, 1);
-    delete selectedQuantities.value[item.id];
+    delete selectedQuantities.value[item.ingredient_id];
   } else {
     // Select with a default quantity
-    const defaultQty = Math.max(1, item.minKitchenStock - item.kitchenStock);
-    current.push({ id: item.id, requestedQty: defaultQty });
-    selectedQuantities.value[item.id] = defaultQty;
+    const defaultQty = Math.max(1, item.low_stock_threshold - item.quantity);
+    current.push({ ingredient_id: item.ingredient_id, requested_quantity: defaultQty });
+    selectedQuantities.value[item.ingredient_id] = defaultQty;
   }
   
   emit('update:modelValue', current);
@@ -128,9 +126,9 @@ const toggleSelect = (item: InventoryItem) => {
 
 const updateQty = (id: string, qty: number) => {
   const current = [...props.modelValue];
-  const item = current.find(i => i.id === id);
+  const item = current.find(i => i.ingredient_id === id);
   if (item) {
-    item.requestedQty = Math.max(1, qty);
+    item.requested_quantity = Math.max(1, qty);
     emit('update:modelValue', current);
   }
 };

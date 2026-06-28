@@ -3,54 +3,46 @@
   <div 
     class="requisition-card"
     :class="[
-      `status-${requisition.status}`,
-      requisition.priority === 'high' ? 'priority-high' : ''
+      `status-${requisition.status.toLowerCase()}`
     ]"
     @click="$emit('select', requisition)"
     role="button"
-    :aria-label="`Yêu cầu ${requisition.id} từ ${requisition.station}, trạng thái ${getStatusLabel(requisition.status)}`"
+    :aria-label="`Yêu cầu ${requisition.requisition_number} loại ${requisition.type}, trạng thái ${getStatusLabel(requisition.status)}`"
     tabindex="0"
     @keydown.enter="$emit('select', requisition)"
   >
     <div class="card-header">
-      <span class="card-id">#{{ requisition.id }}</span>
-      <span class="card-date font-mono">{{ requisition.date }}</span>
+      <span class="card-id">#{{ requisition.requisition_number }}</span>
+      <span class="card-date font-mono">{{ new Date(requisition.created_at).toLocaleString() }}</span>
     </div>
     
     <div class="flex justify-between items-center my-2">
       <div class="card-station font-semibold text-foreground">
-        📍 {{ requisition.station }}
+        🏷️ {{ requisition.type }}
       </div>
-      <span class="card-status" :class="`status-${requisition.status}`">
+      <span class="card-status" :class="`status-${requisition.status.toLowerCase()}`">
         {{ getStatusLabel(requisition.status) }}
       </span>
     </div>
 
     <div class="card-meta text-xs text-muted-foreground">
-      <span>Người yêu cầu: <strong>{{ requisition.actor }}</strong></span>
-      <span class="mx-2">|</span>
-      <span>Mức ưu tiên: 
-        <strong :style="{ color: getPriorityColor(requisition.priority) }">
-          {{ getPriorityLabel(requisition.priority) }}
-        </strong>
-      </span>
+      <span>Người yêu cầu: <strong>{{ requisition.requested_by_profile?.raw_user_meta_data?.full_name || 'Người dùng' }}</strong></span>
     </div>
 
     <div class="card-items text-sm text-muted-foreground line-clamp-2 mt-2">
-      📦 <span v-for="(item, idx) in requisition.items" :key="item.id">
-        {{ item.name }} ({{ item.requestedQty }}{{ item.unit }}){{ idx < requisition.items.length - 1 ? ', ' : '' }}
+      📦 <span v-for="(item, idx) in requisition.requisition_items" :key="item.id">
+        {{ item.ingredients?.name_vi || 'Sản phẩm' }} ({{ item.requested_quantity }}{{ item.unit }}){{ (requisition.requisition_items && idx < requisition.requisition_items.length - 1) ? ', ' : '' }}
       </span>
     </div>
 
-    <div v-if="requisition.status === 'rejected' && requisition.rejectionReason" class="card-reason mt-2 text-xs">
-      <strong>Lý do từ chối:</strong> {{ requisition.rejectionReason }}
+    <div v-if="requisition.status === 'REJECTED' && requisition.rejection_reason" class="card-reason mt-2 text-xs">
+      <strong>Lý do từ chối:</strong> {{ requisition.rejection_reason }}
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import type { Requisition } from '@/stores/kitchen';
-import { REQUISITION_COLORS } from '@/design-system/requisitionTokens';
+import type { Requisition } from '@/composables/useRequisition';
 
 const props = defineProps<{
   requisition: Requisition;
@@ -62,25 +54,14 @@ const emit = defineEmits<{
 
 const getStatusLabel = (status: Requisition['status']) => {
   switch (status) {
-    case 'pending': return 'Chờ duyệt';
-    case 'approved': return 'Đã duyệt';
-    case 'delivered': return 'Đã giao';
-    case 'rejected': return 'Từ chối';
+    case 'PENDING': return 'Chờ duyệt';
+    case 'PROCESSING': return 'Đang xử lý';
+    case 'APPROVED': return 'Đã duyệt';
+    case 'COMPLETED': return 'Đã giao';
+    case 'CANCELLED': return 'Đã hủy';
+    case 'REJECTED': return 'Từ chối';
     default: return status;
   }
-};
-
-const getPriorityLabel = (priority: Requisition['priority']) => {
-  switch (priority) {
-    case 'low': return 'Thấp';
-    case 'medium': return 'Trung bình';
-    case 'high': return 'Cao';
-    default: return priority;
-  }
-};
-
-const getPriorityColor = (priority: Requisition['priority']) => {
-  return REQUISITION_COLORS.priority[priority] || '#FFF';
 };
 </script>
 
@@ -112,21 +93,22 @@ const getPriorityColor = (priority: Requisition['priority']) => {
   border-left: 4px solid #FF9800;
 }
 
+.requisition-card.status-processing {
+  border-left: 4px solid #9C27B0;
+}
+
 .requisition-card.status-approved {
   border-left: 4px solid #4CAF50;
 }
 
-.requisition-card.status-delivered {
+.requisition-card.status-completed {
   border-left: 4px solid #2196F3;
 }
 
-.requisition-card.status-rejected {
+.requisition-card.status-rejected,
+.requisition-card.status-cancelled {
   border-left: 4px solid #F44336;
   opacity: 0.8;
-}
-
-.requisition-card.priority-high {
-  animation: pulse-urgent-border 2s infinite;
 }
 
 .card-header {
@@ -159,15 +141,20 @@ const getPriorityColor = (priority: Requisition['priority']) => {
   background: #FF9800;
 }
 
+.card-status.status-processing {
+  background: #9C27B0;
+}
+
 .card-status.status-approved {
   background: #4CAF50;
 }
 
-.card-status.status-delivered {
+.card-status.status-completed {
   background: #2196F3;
 }
 
-.card-status.status-rejected {
+.card-status.status-rejected,
+.card-status.status-cancelled {
   background: #F44336;
 }
 

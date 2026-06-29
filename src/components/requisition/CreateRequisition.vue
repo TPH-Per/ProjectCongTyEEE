@@ -28,54 +28,21 @@
             />
           </div>
           <div class="form-group">
-            <label for="station-select" class="form-label">Bộ phận bếp yêu cầu</label>
+            <label for="type-select" class="form-label">Loại phiếu</label>
             <select 
-              id="station-select" 
-              v-model="station" 
+              id="type-select" 
+              v-model="type" 
               class="form-select"
             >
-              <option value="Bếp Nướng">Bếp Nướng</option>
-              <option value="Bếp Lẩu">Bếp Lẩu</option>
-              <option value="Bếp Chiên">Bếp Chiên</option>
-              <option value="Bếp Lạnh">Bếp Lạnh</option>
-              <option value="Quầy Bar">Quầy Bar</option>
+              <option value="OUTBOUND">Xuất kho</option>
+              <option value="INBOUND">Nhập kho</option>
+              <option value="RETURN">Trả hàng</option>
             </select>
           </div>
         </div>
 
         <div class="form-grid mt-4">
-          <div class="form-group">
-            <span class="form-label">Mức độ ưu tiên</span>
-            <div class="priority-group" role="radiogroup" aria-label="Mức độ ưu tiên">
-              <label class="priority-option low" :class="{ active: priority === 'low' }">
-                <input 
-                  v-model="priority" 
-                  type="radio" 
-                  value="low" 
-                  name="priority" 
-                />
-                <span>Thấp</span>
-              </label>
-              <label class="priority-option medium" :class="{ active: priority === 'medium' }">
-                <input 
-                  v-model="priority" 
-                  type="radio" 
-                  value="medium" 
-                  name="priority" 
-                />
-                <span>Trung bình</span>
-              </label>
-              <label class="priority-option high" :class="{ active: priority === 'high' }">
-                <input 
-                  v-model="priority" 
-                  type="radio" 
-                  value="high" 
-                  name="priority" 
-                />
-                <span>Cao</span>
-              </label>
-            </div>
-          </div>
+          <!-- Priority Removed -->
           <div class="form-group">
             <label for="notes-textarea" class="form-label">Ghi chú yêu cầu</label>
             <textarea 
@@ -90,26 +57,26 @@
       </div>
 
       <!-- Phân Tích & Gợi Ý Tự Động (Prep List & Forecast) -->
-      <div class="form-section bg-[#1A1A1A] p-4 rounded-xl border border-[#404040]">
+      <div class="form-section bg-background p-4 rounded-xl border border-border">
         <div class="flex justify-between items-center mb-3">
           <h4 class="text-sm font-bold text-[#FF9800] uppercase tracking-wider flex items-center gap-2">
             📊 Phân Tích Nhu Cầu & Dự Báo (Prep & Forecast)
           </h4>
-          <span class="bg-[#2196F3]/20 text-[#2196F3] text-[10px] px-2.5 py-0.5 rounded font-bold uppercase">
+          <span class="bg-[#2196F3]/20 text-blue-600 text-[10px] px-2.5 py-0.5 rounded font-bold uppercase">
             AI Assistant
           </span>
         </div>
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
           <!-- Prep list correlation -->
-          <div class="p-3 bg-[#2D2D2D]/50 rounded-lg border border-[#404040]">
-            <span class="font-bold text-gray-300 block mb-1">📋 Đối chiếu Prep List ca này:</span>
-            <p class="text-gray-400">Hạng mục sơ chế chưa hoàn tất: <strong class="text-yellow-500">Cắt thái rau thập cẩm</strong>, <strong class="text-yellow-500">Nấu nước lẩu Sukiyaki</strong>. Đề xuất chuẩn bị thêm nguyên vật liệu thô.</p>
+          <div class="p-3 bg-card/50 rounded-lg border border-border">
+            <span class="font-bold text-muted-foreground block mb-1">📋 Đối chiếu Prep List ca này:</span>
+            <p class="text-muted-foreground">Hạng mục sơ chế chưa hoàn tất: <strong class="text-yellow-500">Cắt thái rau thập cẩm</strong>, <strong class="text-yellow-500">Nấu nước lẩu Sukiyaki</strong>. Đề xuất chuẩn bị thêm nguyên vật liệu thô.</p>
           </div>
           <!-- Sales Forecast -->
-          <div class="p-3 bg-[#2D2D2D]/50 rounded-lg border border-[#404040]">
-            <span class="font-bold text-gray-300 block mb-1">📈 Dự báo Doanh thu & Khách đặt:</span>
-            <p class="text-gray-400">Khách đặt: Tiệc buffet nướng 30 người lúc 19:00. Nhu cầu thịt bò Wagyu dự báo tăng <strong class="text-orange-500">+2.0 kg</strong> so với ngày thường.</p>
+          <div class="p-3 bg-card/50 rounded-lg border border-border">
+            <span class="font-bold text-muted-foreground block mb-1">📈 Dự báo Doanh thu & Khách đặt:</span>
+            <p class="text-muted-foreground">Khách đặt: Tiệc buffet nướng 30 người lúc 19:00. Nhu cầu thịt bò Wagyu dự báo tăng <strong class="text-orange-500">+2.0 kg</strong> so với ngày thường.</p>
           </div>
         </div>
 
@@ -117,11 +84,11 @@
         <div class="mt-4 p-3 bg-[#FF9800]/10 border border-[#FF9800]/30 rounded-lg flex items-center justify-between flex-wrap gap-2">
           <div class="text-xs">
             <span class="font-bold text-[#FF9800] block">💡 Đề xuất xuất kho tự động:</span>
-            <span class="text-gray-300">Thịt bò Wagyu (5kg: 3kg bù hụt + 2kg dự phòng), Nước lẩu (8L: 5L bù hụt + 3L dự phòng), Tôm sú lớn (3kg bù hụt)</span>
+            <span class="text-muted-foreground">Thịt bò Wagyu (5kg: 3kg bù hụt + 2kg dự phòng), Nước lẩu (8L: 5L bù hụt + 3L dự phòng), Tôm sú lớn (3kg bù hụt)</span>
           </div>
           <button 
             type="button"
-            class="bg-[#FF9800] hover:bg-[#F57C00] text-xs font-bold text-white px-3.5 py-1.5 rounded-lg transition"
+            class="bg-[#FF9800] hover:bg-[#F57C00] text-xs font-bold text-foreground px-3.5 py-1.5 rounded-lg transition"
             @click="applyAutoSuggestions"
           >
             ⚡ Áp dụng gợi ý
@@ -133,7 +100,7 @@
       <div class="form-section">
         <h3 class="section-title">Danh Sách Nguyên Liệu Cần Xuất</h3>
         <IngredientSelector 
-          :inventory="kitchenStore.inventoryList"
+          :inventory="inventory"
           v-model="selectedItems"
         />
       </div>
@@ -145,8 +112,8 @@
           <span>{{ selectedItems.length }} mặt hàng</span>
         </div>
         <div class="summary-row font-bold text-[#FF9800]">
-          <span>Mức độ ưu tiên:</span>
-          <span class="uppercase">{{ getPriorityLabel(priority) }}</span>
+          <span>Loại phiếu:</span>
+          <span class="uppercase">{{ type === 'OUTBOUND' ? 'Xuất kho' : (type === 'INBOUND' ? 'Nhập kho' : 'Trả hàng') }}</span>
         </div>
       </div>
     </div>
@@ -178,16 +145,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import { useKitchenStore } from '@/stores/kitchen';
+import { ref, computed } from 'vue';
+import { useRequisition, type RequisitionType } from '@/composables/useRequisition';
+import { useInventory } from '@/composables/useInventory';
+import { useAuth } from '@/composables/useAuth';
 import IngredientSelector from './IngredientSelector.vue';
 import Swal from 'sweetalert2';
 
 const applyAutoSuggestions = () => {
+  if (inventory.value.length === 0) return;
+  const firstItem = inventory.value[0];
   selectedItems.value = [
-    { id: 'inv-1', requestedQty: 5 },
-    { id: 'inv-2', requestedQty: 8 },
-    { id: 'inv-6', requestedQty: 3 }
+    { ingredient_id: firstItem.ingredient_id, requested_quantity: 5 }
   ];
   
   Swal.fire({
@@ -207,33 +176,22 @@ const emit = defineEmits<{
   (e: 'success'): void;
 }>();
 
-const kitchenStore = useKitchenStore();
+const { createRequisition } = useRequisition();
+const { inventory } = useInventory();
+const { profile } = useAuth();
 
-const actor = ref('Chef Luc');
-const station = ref('Bếp Nướng');
-const priority = ref<'low' | 'medium' | 'high'>('medium');
+const actor = computed(() => profile.value?.full_name || 'Nhân viên');
+const type = ref<RequisitionType>('OUTBOUND');
 const notes = ref('');
-const selectedItems = ref<Array<{ id: string; requestedQty: number }>>([]);
-
-const getPriorityLabel = (pri: string) => {
-  if (pri === 'low') return 'Thấp';
-  if (pri === 'high') return 'Cao';
-  return 'Trung bình';
-};
+const selectedItems = ref<Array<{ ingredient_id: string; requested_quantity: number }>>([]);
 
 const buildItemsPayload = () => {
   return selectedItems.value.map(selected => {
-    const invItem = kitchenStore.inventoryList.find(i => i.id === selected.id)!;
+    const invItem = inventory.value.find(i => i.ingredient_id === selected.ingredient_id)!;
     return {
-      id: invItem.id,
-      name: invItem.name,
-      icon: invItem.icon,
-      unit: invItem.unit,
-      kitchenStock: invItem.kitchenStock,
-      mainStock: invItem.mainStock,
-      requestedQty: selected.requestedQty,
-      deliveredQty: selected.requestedQty, // default to requestedQty
-      status: 'pending'
+      ingredient_id: invItem.ingredient_id,
+      requested_quantity: selected.requested_quantity,
+      unit: invItem.unit
     };
   });
 };
@@ -262,29 +220,26 @@ const saveAsDraft = () => {
   emit('close');
 };
 
-const submitRequest = () => {
+const submitRequest = async () => {
   if (selectedItems.value.length === 0) return;
 
   const items = buildItemsPayload();
-  kitchenStore.addRequisition({
-    station: station.value,
-    actor: actor.value,
-    priority: priority.value,
-    status: 'pending',
-    notes: notes.value,
-    items
-  });
+  try {
+    await createRequisition(type.value, items, undefined, notes.value);
 
-  Swal.fire({
-    title: 'Đã gửi yêu cầu',
-    text: 'Yêu cầu xuất kho đã được gửi tới Bộ phận Kho thành công!',
-    icon: 'success',
-    background: '#2D2D2D',
-    color: '#FFF',
-    confirmButtonColor: '#FF9800'
-  });
-  
-  emit('success');
+    Swal.fire({
+      title: 'Đã gửi yêu cầu',
+      text: 'Yêu cầu xuất kho đã được gửi tới Bộ phận Kho thành công!',
+      icon: 'success',
+      background: '#2D2D2D',
+      color: '#FFF',
+      confirmButtonColor: '#FF9800'
+    });
+    
+    emit('success');
+  } catch (err: any) {
+    Swal.fire('Lỗi', err.message, 'error');
+  }
 };
 </script>
 

@@ -3,12 +3,12 @@
 
     <div class="flex justify-between items-center">
       <div>
-        <h1 class="text-2xl font-bold text-gray-900 tracking-tight">{{ t('auto_qu_n_l__t_i_kho_n') }}</h1>
-        <p class="text-sm text-gray-500 mt-1">{{ t('auto_thi_t_l_p_t_i_kho_n_v__ph_n_qu') }}</p>
+        <h1 class="text-2xl font-bold text-gray-900 tracking-tight">{{ t('admin_accounts.title') }}</h1>
+        <p class="text-sm text-gray-500 mt-1">{{ t('admin_accounts.subtitle') }}</p>
       </div>
       <button @click="openCreateModal" class="bg-gray-900 hover:bg-black text-white px-5 py-2.5 rounded-xl font-bold transition-colors flex items-center gap-2 text-sm shadow-md">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="5" y2="19"/><line x1="5" x2="19" y1="12" y2="12"/></svg>
-        {{ t('auto_t_o_t_i_kho_n') }}
+        {{ t('admin_accounts.create_account') }}
       </button>
     </div>
 
@@ -16,14 +16,14 @@
     <div class="bg-white rounded-2xl border border-gray-200 p-4 shadow-sm flex items-center gap-4">
       <div class="flex-1 relative">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-        <input type="text" :placeholder="$t('auto_placeholder_fix')" class="w-full bg-gray-50 border border-gray-200 rounded-xl pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:border-gray-400 font-medium" />
+        <input type="text" :placeholder="$t('admin_accounts.search_placeholder')" class="w-full bg-gray-50 border border-gray-200 rounded-xl pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:border-gray-400 font-medium" />
       </div>
       <select class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-gray-400 font-medium">
-        <option value="all">{{ t('auto_t_t_c__vai_tr_') }}</option>
-        <option value="admin">System Admin</option>
-        <option value="manager">Manager</option>
-        <option value="reception">{{ t('auto_thu_ng_n') }}</option>
-        <option value="staff">{{ t('auto_ph_c_v_') }}</option>
+        <option value="all">{{ t('admin_accounts.all_roles') }}</option>
+        <option value="admin">{{ t('admin_accounts.roles.system_admin') }}</option>
+        <option value="manager">{{ t('admin_accounts.roles.manager') }}</option>
+        <option value="reception">{{ t('admin_accounts.roles.reception') }}</option>
+        <option value="staff">{{ t('admin_accounts.roles.staff') }}</option>
       </select>
     </div>
 
@@ -33,12 +33,12 @@
         <thead class="bg-gray-50 text-gray-500 font-semibold border-b">
           <tr>
             <th class="px-5 py-3">ID</th>
-            <th class="px-5 py-3">{{ t('auto_h__t_n') }}</th>
+            <th class="px-5 py-3">{{ t('admin_accounts.table.full_name') }}</th>
             <th class="px-5 py-3">Email</th>
-            <th class="px-5 py-3">{{ t('auto_chi_nhanh_branch') }}</th>
-            <th class="px-5 py-3">{{ t('auto_vai_tr___role_') }}</th>
-            <th class="px-5 py-3">{{ t('auto_tr_ng_th_i') }}</th>
-            <th class="px-5 py-3">{{ t('auto_h_nh___ng') }}</th>
+            <th class="px-5 py-3">{{ t('admin_accounts.table.branch') }}</th>
+            <th class="px-5 py-3">{{ t('admin_accounts.table.role') }}</th>
+            <th class="px-5 py-3">{{ t('admin_accounts.table.status') }}</th>
+            <th class="px-5 py-3">{{ t('admin_accounts.table.actions') }}</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100">
@@ -52,26 +52,26 @@
             <td class="px-5 py-3">
               <span v-if="user.role === 'admin'" class="px-2.5 py-1 rounded-md text-xs font-bold bg-gray-900 text-white">Admin</span>
               <span v-else-if="user.role === 'manager'" class="px-2.5 py-1 rounded-md text-xs font-bold bg-blue-100 text-blue-700 border border-blue-200">Manager</span>
-              <span v-else-if="user.role === 'reception'" class="px-2.5 py-1 rounded-md text-xs font-bold bg-purple-100 text-purple-700 border border-purple-200">{{ t('auto_thu_ng_n') }}</span>
-              <span v-else class="px-2.5 py-1 rounded-md text-xs font-bold bg-orange-100 text-orange-700 border border-orange-200">{{ t('auto_ph_c_v_') }}</span>
+              <span v-else-if="user.role === 'reception'" class="px-2.5 py-1 rounded-md text-xs font-bold bg-purple-100 text-purple-700 border border-purple-200">{{ t('admin_accounts.roles.reception') }}</span>
+              <span v-else class="px-2.5 py-1 rounded-md text-xs font-bold bg-orange-100 text-orange-700 border border-orange-200">{{ t('admin_accounts.roles.staff') }}</span>
             </td>
             <td class="px-5 py-3">
               <span class="flex items-center gap-1.5 text-green-600 font-medium text-xs" v-if="user.is_active">
-                <span class="w-2 h-2 rounded-full bg-green-500"></span> {{ t('auto_ang_ho_t_ng') }}
+                <span class="w-2 h-2 rounded-full bg-green-500"></span> {{ t('admin_accounts.status.active') }}
               </span>
               <span class="flex items-center gap-1.5 text-red-600 font-medium text-xs" v-else>
-                <span class="w-2 h-2 rounded-full bg-red-500"></span> {{ t('auto_ng_ng_ho_t_ng') }}
+                <span class="w-2 h-2 rounded-full bg-red-500"></span> {{ t('admin_accounts.status.inactive') }}
               </span>
             </td>
             <td class="px-5 py-3">
               <div class="flex gap-2">
-                <button @click="openEditModal(user)" class="text-blue-600 hover:text-blue-800 font-medium">{{ t('auto_s_a') }}</button>
-                <button @click="openPasswordModal(user)" class="text-orange-600 hover:text-orange-800 font-medium ml-2">{{ t('auto_i_mk') }}</button>
+                <button @click="openEditModal(user)" class="text-blue-600 hover:text-blue-800 font-medium">{{ t('admin_accounts.action.edit') }}</button>
+                <button @click="openPasswordModal(user)" class="text-orange-600 hover:text-orange-800 font-medium ml-2">{{ t('admin_accounts.action.change_password') }}</button>
               </div>
             </td>
           </tr>
           <tr v-if="loading">
-            <td colspan="7" class="px-5 py-4 text-center text-gray-500">{{ t('auto__ang_t_i___') }}</td>
+            <td colspan="7" class="px-5 py-4 text-center text-gray-500">{{ t('admin_accounts.status.loading') }}</td>
           </tr>
         </tbody>
       </table>
@@ -80,11 +80,11 @@
     <!-- User Modal (Create / Edit) -->
     <div v-if="isModalOpen" class="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
       <div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-xl">
-        <h3 class="text-lg font-bold mb-4">{{ modalMode === 'create' ? 'Tạo Tài Khoản Mới' : 'Sửa Tài Khoản' }}</h3>
+        <h3 class="text-lg font-bold mb-4">{{ modalMode === 'create' ? t('admin_accounts.modal.create_title') : t('admin_accounts.modal.edit_title') }}</h3>
         
         <div class="space-y-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('auto_h_t_n') }}</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('admin_accounts.form.full_name') }}</label>
             <input v-model="form.full_name" type="text" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900" />
           </div>
           <div v-if="modalMode === 'create'">
@@ -92,38 +92,38 @@
             <input v-model="form.email" type="email" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900" />
           </div>
           <div v-if="modalMode === 'create'">
-            <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('auto_m_t_kh_u') }}</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('admin_accounts.form.password') }}</label>
             <input v-model="form.password" type="password" minlength="6" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('auto_vai_tr') }}</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('admin_accounts.form.role') }}</label>
             <select v-model="form.role" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900">
-              <option value="admin">Admin</option>
-              <option value="manager">Manager</option>
-              <option value="reception">Reception</option>
-              <option value="staff">Staff</option>
-              <option value="kitchen">Kitchen</option>
+              <option value="admin">{{ t('admin_accounts.roles.system_admin') }}</option>
+              <option value="manager">{{ t('admin_accounts.roles.manager') }}</option>
+              <option value="reception">{{ t('admin_accounts.roles.reception') }}</option>
+              <option value="staff">{{ t('admin_accounts.roles.staff') }}</option>
+              <option value="kitchen">{{ t('admin_accounts.roles.kitchen') }}</option>
             </select>
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('auto_chi_nhanh_branch') }}</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('admin_accounts.table.branch') }}</label>
             <select v-model="form.branch_id" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 bg-white">
-              <option value="" disabled>{{ t('auto_chon_chi_nhanh', 'Chọn chi nhánh') }}</option>
+              <option value="" disabled>{{ t('admin_accounts.form.select_branch') }}</option>
               <option v-for="b in branches" :key="b.id" :value="b.id">{{ b.name }}</option>
             </select>
           </div>
           <div v-if="modalMode === 'edit'" class="flex items-center gap-2 mt-4">
             <input type="checkbox" id="isActive" v-model="form.is_active" class="rounded text-gray-900 focus:ring-gray-900 w-4 h-4" />
-            <label for="isActive" class="text-sm font-medium text-gray-700">{{ t('auto_t_i_kho_n_ang_ho_t_ng') }}</label>
+            <label for="isActive" class="text-sm font-medium text-gray-700">{{ t('admin_accounts.form.active_account') }}</label>
           </div>
         </div>
 
         <div class="mt-6 flex justify-end gap-3">
           <button @click="isModalOpen = false" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
-            {{ t('auto_h_y') }}
+            {{ t('admin_accounts.action.cancel') }}
           </button>
           <button @click="saveUser" :disabled="saving" class="px-4 py-2 text-sm font-bold text-white bg-gray-900 hover:bg-black rounded-lg transition-colors disabled:opacity-50">
-            {{ saving ? 'Đang lưu...' : 'Lưu Tài Khoản' }}
+            {{ saving ? t('admin_accounts.action.saving') : t('admin_accounts.action.save_account') }}
           </button>
         </div>
       </div>
@@ -132,21 +132,21 @@
     <!-- Password Modal -->
     <div v-if="isPwdModalOpen" class="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
       <div class="bg-white rounded-2xl w-full max-w-sm p-6 shadow-xl">
-        <h3 class="text-lg font-bold mb-4">{{ t('auto_i_m_t_kh_u') }}</h3>
+        <h3 class="text-lg font-bold mb-4">{{ t('admin_accounts.password_modal.title') }}</h3>
         
         <div class="space-y-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('auto_m_t_kh_u_m_i') }}</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('admin_accounts.password_modal.new_password') }}</label>
             <input v-model="newPassword" type="password" minlength="6" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900" />
           </div>
         </div>
 
         <div class="mt-6 flex justify-end gap-3">
           <button @click="isPwdModalOpen = false" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
-            {{ t('auto_h_y') }}
+            {{ t('admin_accounts.action.cancel') }}
           </button>
           <button @click="resetPassword" :disabled="saving" class="px-4 py-2 text-sm font-bold text-white bg-orange-600 hover:bg-orange-700 rounded-lg transition-colors disabled:opacity-50">
-            {{ saving ? 'Đang lưu...' : 'Cập Nhật' }}
+            {{ saving ? t('admin_accounts.action.saving') : t('admin_accounts.action.update') }}
           </button>
         </div>
       </div>
@@ -302,7 +302,7 @@ async function saveUser() {
     isModalOpen.value = false
     if (modalMode.value === 'create') fetchUsers()
   } catch (err: any) {
-    Swal.fire('Lỗi', 'Lỗi: ' + err.message, 'error')
+    Swal.fire(t('admin_accounts.alert.error'), t('admin_accounts.alert.error_prefix') + err.message, 'error')
   } finally {
     saving.value = false
   }
@@ -322,10 +322,10 @@ async function resetPassword() {
       }
     })
     if (error) throw error
-    Swal.fire('Thành công', 'Đổi mật khẩu thành công!', 'success')
+    Swal.fire(t('admin_accounts.alert.success'), t('admin_accounts.alert.password_changed'), 'success')
     isPwdModalOpen.value = false
   } catch (err: any) {
-    Swal.fire('Lỗi', 'Lỗi: ' + err.message, 'error')
+    Swal.fire(t('admin_accounts.alert.error'), t('admin_accounts.alert.error_prefix') + err.message, 'error')
   } finally {
     saving.value = false
   }

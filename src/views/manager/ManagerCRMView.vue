@@ -2,13 +2,13 @@
   <div class="min-h-screen bg-gray-50 p-6">
 
     <div v-if="loading" class="flex h-64 items-center justify-center text-gray-500 font-semibold">
-      {{ t('auto_ang_t_i_d_li_u') }}
+      {{ $t('manager_crm.loading_data') }}
     </div>
     <div v-else>
       <!-- Page Header -->
       <div class="mb-6">
-      <h1 class="text-2xl font-bold text-gray-800">{{ t('auto_qu_n_l__kh_ch_h_ng__crm_') }}</h1>
-      <p class="text-sm text-gray-500 mt-1">{{ t('auto_t_ng_quan_to_n_th_i_gian___c_p') }}</p>
+      <h1 class="text-2xl font-bold text-gray-800">{{ $t('manager_crm.title') }}</h1>
+      <p class="text-sm text-gray-500 mt-1">{{ $t('manager_crm.subtitle') }}</p>
     </div>
 
     <!-- Summary Row -->
@@ -28,7 +28,7 @@
     <div class="grid grid-cols-3 gap-4 mb-6">
       <!-- SVG Ring -->
       <div class="kawaii-card p-6 flex flex-col items-center justify-center">
-        <p class="text-sm font-bold text-gray-600 mb-4">{{ t('auto_kh_ch_quay_l_i') }}</p>
+        <p class="text-sm font-bold text-gray-600 mb-4">{{ $t('manager_crm.repeat_rate') }}</p>
         <div class="relative w-40 h-40">
           <svg class="w-40 h-40 -rotate-90" viewBox="0 0 160 160">
             <!-- Background ring -->
@@ -51,18 +51,18 @@
         <div class="mt-4 flex gap-4 text-xs text-gray-500">
           <div class="flex items-center gap-1.5">
             <span class="w-3 h-3 rounded-full inline-block" style="background:#FF7B89"></span>
-            {{ t('auto_quay_l_i') }}
+            {{ $t('manager_crm.return') }}
           </div>
           <div class="flex items-center gap-1.5">
             <span class="w-3 h-3 rounded-full inline-block bg-gray-200"></span>
-            {{ t('auto_l_n_u') }}
+            {{ $t('manager_crm.first_time') }}
           </div>
         </div>
       </div>
 
       <!-- Channel Breakdown bars -->
       <div class="kawaii-card p-5">
-        <h2 class="text-sm font-bold text-gray-800 mb-4">{{ t('auto_k_nh_ti_p_c_n__to_n_th_i_gian_') }}</h2>
+        <h2 class="text-sm font-bold text-gray-800 mb-4">{{ $t('manager_crm.channel_breakdown') }}</h2>
         <div class="space-y-3">
           <div v-for="ch in channelBars" :key="ch.label">
             <div class="flex justify-between items-center mb-1">
@@ -81,7 +81,7 @@
 
       <!-- Demographics by Age -->
       <div class="kawaii-card p-5">
-        <h2 class="text-sm font-bold text-gray-800 mb-4">{{ t('auto____tu_i_kh_ch_h_ng') }}</h2>
+        <h2 class="text-sm font-bold text-gray-800 mb-4">{{ $t('manager_crm.age_demographics') }}</h2>
         <div class="space-y-3">
           <div v-for="age in ageBars" :key="age.label">
             <div class="flex justify-between items-center mb-1">
@@ -105,8 +105,8 @@
       <div class="px-5 py-4 border-b border-gray-100">
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 class="text-base font-bold text-gray-800">{{ t('auto_danh_s_ch_kh_ch_h_ng') }}</h2>
-            <p class="text-xs text-gray-400 mt-0.5">{{ t('auto_1_240_kh_ch____ang_hi_n_th__6') }}</p>
+            <h2 class="text-base font-bold text-gray-800">{{ $t('manager_crm.customer_list') }}</h2>
+            <p class="text-xs text-gray-400 mt-0.5">{{ $t('manager_crm.showing_customers') }}</p>
           </div>
           <!-- Search -->
           <div class="relative">
@@ -168,7 +168,7 @@
                 <span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-purple-50 text-purple-700">{{ c.group }}</span>
               </td>
               <td class="px-4 py-3">
-                <button class="text-xs text-teal-600 hover:underline font-medium">{{ t('auto____nh_n') }}</button>
+                <button class="text-xs text-teal-600 hover:underline font-medium">{{ $t('manager_crm.receive') }}</button>
               </td>
               <td class="px-4 py-3">
                 <span
@@ -182,10 +182,10 @@
       </div>
       <!-- Footer -->
       <div class="px-5 py-3 bg-gray-50 flex items-center justify-between">
-        <p class="text-xs text-gray-400">{{ t('auto_hi_n_th__6___1_240_kh_ch') }}</p>
+        <p class="text-xs text-gray-400">{{ $t('manager_crm.showing_pagination') }}</p>
         <div class="flex gap-2">
-          <button class="kawaii-btn-ghost text-xs px-3 py-1.5">{{ t('auto___tr__c') }}</button>
-          <button class="kawaii-btn-primary text-xs px-3 py-1.5">{{ t('auto_ti_p__') }}</button>
+          <button class="kawaii-btn-ghost text-xs px-3 py-1.5">{{ $t('manager_crm.prev') }}</button>
+          <button class="kawaii-btn-primary text-xs px-3 py-1.5">{{ $t('manager_crm.next') }}</button>
         </div>
       </div>
     </div>
@@ -203,33 +203,33 @@ const { listVip } = useCustomer()
 
 const loading = ref(true)
 const searchQuery = ref('')
-const activeTag = ref(t('auto_tat_ca', 'Tất cả'))
+const activeTag = ref(t('manager_crm.all'))
 
 const summaryStats = computed(() => [
-  { label: t('auto_tong_khach_hang', 'Tổng Khách Hàng'), value: '1,240', sub: t('auto_plus_87_thang_nay', '+87 tháng này'), valueColor: 'text-gray-800', subColor: 'text-green-500' },
-  { label: t('auto_khach_repeater', 'Khách Repeater'), value: '421', sub: t('auto_34_ty_le_quay_lai', '34% tỷ lệ quay lại'), valueColor: 'text-pink-600', subColor: 'text-pink-400' },
-  { label: t('auto_tb_lan_ghe_kh', 'TB Lần Ghé / KH'), value: '2.8', sub: t('auto_lan_khach', 'lần / khách'), valueColor: 'text-gray-800', subColor: 'text-gray-400' },
-  { label: t('auto_khach_moi_thang_nay', 'Khách Mới Tháng Này'), value: '87', sub: t('auto_12_so_thang_truoc', '▲ 12% so tháng trước'), valueColor: 'text-green-600', subColor: 'text-green-500' },
+  { label: t('manager_crm.total_customers'), value: '1,240', sub: t('manager_crm.plus_this_month'), valueColor: 'text-gray-800', subColor: 'text-green-500' },
+  { label: t('manager_crm.repeater_customers'), value: '421', sub: t('manager_crm.repeat_ratio_text'), valueColor: 'text-pink-600', subColor: 'text-pink-400' },
+  { label: t('manager_crm.avg_visits'), value: '2.8', sub: t('manager_crm.visits_per_customer'), valueColor: 'text-gray-800', subColor: 'text-gray-400' },
+  { label: t('manager_crm.new_customers_this_month'), value: '87', sub: t('manager_crm.up_last_month'), valueColor: 'text-green-600', subColor: 'text-green-500' },
 ])
 
-const channelBars = [
+const channelBars = computed(() => [
   { icon: '🗺️', label: 'Google Map', pct: 36, color: '#60A5FA' },
   { icon: '💙', label: 'Facebook', pct: 27, color: '#818CF8' },
   { icon: '🎵', label: 'TikTok', pct: 21, color: '#A78BFA' },
   { icon: '💬', label: 'Zalo OA', pct: 12, color: '#2DD4BF' },
-  { icon: '👤', label: 'Người quen', pct: 4, color: '#9CA3AF' },
-]
+  { icon: '👤', label: t('manager_crm.acquaintance'), pct: 4, color: '#9CA3AF' },
+])
 
-const ageBars = [
-  { label: '20–30 tuổi', pct: 35, barClass: 'bg-pink-400' },
-  { label: '30–40 tuổi', pct: 42, barClass: 'bg-orange-400' },
-  { label: '40–50 tuổi', pct: 16, barClass: 'bg-yellow-400' },
-  { label: '50+ tuổi', pct: 7, barClass: 'bg-gray-300' },
-]
+const ageBars = computed(() => [
+  { label: t('manager_crm.age_20_30'), pct: 35, barClass: 'bg-pink-400' },
+  { label: t('manager_crm.age_30_40'), pct: 42, barClass: 'bg-orange-400' },
+  { label: t('manager_crm.age_40_50'), pct: 16, barClass: 'bg-yellow-400' },
+  { label: t('manager_crm.age_50_plus'), pct: 7, barClass: 'bg-gray-300' },
+])
 
-const businessTags = computed(() => [t('auto_tat_ca', 'Tất cả'), t('auto_ca_nhan', 'Cá Nhân'), t('auto_cong_ty', 'Công Ty'), t('auto_gia_dinh', 'Gia Đình'), t('auto_nhom_ban', 'Nhóm Bạn')])
+const businessTags = computed(() => [t('manager_crm.all'), t('manager_crm.personal'), t('manager_crm.company'), t('manager_crm.family'), t('manager_crm.friends')])
 
-const crmColumns = ['SĐT', 'Tên', 'Lần Đến', 'Tổng Chi', 'Lần Cuối', 'Kênh', 'Nhóm', 'Zalo', 'Loại']
+const crmColumns = computed(() => [t('manager_crm.col_phone'), t('manager_crm.col_name'), t('manager_crm.col_visits'), t('manager_crm.col_spent'), t('manager_crm.col_last_visit'), t('manager_crm.col_channel'), t('manager_crm.col_group'), t('manager_crm.col_zalo'), t('manager_crm.col_type')])
 
 interface CustomerUI {
   phone: string
@@ -240,7 +240,7 @@ interface CustomerUI {
   channelIcon: string
   channel: string
   group: string
-  badge: 'Repeater' | 'Mới'
+  badge: string
 }
 
 const customers = ref<CustomerUI[]>([])
@@ -252,14 +252,14 @@ onMounted(async () => {
     if (vips && vips.length > 0) {
       customers.value = vips.map((c: any) => ({
         phone: c.phone || 'N/A',
-        name: c.name || 'Khách Hàng',
+        name: c.name || t('manager_crm.customer'),
         visits: c.visits_count || 1,
-        totalSpend: (c.total_spent || 0).toLocaleString('vi-VN') + 'đ',
+        totalSpend: (c.total_spent || 0).toLocaleString('vi-VN') + t('manager_dashboard.currency_symbol'),
         lastVisit: c.last_visit_at ? new Date(c.last_visit_at).toLocaleDateString('vi-VN') : 'N/A',
         channelIcon: '👤',
-        channel: 'Hệ Thống',
-        group: 'Cá Nhân',
-        badge: (c.visits_count || 1) > 1 ? 'Repeater' : 'Mới',
+        channel: t('manager_crm.system'),
+        group: t('manager_crm.personal'),
+        badge: (c.visits_count || 1) > 1 ? 'Repeater' : t('manager_crm.new'),
       }))
     } else {
       customers.value = [
@@ -271,7 +271,7 @@ onMounted(async () => {
           lastVisit: '18/06/2026',
           channelIcon: '🗺️',
           channel: 'Google Map',
-          group: 'Công Ty',
+          group: t('manager_crm.company'),
           badge: 'Repeater',
         },
         {
@@ -282,7 +282,7 @@ onMounted(async () => {
           lastVisit: '17/06/2026',
           channelIcon: '🎵',
           channel: 'TikTok',
-          group: 'Nhóm Bạn',
+          group: t('manager_crm.friends'),
           badge: 'Repeater',
         },
         {
@@ -293,8 +293,8 @@ onMounted(async () => {
           lastVisit: '15/06/2026',
           channelIcon: '💙',
           channel: 'Facebook',
-          group: 'Cá Nhân',
-          badge: 'Mới',
+          group: t('manager_crm.personal'),
+          badge: t('manager_crm.new'),
         },
         {
           phone: '09**445566',
@@ -303,8 +303,8 @@ onMounted(async () => {
           totalSpend: '5,640,000đ',
           lastVisit: '14/06/2026',
           channelIcon: '👤',
-          channel: 'Người quen',
-          group: 'Gia Đình',
+          channel: t('manager_crm.acquaintance'),
+          group: t('manager_crm.family'),
           badge: 'Repeater',
         },
         {
@@ -315,7 +315,7 @@ onMounted(async () => {
           lastVisit: '12/06/2026',
           channelIcon: '💬',
           channel: 'Zalo OA',
-          group: 'Cá Nhân',
+          group: t('manager_crm.personal'),
           badge: 'Repeater',
         },
         {
@@ -326,8 +326,8 @@ onMounted(async () => {
           lastVisit: '10/06/2026',
           channelIcon: '🗺️',
           channel: 'Google Map',
-          group: 'Công Ty',
-          badge: 'Mới',
+          group: t('manager_crm.company'),
+          badge: t('manager_crm.new'),
         },
       ]
     }
@@ -340,7 +340,7 @@ onMounted(async () => {
 
 const filteredCustomers = computed(() => {
   let list = customers.value
-  if (activeTag.value !== t('auto_tat_ca', 'Tất cả')) {
+  if (activeTag.value !== t('manager_crm.all')) {
     list = list.filter((c) => c.group === activeTag.value)
   }
   if (searchQuery.value) {

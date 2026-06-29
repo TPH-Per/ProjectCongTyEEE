@@ -11,7 +11,7 @@
       <nav class="flex-1 px-4 space-y-2 py-6 overflow-y-auto">
         <div
           class="text-[11px] font-extrabold text-gray-500 uppercase tracking-wider mb-2"
-        >{{ $t('auto_hoat_dong', 'Hoạt động') }}</div>
+        >{{ $t('layout.activity', 'Hoạt động') }}</div>
         <RouterLink
           to="/reception/dashboard"
           class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-sm font-semibold text-gray-600 hover:bg-gray-100"
@@ -32,7 +32,7 @@
             <rect width="7" height="5" x="14" y="3" rx="1" />
             <rect width="7" height="9" x="14" y="12" rx="1" />
             <rect width="7" height="5" x="3" y="16" rx="1" />
-          </svg>{{ $t('auto_bang_dieu_khien', 'Bảng điều khiển') }}</RouterLink>
+          </svg>{{ $t('layout.dashboard', 'Bảng điều khiển') }}</RouterLink>
         <RouterLink
           to="/reception/floors"
           class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-sm font-semibold text-gray-600 hover:bg-gray-100"
@@ -54,7 +54,7 @@
             <line x1="15" x2="15" y1="3" y2="21" />
             <line x1="3" x2="21" y1="9" y2="9" />
             <line x1="3" x2="21" y1="15" y2="15" />
-          </svg>{{ $t('auto_so_do_ban', 'Sơ đồ bàn') }}</RouterLink>
+          </svg>{{ $t('layout.floor_plan', 'Sơ đồ bàn') }}</RouterLink>
         <RouterLink
           to="/reception/order"
           class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-sm font-semibold text-gray-600 hover:bg-gray-100"
@@ -76,7 +76,7 @@
             <path
               d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"
             />
-          </svg>{{ $t('auto_chon_mon', 'Chọn món') }}</RouterLink>
+          </svg>{{ $t('layout.order', 'Chọn món') }}</RouterLink>
         <RouterLink
           to="/reception/close-shift"
           class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-sm font-semibold text-gray-600 hover:bg-gray-100"
@@ -95,7 +95,7 @@
           >
             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
             <polyline points="22 4 12 14.01 9 11.01" />
-          </svg>{{ $t('auto_tong_ket_ca', 'Tổng Kết Ca') }}</RouterLink>
+          </svg>{{ $t('layout.close_shift', 'Tổng Kết Ca') }}</RouterLink>
       </nav>
       <div class="p-4 border-t relative">
         <!-- Backdrop to close dropdown on click outside -->
@@ -129,7 +129,7 @@
               <polyline points="16 17 21 12 16 7" />
               <line x1="21" x2="9" y1="12" y2="12" />
             </svg>
-            <span>{{ $t('auto_dang_xuat', 'Đăng xuất') }}</span>
+            <span>{{ $t('layout.logout', 'Đăng xuất') }}</span>
           </button>
         </div>
 
@@ -145,7 +145,7 @@
           />
           <div class="flex-1 min-w-0">
             <div class="text-xs font-bold text-gray-900 truncate">
-              {{ profile?.full_name || $t('auto_thu_ngan', 'Thu ngân') }}
+              {{ profile?.full_name || $t('layout.cashier', 'Thu ngân') }}
             </div>
             <div class="text-[10px] text-gray-500 font-semibold">
               {{ roleLabel }}
@@ -189,6 +189,7 @@
 
 <script setup lang="ts">
 import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
+import { useI18n } from 'vue-i18n'
 import { ref, computed } from 'vue'
 import { RouterView, RouterLink, useRouter, useRoute } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'
@@ -197,6 +198,7 @@ import TextLogo from '@/components/TextLogo.vue'
 
 const router = useRouter()
 const route = useRoute()
+const { t } = useI18n()
 const { signOut, profile, role } = useAuth()
 const { stickerUrl } = useUserSticker()
 const isDropdownOpen = ref(false)
@@ -212,11 +214,11 @@ const headerTitle = computed(() => {
 })
 
 const ROLE_LABELS: Record<string, string> = {
-  admin: 'Quản trị',
-  manager: 'Quản lý',
-  reception: 'Thu ngân',
-  staff: 'Phục vụ',
-  kitchen: 'Bếp',
+  admin: t('layout.role_admin'),
+  manager: t('layout.role_manager'),
+  reception: t('layout.role_reception'),
+  staff: t('layout.role_staff'),
+  kitchen: t('layout.role_kitchen'),
 }
 const roleLabel = computed(() => {
   const r = role.value ?? profile.value?.role
@@ -227,7 +229,7 @@ const roleLabel = computed(() => {
 const branchLabel = computed(() => {
   const bid = profile.value?.branch_id
   if (!bid) return ''
-  return `Chi nhánh ${bid.slice(0, 8)}`
+  return t('layout.branch_id', { id: bid.slice(0, 8) })
 })
 
 async function handleSignOut() {

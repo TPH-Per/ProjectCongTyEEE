@@ -1,9 +1,9 @@
 <!-- DeliveryConfirmation.vue -->
 <template>
-  <div class="delivery-confirmation bg-[#2D2D2D] rounded-2xl p-6 max-w-[900px] margin-auto relative overflow-hidden">
+  <div class="delivery-confirmation bg-card rounded-2xl p-6 max-w-[900px] margin-auto relative overflow-hidden">
     
     <!-- SYSTEM UPDATE SCREEN (PHASE 4) -->
-    <div v-if="showSystemUpdate" class="system-update-overlay absolute inset-0 bg-[#1A1A1A] z-40 flex flex-col items-center justify-center p-8 text-center animate-fade-in">
+    <div v-if="showSystemUpdate" class="system-update-overlay absolute inset-0 bg-background z-40 flex flex-col items-center justify-center p-8 text-center animate-fade-in">
       <div class="success-checkmark mb-6">
         <div class="check-icon">
           <span class="icon-line line-tip animate-check-tip"></span>
@@ -13,19 +13,19 @@
         </div>
       </div>
       
-      <h3 class="text-2xl font-black text-white uppercase tracking-wider mb-2">ĐÃ CẬP NHẬT HỆ THỐNG THÀNH CÔNG</h3>
-      <p class="text-sm text-gray-400 mb-6 max-w-md">Phiếu yêu cầu #{{ requisition.id }} đã hoàn tất bàn giao. Quy trình tự động hóa kho & tài chính đã thực hiện:</p>
+      <h3 class="text-2xl font-black text-foreground uppercase tracking-wider mb-2">ĐÃ CẬP NHẬT HỆ THỐNG THÀNH CÔNG</h3>
+      <p class="text-sm text-muted-foreground mb-6 max-w-md">Phiếu yêu cầu #{{ requisition.requisition_number }} đã hoàn tất bàn giao. Quy trình tự động hóa kho & tài chính đã thực hiện:</p>
       
       <!-- Stepper of updates -->
-      <div class="update-steps text-left w-full max-w-md bg-[#2D2D2D]/60 border border-[#404040] rounded-xl p-5 mb-8 space-y-3.5">
+      <div class="update-steps text-left w-full max-w-md bg-card/60 border border-border rounded-xl p-5 mb-8 space-y-3.5">
         <div class="flex items-center gap-3 text-sm text-green-500 font-semibold">
           <span class="step-check flex items-center justify-center w-5 h-5 rounded-full bg-green-500/20 text-[10px]">✓</span>
-          <span>Đồng bộ POS trạm {{ requisition.station }}</span>
+          <span>Đồng bộ dữ liệu xuất kho</span>
         </div>
         <div class="flex items-center gap-3 text-sm text-green-500 font-semibold">
           <span class="step-check flex items-center justify-center w-5 h-5 rounded-full bg-green-500/20 text-[10px]">✓</span>
           <span>Khấu trừ Kho tổng Naka:
-            <ul class="list-disc pl-5 text-xs text-gray-400 mt-1 font-mono">
+            <ul class="list-disc pl-5 text-xs text-muted-foreground mt-1 font-mono">
               <li v-for="item in deliveryItems" :key="item.id" v-show="item.status === 'accepted'">
                 {{ item.name }}: -{{ item.deliveredQty }} {{ item.unit }}
               </li>
@@ -35,7 +35,7 @@
         <div class="flex items-center gap-3 text-sm text-green-500 font-semibold">
           <span class="step-check flex items-center justify-center w-5 h-5 rounded-full bg-green-500/20 text-[10px]">✓</span>
           <span>Cộng tồn kho trạm Bếp:
-            <ul class="list-disc pl-5 text-xs text-gray-400 mt-1 font-mono">
+            <ul class="list-disc pl-5 text-xs text-muted-foreground mt-1 font-mono">
               <li v-for="item in deliveryItems" :key="item.id" v-show="item.status === 'accepted'">
                 {{ item.name }}: +{{ item.deliveredQty }} {{ item.unit }}
               </li>
@@ -59,20 +59,20 @@
     </div>
 
     <!-- MAIN INSPECTION SCREEN (PHASE 3) -->
-    <div class="flex justify-between items-center mb-6 pb-4 border-b border-[#404040]">
+    <div class="flex justify-between items-center mb-6 pb-4 border-b border-border">
       <div>
-        <h3 class="font-black text-white text-xl tracking-wide">KIỂM TRA GIAO NHẬN NGUYÊN LIỆU</h3>
-        <p class="text-xs text-gray-400 mt-1">Phiếu yêu cầu: #{{ requisition.id }} | Trạm: {{ requisition.station }}</p>
+        <h3 class="font-black text-foreground text-xl tracking-wide">KIỂM TRA GIAO NHẬN NGUYÊN LIỆU</h3>
+        <p class="text-xs text-muted-foreground mt-1">Phiếu yêu cầu: #{{ requisition.requisition_number }} | Loại: {{ requisition.type }}</p>
       </div>
-      <button class="bg-[#424242] text-white text-xs px-4 py-2 rounded-xl font-bold hover:bg-[#505050] transition border border-[#505050]" @click="$emit('back')">
+      <button class="bg-muted text-foreground text-xs px-4 py-2 rounded-xl font-bold hover:bg-muted transition border border-border" @click="$emit('back')">
         ⬅ Quay lại danh sách
       </button>
     </div>
 
     <!-- Stepper indicator -->
-    <div class="flex justify-between items-center mb-6 bg-[#1A1A1A] p-3.5 rounded-xl border border-[#404040]">
+    <div class="flex justify-between items-center mb-6 bg-background p-3.5 rounded-xl border border-border">
       <span class="text-xs font-bold text-[#FF9800] uppercase">Bước 3: Bếp kiểm tra & Giao nhận</span>
-      <div class="flex items-center gap-2 text-xs font-semibold text-gray-400">
+      <div class="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
         <span>Tạo Phiếu</span>
         <span>➔</span>
         <span>Kho Xuất</span>
@@ -87,7 +87,7 @@
       <div 
         v-for="item in deliveryItems" 
         :key="item.id"
-        class="delivery-item bg-[#1A1A1A] rounded-xl p-5 border border-[#404040] transition"
+        class="delivery-item bg-background rounded-xl p-5 border border-border transition"
         :class="{ 
           'border-l-4 border-l-[#4CAF50]': item.status === 'accepted', 
           'border-l-4 border-l-[#F44336]': item.status === 'rejected',
@@ -96,10 +96,9 @@
       >
         <div class="flex flex-wrap items-center justify-between gap-4">
           <div class="flex items-center gap-3">
-            <span class="item-icon text-3xl">{{ item.icon }}</span>
             <div>
-              <span class="item-name font-bold text-white text-lg block">{{ item.name }}</span>
-              <span class="text-xs text-gray-400 font-medium font-mono">
+              <span class="item-name font-bold text-foreground text-lg block">{{ item.name }}</span>
+              <span class="text-xs text-muted-foreground font-medium font-mono">
                 Số lượng kho giao: {{ item.deliveredQty }} {{ item.unit }}
               </span>
             </div>
@@ -107,8 +106,8 @@
           
           <div class="flex items-center gap-3">
             <span class="text-xs font-bold uppercase py-1 px-3 rounded-full font-mono" :class="{
-              'bg-green-950/40 text-green-500 border border-green-800/40': item.status === 'accepted',
-              'bg-red-950/40 text-red-500 border border-red-800/40': item.status === 'rejected',
+              'bg-green-100 text-green-500 border border-green-300': item.status === 'accepted',
+              'bg-red-100 text-red-500 border border-red-300': item.status === 'rejected',
               'bg-yellow-950/40 text-yellow-500 border border-yellow-800/40': item.status === 'pending'
             }">
               {{ item.status === 'accepted' ? 'Đã duyệt đạt' : item.status === 'rejected' ? 'Từ chối nhận' : 'Chờ kiểm tra' }}
@@ -116,13 +115,13 @@
           </div>
         </div>
 
-        <hr class="border-[#404040] my-4" />
+        <hr class="border-border my-4" />
 
         <!-- 3-Way Quality Control checks (Mermaid: G2 Bếp trưởng kiểm tra Chất lượng, Số lượng, Nhiệt độ) -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
           <!-- 1. Quality rating check -->
           <div class="flex flex-col gap-1.5">
-            <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">⭐ 1. Kiểm tra Chất Lượng</span>
+            <span class="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">⭐ 1. Kiểm tra Chất Lượng</span>
             <div class="grid grid-cols-3 gap-1.5 mt-1">
               <button 
                 type="button"
@@ -154,7 +153,7 @@
           <!-- 2. Temperature check -->
           <div class="flex flex-col gap-1.5">
             <div class="flex justify-between items-baseline">
-              <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">🌡️ 2. Kiểm tra Nhiệt độ</span>
+              <span class="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">🌡️ 2. Kiểm tra Nhiệt độ</span>
               <span class="text-xs font-bold font-mono" :class="isTempSafe(item) ? 'text-green-500' : 'text-red-500'">
                 {{ item.temperature }}°C
               </span>
@@ -168,23 +167,23 @@
                 step="1"
                 class="temp-slider flex-1"
               />
-              <span v-if="!isTempSafe(item)" class="text-[10px] bg-red-950/40 text-red-400 border border-red-800/40 px-1.5 py-0.5 rounded font-bold uppercase animate-pulse">
+              <span v-if="!isTempSafe(item)" class="text-[10px] bg-red-100 text-red-700 border border-red-300 px-1.5 py-0.5 rounded font-bold uppercase animate-pulse">
                 Quá Ấm!
               </span>
-              <span v-else class="text-[10px] bg-green-950/40 text-green-500 border border-green-800/40 px-1.5 py-0.5 rounded font-bold uppercase">
+              <span v-else class="text-[10px] bg-green-100 text-green-500 border border-green-300 px-1.5 py-0.5 rounded font-bold uppercase">
                 An Toàn
               </span>
             </div>
-            <span class="text-[10px] text-gray-500 italic mt-0.5">Tiêu chuẩn: &le; 5°C đối với đồ tươi/lạnh</span>
+            <span class="text-[10px] text-muted-foreground italic mt-0.5">Tiêu chuẩn: &le; 5°C đối với đồ tươi/lạnh</span>
           </div>
 
           <!-- 3. Quantity check -->
           <div class="flex flex-col gap-1.5">
-            <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">⚖️ 3. Kiểm định Số lượng</span>
+            <span class="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">⚖️ 3. Kiểm định Số lượng</span>
             <div class="flex items-center gap-2 mt-1">
               <button 
                 type="button" 
-                class="qty-adjust bg-[#2D2D2D] hover:bg-[#404040] text-white w-8 h-8 rounded-lg flex items-center justify-center font-bold"
+                class="qty-adjust bg-card hover:bg-muted text-foreground w-8 h-8 rounded-lg flex items-center justify-center font-bold"
                 @click="adjustItemQty(item, -1)"
               >-</button>
               <input 
@@ -192,37 +191,37 @@
                 type="number" 
                 min="0"
                 :max="item.requestedQty"
-                class="w-full text-center bg-[#2D2D2D] border border-[#404040] rounded-lg py-1 text-white font-mono font-bold text-sm"
+                class="w-full text-center bg-card border border-border rounded-lg py-1 text-foreground font-mono font-bold text-sm"
               />
               <button 
                 type="button" 
-                class="qty-adjust bg-[#2D2D2D] hover:bg-[#404040] text-white w-8 h-8 rounded-lg flex items-center justify-center font-bold"
+                class="qty-adjust bg-card hover:bg-muted text-foreground w-8 h-8 rounded-lg flex items-center justify-center font-bold"
                 @click="adjustItemQty(item, 1)"
               >+</button>
-              <span class="text-xs text-gray-400 font-bold uppercase">{{ item.unit }}</span>
+              <span class="text-xs text-muted-foreground font-bold uppercase">{{ item.unit }}</span>
             </div>
-            <span class="text-[10px] text-gray-500 font-mono mt-0.5">Yêu cầu gốc: {{ item.requestedQty }} {{ item.unit }}</span>
+            <span class="text-[10px] text-muted-foreground font-mono mt-0.5">Yêu cầu gốc: {{ item.requestedQty }} {{ item.unit }}</span>
           </div>
         </div>
         
-        <div v-if="item.rejectionReason" class="rejection-reason mt-3 text-xs bg-red-950/20 text-red-400 border border-red-800/40 p-2.5 rounded-lg flex items-start gap-1.5">
+        <div v-if="item.rejectionReason" class="rejection-reason mt-3 text-xs bg-red-100 text-red-700 border border-red-300 p-2.5 rounded-lg flex items-start gap-1.5">
           <strong>Lý do từ chối nhận hàng:</strong> {{ item.rejectionReason }}
         </div>
       </div>
     </div>
 
     <!-- DIGITAL SIGNATURE PAD (Mermaid: G5 Ký xác nhận Digital Signature) -->
-    <div class="signature-section bg-[#1A1A1A] rounded-xl p-5 border border-[#404040] mt-6">
+    <div class="signature-section bg-background rounded-xl p-5 border border-border mt-6">
       <div class="flex justify-between items-center mb-3">
         <h4 class="text-sm font-bold text-[#FF9800] uppercase tracking-wider flex items-center gap-2">
           ✍️ Ký Xác Nhận Nhận Bàn Giao (Digital Signature)
         </h4>
-        <button type="button" class="text-xs bg-[#2D2D2D] hover:bg-[#404040] border border-[#404040] text-gray-300 font-bold px-3 py-1.5 rounded-lg transition" @click="clearSignature">
+        <button type="button" class="text-xs bg-card hover:bg-muted border border-border text-muted-foreground font-bold px-3 py-1.5 rounded-lg transition" @click="clearSignature">
           Xóa Chữ Ký
         </button>
       </div>
 
-      <div class="signature-canvas-container bg-[#2D2D2D]/30 border-2 border-dashed border-[#404040] rounded-xl h-[120px] relative overflow-hidden flex items-center justify-center">
+      <div class="signature-canvas-container bg-card/30 border-2 border-dashed border-border rounded-xl h-[120px] relative overflow-hidden flex items-center justify-center">
         <canvas 
           ref="canvasRef"
           width="700"
@@ -236,20 +235,20 @@
           @touchmove="draw"
           @touchend="stopDrawing"
         ></canvas>
-        <div v-if="!hasSigned" class="absolute pointer-events-none text-xs text-gray-500 font-bold uppercase z-0">
+        <div v-if="!hasSigned" class="absolute pointer-events-none text-xs text-muted-foreground font-bold uppercase z-0">
           Vẽ chữ ký của bạn tại đây để ký nhận bàn giao
         </div>
       </div>
-      <p class="text-[10px] text-gray-500 italic mt-2">Bằng cách ký nhận, Bếp trưởng xác nhận đã kiểm tra chất lượng, số lượng và nhiệt độ thực phẩm khớp với các số liệu kê khai.</p>
+      <p class="text-[10px] text-muted-foreground italic mt-2">Bằng cách ký nhận, Bếp trưởng xác nhận đã kiểm tra chất lượng, số lượng và nhiệt độ thực phẩm khớp với các số liệu kê khai.</p>
     </div>
     
     <!-- OVERALL ACTIONS -->
-    <div class="overall-actions flex gap-4 mt-6 pt-4 border-t border-[#404040]">
+    <div class="overall-actions flex gap-4 mt-6 pt-4 border-t border-border">
       <button class="btn-reject-all py-3 rounded-xl font-bold bg-[#C62828] hover:bg-[#b71c1c] text-white transition flex-1 text-sm tracking-wide" @click="rejectAll">
          TỪ CHỐI NHẬN TOÀN BỘ
       </button>
       <button 
-        class="btn-confirm-all py-3 rounded-xl font-bold bg-[#4CAF50] hover:bg-[#43a047] disabled:opacity-50 disabled:cursor-not-allowed text-white transition flex-2 text-sm tracking-wide flex items-center justify-center gap-2 shadow-lg" 
+        class="btn-confirm-all py-3 rounded-xl font-bold bg-[#4CAF50] hover:bg-[#43a047] disabled:opacity-50 disabled:cursor-not-allowed text-foreground transition flex-2 text-sm tracking-wide flex items-center justify-center gap-2 shadow-lg" 
         :disabled="!hasSigned || hasPendingItems"
         @click="confirmAll"
       >
@@ -261,8 +260,8 @@
 
 <script setup lang="ts">
 import { ref, watch, computed, onMounted } from 'vue';
-import type { Requisition } from '@/stores/kitchen';
-import { useKitchenStore } from '@/stores/kitchen';
+import { useRequisition, type Requisition } from '@/composables/useRequisition';
+import { useInventory } from '@/composables/useInventory';
 import Swal from 'sweetalert2';
 
 const props = defineProps<{
@@ -274,12 +273,13 @@ const emit = defineEmits<{
   (e: 'success'): void;
 }>();
 
-const kitchenStore = useKitchenStore();
+const { confirmDelivery, rejectRequisition } = useRequisition();
+const { inventory } = useInventory();
 
 interface DeliveryConfirmationItem {
-  id: string;
+  id: string; // requisition_item_id
+  ingredient_id: string;
   name: string;
-  icon: string;
   unit: string;
   requestedQty: number;
   deliveredQty: number;
@@ -300,28 +300,30 @@ let ctx: CanvasRenderingContext2D | null = null;
 const hasSigned = ref(false);
 
 watch(() => props.requisition, (newReq) => {
-  deliveryItems.value = newReq.items.map(item => {
+  if (!newReq.requisition_items) return;
+  deliveryItems.value = newReq.requisition_items.map(item => {
     // Find matching inventory item to retrieve unitPrice
-    const invItem = kitchenStore.inventoryList.find(i => i.id === item.id);
-    const price = invItem ? invItem.unitPrice : 100000;
+    const invItem = inventory.value.find(i => i.ingredient_id === item.ingredient_id);
+    const price = invItem ? invItem.unit_cost : 100000;
     
+    const itemName = item.ingredients?.name_vi || 'Sản phẩm';
     // Set default safe temperature: Meat/fish is 2C, Veg is 8C, others 4C
     let defaultTemp = 3;
-    if (item.name.includes('Rau')) defaultTemp = 8;
-    if (item.name.includes('Sukiyaki')) defaultTemp = 15; // broth room temp
+    if (itemName.includes('Rau')) defaultTemp = 8;
+    if (itemName.includes('lẩu')) defaultTemp = 15; // broth room temp
     
     return {
       id: item.id,
-      name: item.name,
-      icon: item.icon,
+      ingredient_id: item.ingredient_id,
+      name: itemName,
       unit: item.unit,
-      requestedQty: item.requestedQty,
-      deliveredQty: item.deliveredQty,
-      status: item.status === 'rejected' ? 'rejected' : 'pending',
-      quality: item.status === 'rejected' ? 'bad' : 'good',
+      requestedQty: item.requested_quantity,
+      deliveredQty: item.approved_quantity || item.requested_quantity, // default to approved or requested
+      status: 'pending',
+      quality: 'good',
       temperature: defaultTemp,
       unitPrice: price,
-      rejectionReason: item.rejectionReason || ''
+      rejectionReason: ''
     };
   });
 }, { immediate: true });
@@ -426,8 +428,8 @@ const clearSignature = () => {
   hasSigned.value = false;
 };
 
-const rejectAll = () => {
-  Swal.fire({
+const rejectAll = async () => {
+  const res = await Swal.fire({
     title: 'Từ chối toàn bộ kiện hàng?',
     text: 'Bạn có chắc chắn muốn từ chối nhận tất cả nguyên liệu trong phiếu giao này?',
     icon: 'warning',
@@ -437,9 +439,11 @@ const rejectAll = () => {
     background: '#2D2D2D',
     color: '#FFF',
     confirmButtonColor: '#F44336'
-  }).then((res) => {
-    if (res.isConfirmed) {
-      kitchenStore.updateRequisitionStatus(props.requisition.id, 'rejected', 'Chef Luc', 'Từ chối nhận toàn bộ kiện hàng do lỗi bàn giao kiểm định.');
+  });
+
+  if (res.isConfirmed) {
+    try {
+      await rejectRequisition(props.requisition.id, 'Từ chối nhận toàn bộ kiện hàng do lỗi bàn giao kiểm định.');
       Swal.fire({
         title: 'Đã từ chối nhận hàng',
         text: 'Kiện hàng đã được đánh dấu trả về bộ phận kho.',
@@ -448,11 +452,13 @@ const rejectAll = () => {
         color: '#FFF'
       });
       emit('success');
+    } catch (err: any) {
+      Swal.fire('Lỗi', err.message, 'error');
     }
-  });
+  }
 };
 
-const confirmAll = () => {
+const confirmAll = async () => {
   // Check if signature is drawn
   if (!hasSigned.value) {
     Swal.fire({
@@ -466,46 +472,39 @@ const confirmAll = () => {
     return;
   }
 
-  // Update item deliveries on store
-  deliveryItems.value.forEach(item => {
-    kitchenStore.updateRequisitionItemDelivery(
-      props.requisition.id,
-      item.id,
-      item.deliveredQty,
-      item.status === 'accepted' ? 'approved' : 'rejected',
-      item.status === 'rejected' ? item.rejectionReason : undefined
-    );
-  });
-
-  // Extract canvas signature image data url
-  const sigImgUrl = canvasRef.value ? canvasRef.value.toDataURL() : undefined;
-
   // Check if there is any item accepted
   const anyAccepted = deliveryItems.value.some(i => i.status === 'accepted');
-  const finalStatus = anyAccepted ? 'delivered' : 'rejected';
 
-  // Update requisition status with signature
-  kitchenStore.updateRequisitionStatus(
-    props.requisition.id, 
-    finalStatus, 
-    'Chef Luc',
-    finalStatus === 'rejected' ? 'Từ chối nhận toàn bộ do lỗi kiểm kê.' : undefined,
-    sigImgUrl
-  );
+  if (!anyAccepted) {
+    try {
+      await rejectRequisition(props.requisition.id, 'Từ chối nhận toàn bộ do lỗi kiểm kê.');
+      Swal.fire({
+        title: 'Đã trả hàng',
+        text: 'Đã hoàn trả toàn bộ phiếu giao hàng về bộ phận kho.',
+        icon: 'success',
+        background: '#2D2D2D',
+        color: '#FFF',
+        confirmButtonColor: '#4CAF50'
+      });
+      emit('success');
+    } catch (err: any) {
+      Swal.fire('Lỗi', err.message, 'error');
+    }
+    return;
+  }
 
-  if (finalStatus === 'delivered') {
+  // Prepare payload for confirmDelivery
+  const actualQtys = deliveryItems.value.map(item => ({
+    requisition_item_id: item.id,
+    actual_quantity: item.status === 'accepted' ? item.deliveredQty : 0
+  }));
+
+  try {
+    await confirmDelivery(props.requisition.id, actualQtys);
     // Show system update transition screen first
     showSystemUpdate.value = true;
-  } else {
-    Swal.fire({
-      title: 'Đã trả hàng',
-      text: 'Đã hoàn trả toàn bộ phiếu giao hàng về bộ phận kho.',
-      icon: 'success',
-      background: '#2D2D2D',
-      color: '#FFF',
-      confirmButtonColor: '#4CAF50'
-    });
-    emit('success');
+  } catch (err: any) {
+    Swal.fire('Lỗi', err.message, 'error');
   }
 };
 

@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'
+import { useBranch } from '@/composables/useBranch'
 import { getFallbackRouteForRole } from '@/utils/route'
 
 // ─── Layouts ──────────────────────────────────────────────────────────────────
@@ -13,6 +14,7 @@ import SuperadminLayout from '@/layouts/SuperadminLayout.vue'
 
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 import LoginView from '@/views/LoginView.vue'
+import SelectBranchView from '@/views/admin/SelectBranchView.vue'
 
 // ─── Manager Views ──────────────────────────────────────────────────────────────
 import ManagerDashboardView from '@/views/manager/ManagerDashboardView.vue'
@@ -66,6 +68,12 @@ const routes: RouteRecordRaw[] = [
     name: 'login',
     component: LoginView,
     meta: { requiresAuth: false },
+  },
+  {
+    path: '/select-branch',
+    name: 'SelectBranch',
+    component: SelectBranchView,
+    meta: { requiresAuth: true, requiresBranch: false },
   },
   {
     path: '/',
@@ -329,7 +337,7 @@ const ROUTE_ROLES: Record<string, string[]> = {
 }
 
 router.beforeEach(async (to) => {
-  const { isAuthenticated, loading, role } = useAuth()
+  const { isAuthenticated, loading, role, isAdmin } = useAuth()
 
   // Wait for the initial session/profile fetch to finish.
   if (loading.value) {
@@ -349,6 +357,15 @@ router.beforeEach(async (to) => {
   // Must be signed in for everything else.
   if (!isAuthenticated.value) {
     return { name: 'login' }
+  }
+
+  // Branch null safety for admin/superadmin
+  const { activeBranchId } = useBranch()
+  const needsBranch = to.meta.requiresBranch ?? true
+  if (needsBranch && !activeBranchId.value) {
+    if (isAdmin.value && to.name !== 'SelectBranch') {
+      return { name: 'SelectBranch' }
+    }
   }
 
   const prefix = String(to.path.split('/')[1] ?? '')

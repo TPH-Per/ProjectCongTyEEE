@@ -21,7 +21,7 @@
       </nav>
       <div class="p-4 border-t border-gray-100">
         <button class="flex items-center text-sm text-gray-500 hover:text-red-500 transition-colors w-full px-4 py-2" @click="handleSignOut">
-          <LogOutIcon class="w-4 h-4 mr-2" />{{ $t('auto_dang_xuat') }}</button>
+          <LogOutIcon class="w-4 h-4 mr-2" />{{ $t('layout.logout') }}</button>
       </div>
     </aside>
 
@@ -86,15 +86,15 @@ const { stickerUrl } = useUserSticker()
 const isDropdownOpen = ref(false)
 
 const menuItems = [
-  { name: t('auto_tong_quan'), path: '/superadmin/dashboard', icon: LayoutDashboardIcon },
-  { name: t('auto_quan_ly_chi_nhanh'), path: '/superadmin/brands', icon: StoreIcon },
-  { name: t('auto_tich_hop'), path: '/superadmin/integrations', icon: PuzzleIcon },
-  { name: t('auto_cai_dat_he_thong'), path: '/superadmin/settings', icon: SettingsIcon },
+  { name: t('layout.overview'), path: '/superadmin/dashboard', icon: LayoutDashboardIcon },
+  { name: t('layout.branch_management'), path: '/superadmin/brands', icon: StoreIcon },
+  { name: t('layout.integrations'), path: '/superadmin/integrations', icon: PuzzleIcon },
+  { name: t('layout.system_settings'), path: '/superadmin/settings', icon: SettingsIcon },
 ]
 
 const currentRouteName = computed(() => {
   const current = menuItems.find(item => route.path.includes(item.path))
-  return current ? current.name : t('auto_quan_ly')
+  return current ? current.name : t('layout.manager')
 })
 
 async function handleSignOut() {

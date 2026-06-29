@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 import { supabase } from '@/lib/supabase'
-import { useBranch } from './useBranch'
+import { useBranch, throwBranchGuard } from './useBranch'
 import type { Reservation } from '@/types/database'
 
 export function useReservation() {
@@ -14,7 +14,7 @@ export function useReservation() {
     const { data, error: err } = await supabase
       .from('reservations')
       .select('*')
-      .eq('branch_id', activeBranchId.value!)
+      .eq('branch_id', (activeBranchId.value ?? throwBranchGuard()))
       .eq('reservation_date', date)
       .order('reservation_time')
     loading.value = false
@@ -71,3 +71,4 @@ export function useReservation() {
 
   return { loading, error, listByDate, getById, create, update, cancel }
 }
+

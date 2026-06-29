@@ -4,17 +4,17 @@
     <div class="mb-6 flex flex-col md:flex-row justify-between md:items-end gap-4">
       <div>
         <h1 class="text-3xl font-bold text-gray-800 mb-2 flex items-center gap-2">
-          <span class="text-[#FF7B89]">🕵️</span> {{ t('auto_nh_t_k_ho_t_ng_audit_log') }}
+          <span class="text-[#FF7B89]">🕵️</span> {{ t('admin_audit.title') }}
         </h1>
-        <p class="text-gray-500">{{ t('auto_gi_m_s_t_m_i_thao_t_c_v__thay_') }}</p>
+        <p class="text-gray-500">{{ t('admin_audit.subtitle') }}</p>
       </div>
       
       <div class="flex gap-2">
         <button class="kawaii-btn-ghost flex items-center gap-2" @click="fetchLogs">
-          <span>🔄</span> {{ t('auto_l_m_m_i') }}
+          <span>🔄</span> {{ t('admin_audit.action.refresh') }}
         </button>
         <button class="kawaii-btn-ghost flex items-center gap-2">
-          <span>⬇️</span> {{ t('auto_xu_t_b_o_c_o') }}
+          <span>⬇️</span> {{ t('admin_audit.action.export_report') }}
         </button>
       </div>
     </div>
@@ -23,32 +23,32 @@
     <div class="kawaii-card p-4 mb-6 grid grid-cols-1 md:grid-cols-5 gap-4 shadow-sm border border-gray-50">
       <div class="md:col-span-2 relative">
         <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
-        <input type="text" v-model="searchQuery" :placeholder="$t('auto_placeholder_fix')" class="kawaii-input w-full pl-11" />
+        <input type="text" v-model="searchQuery" :placeholder="$t('admin_audit.search_placeholder')" class="kawaii-input w-full pl-11" />
       </div>
       <div>
         <select v-model="filterTime" class="kawaii-input w-full bg-white appearance-none cursor-pointer">
-          <option value="">{{ t('auto_____t_t_c__th_i_gian') }}</option>
-          <option value="today">{{ t('auto_h_m_nay') }}</option>
-          <option value="week">{{ t('auto_tu_n_n_y') }}</option>
-          <option value="month">{{ t('auto_th_ng_n_y') }}</option>
+          <option value="">{{ t('admin_audit.filter.all_time') }}</option>
+          <option value="today">{{ t('admin_audit.filter.today') }}</option>
+          <option value="week">{{ t('admin_audit.filter.this_week') }}</option>
+          <option value="month">{{ t('admin_audit.filter.this_month') }}</option>
         </select>
       </div>
       <div>
         <select v-model="filterAction" class="kawaii-input w-full bg-white appearance-none cursor-pointer">
-          <option value="">{{ t('auto___t_t_c__h_nh___ng') }}</option>
-          <option value="CREATE">{{ t('auto_t_o_m_i__create_') }}</option>
-          <option value="UPDATE">{{ t('auto_c_p_nh_t__update_') }}</option>
-          <option value="DELETE">{{ t('auto_x_a__delete_') }}</option>
-          <option value="LOGIN">{{ t('auto___ng_nh_p__login_') }}</option>
+          <option value="">{{ t('admin_audit.filter.all_actions') }}</option>
+          <option value="CREATE">{{ t('admin_audit.action_type.create') }}</option>
+          <option value="UPDATE">{{ t('admin_audit.action_type.update') }}</option>
+          <option value="DELETE">{{ t('admin_audit.action_type.delete') }}</option>
+          <option value="LOGIN">{{ t('admin_audit.action_type.login') }}</option>
         </select>
       </div>
       <div>
         <select v-model="filterEntity" class="kawaii-input w-full bg-white appearance-none cursor-pointer">
-          <option value="">{{ t('auto____t_t_c____i_t__ng') }}</option>
-          <option value="orders">{{ t('auto___n_h_ng') }}</option>
-          <option value="users">{{ t('auto_ng__i_d_ng') }}</option>
-          <option value="menu_items">{{ t('auto_th_c___n') }}</option>
-          <option value="tables">{{ t('auto_b_n') }}</option>
+          <option value="">{{ t('admin_audit.filter.all_entities') }}</option>
+          <option value="orders">{{ t('admin_audit.entity.orders') }}</option>
+          <option value="users">{{ t('admin_audit.entity.users') }}</option>
+          <option value="menu_items">{{ t('admin_audit.entity.menu_items') }}</option>
+          <option value="tables">{{ t('admin_audit.entity.tables') }}</option>
         </select>
       </div>
     </div>
@@ -59,33 +59,33 @@
         <table class="w-full text-left border-collapse min-w-[900px]">
           <thead class="bg-pink-50/30 sticky top-0 z-10 backdrop-blur-md">
             <tr class="text-gray-600 border-b border-pink-100">
-              <th class="py-4 px-6 font-semibold text-sm">{{ t('auto_th_i_gian') }}</th>
-              <th class="py-4 px-6 font-semibold text-sm">{{ t('auto_nh_nh') }}</th>
-              <th class="py-4 px-6 font-semibold text-sm">{{ t('auto_ng__i_d_ng') }}</th>
-              <th class="py-4 px-6 font-semibold text-sm">{{ t('auto_h_nh___ng') }}</th>
-              <th class="py-4 px-6 font-semibold text-sm">{{ t('auto_lo_i___i_t__ng') }}</th>
+              <th class="py-4 px-6 font-semibold text-sm">{{ t('admin_audit.table.time') }}</th>
+              <th class="py-4 px-6 font-semibold text-sm">{{ t('admin_audit.table.branch') }}</th>
+              <th class="py-4 px-6 font-semibold text-sm">{{ t('admin_audit.entity.users') }}</th>
+              <th class="py-4 px-6 font-semibold text-sm">{{ t('admin_audit.table.actions') }}</th>
+              <th class="py-4 px-6 font-semibold text-sm">{{ t('admin_audit.table.entity_type') }}</th>
               <th class="py-4 px-6 font-semibold text-sm">ID</th>
-              <th class="py-4 px-6 font-semibold text-sm w-1/3">{{ t('auto_payload__chi_ti_t_') }}</th>
+              <th class="py-4 px-6 font-semibold text-sm w-1/3">{{ t('admin_audit.table.payload') }}</th>
             </tr>
           </thead>
           <tbody>
             <tr v-if="loading" class="border-b border-gray-50">
-              <td colspan="7" class="py-8 text-center text-gray-500">{{ t('auto_ang_t_i_d_li_u') }}</td>
+              <td colspan="7" class="py-8 text-center text-gray-500">{{ t('admin_audit.status.loading') }}</td>
             </tr>
             <tr v-else-if="filteredLogs.length === 0" class="border-b border-gray-50">
-              <td colspan="7" class="py-8 text-center text-gray-500">{{ t('auto_kh_ng_t_m_th_y_b_n_ghi_n_o') }}</td>
+              <td colspan="7" class="py-8 text-center text-gray-500">{{ t('admin_audit.status.no_records') }}</td>
             </tr>
             <tr v-for="log in filteredLogs" :key="log.id" class="border-b border-gray-50 hover:bg-pink-50/20 transition-colors">
               <td class="py-3 px-6 text-sm text-gray-500 whitespace-nowrap">{{ new Date(log.created_at).toLocaleString('vi-VN') }}</td>
               <td class="py-3 px-6 text-sm text-gray-800 font-medium">
-                <span class="px-2.5 py-1 bg-gray-100/80 rounded-lg text-xs border border-gray-200/50">{{ log.branches?.name || t('auto_he_thong') }}</span>
+                <span class="px-2.5 py-1 bg-gray-100/80 rounded-lg text-xs border border-gray-200/50">{{ log.branches?.name || t('admin_audit.system') }}</span>
               </td>
               <td class="py-3 px-6 text-sm">
                 <div class="flex items-center gap-2.5">
                   <div class="w-7 h-7 rounded-xl bg-gradient-to-br from-pink-100 to-pink-200 text-[#FF7B89] flex items-center justify-center font-bold text-xs shadow-sm">
                     {{ (log.users?.full_name || 'H').charAt(0).toUpperCase() }}
                   </div>
-                  <span class="font-medium text-gray-700">{{ log.users?.full_name || t('auto_he_thong') }}</span>
+                  <span class="font-medium text-gray-700">{{ log.users?.full_name || t('admin_audit.system') }}</span>
                 </div>
               </td>
               <td class="py-3 px-6">
@@ -121,7 +121,7 @@
         </table>
       </div>
       <div class="p-4 border-t border-gray-100 flex justify-between items-center bg-white rounded-b-3xl">
-        <span class="text-sm text-gray-500 font-medium">{{ t('auto_hi_n_th__1_10_tr_n_150_k_t_qu_') }} (Mocked UI)</span>
+        <span class="text-sm text-gray-500 font-medium">{{ t('admin_audit.pagination_info') }} (Mocked UI)</span>
         <div class="flex gap-1.5">
           <button class="w-8 h-8 flex items-center justify-center rounded-xl border border-gray-200 text-gray-500 hover:bg-gray-50 hover:border-gray-300 transition-all disabled:opacity-50">&lt;</button>
           <button class="w-8 h-8 flex items-center justify-center rounded-xl bg-[#FF7B89] text-white font-bold shadow-sm shadow-pink-200">1</button>
@@ -157,7 +157,7 @@ const fetchLogs = async () => {
     .limit(100);
 
   if (error) {
-    Swal.fire('Lỗi', 'Không thể tải nhật ký hoạt động: ' + error.message, 'error');
+    Swal.fire(t('admin_audit.alert.error'), t('admin_audit.alert.load_error') + error.message, 'error');
   } else {
     auditLogs.value = data || [];
   }
@@ -187,9 +187,9 @@ const formatActionText = (action: string) => {
     const verb = parts[1];
     
     let translatedVerb = verb;
-    if (verb === 'created' || verb === 'insert') translatedVerb = t('auto_t_o_m_i__create_');
-    else if (verb === 'updated') translatedVerb = t('auto_c_p_nh_t__update_');
-    else if (verb === 'deleted') translatedVerb = t('auto_x_a__delete_');
+    if (verb === 'created' || verb === 'insert') translatedVerb = t('admin_audit.action_type.create');
+    else if (verb === 'updated') translatedVerb = t('admin_audit.action_type.update');
+    else if (verb === 'deleted') translatedVerb = t('admin_audit.action_type.delete');
     
     return `${translatedVerb} ${entity}`;
   }

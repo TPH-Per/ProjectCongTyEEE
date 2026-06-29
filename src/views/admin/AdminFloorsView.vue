@@ -12,11 +12,11 @@
         >
           <span>🖥️</span>
           {{
-            t("auto_trung_t_m_i_u_ph_i_s_b", "Trung Tâm Điều Phối & Sơ Đồ Bàn")
+            t('admin_floors.title')
           }}
         </h1>
         <p class="text-xs text-gray-500 font-medium mt-0.5">
-          {{ t("auto_m_n_h_nh_ki_m_so_t_v_n_h_nh_th") }}
+          {{ t('admin_floors.subtitle') }}
         </p>
       </div>
 
@@ -28,25 +28,25 @@
           class="flex items-center gap-1 bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-xl border border-emerald-100/50"
         >
           <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-          {{ t("auto_tr_ng", "Trống") }}
+          {{ t('admin_floors.status.empty') }}
         </div>
         <div
           class="flex items-center gap-1 bg-amber-50 text-amber-700 px-2.5 py-1 rounded-xl border border-amber-100/50"
         >
           <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-          {{ t("auto_t_tr_c", "Đặt trước") }}
+          {{ t('admin_floors.status.reserved') }}
         </div>
         <div
           class="flex items-center gap-1 bg-blue-50 text-blue-700 px-2.5 py-1 rounded-xl border border-blue-100/50"
         >
           <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
-          {{ t("auto_n", "Đã đến") }}
+          {{ t('admin_floors.status.arrived') }}
         </div>
         <div
           class="flex items-center gap-1 bg-rose-50 text-rose-700 px-2.5 py-1 rounded-xl border border-rose-100/50"
         >
           <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
-          {{ t("auto_ph_c_v", "Phục vụ") }}
+          {{ t('admin_floors.status.serving') }}
         </div>
       </div>
     </div>
@@ -64,10 +64,10 @@
         </div>
         <div>
           <h2 class="text-xs font-black text-gray-800 uppercase tracking-wide">
-            {{ t("auto_m_c_th_i_gian_gi__l_p") }}
+            {{ t('admin_floors.simulation.title') }}
           </h2>
           <p class="text-[10px] text-gray-400 font-semibold mt-0.5">
-            {{ t("auto_k_o_thanh_tr__t____xem_l_ch_s_") }}
+            {{ t('admin_floors.simulation.subtitle') }}
           </p>
         </div>
       </div>
@@ -118,7 +118,7 @@
           @click="resetToRealTimeOnly"
           class="px-3 py-1 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-[10px] font-black shadow-sm active:scale-95 transition-all"
         >
-          {{ t("auto_t_v_hi_n_t_i", "Đặt về Hiện tại") }}
+          {{ t('admin_floors.simulation.reset') }}
         </button>
       </div>
     </div>
@@ -133,7 +133,7 @@
           @click="isZoneDropdownOpen = !isZoneDropdownOpen"
           class="px-3.5 py-2 bg-white border border-gray-200 rounded-xl text-xs font-black text-gray-700 hover:bg-gray-50 flex items-center gap-1.5 shadow-sm active:scale-95"
         >
-          <span>{{ t("auto_____ch_n_khu_v_c") }}</span>
+          <span>{{ t('admin_floors.zone.select') }}</span>
           <span class="text-gray-400 text-[10px]">▼</span>
         </button>
 
@@ -180,7 +180,7 @@
       <div class="flex items-center gap-2 select-none">
         <span
           class="text-xs font-bold text-gray-400 uppercase tracking-wider"
-          >{{ t("auto__ang_xem_") }}</span
+          >{{ t('admin_floors.zone.viewing') }}</span
         >
         <div
           class="bg-pink-50 border border-pink-100 text-[#FF7B89] px-3 py-1.5 rounded-xl text-xs font-black flex items-center gap-2 shadow-sm"
@@ -205,7 +205,7 @@
           ]"
         >
           <span>{{
-            isEditModeEnabled ? "🔓 " + t('auto_che_do_sap_xep', 'Chế độ Sắp Xếp') : "🔒 " + t('auto_sap_xep', 'Sắp xếp')
+            isEditModeEnabled ? "🔓 " + t('admin_floors.mode.arrange') : "🔒 " + t('admin_floors.mode.normal')
           }}</span>
         </button>
         <button
@@ -213,7 +213,7 @@
           @click="openCreateTableModal"
           class="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-xs font-black shadow-sm active:scale-95 transition-all flex items-center gap-1.5"
         >
-          <span>{{ t("auto_th_m_b_n", "+ Thêm Bàn") }}</span>
+          <span>{{ t('admin_floors.action.add_table') }}</span>
         </button>
       </div>
     </div>
@@ -231,14 +231,12 @@
             <h2
               class="text-sm font-black text-gray-800 uppercase tracking-wider flex items-center gap-1.5"
             >
-              {{ t("auto_b_n_ph_n_khu", "🪑 Bản đồ phân khu:") }}
+              {{ t('admin_floors.map.title') }}
               <span class="text-[#FF7B89] font-black text-sm">{{
                 selectedZoneLabel
               }}</span>
             </h2>
-            <span class="text-[10px] text-gray-400 font-bold">{{
-              t("auto_l__i_b_n_t____ng_c_n_ch_nh")
-            }}</span>
+            <span class="text-[10px] text-gray-400 font-bold">{{ t('admin_floors.map.auto_align') }}</span>
           </div>
 
           <!-- Grid display of tables -->
@@ -283,7 +281,7 @@
                         v-if="isEditModeEnabled"
                         @click.stop="openMaintenanceModal(table)"
                         class="text-[8px] px-1.5 py-0.5 bg-yellow-100 text-yellow-700 rounded hover:bg-yellow-200 border border-yellow-200"
-                        :title="$t('auto_title_fix', table.status === 'Maintenance' ? 'Mở khóa bàn' : 'Khóa bàn')"
+                        :title="$t('admin_floors.table.' + (table.status === 'Maintenance' ? 'unlock' : 'lock'))"
                       >
                         {{ table.status === 'Maintenance' ? '🔓' : '🔒' }}
                       </button>
@@ -291,7 +289,7 @@
                         v-if="isEditModeEnabled"
                         @click.stop="openEditTableModal(table, area.name)"
                         class="text-[8px] px-1.5 py-0.5 bg-blue-100 text-blue-600 rounded hover:bg-blue-200 border border-blue-200"
-                        :title="$t('auto_title_fix', 'Sửa bàn')"
+                        :title="$t('admin_floors.table.edit')"
                       >
                         ✏️
                       </button>
@@ -299,7 +297,7 @@
                         v-if="isEditModeEnabled"
                         @click.stop="deleteTable(table.id || '', table.code)"
                         class="text-[8px] px-1.5 py-0.5 bg-red-100 text-red-600 rounded hover:bg-red-200 border border-red-200"
-                        :title="$t('auto_title_fix', 'Xóa bàn')"
+                        :title="$t('admin_floors.table.delete')"
                       >
                         ✕
                       </button>
@@ -323,10 +321,10 @@
                     <template v-if="table.status === 'Available'">
                       <span
                         class="text-[9px] text-emerald-600 font-extrabold flex items-center gap-0.5"
-                        >{{ t("auto____s_n_s_ng_ph_c_v_") }}</span
+                        >{{ t('admin_floors.table.ready') }}</span
                       >
                       <span class="text-[9px] text-gray-400 font-medium mt-0.5"
-                        >{{ t('auto_suc_chua') }} {{ table.capacity }} {{ t('auto_ghe', 'ghế') }}</span
+                        >{{ t('admin_floors.table.capacity') }} {{ table.capacity }} {{ t('admin_floors.table.seats') }}</span
                       >
                     </template>
 
@@ -335,12 +333,12 @@
                       <div
                         class="text-[10px] font-black text-gray-800 truncate"
                       >
-                        👤 {{ table.customerName || t('auto_khach_dat_truoc', 'Khách đặt trước') }}
+                        👤 {{ table.customerName || t('admin_floors.reservation.guest') }}
                       </div>
                       <div
                         class="flex items-center justify-between text-[9px] text-gray-400 font-bold mt-1"
                       >
-                        <span>👥 {{ table.capacity }} {{ t('auto_khach', 'khách') }}</span>
+                        <span>👥 {{ table.capacity }} {{ t('admin_floors.reservation.guests') }}</span>
                         <span class="text-amber-600 font-extrabold"
                           >🕒
                           {{
@@ -371,7 +369,7 @@
                     <template v-if="table.status === 'Maintenance'">
                       <span
                         class="text-[9px] text-gray-500 font-extrabold flex items-center gap-0.5"
-                        >{{ t("auto_dang_bao_tri", "Đang bảo trì") }}</span
+                        >{{ t('admin_floors.table.maintenance') }}</span
                       >
                       <span class="text-[9px] text-gray-400 font-medium mt-0.5 line-clamp-2"
                         >{{ table.metadata?.maintenance_reason || '' }}</span
@@ -383,7 +381,7 @@
                       <div
                         class="text-[10px] font-black text-gray-800 truncate"
                       >
-                        👤 {{ table.customerName || t('auto_khach_vang_lai', 'Khách vãng lai') }}
+                        👤 {{ table.customerName || t('admin_floors.table.walk_in') }}
                       </div>
                       <div
                         class="flex items-center justify-between text-[9px] mt-1 font-extrabold"
@@ -408,10 +406,7 @@
               class="py-12 text-center text-gray-400 font-medium text-xs"
             >
               {{
-                t(
-                  "auto_kh_ng_t_m_th_y_b_n_n_o_thu_c_p",
-                  t('auto_khong_tim_thay_ban', 'Không tìm thấy bàn nào thuộc phân khu này.'),
-                )
+                t('admin_floors.map.no_tables')
               }}
             </div>
           </div>
@@ -430,10 +425,10 @@
             <h3
               class="text-xs font-black text-gray-800 uppercase tracking-wider flex items-center gap-1"
             >
-              {{ t("auto_l_ch_tr_nh_t_b_n", "📅 Lịch Trình Đặt Bàn") }}
+              {{ t('admin_floors.schedule.title') }}
             </h3>
             <span class="text-[9px] text-gray-400 font-bold">{{
-              t("auto_th_ng_tr_c_quan")
+              t('admin_floors.schedule.visual')
             }}</span>
           </div>
 
@@ -534,7 +529,7 @@
                   : 'text-gray-500 hover:text-[#FF7B89]',
               ]"
             >
-              {{ t('auto_tat_ca', 'Tất cả') }} ({{ getShiftCount("all") }})
+              {{ t('admin_floors.filter.all') }} ({{ getShiftCount("all") }})
             </button>
             <button
               @click="activeShift = 'morning'"
@@ -640,7 +635,7 @@
                   }}</span>
                   <span
                     class="block text-[7.5px] text-gray-400 font-bold uppercase mt-0.5"
-                    >{{ t("auto_h_n_gi_") }}</span
+                    >{{ t('admin_floors.reservation.time') }}</span
                   >
                 </div>
               </div>
@@ -669,7 +664,7 @@
                 v-if="booking.notes"
                 class="bg-gray-50 border border-gray-100 text-[9px] text-gray-500 italic p-1.5 rounded-lg leading-tight"
               >
-                <strong>{{ t("auto_ghi_ch__") }}</strong> {{ booking.notes }}
+                <strong>{{ t('admin_floors.reservation.notes') }}</strong> {{ booking.notes }}
               </div>
 
               <!-- Icon buttons for card actions -->
@@ -678,13 +673,13 @@
               >
                 <span
                   class="text-[8px] text-gray-400 font-extrabold uppercase"
-                  >{{ t("auto_thao_t_c_") }}</span
+                  >{{ t('admin_floors.reservation.action') }}</span
                 >
                 <div class="flex items-center gap-1">
                   <button
                     @click="showBookingDetails(booking)"
                     class="p-1 bg-gray-50 hover:bg-gray-150 text-gray-600 rounded border border-gray-200 text-[10px]"
-                    :title="$t('auto_title_fix', 'Chi tiết')"
+                    :title="$t('admin_floors.action.details')"
                   >
                     👁️
                   </button>
@@ -695,7 +690,7 @@
                       booking.status !== 'Completed'
                     "
                     class="p-1 bg-gray-50 hover:bg-gray-150 text-gray-600 rounded border border-gray-200 text-[10px]"
-                    :title="$t('auto_title_fix', 'Chỉnh sửa')"
+                    :title="$t('admin_floors.action.edit')"
                   >
                     ✏️
                   </button>
@@ -707,7 +702,7 @@
                       booking.status !== 'Seated'
                     "
                     class="p-1 bg-pink-50 hover:bg-pink-100 text-[#FF7B89] rounded border border-pink-100 text-[10px]"
-                    :title="$t('auto_title_fix', 'Xếp bàn')"
+                    :title="$t('admin_floors.action.assign_table')"
                   >
                     🪑
                   </button>
@@ -715,7 +710,7 @@
                     @click="markBookingArrived(booking)"
                     v-if="booking.status === 'Waiting'"
                     class="p-1 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded border border-blue-200 text-[10px]"
-                    :title="$t('auto_title_fix', 'Đón khách')"
+                    :title="$t('admin_floors.action.welcome')"
                   >
                     🚶
                   </button>
@@ -723,7 +718,7 @@
                     @click="openTableFromBooking(booking)"
                     v-if="booking.status === 'Arrived'"
                     class="p-1 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded border border-rose-250 text-[10px] animate-pulse"
-                    :title="$t('auto_title_fix', 'Mở bàn')"
+                    :title="$t('admin_floors.action.open_table')"
                   >
                     🍽️
                   </button>
@@ -742,7 +737,7 @@
       <h3
         class="text-xs font-black text-gray-400 uppercase tracking-wider mb-3"
       >
-        {{ t("auto____b_ng_t_ng_quan_ca_theo_khu_") }}
+        {{ t('admin_floors.dashboard.overview') }}
       </h3>
       <div
         class="grid grid-cols-3 sm:grid-cols-6 lg:grid-cols-11 gap-2.5 select-none"
@@ -790,24 +785,24 @@
         class="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[10px] font-black border-r border-gray-150 pr-4 select-none"
       >
         <div class="flex items-center gap-1 text-gray-500">
-          {{ t("auto_h_th_ng", "🕒 HỆ THỐNG:") }}
+          {{ t('admin_floors.system.title') }}
           <span
             class="bg-gray-100 border border-gray-150 px-2 py-0.5 rounded text-gray-700 font-mono tracking-wider"
             >{{ currentTime }}</span
           >
         </div>
         <div class="flex items-center gap-2">
-          <span>{{ t("auto_b_n_") }}</span>
+          <span>{{ t('admin_floors.system.tables') }}</span>
           <span
             class="text-emerald-600 bg-emerald-50 border border-emerald-100 px-1.5 py-0.5 rounded"
-            >{{ stats.availableTables }}/{{ stats.totalTables }} {{ t('auto_trong_nho', 'trống') }}</span
+            >{{ stats.availableTables }}/{{ stats.totalTables }} {{ t('admin_floors.table.empty') }}</span
           >
         </div>
         <div class="flex items-center gap-2">
-          <span>{{ t("auto_gh__") }}</span>
+          <span>{{ t('admin_floors.table.seats_total') }}</span>
           <span
             class="text-blue-600 bg-blue-50 border border-blue-100 px-1.5 py-0.5 rounded"
-            >{{ stats.availableSeats }}/{{ stats.totalSeats }} {{ t('auto_trong_nho', 'trống') }}</span
+            >{{ stats.availableSeats }}/{{ stats.totalSeats }} {{ t('admin_floors.table.empty') }}</span
           >
         </div>
       </div>
@@ -817,21 +812,21 @@
         class="flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-[10px] font-black border-r border-gray-150 px-4 select-none"
       >
         <div class="flex items-center gap-1.5">
-          <span>{{ t("auto____t_ng_h_n_h_m_nay_") }}</span>
+          <span>{{ t('admin_floors.today.bookings') }}</span>
           <span
             class="bg-gray-100 px-2 py-0.5 rounded border border-gray-200 text-gray-700 text-xs"
             >{{ sidebarStats.total }}</span
           >
         </div>
         <div class="flex items-center gap-1.5">
-          <span class="text-blue-600">{{ t("auto____check_in_") }}</span>
+          <span class="text-blue-600">{{ t('admin_floors.today.check_in') }}</span>
           <span
             class="bg-blue-50 text-blue-700 px-2 py-0.5 rounded border border-blue-200 text-xs"
             >{{ sidebarStats.arrived }}</span
           >
         </div>
         <div class="flex items-center gap-1.5">
-          <span class="text-amber-600">{{ t("auto__ang_ch__b_n_") }}</span>
+          <span class="text-amber-600">{{ t('admin_floors.today.waiting') }}</span>
           <span
             class="bg-amber-50 text-amber-700 px-2 py-0.5 rounded border border-amber-200 text-xs"
             >{{ sidebarStats.waiting }}</span
@@ -845,25 +840,25 @@
           @click="resetToCurrentState"
           class="flex-1 text-center py-2.5 rounded-xl border border-gray-250 bg-white hover:bg-gray-50 text-gray-700 font-extrabold text-xs transition-colors shadow-sm select-none flex items-center justify-center gap-1 active:scale-95"
         >
-          {{ t("auto_hi_n_t_i", "🕒 Hiện tại") }}
+          {{ t('admin_floors.current.time') }}
         </button>
         <button
           @click="openQuickArrivedModal"
           class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-black text-xs py-2.5 rounded-xl transition-all shadow-sm flex items-center justify-center gap-1 active:scale-95"
         >
-          {{ t("auto_n_kh_ch_n", "🚶 Đón Khách Đến") }}
+          {{ t('admin_floors.quick_action.welcome') }}
         </button>
         <button
           @click="openQuickOpenModal"
           class="flex-1 bg-rose-600 hover:bg-rose-700 text-white font-black text-xs py-2.5 rounded-xl transition-all shadow-sm flex items-center justify-center gap-1 active:scale-95 animate-pulse"
         >
-          {{ t("auto_khai_b_n_nhanh", "🍽️ Khai Bàn Nhanh") }}
+          {{ t('admin_floors.quick_action.open_fast') }}
         </button>
         <button
           @click="openCreateBookingModal"
           class="flex-1 bg-[#FF7B89] hover:bg-[#FF5A6E] text-white font-black text-xs py-2.5 rounded-xl transition-all shadow-sm flex items-center justify-center gap-1 active:scale-95"
         >
-          {{ t("auto_t_b_n", "+ Đặt Bàn") }}
+          {{ t('admin_floors.quick_action.book') }}
         </button>
       </div>
     </div>
@@ -898,10 +893,10 @@
           </div>
           <div>
             <h3 class="text-lg font-black text-gray-900 tracking-tight">
-              {{ t('auto_chi_tiet_ban', 'Chi Tiết Bàn') }} {{ selectedTableForModal.code }}
+              {{ t('admin_floors.modal.table_details') }} {{ selectedTableForModal.code }}
             </h3>
             <p class="text-[10px] text-gray-400 font-bold uppercase">
-              {{ t('auto_phan_khu', 'Phân khu') }}: {{ selectedTableForModal.areaName }}
+              {{ t('admin_floors.modal.zone') }}: {{ selectedTableForModal.areaName }}
             </p>
           </div>
         </div>
@@ -911,7 +906,7 @@
             <div class="bg-gray-50 p-3 rounded-xl border border-gray-100">
               <span
                 class="block text-[9px] font-black text-gray-400 uppercase tracking-wider mb-0.5"
-                >{{ t("auto_s_c_ch_a") }}</span
+                >{{ t('admin_floors.modal.capacity') }}</span
               >
               <span class="font-extrabold text-xs text-gray-800"
                 >{{ selectedTableForModal.capacity }}</span
@@ -920,7 +915,7 @@
             <div class="bg-gray-50 p-3 rounded-xl border border-gray-100">
               <span
                 class="block text-[9px] font-black text-gray-400 uppercase tracking-wider mb-0.5"
-                >{{ t("auto_tr_ng_th_i_hi_n_th_i") }}</span
+                >{{ t('admin_floors.modal.status') }}</span
               >
               <span
                 :class="[
@@ -937,17 +932,17 @@
             class="bg-gray-50 p-3.5 rounded-xl border border-gray-100 space-y-2.5"
           >
             <h4 class="text-[10px] font-black text-gray-400 uppercase">
-              {{ t("auto_th_ng_tin_chi_ti_t_ca_ph_c_v__") }}
+              {{ t('admin_floors.modal.serving_info') }}
             </h4>
 
             <div class="space-y-1">
               <label class="text-[8px] font-black text-gray-400 uppercase">{{
-                t("auto_t_n_kh_ch_h_ng")
+                t('admin_floors.modal.customer_name')
               }}</label>
               <input
                 type="text"
                 v-model="tableModalForm.customerName"
-                :placeholder="$t('auto_placeholder_fix_1', 'Nhập tên khách dùng bàn')"
+                :placeholder="$t('admin_floors.placeholder.customer_name')"
                 class="w-full bg-white border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
               />
             </div>
@@ -955,23 +950,23 @@
             <div class="grid grid-cols-2 gap-3.5">
               <div class="space-y-1">
                 <label class="text-[8px] font-black text-gray-400 uppercase">{{
-                  t("auto_h_a___n_t_m_t_nh")
+                  t('admin_floors.modal.bill_estimate')
                 }}</label>
                 <input
                   type="text"
                   v-model="tableModalForm.billAmount"
-                  :placeholder="$t('auto_placeholder_fix', '0đ')"
+                  :placeholder="$t('admin_floors.placeholder.zero')"
                   class="w-full bg-white border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
                 />
               </div>
               <div class="space-y-1">
                 <label class="text-[8px] font-black text-gray-400 uppercase">{{
-                  t("auto_gi__khai_b_n___v_o")
+                  t('admin_floors.modal.time_in')
                 }}</label>
                 <input
                   type="text"
                   v-model="tableModalForm.occupiedDuration"
-                  :placeholder="$t('auto_placeholder_fix', 'Ví dụ: 17:15')"
+                  :placeholder="$t('admin_floors.placeholder.time')"
                   class="w-full bg-white border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
                 />
               </div>
@@ -982,7 +977,7 @@
         <div class="space-y-3">
           <span
             class="block text-[9px] font-black text-gray-400 uppercase tracking-wider mb-2 select-none"
-            >{{ t("auto___i_tr_ng_th_i_b_n_nhanh_") }}</span
+            >{{ t('admin_floors.modal.change_status') }}</span
           >
 
           <div class="grid grid-cols-2 gap-2 select-none">
@@ -995,7 +990,7 @@
                   : 'bg-emerald-50 text-emerald-800 border-emerald-100 hover:bg-emerald-100',
               ]"
             >
-              {{ t("auto_thi_t_l_p_tr_ng", "🟢 Thiết lập Trống") }}
+              {{ t('admin_floors.status.set_empty') }}
             </button>
 
             <button
@@ -1007,7 +1002,7 @@
                   : 'bg-amber-50 text-amber-800 border-amber-100 hover:bg-amber-100',
               ]"
             >
-              {{ t("auto_thi_t_l_p_t_tr_c", "📅 Thiết lập Đặt Trước") }}
+              {{ t('admin_floors.status.set_reserved') }}
             </button>
 
             <button
@@ -1019,7 +1014,7 @@
                   : 'bg-blue-50 text-blue-800 border-blue-100 hover:bg-blue-100',
               ]"
             >
-              {{ t("auto_n_check_in", "🚶 Đón Check-in") }}
+              {{ t('admin_floors.status.check_in') }}
             </button>
 
             <button
@@ -1031,7 +1026,7 @@
                   : 'bg-rose-50 text-rose-800 border-rose-100 hover:bg-rose-100',
               ]"
             >
-              {{ t("auto_m_ph_c_v", "🔥 Mở Phục Vụ") }}
+              {{ t('admin_floors.status.open_serving') }}
             </button>
           </div>
 
@@ -1040,7 +1035,7 @@
               @click="closeTableModal"
               class="flex-1 py-2 rounded-xl border border-gray-250 bg-white hover:bg-gray-50 text-gray-700 text-[11px] font-bold transition-colors select-none"
             >
-              {{ t("auto_ng", "Đóng") }}
+              {{ t('admin_floors.action.close') }}
             </button>
             <button
               @click="goToOrderScreen(selectedTableForModal.code)"
@@ -1052,7 +1047,7 @@
               @click="saveTableModal"
               class="flex-1 py-2 rounded-xl bg-[#FF7B89] hover:bg-[#FF5A6E] text-white text-[11px] font-black transition-colors shadow-sm select-none"
             >
-              {{ t("auto_l_u_l_i", "Lưu Lại") }}
+              {{ t('admin_floors.action.save') }}
             </button>
           </div>
         </div>
@@ -1089,12 +1084,12 @@
         <div class="space-y-3.5 mb-5">
           <div class="space-y-1">
             <label class="text-[9px] font-black text-gray-400 uppercase">{{
-              t("auto_t_n_kh_ch_h_ng__")
+              t('admin_floors.booking.customer_name')
             }}</label>
             <input
               type="text"
               v-model="newBookingForm.customerName"
-              :placeholder="$t('auto_placeholder_fix_2', 'Nhập tên khách hàng')"
+              :placeholder="$t('admin_floors.placeholder.booking_name')"
               class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
             />
           </div>
@@ -1102,23 +1097,23 @@
           <div class="grid grid-cols-2 gap-3.5">
             <div class="space-y-1">
               <label class="text-[9px] font-black text-gray-400 uppercase">{{
-                t("auto_s___i_n_tho_i__")
+                t('admin_floors.booking.phone')
               }}</label>
               <input
                 type="text"
                 v-model="newBookingForm.phone"
-                :placeholder="$t('auto_placeholder_fix', 'Nhập số điện thoại')"
+                :placeholder="$t('admin_floors.placeholder.phone')"
                 class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
               />
             </div>
             <div class="space-y-1">
               <label class="text-[9px] font-black text-gray-400 uppercase">{{
-                t("auto_gi__kh_ch___n__")
+                t('admin_floors.booking.time')
               }}</label>
               <input
                 type="text"
                 v-model="newBookingForm.reservationTime"
-                :placeholder="$t('auto_placeholder_fix', 'Ví dụ: 19:30')"
+                :placeholder="$t('admin_floors.placeholder.time_example')"
                 class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
               />
             </div>
@@ -1127,24 +1122,24 @@
           <div class="grid grid-cols-2 gap-3.5">
             <div class="space-y-1">
               <label class="text-[9px] font-black text-gray-400 uppercase">{{
-                t("auto_t_ng_s__kh_ch")
+                t('admin_floors.booking.guests')
               }}</label>
               <input
                 type="number"
                 v-model="newBookingForm.guestCount"
-                :placeholder="$t('auto_placeholder_fix', 'Ví dụ: 4')"
+                :placeholder="$t('admin_floors.placeholder.guests')"
                 class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
               />
             </div>
             <div class="space-y-1">
               <label class="text-[9px] font-black text-gray-400 uppercase">{{
-                t("auto_ch____nh_b_n__n")
+                t('admin_floors.booking.assign')
               }}</label>
               <select
                 v-model="newBookingForm.assignedTable"
                 class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
               >
-                <option value="">{{ t("auto____ch_a_ch____nh___") }}</option>
+                <option value="">{{ t('admin_floors.booking.unassigned') }}</option>
                 <optgroup
                   v-for="area in areas"
                   :key="area.name"
@@ -1159,7 +1154,7 @@
                       tbl.code !== newBookingForm.assignedTable
                     "
                   >
-                    {{ tbl.code }} ({{ t('auto_suc_chua') }} {{ tbl.capacity }} {{ t('auto_cho', 'chỗ') }})
+                    {{ tbl.code }} ({{ t('admin_floors.table.capacity') }} {{ tbl.capacity }} {{ t('admin_floors.booking.seats') }})
                   </option>
                 </optgroup>
               </select>
@@ -1168,11 +1163,11 @@
 
           <div class="space-y-1">
             <label class="text-[9px] font-black text-gray-400 uppercase">{{
-              t("auto_ghi_ch____c_bi_t")
+              t('admin_floors.booking.notes')
             }}</label>
             <textarea
               v-model="newBookingForm.notes"
-              :placeholder="$t('auto_placeholder_fix_3', 'Ghi chú thêm: bàn gần cửa sổ...')"
+              :placeholder="$t('admin_floors.placeholder.notes')"
               class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89] h-16 resize-none"
             ></textarea>
           </div>
@@ -1183,7 +1178,7 @@
             @click="isCreateBookingModalOpen = false"
             class="flex-1 py-2 rounded-xl border border-gray-250 bg-white hover:bg-gray-50 text-gray-700 text-[11px] font-bold transition-colors"
           >
-            {{ t("auto_h_y_b", "Hủy Bỏ") }}
+            {{ t('admin_floors.action.cancel') }}
           </button>
           <button
             @click="saveNewBooking"
@@ -1221,7 +1216,7 @@
           <span>🍽️</span>
           {{
             t(
-              "auto_khai_b_n_kh_ch_v_ng_lai_walk",
+              
               "Khai Bàn Khách Vãng Lai (Walk-in)",
             )
           }}
@@ -1230,14 +1225,14 @@
         <div class="space-y-4 mb-5">
           <div class="space-y-1">
             <label class="text-[9px] font-black text-gray-400 uppercase">{{
-              t("auto_l_a_ch_n_b_n__n_c_n_tr_ng__")
+              t('admin_floors.modal.select_empty')
             }}</label>
             <select
               v-model="quickOpenForm.tableCode"
               class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2.5 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
             >
               <option value="">
-                {{ t("auto____click_ch_n_b_n_tr_ng___") }}
+                {{ t('admin_floors.modal.click_empty') }}
               </option>
               <optgroup
                 v-for="area in areas"
@@ -1250,7 +1245,7 @@
                   :value="tbl.code"
                   v-show="tbl.status === 'Available'"
                 >
-                  {{ t('auto_ban') }} {{ tbl.code }} ({{ tbl.capacity }})
+                  {{ t('admin_floors.table.unit') }} {{ tbl.code }} ({{ tbl.capacity }})
                 </option>
               </optgroup>
             </select>
@@ -1258,12 +1253,12 @@
 
           <div class="space-y-1">
             <label class="text-[9px] font-black text-gray-400 uppercase">{{
-              t("auto_t_n_kh_ch_h_ng__t_y_ch_n_")
+              t('admin_floors.booking.optional_name')
             }}</label>
             <input
               type="text"
               v-model="quickOpenForm.customerName"
-              :placeholder="$t('auto_placeholder_fix_4', 'Ví dụ: Khách vãng lai / Anh Nam')"
+              :placeholder="$t('admin_floors.placeholder.optional_name')"
               class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
             />
           </div>
@@ -1271,23 +1266,23 @@
           <div class="grid grid-cols-2 gap-3.5">
             <div class="space-y-1">
               <label class="text-[9px] font-black text-gray-400 uppercase">{{
-                t("auto_s__kh_ch_th_c_t_")
+                t('admin_floors.booking.actual_guests')
               }}</label>
               <input
                 type="number"
                 v-model="quickOpenForm.guestCount"
-                :placeholder="$t('auto_placeholder_fix', 'Ví dụ: 4')"
+                :placeholder="$t('admin_floors.placeholder.guests')"
                 class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
               />
             </div>
             <div class="space-y-1">
               <label class="text-[9px] font-black text-gray-400 uppercase">{{
-                t("auto_h_a___n_t_m_t_nh_kh_i__i_m")
+                t('admin_floors.booking.initial_bill')
               }}</label>
               <input
                 type="text"
                 v-model="quickOpenForm.billAmount"
-                :placeholder="$t('auto_placeholder_fix', '0đ')"
+                :placeholder="$t('admin_floors.placeholder.zero')"
                 class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
               />
             </div>
@@ -1299,13 +1294,13 @@
             @click="isQuickOpenModalOpen = false"
             class="flex-1 py-2 rounded-xl border border-gray-250 bg-white hover:bg-gray-50 text-gray-700 text-[11px] font-bold transition-colors"
           >
-            {{ t("auto_ng_l_i", "Đóng Lại") }}
+            {{ t('admin_floors.action.close_btn') }}
           </button>
           <button
             @click="saveQuickOpen"
             class="flex-1 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-[11px] font-black transition-colors shadow-sm"
           >
-            {{ t("auto_khai_b_n_ph_c_v", "Khai Bàn Phục Vụ") }}
+            {{ t('admin_floors.action.open_serving') }}
           </button>
         </div>
       </div>
@@ -1335,20 +1330,20 @@
           class="text-lg font-black text-gray-900 tracking-tight mb-4 flex items-center gap-1.5 select-none border-b border-gray-100 pb-2"
         >
           <span>🚶</span>
-          {{ t("auto_nh_n_kh_ch_n_check_in", "Nhận Khách Đã Đến (Check-in)") }}
+          {{ t('admin_floors.action.receive_checkin') }}
         </h3>
 
         <div class="space-y-4 mb-5">
           <div class="space-y-1">
             <label class="text-[9px] font-black text-gray-400 uppercase">{{
-              t("auto_l_a_ch_n_l__t_h_n_kh_ch_v_a___")
+              t('admin_floors.modal.select_booking')
             }}</label>
             <select
               v-model="quickArrivedForm.bookingId"
               class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2.5 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
             >
               <option value="">
-                {{ t("auto____click_ch_n_l__t___t_h_m_nay") }}
+                {{ t('admin_floors.modal.click_booking') }}
               </option>
               <option
                 v-for="b in bookings.filter(
@@ -1371,13 +1366,13 @@
             @click="isQuickArrivedModalOpen = false"
             class="flex-1 py-2 rounded-xl border border-gray-250 bg-white hover:bg-gray-50 text-gray-700 text-[11px] font-bold transition-colors"
           >
-            {{ t("auto_h_y_b", "Hủy Bỏ") }}
+            {{ t('admin_floors.action.cancel') }}
           </button>
           <button
             @click="saveQuickArrived"
             class="flex-1 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-black transition-colors shadow-sm"
           >
-            {{ t("auto_n_kh_ch_n", "Đón Khách Đến") }}
+            {{ t('admin_floors.action.welcome_guest') }}
           </button>
         </div>
       </div>
@@ -1405,7 +1400,7 @@
               class="text-lg font-black text-gray-900 flex items-center gap-1.5"
             >
               <span>📋</span>
-              {{ t("auto_nh_t_k_t_b_n_chi_ti_t", "Nhật Ký Đặt Bàn Chi Tiết") }}
+              {{ t('admin_floors.modal.booking_details') }}
             </h3>
             <button
               @click="isBookingDetailsOpen = false"
@@ -1440,7 +1435,7 @@
               <div class="bg-gray-50 p-2.5 rounded-lg border border-gray-100">
                 <span
                   class="block text-[9px] text-gray-400 uppercase tracking-wider mb-0.5 select-none"
-                  >{{ t("auto_s___i_n_tho_i_li_n_l_c") }}</span
+                  >{{ t('admin_floors.modal.contact_phone') }}</span
                 >
                 <span class="text-gray-800 text-xs font-black">{{
                   selectedBookingForDetails.phone
@@ -1449,7 +1444,7 @@
               <div class="bg-gray-50 p-2.5 rounded-lg border border-gray-100">
                 <span
                   class="block text-[9px] text-gray-400 uppercase tracking-wider mb-0.5 select-none"
-                  >{{ t("auto_l_ch_h_n_kh_ch___n") }}</span
+                  >{{ t('admin_floors.modal.schedule_time') }}</span
                 >
                 <span class="text-gray-800 text-xs font-black"
                   >📅 {{ selectedBookingForDetails.date }} lúc
@@ -1459,7 +1454,7 @@
               <div class="bg-gray-50 p-2.5 rounded-lg border border-gray-100">
                 <span
                   class="block text-[9px] text-gray-400 uppercase tracking-wider mb-0.5 select-none"
-                  >{{ t("auto_kh_ch_d_ng_ti_c") }}</span
+                  >{{ t('admin_floors.modal.party_size') }}</span
                 >
                 <span class="text-gray-800 text-xs font-black"
                   >👥 {{ selectedBookingForDetails.adults }} Lớn |
@@ -1469,7 +1464,7 @@
               <div class="bg-gray-50 p-2.5 rounded-lg border border-gray-100">
                 <span
                   class="block text-[9px] text-gray-400 uppercase tracking-wider mb-0.5 select-none"
-                  >{{ t("auto_b_n____ch____nh") }}</span
+                  >{{ t('admin_floors.modal.assigned_table') }}</span
                 >
                 <span class="text-gray-800 text-xs font-black"
                   >🪑 Bàn:
@@ -1486,7 +1481,7 @@
             >
               <span
                 class="block text-[9px] text-gray-400 uppercase tracking-wider font-extrabold select-none"
-                >{{ t("auto_tr_ng_th_i_hi_n_t_i_") }}</span
+                >{{ t('admin_floors.modal.current_status') }}</span
               >
               <div class="flex flex-wrap gap-1 select-none">
                 <button
@@ -1515,7 +1510,7 @@
             <div class="space-y-1">
               <label
                 class="text-[9px] font-black text-gray-400 uppercase select-none"
-                >{{ t("auto_y_u_c_u___c_bi_t") }}</label
+                >{{ t('admin_floors.modal.special_requests') }}</label
               >
               <p
                 class="text-xs text-gray-600 bg-gray-50 p-3 rounded-lg border border-gray-100 min-h-[50px] italic"
@@ -1539,7 +1534,7 @@
             "
             class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black text-sm py-2.5 rounded-xl transition-all shadow-sm flex items-center justify-center gap-1 active:scale-95"
           >
-            {{ t("auto_n_kh_ch_n_check_in", "Đón Khách Đến (Check-in)") }}
+            {{ t('admin_floors.action.welcome_checkin') }}
           </button>
 
           <button
@@ -1552,7 +1547,7 @@
           >
             {{
               t(
-                "auto_khai_b_n_m_ph_c_v_serving",
+                
                 "Khai Bàn Mở Phục Vụ (Serving)",
               )
             }}
@@ -1563,13 +1558,13 @@
               @click="cancelBooking(selectedBookingForDetails.id)"
               class="flex-1 py-2 rounded-xl border border-red-200 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-bold transition-all flex items-center justify-center gap-1 active:scale-95"
             >
-              {{ t("auto_h_y_t", "🗑️ Hủy Đặt") }}
+              {{ t('admin_floors.action.cancel_booking') }}
             </button>
             <button
               @click="isBookingDetailsOpen = false"
               class="flex-1 py-2 rounded-xl border border-gray-250 bg-white hover:bg-gray-50 text-gray-700 text-xs font-bold transition-colors"
             >
-              {{ t("auto_ng_l_i", "Đóng Lại") }}
+              {{ t('admin_floors.action.close_btn') }}
             </button>
           </div>
         </div>
@@ -1599,14 +1594,14 @@
         <h3
           class="text-base font-black text-gray-900 tracking-tight mb-3 flex items-center gap-1 border-b border-gray-100 pb-2 select-none"
         >
-          <span>🪑</span> {{ t("auto_th_m_b_n_m_i", "Thêm Bàn Mới") }}
+          <span>🪑</span> {{ t('admin_floors.modal.add_new_table') }}
         </h3>
 
         <div class="space-y-4 mb-5">
           <div class="space-y-1">
             <label
               class="text-[9px] font-black text-gray-400 uppercase select-none"
-              >{{ t("auto_m_b_n_t_n_b_n", "Mã Bàn / Tên Bàn") }}</label
+              >{{ t('admin_floors.modal.table_code') }}</label
             >
             <input
               type="text"
@@ -1618,12 +1613,12 @@
           <div class="space-y-1">
             <label
               class="text-[9px] font-black text-gray-400 uppercase select-none"
-              >{{ t("auto_ph_n_khu_t_ng", "Phân Khu / Tầng") }}</label
+              >{{ t('admin_floors.modal.floor_zone') }}</label
             >
             <input
               type="text"
               v-model="createTableForm.zone"
-              :placeholder="$t('auto_placeholder_fix', 'VD: Tầng 1, Tầng 2...')"
+              :placeholder="$t('admin_floors.placeholder.floor')"
               class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-850 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
               list="zone-datalist"
             />
@@ -1638,7 +1633,7 @@
           <div class="space-y-1">
             <label
               class="text-[9px] font-black text-gray-400 uppercase select-none"
-              >{{ t("auto_s_c_ch_a_s_ng_i", "Sức Chứa (Số Người)") }}</label
+              >{{ t('admin_floors.modal.capacity_num') }}</label
             >
             <input
               type="number"
@@ -1655,13 +1650,13 @@
             @click="isCreateTableModalOpen = false"
             class="flex-1 py-2 rounded-xl border border-gray-250 bg-white hover:bg-gray-50 text-gray-700 text-xs font-bold transition-colors"
           >
-            {{ t("auto_h_y", "Hủy") }}
+            {{ t('admin_floors.action.cancel') }}
           </button>
           <button
             @click="saveNewTable"
             class="flex-1 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-black transition-colors shadow-sm active:scale-95"
           >
-            {{ t("auto_t_o_b_n_m_i", "Tạo Bàn Mới") }}
+            {{ t('admin_floors.action.create_table') }}
           </button>
         </div>
       </div>
@@ -1690,12 +1685,12 @@
         <h3
           class="text-base font-black text-gray-900 tracking-tight mb-3 flex items-center gap-1 border-b border-gray-100 pb-2 select-none"
         >
-          <span>✏️</span> {{ t("auto_sua_ban", "Sửa Bàn") }}
+          <span>✏️</span> {{ t('admin_floors.modal.edit_table') }}
         </h3>
 
         <div class="space-y-4 mb-5">
           <div class="space-y-1">
-            <label class="text-[9px] font-black text-gray-400 uppercase select-none">{{ t("auto_m_b_n_t_n_b_n", "Mã Bàn / Tên Bàn") }}</label>
+            <label class="text-[9px] font-black text-gray-400 uppercase select-none">{{ t('admin_floors.modal.table_code') }}</label>
             <input
               type="text"
               v-model="editTableForm.code"
@@ -1703,7 +1698,7 @@
             />
           </div>
           <div class="space-y-1">
-            <label class="text-[9px] font-black text-gray-400 uppercase select-none">{{ t("auto_ph_n_khu_t_ng", "Phân Khu / Tầng") }}</label>
+            <label class="text-[9px] font-black text-gray-400 uppercase select-none">{{ t('admin_floors.modal.floor_zone') }}</label>
             <input
               type="text"
               v-model="editTableForm.zone"
@@ -1712,7 +1707,7 @@
             />
           </div>
           <div class="space-y-1">
-            <label class="text-[9px] font-black text-gray-400 uppercase select-none">{{ t("auto_s_c_ch_a_s_ng_i", "Sức Chứa (Số Người)") }}</label>
+            <label class="text-[9px] font-black text-gray-400 uppercase select-none">{{ t('admin_floors.modal.capacity_num') }}</label>
             <input
               type="number"
               v-model="editTableForm.capacity"
@@ -1727,13 +1722,13 @@
             @click="isEditTableModalOpen = false"
             class="flex-1 py-2 rounded-xl border border-gray-250 bg-white hover:bg-gray-50 text-gray-700 text-xs font-bold transition-colors"
           >
-            {{ t("auto_h_y", "Hủy") }}
+            {{ t('admin_floors.action.cancel') }}
           </button>
           <button
             @click="saveEditTable"
             class="flex-1 py-2 rounded-xl bg-blue-500 hover:bg-blue-600 text-white text-xs font-black transition-colors shadow-sm active:scale-95"
           >
-            {{ t("auto_luu_thay_doi", "Lưu Thay Đổi") }}
+            {{ t('admin_floors.action.save_changes') }}
           </button>
         </div>
       </div>
@@ -1762,12 +1757,12 @@
         <h3
           class="text-base font-black text-gray-900 tracking-tight mb-3 flex items-center gap-1 border-b border-gray-100 pb-2 select-none"
         >
-          <span>{{ maintenanceForm.isLocking ? '🔒' : '🔓' }}</span> {{ maintenanceForm.isLocking ? t("auto_khoa_ban", "Khóa / Bảo Trì Bàn") : t("auto_mo_khoa_ban", "Mở Khóa Bàn") }}
+          <span>{{ maintenanceForm.isLocking ? '🔒' : '🔓' }}</span> {{ maintenanceForm.isLocking ? t('admin_floors.modal.lock_table') : t('admin_floors.modal.unlock_table') }}
         </h3>
 
         <div class="space-y-4 mb-5" v-if="maintenanceForm.isLocking">
           <div class="space-y-1">
-            <label class="text-[9px] font-black text-gray-400 uppercase select-none">{{ t("auto_ly_do_bao_tri", "Lý Do Bảo Trì") }}</label>
+            <label class="text-[9px] font-black text-gray-400 uppercase select-none">{{ t('admin_floors.modal.maintenance_reason') }}</label>
             <input
               type="text"
               v-model="maintenanceForm.reason"
@@ -1778,7 +1773,7 @@
         </div>
         
         <p v-else class="text-sm font-semibold text-gray-600 mb-5">
-          {{ t("auto_xac_nhan_mo_khoa", "Bạn có chắc chắn muốn mở khóa bàn này để đưa vào phục vụ?") }}
+          {{ t('admin_floors.modal.confirm_unlock') }}
         </p>
 
         <div class="flex gap-3 select-none">
@@ -1786,7 +1781,7 @@
             @click="isMaintenanceModalOpen = false"
             class="flex-1 py-2 rounded-xl border border-gray-250 bg-white hover:bg-gray-50 text-gray-700 text-xs font-bold transition-colors"
           >
-            {{ t("auto_h_y", "Hủy") }}
+            {{ t('admin_floors.action.cancel') }}
           </button>
           <button
             @click="saveMaintenance"
@@ -1795,7 +1790,7 @@
               maintenanceForm.isLocking ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-emerald-500 hover:bg-emerald-600'
             ]"
           >
-            {{ maintenanceForm.isLocking ? t("auto_khoa_ban_btn", "Xác Nhận Khóa") : t("auto_mo_khoa_btn", "Xác Nhận Mở") }}
+            {{ maintenanceForm.isLocking ? t('admin_floors.action.confirm_lock') : t('admin_floors.action.confirm_unlock') }}
           </button>
         </div>
       </div>
@@ -1826,12 +1821,12 @@
         >
           <span>🪑</span>
           {{
-            t("auto_g_n_ch_nh_b_n_cho_l_t_t", "Gán Chỉ Định Bàn Cho Lượt Đặt")
+            t('admin_floors.modal.assign_to_booking')
           }}
         </h3>
 
         <p class="text-xs text-gray-500 font-semibold mb-4 select-none">
-          {{ t("auto_kh_ch_h_ng", "Khách hàng:") }}
+          {{ t('admin_floors.modal.customer') }}
           <strong>{{ selectedBookingForAssign.customerName }}</strong> (Khung
           giờ hẹn: {{ selectedBookingForAssign.reservationTime }})
         </p>
@@ -1840,14 +1835,14 @@
           <div class="space-y-1">
             <label
               class="text-[9px] font-black text-gray-400 uppercase select-none"
-              >{{ t("auto_ch_n_b_n__ang_tr_ng") }}</label
+              >{{ t('admin_floors.modal.select_empty_table') }}</label
             >
             <select
               v-model="assignTableForm.tableCode"
               class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-850 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
             >
               <option value="">
-                {{ t("auto____ch_a_ch____nh_b_n__n___") }}
+                {{ t('admin_floors.modal.not_assigned') }}
               </option>
               <optgroup
                 v-for="area in areas"
@@ -1863,7 +1858,7 @@
                     tbl.code !== selectedBookingForAssign.assignedTable
                   "
                 >
-                  {{ t('auto_ban') }} {{ tbl.code }} ({{ t('auto_cho_ngoi', 'Chỗ ngồi') }}: {{ tbl.capacity }}) -
+                  {{ t('admin_floors.table.unit') }} {{ tbl.code }} ({{ t('admin_floors.modal.seats') }}: {{ tbl.capacity }}) -
                   {{ translateTableStatus(tbl.status) }}
                 </option>
               </optgroup>
@@ -1876,13 +1871,13 @@
             @click="isAssignTableModalOpen = false"
             class="flex-1 py-2 rounded-xl border border-gray-250 bg-white hover:bg-gray-50 text-gray-700 text-xs font-bold transition-colors"
           >
-            {{ t("auto_ng_l_i", "Đóng Lại") }}
+            {{ t('admin_floors.action.close_btn') }}
           </button>
           <button
             @click="saveAssignTable"
             class="flex-1 py-2 rounded-xl bg-[#FF7B89] hover:bg-[#FF5A6E] text-white text-xs font-black transition-colors shadow-sm active:scale-95"
           >
-            {{ t("auto_x_c_nh_n_x_p", "Xác Nhận Xếp") }}
+            {{ t('admin_floors.action.confirm_assign') }}
           </button>
         </div>
       </div>
@@ -1951,14 +1946,14 @@ interface Booking {
 
 // System Zone options
 const zoneOptions = computed(() => {
-  const base = [{ label: t('auto_tat_ca', 'Tất cả'), value: 'All' }];
+  const base = [{ label: t('admin_floors.filter.all'), value: 'All' }];
   const dynamicZones = areas.value.map(a => ({ label: a.name, value: a.name }));
   return [...base, ...dynamicZones];
 });
 
 // Bottom Dashboard Zone list order
 const dashboardZoneList = computed(() => {
-  const base = [{ label: t('auto_tat_ca', 'Tất cả'), value: 'All' }];
+  const base = [{ label: t('admin_floors.filter.all'), value: 'All' }];
   const dynamicZones = areas.value.map(a => ({ label: a.name, value: a.name }));
   return [...base, ...dynamicZones];
 });
@@ -2174,7 +2169,7 @@ async function saveEditTable() {
     return;
   }
   
-  Swal.fire('Thành công', 'Đã cập nhật bàn', 'success');
+  Swal.fire(t('admin_floors.alert.success'), t('admin_floors.alert.table_updated'), 'success');
   isEditTableModalOpen.value = false;
   await loadTables();
 }
@@ -2215,7 +2210,7 @@ function openCreateTableModal() {
 async function saveNewTable() {
   const { code, zone, capacity } = createTableForm.value;
   if (!code || !zone || !capacity) {
-    Swal.fire(t('auto_loi', 'Lỗi'), t('auto_vui_long_nhap_day_du', 'Vui lòng nhập đầy đủ Mã bàn, Phân khu và Sức chứa.'), 'error');
+    Swal.fire(t('admin_floors.alert.error'), t('admin_floors.alert.missing_info'), 'error');
     return;
   }
   const { branchId } = useAuth();
@@ -2264,7 +2259,7 @@ async function deleteTable(id: string, code: string) {
     if (error) {
       Swal.fire('Lỗi', 'Không thể xóa bàn: ' + error.message, 'error');
     } else {
-      Swal.fire('Thành công', 'Đã xóa bàn', 'success');
+      Swal.fire(t('admin_floors.alert.success'), t('admin_floors.alert.table_deleted'), 'success');
       await loadTables();
     }
   }
@@ -2501,13 +2496,13 @@ function translateTableStatus(status: string) {
   if (!status) return '';
   const s = status.toLowerCase();
   switch (s) {
-    case 'available': return t('auto_trong', 'Trống')
-    case 'reserved': return t('auto_dat_truoc', 'Đặt trước')
-    case 'arrived': return t('auto_da_den', 'Đã đến')
+    case 'available': return t('admin_floors.status.badge.empty')
+    case 'reserved': return t('admin_floors.status.badge.reserved')
+    case 'arrived': return t('admin_floors.status.badge.arrived')
     case 'occupied':
-    case 'serving': return t('auto_dang_phuc_vu', 'Đang phục vụ')
-    case 'maintenance': return t('auto_bao_tri', 'Bảo trì')
-    case 'needs_cleaning': return t('auto_can_don_dep', 'Cần dọn dẹp')
+    case 'serving': return t('admin_floors.status.badge.serving')
+    case 'maintenance': return t('admin_floors.status.badge.maintenance')
+    case 'needs_cleaning': return t('admin_floors.status.badge.cleaning')
     default: return status
   }
 }
@@ -2534,11 +2529,11 @@ function getTableColorClass(status: 'Available' | 'Reserved' | 'Arrived' | 'Serv
 
 function translateReservationStatus(status: 'Waiting' | 'Arrived' | 'Seated' | 'Completed' | 'Cancelled') {
   switch (status) {
-    case 'Waiting': return t('auto_cho_xep', 'Chờ xếp')
-    case 'Arrived': return t('auto_da_den', 'Đã đến')
-    case 'Seated': return t('auto_dang_dung', 'Đã ngồi')
-    case 'Completed': return t('auto_da_xong', 'Hoàn tất')
-    case 'Cancelled': return t('auto_da_huy', 'Đã hủy')
+    case 'Waiting': return t('admin_floors.booking.status.waiting')
+    case 'Arrived': return t('admin_floors.status.badge.arrived')
+    case 'Seated': return t('admin_floors.booking.status.seated')
+    case 'Completed': return t('admin_floors.booking.status.completed')
+    case 'Cancelled': return t('admin_floors.booking.status.cancelled')
     default: return status
   }
 }
@@ -2938,7 +2933,7 @@ const quickOpenForm = ref({
 function openQuickOpenModal() {
   quickOpenForm.value = {
     tableCode: '',
-    customerName: t('auto_khach_vang_lai', 'Khách vãng lai'),
+    customerName: t('admin_floors.table.walk_in'),
     guestCount: 2,
     billAmount: '0đ'
   };
@@ -2956,7 +2951,7 @@ function goToOrderScreen(tableCode: string) {
   if (table) {
     if (table.status !== 'Serving') {
       table.status = 'Serving';
-      table.customerName = table.customerName || t('auto_khach_vang_lai', 'Khách vãng lai');
+      table.customerName = table.customerName || t('admin_floors.table.walk_in');
       table.billAmount = table.billAmount || '0đ';
       table.occupiedDuration = table.occupiedDuration || '1 phút';
       const now = new Date();
@@ -2977,7 +2972,7 @@ function saveQuickOpen() {
   const table = getTableByCode(quickOpenForm.value.tableCode);
   if (table) {
     table.status = 'Serving';
-    table.customerName = quickOpenForm.value.customerName || t('auto_khach_vang_lai', 'Khách vãng lai');
+    table.customerName = quickOpenForm.value.customerName || t('admin_floors.table.walk_in');
     table.billAmount = quickOpenForm.value.billAmount || '0đ';
     table.occupiedDuration = '1 phút';
     const now = new Date();

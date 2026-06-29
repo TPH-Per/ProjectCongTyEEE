@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 import { supabase } from '@/lib/supabase'
-import { useBranch } from './useBranch'
+import { useBranch, throwBranchGuard } from './useBranch'
 import type { Notification } from '@/types/database'
 
 export function useNotification() {
@@ -14,7 +14,7 @@ export function useNotification() {
     const { data, error: err } = await supabase
       .from('notifications')
       .select('*')
-      .eq('branch_id', activeBranchId.value!)
+      .eq('branch_id', (activeBranchId.value ?? throwBranchGuard()))
       .eq('channel', role)
       .order('created_at', { ascending: false })
       .limit(limit)
@@ -36,3 +36,4 @@ export function useNotification() {
 
   return { loading, error, listForRole, markRead }
 }
+

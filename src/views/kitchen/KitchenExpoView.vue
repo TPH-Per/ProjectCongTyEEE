@@ -1,13 +1,13 @@
 <template>
-  <div class="min-h-screen bg-[#1A1A1A] text-white flex flex-col font-sans kds-container">
+  <div class="min-h-screen bg-background text-foreground flex flex-col font-sans kds-container">
     
     <!-- 1. EXPO HEADER (70px) -->
     <header class="expo-header">
       <div class="flex items-center gap-4">
         <!-- Logo / Brand -->
         <div class="flex items-center gap-2">
-          <span class="logo-brand text-[#FF9800] font-extrabold tracking-wider text-xl">NGƯU CÁT</span>
-          <span class="tag-kds text-xs bg-gray-800 text-gray-400 border border-gray-700 px-2 py-0.5 rounded font-bold uppercase">EXPO</span>
+          <span class="logo-brand text-[#FF9800] font-extrabold tracking-wider text-xl">{{ $t('kitchen_expo.brand') }}</span>
+          <span class="tag-kds text-xs bg-muted text-muted-foreground border border-border px-2 py-0.5 rounded font-bold uppercase">EXPO</span>
         </div>
       </div>
 
@@ -20,7 +20,7 @@
           <div class="chef-avatar">L</div>
           <div>
             <div class="chef-name font-bold">Chef Luc</div>
-            <div class="chef-role">Bếp trưởng</div>
+            <div class="chef-role">{{ $t('kitchen_expo.chef_role') }}</div>
           </div>
         </div>
 
@@ -31,7 +31,7 @@
 
         <!-- Notification Bell -->
         <div class="notification-bell" @click="clearLocalNotifications">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
           </svg>
           <span v-if="notificationCount > 0" class="notification-badge">{{ notificationCount }}</span>
@@ -46,7 +46,7 @@
         :class="{ active: qcActiveFilter === 'waiting' }"
         @click="qcActiveFilter = 'waiting'"
       >
-        <span>Chờ QC:</span>
+        <span>{{ $t('kitchen_expo.wait_qc') }}</span>
         <span class="counter-number">{{ activeQcCount }}</span>
       </div>
       <div 
@@ -54,7 +54,7 @@
         :class="{ active: qcActiveFilter === 'passed' }"
         @click="qcActiveFilter = 'passed'"
       >
-        <span>Đạt:</span>
+        <span>{{ $t('kitchen_expo.passed') }}</span>
         <span class="counter-number">{{ passedQcOrderIds.length }}</span>
       </div>
       <div 
@@ -70,7 +70,7 @@
         :class="{ active: qcActiveFilter === 'allergy' }"
         @click="qcActiveFilter = 'allergy'"
       >
-        <span>⚠️ Dị ứng:</span>
+        <span>{{ $t('kitchen_expo.allergy') }}</span>
         <span class="counter-number">{{ allergyQcCount }}</span>
       </div>
       
@@ -96,17 +96,17 @@
       
       <!-- Cột Trái (60%): Món cần kiểm tra (QC Active List) -->
       <div class="w-[60%] flex flex-col overflow-y-auto space-y-4 pr-2">
-        <h2 class="text-lg font-bold text-gray-200 uppercase tracking-wider flex items-center gap-2">
+        <h2 class="text-lg font-bold text-foreground uppercase tracking-wider flex items-center gap-2">
           📋 QC Active Queue
-          <span class="text-xs font-semibold px-2 py-0.5 bg-gray-700 text-gray-400 rounded-full">
+          <span class="text-xs font-semibold px-2 py-0.5 bg-muted text-muted-foreground rounded-full">
             {{ filteredQcOrders.length }} đơn hàng
           </span>
         </h2>
 
-        <div v-if="filteredQcOrders.length === 0" class="flex-1 flex flex-col items-center justify-center bg-[#252525] rounded-2xl border border-[#404040]/50 p-8 text-center">
+        <div v-if="filteredQcOrders.length === 0" class="flex-1 flex flex-col items-center justify-center bg-[#252525] rounded-2xl border border-border/50 p-8 text-center">
           <span class="text-5xl mb-3">🛎️</span>
-          <h3 class="text-lg font-bold text-gray-300">Không có đơn hàng nào cần kiểm tra</h3>
-          <p class="text-sm text-gray-500 mt-1">Đơn hàng hoàn tất sơ chế & chế biến tại KDS sẽ tự động hiển thị tại đây.</p>
+          <h3 class="text-lg font-bold text-muted-foreground">{{ $t('kitchen_expo.no_orders') }}</h3>
+          <p class="text-sm text-muted-foreground mt-1">{{ $t('kitchen_expo.orders_auto_display') }}</p>
         </div>
 
         <div 
@@ -170,7 +170,7 @@
 
           <!-- Checklist -->
           <div class="qc-checklist">
-            <div class="checklist-title">Checklist tiêu chuẩn món ăn (Expo QC)</div>
+            <div class="checklist-title">{{ $t('kitchen_expo.qc_checklist') }}</div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2">
               <label 
                 v-for="(label, key) in qcCriteriaLabels" 
@@ -184,7 +184,7 @@
                     v-model="orderChecklistState[order.id][key]"
                     class="hidden"
                   >
-                  <span v-if="orderChecklistState[order.id]?.[key]" class="text-white text-xs">✓</span>
+                  <span v-if="orderChecklistState[order.id]?.[key]" class="text-foreground text-xs">✓</span>
                 </div>
                 <span class="checklist-label">{{ label }}</span>
               </label>
@@ -209,13 +209,13 @@
         <!-- Remake Queue -->
         <div class="remake-queue">
           <h2 class="remake-queue-title">
-            <span>🚨 REMAKE QUEUE (ƯU TIÊN CAO)</span>
+            <span>{{ $t('kitchen_expo.remake_queue') }}</span>
             <span class="bg-[#9C27B0]/20 text-[#CE93D8] px-2 py-0.5 rounded text-xs">
               {{ activeRemakes.length }} món
             </span>
           </h2>
 
-          <div v-if="activeRemakes.length === 0" class="p-6 bg-[#1A1A1A] rounded-lg border border-[#404040]/30 text-center text-gray-500 text-sm">
+          <div v-if="activeRemakes.length === 0" class="p-6 bg-background rounded-lg border border-border/30 text-center text-muted-foreground text-sm">
             Không có món nào đang làm lại.
           </div>
 
@@ -229,7 +229,7 @@
               <span class="remake-priority">P1 - HIGH</span>
             </div>
 
-            <div class="text-sm text-gray-200 mt-2">
+            <div class="text-sm text-foreground mt-2">
               <div v-for="item in remake.items" :key="item.name" class="font-semibold">
                 {{ item.qty }}x {{ item.name }}
               </div>
@@ -239,8 +239,8 @@
               Lý do: {{ remake.reason || 'Lỗi chế biến' }} ({{ remake.severity || 'Medium' }})
             </div>
 
-            <div class="flex justify-between items-center mt-3 pt-2 border-t border-[#404040]/50">
-              <span class="text-xs text-gray-400 font-mono">
+            <div class="flex justify-between items-center mt-3 pt-2 border-t border-border/50">
+              <span class="text-xs text-muted-foreground font-mono">
                 Bắt đầu: {{ formatWaitTime(remake.elapsedTime || 0) }}
               </span>
               <span class="remake-status" :class="remake.status === 'Preparing' ? 'cooking' : 'waiting'">
@@ -252,34 +252,34 @@
 
         <!-- Statistics Panel -->
         <div class="statistics-panel">
-          <h3 class="statistics-title">Thông số vận hành hôm nay</h3>
+          <h3 class="statistics-title">{{ $t('kitchen_expo.today_stats') }}</h3>
           <div class="statistics-grid">
             <div class="stat-box">
               <div class="stat-value good">{{ stats.passRate }}%</div>
-              <div class="stat-label">Tỉ lệ đạt</div>
+              <div class="stat-label">{{ $t('kitchen_expo.pass_rate') }}</div>
             </div>
             <div class="stat-box">
               <div class="stat-value warning">{{ stats.remakeRate }}%</div>
-              <div class="stat-label">Tỉ lệ remake</div>
+              <div class="stat-label">{{ $t('kitchen_expo.remake_rate') }}</div>
             </div>
             <div class="stat-box">
               <div class="stat-value info">{{ stats.avgQCTime }}m</div>
-              <div class="stat-label">Thời gian QC TB</div>
+              <div class="stat-label">{{ $t('kitchen_expo.avg_qc_time') }}</div>
             </div>
           </div>
 
-          <div class="mt-4 p-3 bg-[#2D2D2D] rounded-lg border border-[#404040]/50 text-xs text-gray-400">
+          <div class="mt-4 p-3 bg-card rounded-lg border border-border/50 text-xs text-muted-foreground">
             <div class="flex justify-between mb-1">
-              <span>Tổng số lượng QC:</span>
-              <span class="text-gray-200 font-bold">{{ stats.totalQC }} món</span>
+              <span>{{ $t('kitchen_expo.total_qc') }}</span>
+              <span class="text-foreground font-bold">{{ stats.totalQC }} món</span>
             </div>
             <div class="flex justify-between mb-1">
-              <span>Đạt tiêu chuẩn lần đầu:</span>
-              <span class="text-green-400 font-bold">{{ stats.firstPass }} món</span>
+              <span>{{ $t('kitchen_expo.first_pass') }}</span>
+              <span class="text-green-700 font-bold">{{ stats.firstPass }} món</span>
             </div>
             <div class="flex justify-between">
               <span>Waste logged:</span>
-              <span class="text-red-400 font-bold">{{ wasteLog.length }} món</span>
+              <span class="text-red-700 font-bold">{{ wasteLog.length }} món</span>
             </div>
           </div>
         </div>
@@ -297,8 +297,8 @@
         <div class="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
           <!-- Item Summary -->
           <div>
-            <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Món ăn không đạt</label>
-            <div class="p-3 bg-[#1A1A1A] border border-[#404040] rounded-xl text-sm font-semibold">
+            <label class="text-xs text-muted-foreground uppercase font-bold block mb-1">{{ $t('kitchen_expo.failed_item') }}</label>
+            <div class="p-3 bg-background border border-border rounded-xl text-sm font-semibold">
               <div v-for="item in selectedQcOrder.items" :key="item.id">
                 {{ item.qty }}x {{ item.name }}
               </div>
@@ -307,7 +307,7 @@
 
           <!-- QC Failure Reasons -->
           <div class="reason-group">
-            <label class="reason-group-title">Lý do không đạt</label>
+            <label class="reason-group-title">{{ $t('kitchen_expo.fail_reason') }}</label>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
               <div 
                 v-for="r in qcFailureReasons" 
@@ -323,33 +323,33 @@
 
             <!-- Custom text if Other -->
             <input 
-              v-if="qcFailSelectedReason === 'Khác'"
+              v-if="qcFailSelectedReason === t('kitchen_expo.other')"
               v-model="qcFailCustomReason"
               type="text"
               placeholder="Nhập chi tiết nguyên nhân khác..."
-              class="w-full bg-[#1A1A1A] border border-[#616161] rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-[#C62828] mt-2"
+              class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm text-foreground focus:outline-none focus:border-[#C62828] mt-2"
             >
           </div>
 
           <!-- Severity selection -->
           <div>
-            <label class="text-xs text-gray-400 uppercase font-bold block mb-2">Mức độ nghiêm trọng</label>
+            <label class="text-xs text-muted-foreground uppercase font-bold block mb-2">{{ $t('kitchen_expo.severity') }}</label>
             <div class="severity-group">
               <div 
-                @click="qcFailSeverity = 'Thấp'"
+                @click="qcFailSeverity = t('kitchen_expo.low')"
                 class="severity-option"
-                :class="{ selected: qcFailSeverity === 'Thấp', low: true }"
+                :class="{ selected: qcFailSeverity === t('kitchen_expo.low'), low: true }"
               >
                 <div class="severity-icon">🟢</div>
-                <div class="severity-label">Thấp</div>
+                <div class="severity-label">{{ $t('kitchen_expo.low') }}</div>
               </div>
               <div 
-                @click="qcFailSeverity = 'Trung bình'"
+                @click="qcFailSeverity = t('kitchen_expo.medium')"
                 class="severity-option"
-                :class="{ selected: qcFailSeverity === 'Trung bình', medium: true }"
+                :class="{ selected: qcFailSeverity === t('kitchen_expo.medium'), medium: true }"
               >
                 <div class="severity-icon">🟡</div>
-                <div class="severity-label">Trung bình</div>
+                <div class="severity-label">{{ $t('kitchen_expo.medium') }}</div>
               </div>
               <div 
                 @click="qcFailSeverity = 'Cao'"
@@ -357,19 +357,19 @@
                 :class="{ selected: qcFailSeverity === 'Cao', high: true }"
               >
                 <div class="severity-icon">🔴</div>
-                <div class="severity-label">Cao (Dị ứng/Dị vật)</div>
+                <div class="severity-label">{{ $t('kitchen_expo.high_allergy') }}</div>
               </div>
             </div>
           </div>
 
           <!-- Notes -->
           <div>
-            <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Ghi chú thêm</label>
+            <label class="text-xs text-muted-foreground uppercase font-bold block mb-1">{{ $t('kitchen_expo.additional_notes') }}</label>
             <textarea 
               v-model="qcFailNotes" 
               rows="3" 
               placeholder="Nhập lưu ý thêm cho bếp khi chế biến lại (ví dụ: chú ý làm chín kỹ hơn, không bỏ đậu phộng...)"
-              class="w-full bg-[#1A1A1A] border border-[#404040] rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-red-600 resize-none"
+              class="w-full bg-background border border-border rounded-xl px-4 py-2 text-sm text-foreground focus:outline-none focus:border-red-600 resize-none"
             ></textarea>
           </div>
 
@@ -378,7 +378,7 @@
           </div>
         </div>
 
-        <div class="bg-[#2D2D2D] p-6 border-t border-[#404040] flex gap-3 justify-end">
+        <div class="bg-card p-6 border-t border-border flex gap-3 justify-end">
           <button @click="showQcFailModal = false" class="modal-btn cancel">
             Hủy
           </button>
@@ -395,18 +395,18 @@
     <!-- 5. MODAL "ĐẠT" (SERVICE HANDOFF) -->
     <div v-if="showQcPassModal && selectedQcOrder" class="modal-overlay" @click.self="showQcPassModal = false">
       <div class="modal-content max-w-[500px]">
-        <div class="modal-header border-b border-[#404040] pb-4 mb-4">
-          <h3 class="text-lg font-bold text-green-400 flex items-center gap-2">
+        <div class="modal-header border-b border-border pb-4 mb-4">
+          <h3 class="text-lg font-bold text-green-700 flex items-center gap-2">
             🎉 Món đã đạt chuẩn QC!
           </h3>
-          <p class="text-xs text-gray-400 mt-0.5">Bàn {{ getTableCode(selectedQcOrder.table) }} &bull; Ticket #{{ selectedQcOrder.id.slice(0, 8) }}</p>
+          <p class="text-xs text-muted-foreground mt-0.5">Bàn {{ getTableCode(selectedQcOrder.table) }} &bull; Ticket #{{ selectedQcOrder.id.slice(0, 8) }}</p>
         </div>
 
         <div class="space-y-4">
           <div>
-            <label class="text-xs text-gray-400 uppercase font-bold block mb-1">Tóm tắt các món ra bàn</label>
-            <div class="p-3 bg-[#1A1A1A] border border-green-900/30 rounded-xl space-y-1">
-              <div v-for="item in selectedQcOrder.items" :key="item.id" class="flex justify-between text-sm text-gray-200">
+            <label class="text-xs text-muted-foreground uppercase font-bold block mb-1">{{ $t('kitchen_expo.summary_served_items') }}</label>
+            <div class="p-3 bg-background border border-green-900/30 rounded-xl space-y-1">
+              <div v-for="item in selectedQcOrder.items" :key="item.id" class="flex justify-between text-sm text-foreground">
                 <span>{{ item.qty }}x {{ item.name }}</span>
                 <span class="text-green-500 font-semibold">Đạt chuẩn ✓</span>
               </div>
@@ -414,18 +414,18 @@
           </div>
 
           <!-- Time statistics -->
-          <div class="bg-[#1A1A1A] p-3 rounded-xl border border-[#404040]">
+          <div class="bg-background p-3 rounded-xl border border-border">
             <div class="flex justify-between text-xs mb-1">
-              <span class="text-gray-400">Thời gian chế biến:</span>
-              <span class="text-gray-200 font-bold font-mono">{{ formatWaitTime(selectedQcOrder.waitTime) }}</span>
+              <span class="text-muted-foreground">{{ $t('kitchen_expo.cooking_time') }}</span>
+              <span class="text-foreground font-bold font-mono">{{ formatWaitTime(selectedQcOrder.waitTime) }}</span>
             </div>
             <div class="flex justify-between text-xs mb-1">
-              <span class="text-gray-400">Thời gian tiêu chuẩn:</span>
-              <span class="text-gray-200 font-bold font-mono">15:00</span>
+              <span class="text-muted-foreground">{{ $t('kitchen_expo.standard_time') }}</span>
+              <span class="text-foreground font-bold font-mono">15:00</span>
             </div>
-            <div class="flex justify-between text-xs pt-1.5 border-t border-[#333]">
-              <span class="text-green-400 font-bold">Trạng thái:</span>
-              <span class="text-green-400 font-bold">
+            <div class="flex justify-between text-xs pt-1.5 border-t border-border">
+              <span class="text-green-700 font-bold">{{ $t('kitchen_expo.status') }}</span>
+              <span class="text-green-700 font-bold">
                 {{ selectedQcOrder.waitTime < 900 ? 'SỚM HƠN ' + formatWaitTime(900 - selectedQcOrder.waitTime) : 'TRỄ' }}
               </span>
             </div>
@@ -433,30 +433,30 @@
 
           <!-- Runner actions -->
           <div class="space-y-2">
-            <label class="text-xs text-gray-400 uppercase font-bold block">Gọi staff/runner lấy món</label>
+            <label class="text-xs text-muted-foreground uppercase font-bold block">{{ $t('kitchen_expo.call_staff') }}</label>
             <div class="grid grid-cols-3 gap-2">
-              <button @click="triggerRunnerCall('bell')" class="py-2.5 px-2 bg-[#3D3D3D] hover:bg-[#4d4d4d] border border-[#616161] text-xs font-bold rounded-lg transition-all flex flex-col items-center justify-center gap-1.5">
+              <button @click="triggerRunnerCall('bell')" class="py-2.5 px-2 bg-muted hover:bg-[#4d4d4d] border border-border text-xs font-bold rounded-lg transition-all flex flex-col items-center justify-center gap-1.5">
                 <span>🔔</span>
-                <span>BẤM CHUÔNG</span>
+                <span>{{ $t('kitchen_expo.ring_bell') }}</span>
               </button>
-              <button @click="triggerRunnerCall('notify')" class="py-2.5 px-2 bg-[#3D3D3D] hover:bg-[#4d4d4d] border border-[#616161] text-xs font-bold rounded-lg transition-all flex flex-col items-center justify-center gap-1.5">
+              <button @click="triggerRunnerCall('notify')" class="py-2.5 px-2 bg-muted hover:bg-[#4d4d4d] border border-border text-xs font-bold rounded-lg transition-all flex flex-col items-center justify-center gap-1.5">
                 <span>📱</span>
-                <span>GỬI NOTIFY</span>
+                <span>{{ $t('kitchen_expo.send_notify') }}</span>
               </button>
-              <button @click="triggerRunnerCall('voice')" class="py-2.5 px-2 bg-[#3D3D3D] hover:bg-[#4d4d4d] border border-[#616161] text-xs font-bold rounded-lg transition-all flex flex-col items-center justify-center gap-1.5">
+              <button @click="triggerRunnerCall('voice')" class="py-2.5 px-2 bg-muted hover:bg-[#4d4d4d] border border-border text-xs font-bold rounded-lg transition-all flex flex-col items-center justify-center gap-1.5">
                 <span>🗣️</span>
-                <span>GỌI TÊN</span>
+                <span>{{ $t('kitchen_expo.call_name') }}</span>
               </button>
             </div>
             
-            <div class="mt-2 text-xs text-gray-400 flex justify-between items-center bg-[#2D2D2D] p-2.5 rounded-lg border border-[#404040]">
-              <span>Staff phụ trách (Runner):</span>
-              <span class="text-gray-200 font-bold">Nguyễn Văn A (Runner)</span>
+            <div class="mt-2 text-xs text-muted-foreground flex justify-between items-center bg-card p-2.5 rounded-lg border border-border">
+              <span>{{ $t('kitchen_expo.runner_in_charge') }}</span>
+              <span class="text-foreground font-bold">Nguyễn Văn A (Runner)</span>
             </div>
           </div>
         </div>
 
-        <div class="modal-actions mt-6 border-t border-[#404040] pt-4">
+        <div class="modal-actions mt-6 border-t border-border pt-4">
           <button @click="showQcPassModal = false" class="modal-btn cancel">
             HỦY
           </button>
@@ -469,31 +469,31 @@
 
     <!-- Delayed Orders Modal -->
     <div v-if="kitchenStore.showDelayedOrdersModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in" @click.self="kitchenStore.showDelayedOrdersModal = false">
-      <div class="bg-[#2D2D2D] border border-[#404040] rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl animate-scale-up">
+      <div class="bg-card border border-border rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl animate-scale-up">
         <!-- Header -->
         <div class="p-6 bg-[#C62828] text-white flex items-center justify-between">
           <div class="flex items-center gap-3">
             <span class="text-2xl">⚠️</span>
             <div>
-              <h3 class="text-lg font-bold">CẢNH BÁO: ĐƠN CHẾ BIẾN TRỄ</h3>
-              <p class="text-xs text-red-100">Các đơn hàng vượt quá thời gian chuẩn (15 phút)</p>
+              <h3 class="text-lg font-bold">{{ $t('kitchen_expo.warning_delayed') }}</h3>
+              <p class="text-xs text-red-100">{{ $t('kitchen_expo.warning_delayed_desc') }}</p>
             </div>
           </div>
-          <button @click="kitchenStore.showDelayedOrdersModal = false" class="text-white/80 hover:text-white text-xl font-bold">&times;</button>
+          <button @click="kitchenStore.showDelayedOrdersModal = false" class="text-foreground/80 hover:text-foreground text-xl font-bold">&times;</button>
         </div>
         
         <!-- Body -->
         <div class="p-6 max-h-[400px] overflow-y-auto space-y-4">
-          <div v-if="kitchenStore.delayedTickets.length === 0" class="text-center py-8 text-gray-400">
+          <div v-if="kitchenStore.delayedTickets.length === 0" class="text-center py-8 text-muted-foreground">
             Không có đơn hàng nào bị trễ.
           </div>
-          <div v-else v-for="ticket in kitchenStore.delayedTickets" :key="ticket.id" class="p-4 bg-[#1A1A1A] border border-red-500/30 rounded-xl flex items-center justify-between gap-4">
+          <div v-else v-for="ticket in kitchenStore.delayedTickets" :key="ticket.id" class="p-4 bg-background border border-red-500/30 rounded-xl flex items-center justify-between gap-4">
             <div class="space-y-1">
               <div class="flex items-center gap-2">
                 <span class="bg-[#C62828] text-white text-xs px-2.5 py-0.5 rounded-full font-bold">Bàn {{ ticket.table }}</span>
-                <span class="text-gray-400 text-xs font-mono">{{ ticket.time }}</span>
+                <span class="text-muted-foreground text-xs font-mono">{{ ticket.time }}</span>
               </div>
-              <div class="text-sm font-semibold text-gray-200">
+              <div class="text-sm font-semibold text-foreground">
                 <div v-for="item in ticket.items" :key="item.id" class="inline-block mr-3">
                   {{ item.name }} x{{ item.qty }}
                 </div>
@@ -501,14 +501,14 @@
             </div>
             <div class="text-right">
               <div class="text-red-500 font-bold text-sm">{{ Math.floor(ticket.waitTime / 60) }} phút</div>
-              <div class="text-xs text-gray-500">Thời gian chờ</div>
+              <div class="text-xs text-muted-foreground">{{ $t('kitchen_expo.wait_time') }}</div>
             </div>
           </div>
         </div>
         
         <!-- Footer -->
-        <div class="p-4 bg-[#1A1A1A] border-t border-[#404040] flex justify-end">
-          <button @click="kitchenStore.showDelayedOrdersModal = false" class="px-5 py-2 rounded-xl bg-gray-700 hover:bg-gray-600 text-white font-bold text-sm transition-all">Đóng</button>
+        <div class="p-4 bg-background border-t border-border flex justify-end">
+          <button @click="kitchenStore.showDelayedOrdersModal = false" class="px-5 py-2 rounded-xl bg-muted hover:bg-gray-600 text-foreground font-bold text-sm transition-all">{{ $t('kitchen_expo.close') }}</button>
         </div>
       </div>
     </div>
@@ -516,12 +516,15 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
 import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
 import { supabase } from '@/lib/supabase';
 import { useRealtime } from '@/composables/useRealtime';
 import { mockQCOrders, mockRemakeQueue, mockStatistics } from '@/data/mockExpoData';
 import { useKitchenStore } from '@/stores/kitchen';
 import HeaderButtons from '@/components/HeaderButtons.vue';
+
+const { t } = useI18n();
 
 const { watchTable } = useRealtime();
 const kitchenStore = useKitchenStore();
@@ -577,31 +580,31 @@ const showQcFailModal = ref(false);
 const showQcPassModal = ref(false);
 const selectedQcOrder = ref<Order | null>(null);
 
-const qcFailSelectedReason = ref('Cháy / Quá chín');
+const qcFailSelectedReason = ref(t('kitchen_expo.reason_burnt'));
 const qcFailCustomReason = ref('');
-const qcFailSeverity = ref('Trung bình');
+const qcFailSeverity = ref(t('kitchen_expo.medium'));
 const qcFailNotes = ref('');
 
 const notificationCount = ref(1);
 
 // Static definitions
 const qcCriteriaLabels = {
-  plating: 'Hình thức trình bày đẹp, đúng dĩa quy định',
-  temperature: 'Nhiệt độ món ăn đạt chuẩn (≥ 60°C đối với đồ nóng)',
-  portion: 'Định lượng đúng chuẩn định mức (sai số tối đa ±10%)',
-  allergy: 'Đáp ứng các lưu ý dị ứng của khách (Đã kiểm tra kỹ)',
-  taste: 'Mùi vị đạt tiêu chuẩn (đặc biệt các món nướng tái/chín)'
+  plating: t('kitchen_expo.criteria_plating'),
+  temperature: t('kitchen_expo.criteria_temperature'),
+  portion: t('kitchen_expo.criteria_portion'),
+  allergy: t('kitchen_expo.criteria_allergy'),
+  taste: t('kitchen_expo.criteria_taste')
 };
 
 const qcFailureReasons = [
-  'Cháy / Quá chín',
-  'Sống / Chưa đạt độ chín',
-  'Sai định lượng',
-  'Sai ghi chú (Không hành, ít cay...)',
-  'Dị ứng / Kiêng kỵ (NGHIÊM TRỌNG)',
-  'Hình thức không đạt',
-  'Nhiệt độ không đạt',
-  'Khác'
+  t('kitchen_expo.reason_burnt'),
+  t('kitchen_expo.reason_undercooked'),
+  t('kitchen_expo.reason_wrong_portion'),
+  t('kitchen_expo.reason_wrong_note'),
+  t('kitchen_expo.reason_allergy'),
+  t('kitchen_expo.reason_bad_presentation'),
+  t('kitchen_expo.reason_bad_temp'),
+  t('kitchen_expo.other')
 ];
 
 let clockInterval: any = null;
@@ -748,7 +751,7 @@ const hasOrderAllergy = (order: Order): boolean => {
 
 const getOrderAllergyNotes = (order: Order): string => {
   const notes = order.items.filter(i => i.note).map(i => `${i.name}: ${i.note}`).join('; ');
-  return notes || 'Khách dị ứng thành phần món ăn';
+  return notes || t('kitchen_expo.customer_allergic');
 };
 
 // Remake checkings
@@ -846,9 +849,9 @@ const submitQcPass = () => {
 // QC Fail logic
 const openQcFail = (order: Order) => {
   selectedQcOrder.value = order;
-  qcFailSelectedReason.value = 'Cháy / Quá chín';
+  qcFailSelectedReason.value = t('kitchen_expo.reason_burnt');
   qcFailCustomReason.value = '';
-  qcFailSeverity.value = 'Trung bình';
+  qcFailSeverity.value = t('kitchen_expo.medium');
   qcFailNotes.value = '';
   showQcFailModal.value = true;
 };
@@ -857,7 +860,7 @@ const submitQcFail = async (shouldRemake: boolean) => {
   if (!selectedQcOrder.value) return;
   const order = selectedQcOrder.value;
   
-  const finalReason = qcFailSelectedReason.value === 'Khác' ? qcFailCustomReason.value : qcFailSelectedReason.value;
+  const finalReason = qcFailSelectedReason.value === t('kitchen_expo.other') ? qcFailCustomReason.value : qcFailSelectedReason.value;
   
   // Add to waste logs
   const wasteItem = {

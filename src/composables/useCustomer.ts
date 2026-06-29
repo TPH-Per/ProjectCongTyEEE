@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 import { supabase } from '@/lib/supabase'
-import { useBranch } from './useBranch'
+import { useBranch, throwBranchGuard } from './useBranch'
 import type { Customer } from '@/types/database'
 
 export function useCustomer() {
@@ -14,7 +14,7 @@ export function useCustomer() {
     const { data, error: err } = await supabase
       .from('customers')
       .select('*')
-      .eq('branch_id', activeBranchId.value!)
+      .eq('branch_id', (activeBranchId.value ?? throwBranchGuard()))
       .eq('phone', phone)
       .limit(5)
     loading.value = false
@@ -42,7 +42,7 @@ export function useCustomer() {
     const { data, error: err } = await supabase
       .from('customers')
       .select('*')
-      .eq('branch_id', activeBranchId.value!)
+      .eq('branch_id', (activeBranchId.value ?? throwBranchGuard()))
       .eq('is_vip', true)
       .order('total_spent', { ascending: false })
     loading.value = false
@@ -55,3 +55,4 @@ export function useCustomer() {
 
   return { loading, error, searchByPhone, upsert, listVip }
 }
+

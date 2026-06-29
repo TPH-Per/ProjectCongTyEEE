@@ -2,9 +2,9 @@
 <template>
   <div class="requisition-list">
     <div class="list-header">
-      <h2 class="list-title">DANH SÁCH YÊU CẦU XUẤT KHO</h2>
+      <h2 class="list-title">{{ t('req.title') }}</h2>
       <button class="btn-new" @click="$emit('create')">
-        <span>➕</span> Tạo Yêu Cầu Mới
+        <span>➕</span> {{ t('req.create') }}
       </button>
     </div>
 
@@ -20,28 +20,28 @@
           class="filter-search w-full"
         />
       </div>
-      <label for="station-filter" class="sr-only">Lọc theo bộ phận bếp</label>
-      <select id="station-filter" v-model="filterStation" class="filter-select">
-        <option value="all">Tất cả Bộ phận Bếp</option>
-        <option value="Bếp Nướng">Bếp Nướng</option>
-        <option value="Bếp Lẩu">Bếp Lẩu</option>
-        <option value="Bếp Chiên">Bếp Chiên</option>
-        <option value="Bếp Lạnh">Bếp Lạnh</option>
-        <option value="Quầy Bar">Quầy Bar</option>
+      <label for="type-filter" class="sr-only">Lọc theo loại</label>
+      <select id="type-filter" v-model="filterType" class="filter-select">
+        <option value="all">Tất cả Loại Phiếu</option>
+        <option value="OUTBOUND">{{ t('req.type.outbound') }}</option>
+        <option value="INBOUND">{{ t('req.type.inbound') }}</option>
+        <option value="RETURN">{{ t('req.type.return') }}</option>
       </select>
       <label for="status-filter" class="sr-only">Lọc theo trạng thái</label>
       <select id="status-filter" v-model="filterStatus" class="filter-select">
         <option value="all">Tất cả Trạng thái</option>
-        <option value="pending">Chờ duyệt</option>
-        <option value="approved">Đã duyệt</option>
-        <option value="delivered">Đã giao</option>
-        <option value="rejected">Từ chối</option>
+        <option value="PENDING">{{ t('req.status.pending') }}</option>
+        <option value="PROCESSING">{{ t('req.status.processing') }}</option>
+        <option value="APPROVED">{{ t('req.status.approved') }}</option>
+        <option value="COMPLETED">{{ t('req.status.completed') }}</option>
+        <option value="CANCELLED">{{ t('req.status.cancelled') }}</option>
+        <option value="REJECTED">{{ t('req.status.rejected') }}</option>
       </select>
     </div>
 
     <!-- Requisition Items Grid -->
     <div class="requisitions-container pr-1">
-      <div v-if="filteredRequisitions.length === 0" class="text-center py-12 text-gray-500 bg-[#2D2D2D] rounded-xl border border-[#404040]">
+      <div v-if="filteredRequisitions.length === 0" class="text-center py-12 text-muted-foreground bg-card rounded-xl border border-border">
         📭 Không tìm thấy phiếu yêu cầu xuất kho nào khớp với bộ lọc.
       </div>
       <div v-else class="space-y-4">
@@ -58,8 +58,11 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import type { Requisition } from '@/stores/kitchen';
+import type { Requisition } from '@/composables/useRequisition';
 import RequisitionCard from './RequisitionCard.vue';
+import { useLanguageStore } from '@/stores/useLanguageStore';
+
+const { t } = useLanguageStore();
 
 const props = defineProps<{
   requisitions: Requisition[];
@@ -71,25 +74,25 @@ const emit = defineEmits<{
 }>();
 
 const searchQuery = ref('');
-const filterStation = ref('all');
+const filterType = ref('all');
 const filterStatus = ref('all');
 
 const filteredRequisitions = computed(() => {
   return props.requisitions.filter(req => {
     // Search filter
     const matchesSearch = 
-      req.id.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-      req.actor.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-      req.notes.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-      req.items.some(i => i.name.toLowerCase().includes(searchQuery.value.toLowerCase()));
+      req.requisition_number.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      (req.requested_by_profile?.raw_user_meta_data?.full_name || '').toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      (req.note || '').toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      (req.requisition_items || []).some(i => (i.ingredients?.name_vi || '').toLowerCase().includes(searchQuery.value.toLowerCase()));
 
-    // Station filter
-    const matchesStation = filterStation.value === 'all' || req.station === filterStation.value;
+    // Type filter
+    const matchesType = filterType.value === 'all' || req.type === filterType.value;
 
     // Status filter
     const matchesStatus = filterStatus.value === 'all' || req.status === filterStatus.value;
 
-    return matchesSearch && matchesStation && matchesStatus;
+    return matchesSearch && matchesType && matchesStatus;
   });
 });
 </script>

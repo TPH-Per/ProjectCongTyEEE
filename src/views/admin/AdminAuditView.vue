@@ -159,7 +159,23 @@ const fetchLogs = async () => {
   if (error) {
     Swal.fire(t('admin_audit.alert.error'), t('admin_audit.alert.load_error') + error.message, 'error');
   } else {
-    auditLogs.value = data || [];
+    const logs = data || [];
+    const branchIds = [...new Set(logs.map(log => log.branch_id).filter(Boolean))];
+    const userIds = [...new Set(logs.map(log => log.actor_id).filter(Boolean))];
+
+    const [branchesRes, usersRes] = await Promise.all([
+      branchIds.length > 0 ? supabase.from('branches').select('id, name').in('id', branchIds) : Promise.resolve({ data: [] }),
+      userIds.length > 0 ? supabase.from('users').select('id, full_name').in('id', userIds) : Promise.resolve({ data: [] })
+    ]);
+
+    const branchMap = Object.fromEntries((branchesRes.data || []).map(b => [b.id, b]));
+    const userMap = Object.fromEntries((usersRes.data || []).map(u => [u.id, u]));
+
+    auditLogs.value = logs.map(log => ({
+      ...log,
+      branches: branchMap[log.branch_id] || null,
+      users: userMap[log.actor_id] || null
+    }));
   }
   loading.value = false;
 };

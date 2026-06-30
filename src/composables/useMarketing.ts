@@ -1,20 +1,66 @@
 import { ref } from 'vue'
 import { supabase } from '@/lib/supabase'
-import { useBranch } from './useBranch'
-import type { MarketingCost } from '@/types/database'
+import { useBranch, throwBranchGuard } from './useBranch'
 
 export function useMarketing() {
   const { activeBranchId } = useBranch()
   const loading = ref(false)
   const error = ref<string | null>(null)
 
-  async function listForPeriod(periodStart: string, periodEnd: string): Promise<MarketingCost[]> {
-    return [] as MarketingCost[]
+  async function fetchCampaigns() {
+    loading.value = true
+    error.value = null
+    try {
+      if (!activeBranchId.value) throwBranchGuard()
+      const { data, error: err } = await supabase
+        .from('campaigns')
+        .select('*')
+        .eq('branch_id', activeBranchId.value)
+        .order('created_at', { ascending: false })
+      if (err) throw err
+      return data || []
+    } catch (e: any) {
+      error.value = e.message
+      throw e
+    } finally {
+      loading.value = false
+    }
   }
 
-  async function create(payload: Partial<MarketingCost>): Promise<MarketingCost> {
-    return payload as MarketingCost
+  async function createCampaign(payload: any) {
+    loading.value = true
+    error.value = null
+    try {
+      if (!activeBranchId.value) throwBranchGuard()
+      const { data, error: err } = await supabase
+        .from('campaigns')
+        .insert({ ...payload, branch_id: activeBranchId.value })
+        .select()
+        .single()
+      if (err) throw err
+      return data
+    } catch (e: any) {
+      error.value = e.message
+      throw e
+    } finally {
+      loading.value = false
+    }
   }
 
-  return { loading, error, listForPeriod, create }
+  // legacy method for compatibility if needed elsewhere
+  async function listForPeriod(periodStart: string, periodEnd: string) {
+    return [] 
+  }
+  async function create(payload: any) {
+    return createCampaign(payload)
+  }
+
+  return {
+    loading,
+    error,
+    fetchCampaigns,
+    createCampaign,
+    listForPeriod,
+    create
+  }
 }

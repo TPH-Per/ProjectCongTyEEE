@@ -1,56 +1,95 @@
 import { ref } from 'vue'
-import { callEdgeFunction } from '@/utils/edge'
+import { supabase } from '@/lib/supabase'
 
-// NOTE: payload keys MUST match the Edge Function `checkout` contract
-// which uses camelCase (`orderId`, `revenueType`, `voucherCode`, ...).
-// See `supabase/functions/checkout/index.ts`.
-//
-// `receivedAmount` is required for cash payments so the function can compute
-// the change; `reference` is free-text (card last-4 / transfer ref / etc).
-export interface CheckoutPayload {
-  orderId: string
-  revenueType: 'lunch' | 'dinner' | 'wine' | 'delivery' | 'other'
-  customerId?: string
-  voucherCode?: string
-  taxCode?: string
-  customerCompany?: string
-  customerAddress?: string
-  payments: {
-    method: 'cash' | 'card' | 'transfer' | 'voucher' | 'other'
-    amount: number
-    receivedAmount?: number
-    reference?: string
-  }[]
-  notes?: string
+export interface CheckoutResult {
+  success: boolean
+  invoice_id: string
+  invoice_number: string
+  grand_total: number
 }
 
-export interface CheckoutResponse {
-  invoiceId: string
-  invoiceNumber: string
-  total: number
-  change: number
-  ok?: boolean
+export interface CheckoutPreview {
+  subtotal: number
+  voucherDiscount: number
+  pointsDiscount: number
+  netBeforeTax: number
+  vat: number
+  grandTotal: number
 }
 
 export function useCheckout() {
+  const checkoutResult = ref<CheckoutResult | null>(null)
   const loading = ref(false)
   const error = ref<string | null>(null)
 
-  async function checkout(payload: CheckoutPayload): Promise<CheckoutResponse> {
+  async function previewCheckout(params: {
+    orderId: string;
+    voucherCode?: string;
+    pointsToRedeem?: number;
+    orderTotal: number;
+    customerId?: string;
+  }): Promise<CheckoutPreview> {
+    // In a real app, you would call a RPC or calculate this dynamically
+    // Here we provide a stub estimation
+    let voucherDiscount = 0
+    if (params.voucherCode) {
+      voucherDiscount = 0 // Mock, would validate
+    }
+    const pointsDiscount = (params.pointsToRedeem || 0) * 1000
+    const netBeforeTax = Math.max(0, params.orderTotal - voucherDiscount - pointsDiscount)
+    const vat = netBeforeTax * 0.1
+    const grandTotal = netBeforeTax + vat
+
+    return {
+      subtotal: params.orderTotal,
+      voucherDiscount,
+      pointsDiscount,
+      netBeforeTax,
+      vat,
+      grandTotal
+    }
+  }
+
+  async function executeCheckout(params: {
+    orderId: string;
+    paymentMethod: string;
+    paymentRef?: string;
+    voucherCode?: string;
+    pointsToRedeem?: number;
+    serviceChargePct?: number;
+    vatPct?: number;
+    branchId: string;
+    cashierId: string;
+  }): Promise<CheckoutResult> {
     loading.value = true
     error.value = null
     try {
-      return await callEdgeFunction<CheckoutPayload, CheckoutResponse>(
-        'checkout',
-        payload,
-      )
-    } catch (e) {
-      error.value = e instanceof Error ? e.message : String(e)
+      const { data, error: err } = await supabase.rpc('process_checkout', {
+        p_order_id: params.orderId,
+        p_branch_id: params.branchId,
+        p_cashier_id: params.cashierId,
+        p_payment_method: params.paymentMethod,
+        p_voucher_code: params.voucherCode || null,
+        p_points_to_use: params.pointsToRedeem || 0
+      })
+      if (err) throw err
+      checkoutResult.value = data as any
+      return data as any
+    } catch (e: any) {
+      error.value = e.message || String(e)
       throw e
     } finally {
       loading.value = false
     }
   }
 
-  return { loading, error, checkout }
+  function printReceipt(result: CheckoutResult): void {
+    console.log('Printing receipt for', result.invoice_number)
+    window.print()
+  }
+
+  return {
+    checkoutResult, loading, error,
+    previewCheckout, executeCheckout, printReceipt
+  }
 }

@@ -34,13 +34,13 @@
       <div class="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center text-3xl mb-4 text-[#c62828] animate-bounce">
         ⚠️
       </div>
-      <h2 class="text-lg font-bold text-gray-900 tracking-tight">{{ $t('reception_order.quyen_truy_cap_bi_tu_choi') }}</h2>
-      <p class="text-sm text-gray-500 font-medium max-w-sm mt-1 mb-6">{{ $t('reception_order.vui_long_chon_mot_ban_an_dang') }}</p>
+      <h2 class="text-lg font-bold text-gray-900 tracking-tight">{{ t('reception_order.quyen_truy_cap_bi_tu_choi') }}</h2>
+      <p class="text-sm text-gray-500 font-medium max-w-sm mt-1 mb-6">{{ t('reception_order.vui_long_chon_mot_ban_an_dang') }}</p>
       <router-link 
         to="/reception/floors" 
         class="px-5 py-3 bg-[#c62828] hover:bg-[#b71c1c] text-white font-bold text-xs rounded-lg shadow-sm transition-all active:scale-95 flex items-center gap-2"
       >
-        <span>{{ $t('reception_order.di_toi_so_do_ban') }}</span>
+        <span>{{ t('reception_order.di_toi_so_do_ban') }}</span>
       </router-link>
     </div>
 
@@ -54,33 +54,33 @@
           <button 
             class="back-btn mr-2"
             @click="goBack"
-            :aria-label="$t('reception_order.quay_lai_aria')"
+            :aria-label="t('reception_order.quay_lai_aria')"
           >
             <span class="back-icon">⬅️</span>
-            <span class="back-text font-bold text-xs ml-1">{{ $t('reception_order.quay_lai') }}</span>
+            <span class="back-text font-bold text-xs ml-1">{{ t('reception_order.quay_lai') }}</span>
           </button>
 
           <!-- Restaurant logo -->
           <div class="flex items-center gap-2 font-bold text-base text-[#ff8f00]">
             <span class="text-xl">🐮</span>
-            <span>{{ $t('reception_order.nguu_cat_pos') }}</span>
+            <span>{{ t('reception_order.nguu_cat_pos') }}</span>
           </div>
           
           <!-- Order Number -->
           <div class="flex flex-col gap-0.5 border-l border-[#4a4a4a] pl-4">
-            <span class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">{{ $t('reception_order.hoa_don') }}</span>
+            <span class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">{{ t('reception_order.hoa_don') }}</span>
             <span class="text-xs font-bold font-mono text-gray-200">{{ activeOrder.orderNumber || 'WB_00001843' }}</span>
           </div>
 
           <!-- Customer Name -->
           <div class="flex flex-col gap-0.5 border-l border-[#4a4a4a] pl-4">
-            <span class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">{{ $t('reception_order.khach_hang') }}</span>
+            <span class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">{{ t('reception_order.khach_hang') }}</span>
             <span class="text-xs font-bold text-gray-200 truncate max-w-[120px]">{{ activeOrder.customerName || 'Ngoc' }}</span>
           </div>
 
           <!-- Open Time -->
           <div class="flex flex-col gap-0.5 border-l border-[#4a4a4a] pl-4">
-            <span class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">{{ $t('reception_order.gio_mo') }}</span>
+            <span class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">{{ t('reception_order.gio_mo') }}</span>
             <span class="text-xs font-mono text-gray-300">{{ activeOrder.openedTime || '11:30 24/06/2026' }}</span>
           </div>
 
@@ -103,7 +103,7 @@
         <div class="flex items-center gap-3">
           <!-- Session countdown timer -->
           <div class="flex items-center gap-2 bg-[#3a3a3a] border border-[#4a4a4a] px-3 py-1 rounded-lg text-xs font-semibold">
-            <span class="text-gray-400 uppercase tracking-wide text-[10px]">{{ $t('reception_order.thoi_gian') }}</span>
+            <span class="text-gray-400 uppercase tracking-wide text-[10px]">{{ t('reception_order.thoi_gian') }}</span>
             <span 
               :class="[
                 'font-mono font-bold px-1 rounded text-xs',
@@ -122,7 +122,7 @@
             <input 
               v-model="searchQuery" 
               type="text" 
-              :placeholder="$t('reception_order.tim_kiem')" 
+              :placeholder="t('reception_order.tim_kiem')" 
               class="bg-transparent border-none text-xs text-white placeholder-gray-500 focus:outline-none w-full"
             />
             <button v-if="searchQuery" @click="searchQuery = ''" class="text-gray-400 hover:text-white text-xs ml-1">✕</button>
@@ -133,14 +133,14 @@
             <button 
               @click="printDraftBill" 
               class="p-1.5 bg-[#3a3a3a] hover:bg-[#4a4a4a] border border-[#4a4a4a] rounded-lg transition-colors" 
-              :title="$t('reception_order.xem_hoa_don_tam_tinh')"
+              :title="t('reception_order.xem_hoa_don_tam_tinh')"
             >
               🖨️
             </button>
             <button 
               @click="openSettingsConfig" 
               class="p-1.5 bg-[#3a3a3a] hover:bg-[#4a4a4a] border border-[#4a4a4a] rounded-lg transition-colors" 
-              :title="$t('reception_order.cau_hinh_goi_ngon_ngu')"
+              :title="t('reception_order.cau_hinh_goi_ngon_ngu')"
             >
               ⚙️
             </button>
@@ -168,9 +168,9 @@
         >
           <div class="flex items-center gap-2">
             <span>⏰</span>
-            <span>{{ $t('reception_order.thoi_gian_do_uong_premium_da_k') }}</span>
+            <span>{{ t('reception_order.thoi_gian_do_uong_premium_da_k') }}</span>
           </div>
-          <button @click="openPinModal" class="px-2.5 py-1 bg-amber-700 text-white text-[10px] rounded hover:bg-amber-600 font-bold transition-all">{{ $t('reception_order.mo_khoa_pin') }}</button>
+          <button @click="openPinModal" class="px-2.5 py-1 bg-amber-700 text-white text-[10px] rounded hover:bg-amber-600 font-bold transition-all">{{ t('reception_order.mo_khoa_pin') }}</button>
         </div>
       </transition>
 
@@ -183,8 +183,8 @@
           <!-- Cart Header -->
           <div class="p-4 border-b border-[#3a3a3a] flex items-center justify-between shrink-0 select-none">
             <div class="flex flex-col">
-              <span class="font-bold text-xs text-gray-200">{{ $t('reception_order.ban_phuc_vu') }}</span>
-              <span class="text-sm font-black text-[#ff8f00] mt-0.5">{{ activeTableArea }} - {{ $t('reception_order.ban_text') }} {{ activeOrder.tableCode }}</span>
+              <span class="font-bold text-xs text-gray-200">{{ t('reception_order.ban_phuc_vu') }}</span>
+              <span class="text-sm font-black text-[#ff8f00] mt-0.5">{{ activeTableArea }} - {{ t('reception_order.ban_text') }} {{ activeOrder.tableCode }}</span>
             </div>
             
             <div class="flex items-center gap-2">
@@ -192,7 +192,7 @@
                 @click="clearCart" 
                 :disabled="activeOrder.items.length === 0"
                 class="px-2.5 py-1 text-[11px] font-bold bg-red-950/40 hover:bg-red-900/40 border border-red-900/50 text-red-400 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-              >{{ $t('reception_order.xoa_het') }}</button>
+              >{{ t('reception_order.xoa_het') }}</button>
             </div>
           </div>
 
@@ -201,17 +201,17 @@
             <div class="w-full text-left text-xs">
               <!-- Columns headers -->
               <div class="grid grid-cols-[45%_22%_13%_20%] font-bold text-gray-500 uppercase tracking-wider pb-2 border-b border-[#3a3a3a] px-1 select-none">
-                <div>{{ $t('reception_order.ten_mon') }}</div>
-                <div class="text-right">{{ $t('reception_order.don_gia') }}</div>
+                <div>{{ t('reception_order.ten_mon') }}</div>
+                <div class="text-right">{{ t('reception_order.don_gia') }}</div>
                 <div class="text-center">VAT</div>
-                <div class="text-right">{{ $t('reception_order.thanh_tien') }}</div>
+                <div class="text-right">{{ t('reception_order.thanh_tien') }}</div>
               </div>
 
               <!-- Cart Empty state -->
               <div v-if="activeOrder.items.length === 0" class="py-20 text-center text-gray-500 select-none">
                 <div class="text-4xl mb-3">🛒</div>
-                <p class="font-bold text-gray-400">{{ $t('reception_order.hoa_don_trong') }}</p>
-                <p class="text-[10px] text-gray-500 mt-1 max-w-[200px] mx-auto leading-relaxed">{{ $t('reception_order.vui_long_chon_mon_an_tu_thuc_d') }}</p>
+                <p class="font-bold text-gray-400">{{ t('reception_order.hoa_don_trong') }}</p>
+                <p class="text-[10px] text-gray-500 mt-1 max-w-[200px] mx-auto leading-relaxed">{{ t('reception_order.vui_long_chon_mon_an_tu_thuc_d') }}</p>
               </div>
 
               <!-- Cart items rows -->
@@ -223,7 +223,7 @@
                 >
                   <div class="pr-2">
                     <div class="font-bold text-gray-100 leading-tight">{{ item.name }}</div>
-                    <div class="text-[10px] text-gray-500 mt-0.5">{{ $t('reception_order.dvt') }}: {{ item.unit }}</div>
+                    <div class="text-[10px] text-gray-500 mt-0.5">{{ t('reception_order.dvt') }}: {{ item.unit }}</div>
                     
                     <!-- Counter Controls -->
                     <div class="flex items-center gap-1 mt-2 select-none">
@@ -243,7 +243,7 @@
                       <button 
                         @click="removeItem(item.id)" 
                         class="text-red-500 hover:text-red-400 text-xs ml-2.5 opacity-0 group-hover:opacity-100 transition-opacity"
-                        :title="$t('reception_order.xoa_mon_khoi_gio')"
+                        :title="t('reception_order.xoa_mon_khoi_gio')"
                       >
                         ✕
                       </button>
@@ -251,14 +251,14 @@
                   </div>
 
                   <div class="text-right font-mono font-bold text-gray-300 mt-0.5">
-                    <span v-if="isItemInPackage(item, activeSettings.package)" class="text-emerald-500 text-[10px] block leading-tight">{{ $t('reception_order.trong_goi') }}</span>
+                    <span v-if="isItemInPackage(item, activeSettings.package)" class="text-emerald-500 text-[10px] block leading-tight">{{ t('reception_order.trong_goi') }}</span>
                     <span v-else>{{ formatVND(item.price) }}</span>
                   </div>
 
                   <div class="text-center font-mono text-gray-400 mt-0.5">10%</div>
 
                   <div class="text-right font-mono font-bold text-[#ff8f00] mt-0.5">
-                    <span v-if="isItemInPackage(item, activeSettings.package)" class="text-emerald-500 text-xs">{{ $t('reception_order.0d') }}</span>
+                    <span v-if="isItemInPackage(item, activeSettings.package)" class="text-emerald-500 text-xs">{{ t('reception_order.0d') }}</span>
                     <span v-else>{{ formatVND(item.price * item.quantity) }}</span>
                   </div>
                 </div>
@@ -269,27 +269,27 @@
           <!-- Sticky summary footer -->
           <div class="border-t border-[#3a3a3a] bg-[#1e1e1e] p-4 text-xs font-semibold text-gray-300 space-y-2 select-none shrink-0">
             <div class="flex justify-between items-center">
-              <span class="text-gray-400">{{ $t('reception_order.tam_tinh_mon_goi') }}</span>
+              <span class="text-gray-400">{{ t('reception_order.tam_tinh_mon_goi') }}</span>
               <span class="font-mono text-gray-200">{{ formatVND(summary.subtotal) }}</span>
             </div>
             <div class="flex justify-between items-center text-gray-400">
-              <span>{{ $t('reception_order.phi_dich_vu_5') }}</span>
+              <span>{{ t('reception_order.phi_dich_vu_5') }}</span>
               <span class="font-mono">{{ formatVND(summary.serviceCharge) }}</span>
             </div>
             <div class="flex justify-between items-center text-gray-400">
-              <span>{{ $t('reception_order.thue_gtgt_vat_10') }}</span>
+              <span>{{ t('reception_order.thue_gtgt_vat_10') }}</span>
               <span class="font-mono">{{ formatVND(summary.vat) }}</span>
             </div>
             
             <div class="flex justify-between items-center pt-2 border-t border-[#3a3a3a]">
-              <span class="text-gray-400 flex items-center gap-1.5">{{ $t('reception_order.tong_so_luong_mon') }}</span>
+              <span class="text-gray-400 flex items-center gap-1.5">{{ t('reception_order.tong_so_luong_mon') }}</span>
               <span class="bg-[#ff8f00] text-white font-mono px-2 py-0.5 rounded-full text-[10px] font-bold">
-                {{ activeOrder.items.reduce((sum, item) => sum + item.quantity, 0) }} {{ $t('reception_order.mon') }}
+                {{ activeOrder.items.reduce((sum, item) => sum + item.quantity, 0) }} {{ t('reception_order.mon') }}
               </span>
             </div>
             
             <div class="flex justify-between items-center text-sm font-bold text-white pt-1">
-              <span>{{ $t('reception_order.tong_thanh_toan_label') }}</span>
+              <span>{{ t('reception_order.tong_thanh_toan_label') }}</span>
               <span class="text-xl font-mono text-[#ff8f00]">{{ formatVND(summary.grandTotal) }}</span>
             </div>
             
@@ -297,19 +297,19 @@
               <button 
                 @click="holdOrder"
                 class="py-2 bg-[#2d2d2d] hover:bg-[#333333] border border-[#4a4a4a] text-white text-xs font-bold rounded-lg transition-all"
-              >{{ $t('reception_order.tam_luu') }}</button>
+              >{{ t('reception_order.tam_luu') }}</button>
               <button
                 @click="sendToKitchen"
                 :disabled="activeOrder.items.length === 0 || kitchenLoading"
                 class="py-2 bg-[#1976d2] hover:bg-[#1565c0] text-white text-xs font-bold rounded-lg disabled:opacity-40 disabled:cursor-not-allowed transition-all"
-              >{{ kitchenLoading ? '...' : $t('reception_order.gui_bep') }}</button>
+              >{{ kitchenLoading ? '...' : t('reception_order.gui_bep') }}</button>
             </div>
             
             <button 
               @click="checkoutTable"
               class="w-full py-2.5 bg-[#c62828] hover:bg-[#b71c1c] text-white text-xs font-bold rounded-xl shadow-md transition-all active:scale-95 flex items-center justify-center gap-2 mt-2"
             >
-              💸 {{ $t('reception_order.in_thanh_toan_bill') }}
+              💸 {{ t('reception_order.in_thanh_toan_bill') }}
             </button>
           </div>
         </aside>
@@ -349,9 +349,9 @@
                     v-model="activeStatusFilter" 
                     class="bg-[#3a3a3a] text-xs text-gray-200 border border-[#4a4a4a] rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-[#ff8f00] cursor-pointer"
                   >
-                    <option value="all">{{ $t('reception_order.tat_ca_mon') }}</option>
-                    <option value="available">{{ $t('reception_order.con_mon') }}</option>
-                    <option value="unavailable">{{ $t('reception_order.het_mon') }}</option>
+                    <option value="all">{{ t('reception_order.tat_ca_mon') }}</option>
+                    <option value="available">{{ t('reception_order.con_mon') }}</option>
+                    <option value="unavailable">{{ t('reception_order.het_mon') }}</option>
                   </select>
 
                   <!-- Price Sort -->
@@ -359,16 +359,16 @@
                     v-model="priceSort" 
                     class="bg-[#3a3a3a] text-xs text-gray-200 border border-[#4a4a4a] rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-[#ff8f00] cursor-pointer"
                   >
-                    <option value="">{{ $t('reception_order.khong_sap_xep') }}</option>
-                    <option value="asc">{{ $t('reception_order.gia_thap_cao') }}</option>
-                    <option value="desc">{{ $t('reception_order.gia_cao_thap') }}</option>
+                    <option value="">{{ t('reception_order.khong_sap_xep') }}</option>
+                    <option value="asc">{{ t('reception_order.gia_thap_cao') }}</option>
+                    <option value="desc">{{ t('reception_order.gia_cao_thap') }}</option>
                   </select>
                 </div>
               </div>
               
               <!-- Right: Toggle to show only course package elements -->
               <div v-if="activeSettings.package" class="flex items-center gap-2 bg-[#3a3a3a] border border-[#4a4a4a] px-3 py-1 rounded-full text-xs">
-                <span class="text-gray-400 font-bold text-[10px] uppercase">{{ $t('reception_order.chi_mon_trong_goi') }} ({{ activeSettings.package }}):</span>
+                <span class="text-gray-400 font-bold text-[10px] uppercase">{{ t('reception_order.chi_mon_trong_goi') }} ({{ activeSettings.package }}):</span>
                 <button 
                   @click="showOnlyPackageItems = !showOnlyPackageItems"
                   :class="[
@@ -389,14 +389,14 @@
             <!-- Loading Spinner -->
             <div v-if="isGridLoading" class="h-64 flex flex-col items-center justify-center text-gray-400 select-none">
               <div class="w-8 h-8 border-4 border-[#ff8f00] border-t-transparent rounded-full animate-spin"></div>
-              <p class="text-xs font-bold mt-4">{{ $t('reception_order.dang_loc_danh_muc_san_pham') }}</p>
+              <p class="text-xs font-bold mt-4">{{ t('reception_order.dang_loc_danh_muc_san_pham') }}</p>
             </div>
 
             <!-- Empty Items layout -->
             <div v-else-if="finalFilteredItems.length === 0" class="h-64 flex flex-col items-center justify-center text-gray-500 text-center border border-dashed border-[#4a4a4a] rounded-2xl p-6 select-none">
               <div class="text-4xl mb-2">🍽️</div>
-              <h4 class="font-bold text-gray-400 text-xs">{{ $t('reception_order.khong_tim_thay_mon_an_nao_khop') }}</h4>
-              <p class="text-[10px] text-gray-500 mt-1 max-w-[280px]">{{ $t('reception_order.thuc_don_hien_tai_khong_co_mon') }}</p>
+              <h4 class="font-bold text-gray-400 text-xs">{{ t('reception_order.khong_tim_thay_mon_an_nao_khop') }}</h4>
+              <p class="text-[10px] text-gray-500 mt-1 max-w-[280px]">{{ t('reception_order.thuc_don_hien_tai_khong_co_mon') }}</p>
             </div>
 
             <!-- Responsive Product Card Grid -->
@@ -424,9 +424,9 @@
                   {{ getJpAndViNames(product.name).vi }}
                 </h3>
 
-                <!-- Badge {{ $t('reception_order.trong_goi_upper') }} hoặc Giá -->
+                <!-- Badge {{ t('reception_order.trong_goi_upper') }} hoặc Giá -->
                 <div v-if="isItemInPackage(product, activeSettings.package) || product.price === 0" class="badge-included">
-                  {{ $t('reception_order.trong_goi_upper') }}
+                  {{ t('reception_order.trong_goi_upper') }}
                 </div>
                 <div v-else class="item-price">
                   {{ formatPrice(product.price) }}
@@ -434,7 +434,7 @@
 
                 <!-- Footer: ĐVT + Icon Info -->
                 <div class="card-footer">
-                  <span class="unit-label">{{ $t('reception_order.dvt') }}: {{ product.unit }}</span>
+                  <span class="unit-label">{{ t('reception_order.dvt') }}: {{ product.unit }}</span>
                   <button 
                     class="info-btn" 
                     @click.stop="openDetailPanel(product)"
@@ -445,7 +445,7 @@
 
                 <!-- Stamp HẾT MÓN -->
                 <div v-if="!getEnrichedItem(product).isAvailable" class="out-of-stock-stamp">
-                  {{ $t('reception_order.het_upper') }}
+                  {{ t('reception_order.het_upper') }}
                 </div>
               </div>
             </div>
@@ -463,7 +463,7 @@
                   border: activeSubCategoryId === 'all' ? '2px solid white' : '2px solid transparent'
                 }"
                 class="category-btn-sub px-4 py-2 rounded-xl text-xs font-bold text-white transition-all active:scale-95 shadow-sm flex items-center justify-center"
-              >{{ $t('reception_order.tat_ca') }}</button>
+              >{{ t('reception_order.tat_ca') }}</button>
               
               <button 
                 v-for="sub in activeSubcategoriesList"
@@ -522,7 +522,7 @@
             
             <!-- Header Modal with Clean Colors -->
             <header class="bg-gradient-to-r from-[#1976d2] to-[#1565c0] text-white px-6 py-4 flex justify-between items-center shrink-0">
-              <h3 class="text-base font-bold tracking-tight select-none">{{ $t('reception_order.chi_tiet_mon_an') }}</h3>
+              <h3 class="text-base font-bold tracking-tight select-none">{{ t('reception_order.chi_tiet_mon_an') }}</h3>
               <button 
                 @click="isDetailPanelOpen = false"
                 class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center font-bold text-sm transition-all select-none active:scale-90"
@@ -544,7 +544,7 @@
                     <span 
                       v-if="!getEnrichedItem(selectedProductForDetail).isAvailable"
                       class="absolute inset-0 bg-red-950/20 backdrop-blur-xs flex items-center justify-center font-black text-white text-xs uppercase"
-                    >{{ $t('reception_order.het_hang') }}</span>
+                    >{{ t('reception_order.het_hang') }}</span>
                   </div>
                   
                   <span 
@@ -560,7 +560,7 @@
                 <!-- Column Right (60% width -> 6 cols) -->
                 <div class="md:col-span-6 space-y-4 font-bold text-xs text-gray-700">
                   <div class="space-y-1">
-                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('reception_order.ten_mon') }}</label>
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">{{ t('reception_order.ten_mon') }}</label>
                     <input 
                       type="text" 
                       :value="selectedProductForDetail.name" 
@@ -571,7 +571,7 @@
 
                   <div class="grid grid-cols-2 gap-4">
                     <div class="space-y-1">
-                      <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('reception_order.ma_mon') }}</label>
+                      <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">{{ t('reception_order.ma_mon') }}</label>
                       <input 
                         type="text" 
                         :value="selectedProductForDetail.id" 
@@ -580,7 +580,7 @@
                       />
                     </div>
                     <div class="space-y-1">
-                      <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('reception_order.don_vi_tinh') }}</label>
+                      <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">{{ t('reception_order.don_vi_tinh') }}</label>
                       <input 
                         type="text" 
                         :value="selectedProductForDetail.unit" 
@@ -593,7 +593,7 @@
                   <div class="grid grid-cols-2 gap-4">
                     <!-- Qty Editor -->
                     <div class="space-y-1">
-                      <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('reception_order.so_luong') }}</label>
+                      <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">{{ t('reception_order.so_luong') }}</label>
                       <div class="flex items-center gap-2">
                         <button 
                           @click="modalItemQty = Math.max(1, modalItemQty - 1)" 
@@ -613,7 +613,7 @@
                       </div>
                     </div>
                     <div class="space-y-1">
-                      <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('reception_order.don_gia_vnd') }}</label>
+                      <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">{{ t('reception_order.don_gia_vnd') }}</label>
                       <input 
                         type="text" 
                         :value="isItemInPackage(selectedProductForDetail, activeSettings.package) ? t('reception_order.0d_trong_goi') : formatVND(selectedProductForDetail.price)" 
@@ -626,21 +626,21 @@
                   <!-- VAT and Service charges (VAT default checked, Service unchecked) -->
                   <div class="flex items-center gap-6 py-1 select-none text-[#c62828]">
                     <label class="flex items-center gap-2 cursor-pointer font-bold">
-                      <input type="checkbox" v-model="modalVAT" class="w-4 h-4 accent-[#1976d2]" />{{ $t('reception_order.bao_gom_vat') }}</label>
+                      <input type="checkbox" v-model="modalVAT" class="w-4 h-4 accent-[#1976d2]" />{{ t('reception_order.bao_gom_vat') }}</label>
                     <label class="flex items-center gap-2 cursor-pointer font-bold">
-                      <input type="checkbox" v-model="modalPPV" class="w-4 h-4 accent-[#1976d2]" />{{ $t('reception_order.bao_gom_ppv') }}</label>
+                      <input type="checkbox" v-model="modalPPV" class="w-4 h-4 accent-[#1976d2]" />{{ t('reception_order.bao_gom_ppv') }}</label>
                   </div>
 
                   <div class="grid grid-cols-2 gap-4">
                     <div class="space-y-1">
-                      <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('reception_order.loai_tien_te') }}</label>
+                      <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">{{ t('reception_order.loai_tien_te') }}</label>
                       <select v-model="modalCurrency" class="w-full bg-gray-50 border border-[#e0e0e0] rounded-lg px-3 py-2 font-bold text-gray-800 focus:outline-none">
-                        <option value="VND">{{ $t('reception_order.vnd_viet_nam_dong') }}</option>
-                        <option value="USD">{{ $t('reception_order.usd_do_la_my') }}</option>
+                        <option value="VND">{{ t('reception_order.vnd_viet_nam_dong') }}</option>
+                        <option value="USD">{{ t('reception_order.usd_do_la_my') }}</option>
                       </select>
                     </div>
                     <div class="space-y-1">
-                      <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('reception_order.ty_gia') }}</label>
+                      <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">{{ t('reception_order.ty_gia') }}</label>
                       <input 
                         type="text" 
                         v-model="modalRate" 
@@ -651,20 +651,20 @@
                   </div>
 
                   <div class="space-y-1">
-                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('reception_order.ghi_chu') }}</label>
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">{{ t('reception_order.ghi_chu') }}</label>
                     <textarea 
                       v-model="modalItemNote" 
-                      :placeholder="$t('reception_order.them_ghi_chu_dac_thu_it_da_nhi')" 
+                      :placeholder="t('reception_order.them_ghi_chu_dac_thu_it_da_nhi')" 
                       class="w-full border border-[#e0e0e0] rounded-lg p-2.5 font-bold text-gray-855 h-20 resize-none focus:outline-none focus:border-[#1976d2]"
                     ></textarea>
                   </div>
 
                   <!-- Menu Classification Info (Requirement) -->
                   <div class="border-t border-[#f0f0f0] pt-4 mt-2">
-                    <h5 class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">{{ $t('reception_order.phan_nhom_thuc_don_he_thong') }}</h5>
+                    <h5 class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">{{ t('reception_order.phan_nhom_thuc_don_he_thong') }}</h5>
                     <div class="grid grid-cols-2 gap-3 bg-gray-50 p-3 rounded-xl border border-[#e0e0e0] text-[11px]">
                       <div>
-                        <span class="text-gray-400 font-semibold">{{ $t('reception_order.nhom_san_pham') }}</span>
+                        <span class="text-gray-400 font-semibold">{{ t('reception_order.nhom_san_pham') }}</span>
                         <div class="text-gray-800 font-bold mt-0.5">
                           {{ translateCategoryId(selectedProductForDetail.category_id) }}
                           <span v-if="getItemSubcategoryId(selectedProductForDetail.id)">
@@ -673,15 +673,15 @@
                         </div>
                       </div>
                       <div>
-                        <span class="text-gray-400 font-semibold">{{ $t('reception_order.goi_buffet') }}</span>
+                        <span class="text-gray-400 font-semibold">{{ t('reception_order.goi_buffet') }}</span>
                         <div class="text-gray-800 font-bold mt-0.5">{{ getEligibleBuffetGroups(selectedProductForDetail) }}</div>
                       </div>
                       <div>
-                        <span class="text-gray-400 font-semibold">{{ $t('reception_order.goi_set_menu') }}</span>
+                        <span class="text-gray-400 font-semibold">{{ t('reception_order.goi_set_menu') }}</span>
                         <div class="text-gray-800 font-bold mt-0.5">{{ getSetMenuGroup(selectedProductForDetail) }}</div>
                       </div>
                       <div>
-                        <span class="text-gray-400 font-semibold">{{ $t('reception_order.goi_do_uong') }}</span>
+                        <span class="text-gray-400 font-semibold">{{ t('reception_order.goi_do_uong') }}</span>
                         <div class="text-gray-800 font-bold mt-0.5">{{ getDrinkGroup(selectedProductForDetail) }}</div>
                       </div>
                     </div>
@@ -702,14 +702,14 @@
                       {{ selectedProductForDetail.name }}
                     </h3>
                     <p class="text-[10px] text-gray-400 font-bold uppercase mt-0.5">
-                      {{ $t('reception_order.ma') }}: {{ selectedProductForDetail.id }} • {{ $t('reception_order.don_vi') }}: {{ selectedProductForDetail.unit }}
+                      {{ t('reception_order.ma') }}: {{ selectedProductForDetail.id }} • {{ t('reception_order.don_vi') }}: {{ selectedProductForDetail.unit }}
                     </p>
                   </div>
 
                   <div class="grid grid-cols-2 gap-3">
                     <!-- Qty editor -->
                     <div class="space-y-1">
-                      <label class="block text-[9px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('reception_order.so_luong') }}</label>
+                      <label class="block text-[9px] font-bold text-gray-400 uppercase tracking-wider">{{ t('reception_order.so_luong') }}</label>
                       <div class="flex items-center gap-1">
                         <button 
                           @click="modalItemQty = Math.max(1, modalItemQty - 1)" 
@@ -729,7 +729,7 @@
                       </div>
                     </div>
                     <div class="space-y-1">
-                      <label class="block text-[9px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('reception_order.don_gia_vnd') }}</label>
+                      <label class="block text-[9px] font-bold text-gray-400 uppercase tracking-wider">{{ t('reception_order.don_gia_vnd') }}</label>
                       <input 
                         type="text" 
                         :value="isItemInPackage(selectedProductForDetail, activeSettings.package) ? t('reception_order.0d_trong_goi') : formatVND(selectedProductForDetail.price)" 
@@ -743,43 +743,43 @@
                   <div class="flex items-center gap-3.5 select-none text-[#c62828] text-[11px]">
                     <label class="flex items-center gap-1 cursor-pointer font-bold">
                       <input type="checkbox" v-model="modalVAT" class="w-3.5 h-3.5 accent-[#1976d2]" />
-                      {{ $t('reception_order.vat_percent') }}
+                      {{ t('reception_order.vat_percent') }}
                     </label>
                     <label class="flex items-center gap-1 cursor-pointer font-bold">
                       <input type="checkbox" v-model="modalPPV" class="w-3.5 h-3.5 accent-[#1976d2]" />
-                      {{ $t('reception_order.ppv_percent') }}
+                      {{ t('reception_order.ppv_percent') }}
                     </label>
                   </div>
 
                   <div class="grid grid-cols-2 gap-3">
                     <div class="space-y-1">
-                      <label class="block text-[9px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('reception_order.tien_te') }}</label>
+                      <label class="block text-[9px] font-bold text-gray-400 uppercase tracking-wider">{{ t('reception_order.tien_te') }}</label>
                       <select v-model="modalCurrency" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2 py-1.5 font-bold text-gray-850 focus:outline-none text-[11px]">
                         <option value="VND">VND</option>
                         <option value="USD">USD</option>
                       </select>
                     </div>
                     <div class="space-y-1">
-                      <label class="block text-[9px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('reception_order.ty_gia') }}</label>
+                      <label class="block text-[9px] font-bold text-gray-400 uppercase tracking-wider">{{ t('reception_order.ty_gia') }}</label>
                       <input type="text" v-model="modalRate" readonly class="w-full bg-gray-150 border border-gray-205 rounded-lg px-2 py-1.5 font-bold text-gray-800 focus:outline-none" />
                     </div>
                   </div>
 
                   <div class="space-y-1">
-                    <label class="block text-[9px] font-bold text-gray-400 uppercase tracking-wider">{{ $t('reception_order.ghi_chu_chung') }}</label>
+                    <label class="block text-[9px] font-bold text-gray-400 uppercase tracking-wider">{{ t('reception_order.ghi_chu_chung') }}</label>
                     <textarea 
                       v-model="modalItemNote" 
-                      :placeholder="$t('reception_order.them_ghi_chu_cho_ca_mon_an')" 
+                      :placeholder="t('reception_order.them_ghi_chu_cho_ca_mon_an')" 
                       class="w-full border border-[#e0e0e0] rounded-lg p-2 font-bold text-gray-850 h-16 resize-none focus:outline-none focus:border-[#1976d2]"
                     ></textarea>
                   </div>
 
                   <!-- Menu Classification Info (Requirement) -->
                   <div class="border-t border-[#f0f0f0] pt-4 mt-2">
-                    <h5 class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">{{ $t('reception_order.phan_nhom_thuc_don_he_thong') }}</h5>
+                    <h5 class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">{{ t('reception_order.phan_nhom_thuc_don_he_thong') }}</h5>
                     <div class="grid grid-cols-2 gap-3 bg-gray-50 p-3 rounded-xl border border-[#e0e0e0] text-[11px]">
                       <div>
-                        <span class="text-gray-400 font-semibold">{{ $t('reception_order.nhom_san_pham') }}</span>
+                        <span class="text-gray-400 font-semibold">{{ t('reception_order.nhom_san_pham') }}</span>
                         <div class="text-gray-800 font-bold mt-0.5">
                           {{ translateCategoryId(selectedProductForDetail.category_id) }}
                           <span v-if="getItemSubcategoryId(selectedProductForDetail.id)">
@@ -788,15 +788,15 @@
                         </div>
                       </div>
                       <div>
-                        <span class="text-gray-400 font-semibold">{{ $t('reception_order.goi_buffet') }}</span>
+                        <span class="text-gray-400 font-semibold">{{ t('reception_order.goi_buffet') }}</span>
                         <div class="text-gray-800 font-bold mt-0.5">{{ getEligibleBuffetGroups(selectedProductForDetail) }}</div>
                       </div>
                       <div>
-                        <span class="text-gray-400 font-semibold">{{ $t('reception_order.goi_set_menu') }}</span>
+                        <span class="text-gray-400 font-semibold">{{ t('reception_order.goi_set_menu') }}</span>
                         <div class="text-gray-800 font-bold mt-0.5">{{ getSetMenuGroup(selectedProductForDetail) }}</div>
                       </div>
                       <div>
-                        <span class="text-gray-400 font-semibold">{{ $t('reception_order.goi_do_uong') }}</span>
+                        <span class="text-gray-400 font-semibold">{{ t('reception_order.goi_do_uong') }}</span>
                         <div class="text-gray-800 font-bold mt-0.5">{{ getDrinkGroup(selectedProductForDetail) }}</div>
                       </div>
                     </div>
@@ -831,7 +831,7 @@
                       <div>
                         <h5 class="text-xs font-bold text-gray-900 uppercase tracking-wide">{{ activeGroup.title }}</h5>
                         <p class="text-[10px] text-[#ff8f00] font-bold mt-0.5">
-                          ({{ $t('reception_order.toi_thieu') }} {{ activeGroup.minSelection }} - {{ $t('reception_order.toi_da') }} {{ activeGroup.maxSelection }})
+                          ({{ t('reception_order.toi_thieu') }} {{ activeGroup.minSelection }} - {{ t('reception_order.toi_da') }} {{ activeGroup.maxSelection }})
                         </p>
                       </div>
                       <span class="text-[10px] font-bold bg-[#1976d2] text-white px-2 py-0.5 rounded-full shadow-sm font-mono">
@@ -893,7 +893,7 @@
                             <input 
                               type="text" 
                               v-model="option.note"
-                              :placeholder="$t('reception_order.them_ghi_chu_rieng_cho_lua_cho')"
+                              :placeholder="t('reception_order.them_ghi_chu_rieng_cho_lua_cho')"
                               class="w-full bg-white border border-[#e0e0e0] rounded-lg px-2.5 py-1.5 text-[11px] font-semibold text-gray-800 focus:outline-none focus:border-[#ff8f00]"
                             />
                           </div>
@@ -918,13 +918,13 @@
                         <span v-else>✅</span>
                       </span>
                       <span v-if="activeGroupSelectedCount < activeGroup.minSelection">
-                        {{ $t('reception_order.vui_long_chon_them_it_nhat') }} {{ activeGroup.minSelection - activeGroupSelectedCount }} {{ $t('reception_order.lua_chon_nua') }}
+                        {{ t('reception_order.vui_long_chon_them_it_nhat') }} {{ activeGroup.minSelection - activeGroupSelectedCount }} {{ t('reception_order.lua_chon_nua') }}
                       </span>
                       <span v-else-if="activeGroupSelectedCount > activeGroup.maxSelection">
-                        {{ $t('reception_order.da_vuot_qua_gioi_han_toi_da') }} {{ activeGroup.maxSelection }} {{ $t('reception_order.lua_chon') }}
+                        {{ t('reception_order.da_vuot_qua_gioi_han_toi_da') }} {{ activeGroup.maxSelection }} {{ t('reception_order.lua_chon') }}
                       </span>
                       <span v-else>
-                        {{ $t('reception_order.da_chon_du_so_luong') }} {{ activeGroup.title }}
+                        {{ t('reception_order.da_chon_du_so_luong') }} {{ activeGroup.title }}
                       </span>
                     </div>
 
@@ -939,7 +939,7 @@
               <button 
                 @click="isDetailPanelOpen = false"
                 class="px-5 py-2.5 bg-[#f5f5f5] hover:bg-[#e0e0e0] border border-[#e0e0e0] text-gray-700 text-xs font-bold rounded-xl active:scale-95 transition-all"
-              >{{ $t('reception_order.huy_bo_esc') }}</button>
+              >{{ t('reception_order.huy_bo_esc') }}</button>
               
               <button 
                 @click="saveDetailPanelQty"
@@ -950,7 +950,7 @@
                 ]"
               >
                 <span>➕</span>
-                <span>{{ $t('reception_order.them_vao_gio_hang') }}</span>
+                <span>{{ t('reception_order.them_vao_gio_hang') }}</span>
               </button>
             </footer>
 
@@ -977,12 +977,12 @@
 
           <h3 class="text-[17px] font-bold text-gray-900 tracking-tight mb-4 flex items-center gap-2 select-none border-b border-[#f0f0f0] pb-3">
             <span>🏆</span> 
-            <span>{{ $t('reception_order.cau_hinh_goi_course_phuc_vu') }} {{ activeOrder.tableCode }}</span>
+            <span>{{ t('reception_order.cau_hinh_goi_course_phuc_vu') }} {{ activeOrder.tableCode }}</span>
           </h3>
 
           <!-- PACKAGE GRID (2 cols) -->
           <div class="mb-4">
-            <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2.5 select-none">{{ $t('reception_order.1_chon_goi_an_phuc_vu_course_p') }}</h4>
+            <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2.5 select-none">{{ t('reception_order.1_chon_goi_an_phuc_vu_course_p') }}</h4>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 select-none">
               <div 
                 v-for="(price, name) in packagePrices" 
@@ -1011,7 +1011,7 @@
                   </p>
                 </div>
                 <div class="text-right border-t border-[#f0f0f0] pt-2 mt-3">
-                  <span class="text-sm font-bold text-[#c62828]">{{ price.toLocaleString('vi-VN') }}đ / {{ $t('reception_order.ve') }}</span>
+                  <span class="text-sm font-bold text-[#c62828]">{{ price.toLocaleString('vi-VN') }}đ / {{ t('reception_order.ve') }}</span>
                 </div>
               </div>
             </div>
@@ -1019,7 +1019,7 @@
 
           <!-- DRINK GROUP SELECTOR CARDS -->
           <div class="mb-4 border-t border-[#f0f0f0] pt-3.5">
-            <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 select-none">{{ $t('reception_order.2_chon_nhom_do_uong_kem_theo_d') }}</h4>
+            <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 select-none">{{ t('reception_order.2_chon_nhom_do_uong_kem_theo_d') }}</h4>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 select-none">
               
               <div 
@@ -1033,8 +1033,8 @@
                 <div class="flex items-center gap-2">
                   <span class="text-lg">🥤</span>
                   <div>
-                    <h6 class="text-xs font-bold text-gray-800">{{ $t('reception_order.nhom_a_soft_drink') }}</h6>
-                    <p class="text-[9px] text-gray-400 font-medium">{{ $t('reception_order.nuoc_ngot_uong_khong_gioi_han') }}</p>
+                    <h6 class="text-xs font-bold text-gray-800">{{ t('reception_order.nhom_a_soft_drink') }}</h6>
+                    <p class="text-[9px] text-gray-400 font-medium">{{ t('reception_order.nuoc_ngot_uong_khong_gioi_han') }}</p>
                   </div>
                 </div>
                 <span class="w-4 h-4 rounded-full border border-gray-300 flex items-center justify-center text-[8px] font-black" :class="tempSettings.drinkGroup === 'A' ? 'bg-[#ff8f00] text-white border-[#ff8f00]' : 'text-transparent'">✓</span>
@@ -1051,8 +1051,8 @@
                 <div class="flex items-center gap-2">
                   <span class="text-lg">🍺</span>
                   <div>
-                    <h6 class="text-xs font-bold text-gray-800">{{ $t('reception_order.nhom_b_premium_drink') }}</h6>
-                    <p class="text-[9px] text-gray-400 font-medium">{{ $t('reception_order.ruou_bia_cao_cap_uong_trong_2') }}</p>
+                    <h6 class="text-xs font-bold text-gray-800">{{ t('reception_order.nhom_b_premium_drink') }}</h6>
+                    <p class="text-[9px] text-gray-400 font-medium">{{ t('reception_order.ruou_bia_cao_cap_uong_trong_2') }}</p>
                   </div>
                 </div>
                 <span class="w-4 h-4 rounded-full border border-gray-300 flex items-center justify-center text-[8px] font-black" :class="tempSettings.drinkGroup === 'B' ? 'bg-[#ff8f00] text-white border-[#ff8f00]' : 'text-transparent'">✓</span>
@@ -1069,8 +1069,8 @@
                 <div class="flex items-center gap-2">
                   <span class="text-lg">🍶</span>
                   <div>
-                    <h6 class="text-xs font-bold text-gray-800">{{ $t('reception_order.nhom_c_premium_alt') }}</h6>
-                    <p class="text-[9px] text-gray-400 font-medium">{{ $t('reception_order.ruou_bia_thay_the_dung_2_gio_f') }}</p>
+                    <h6 class="text-xs font-bold text-gray-800">{{ t('reception_order.nhom_c_premium_alt') }}</h6>
+                    <p class="text-[9px] text-gray-400 font-medium">{{ t('reception_order.ruou_bia_thay_the_dung_2_gio_f') }}</p>
                   </div>
                 </div>
                 <span class="w-4 h-4 rounded-full border border-gray-300 flex items-center justify-center text-[8px] font-black" :class="tempSettings.drinkGroup === 'C' ? 'bg-[#ff8f00] text-white border-[#ff8f00]' : 'text-transparent'">✓</span>
@@ -1087,8 +1087,8 @@
                 <div class="flex items-center gap-2">
                   <span class="text-lg">🍷</span>
                   <div>
-                    <h6 class="text-xs font-bold text-gray-800">{{ $t('reception_order.nhom_d_a_la_carte') }}</h6>
-                    <p class="text-[9px] text-gray-400 font-medium">{{ $t('reception_order.goi_do_uong_le_tinh_tien_rieng') }}</p>
+                    <h6 class="text-xs font-bold text-gray-800">{{ t('reception_order.nhom_d_a_la_carte') }}</h6>
+                    <p class="text-[9px] text-gray-400 font-medium">{{ t('reception_order.goi_do_uong_le_tinh_tien_rieng') }}</p>
                   </div>
                 </div>
                 <span class="w-4 h-4 rounded-full border border-gray-300 flex items-center justify-center text-[8px] font-black" :class="tempSettings.drinkGroup === 'D' ? 'bg-[#ff8f00] text-white border-[#ff8f00]' : 'text-transparent'">✓</span>
@@ -1099,7 +1099,7 @@
 
           <!-- LANGUAGES CHOICE -->
           <div class="mb-4 border-t border-[#f0f0f0] pt-3.5">
-            <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 select-none">{{ $t('reception_order.3_ngon_ngu_giao_dien_hien_thi') }}</h4>
+            <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 select-none">{{ t('reception_order.3_ngon_ngu_giao_dien_hien_thi') }}</h4>
             <div class="flex flex-wrap gap-2 select-none">
               <button 
                 v-for="lang in ['VI', 'EN', 'JP', 'KO', 'ZH']"
@@ -1113,7 +1113,7 @@
                     : 'bg-gray-50 border-gray-205 text-gray-600 hover:bg-gray-100'
                 ]"
               >
-                <span v-if="lang === 'VI'">{{ $t('reception_order.tieng_viet') }}</span>
+                <span v-if="lang === 'VI'">{{ t('reception_order.tieng_viet') }}</span>
                 <span v-else-if="lang === 'EN'">🇺🇸 English</span>
                 <span v-else-if="lang === 'JP'">🇯🇵 日本語</span>
                 <span v-else-if="lang === 'KO'">🇰🇷 한국어</span>
@@ -1127,18 +1127,18 @@
             <button 
               @click="cancelPackageSelection"
               class="flex-1 py-2.5 bg-gray-50 border border-[#e0e0e0] hover:bg-gray-100 text-gray-700 text-xs font-bold rounded-xl transition-all"
-            >{{ $t('reception_order.huy_bo_quay_lai') }}</button>
+            >{{ t('reception_order.huy_bo_quay_lai') }}</button>
             
             <button 
               v-if="activeSettings.isLocked"
               @click="openPinModal"
               class="flex-1 py-2.5 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-xl shadow-sm transition-all"
-            >{{ $t('reception_order.pin_sua_cau_hinh') }}</button>
+            >{{ t('reception_order.pin_sua_cau_hinh') }}</button>
             <button 
               v-else
               @click="confirmPackageSelection"
               class="flex-1 py-2.5 bg-[#c62828] hover:bg-[#b71c1c] text-white text-xs font-bold rounded-xl shadow-sm transition-all"
-            >{{ $t('reception_order.xac_nhan_khoa_course') }}</button>
+            >{{ t('reception_order.xac_nhan_khoa_course') }}</button>
           </div>
 
         </div>
@@ -1159,8 +1159,8 @@
           </button>
 
           <span class="text-3xl block mb-2">🔐</span>
-          <h4 class="text-sm font-bold text-gray-900 mb-1">{{ $t('reception_order.ma_pin_xac_thuc_quan_ly') }}</h4>
-          <p class="text-[10px] text-gray-400 font-semibold mb-4 leading-normal">{{ $t('reception_order.nhap_ma_pin_cua_quan_ly_de_mo') }}</p>
+          <h4 class="text-sm font-bold text-gray-900 mb-1">{{ t('reception_order.ma_pin_xac_thuc_quan_ly') }}</h4>
+          <p class="text-[10px] text-gray-400 font-semibold mb-4 leading-normal">{{ t('reception_order.nhap_ma_pin_cua_quan_ly_de_mo') }}</p>
 
           <!-- Input dots -->
           <div class="flex justify-center gap-3.5 mb-5 select-none">
@@ -1213,8 +1213,9 @@
 </template>
 
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n';
-const { t } = useI18n();
+import { useLanguageStore } from '@/stores/useLanguageStore';
+const langStore = useLanguageStore()
+  const t = langStore.t;
 
 
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
@@ -2854,7 +2855,7 @@ onUnmounted(() => {
   z-index: 10;
 }
 
-/* Badge {{ $t('reception_order.trong_goi_upper') }} */
+/* Badge {{ t('reception_order.trong_goi_upper') }} */
 .badge-included {
   display: inline-block;
   background: #2e7d32;

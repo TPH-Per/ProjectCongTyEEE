@@ -2,26 +2,26 @@
   <div>
     <!-- Loading state -->
     <div v-if="loading && !hasLoadedOnce" class="text-sm text-gray-500 py-10 text-center">
-      {{ $t('reception.dashboard.loading_data') }}
+      {{ t('reception.dashboard.loading_data') }}
     </div>
 
     <template v-else>
       <div class="mb-6 flex items-center justify-between">
         <div>
-          <h2 class="text-2xl font-bold text-gray-900">{{ $t('reception.dashboard.shift_overview') }}</h2>
-          <p class="text-sm text-gray-500">{{ $t('reception.dashboard.today') }}</p>
+          <h2 class="text-2xl font-bold text-gray-900">{{ t('reception.dashboard.shift_overview') }}</h2>
+          <p class="text-sm text-gray-500">{{ t('reception.dashboard.today') }}</p>
         </div>
         <div class="flex gap-3">
           <div class="bg-white border px-4 py-2 rounded-xl text-center">
-            <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wide">{{ $t('reception.dashboard.tables_in_use') }}</div>
+            <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wide">{{ t('reception.dashboard.tables_in_use') }}</div>
             <div class="text-xl font-black text-gray-900">{{ diningTables.length }}</div>
           </div>
           <div class="bg-white border px-4 py-2 rounded-xl text-center">
-            <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wide">{{ $t('reception.dashboard.pending_checkout') }}</div>
+            <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wide">{{ t('reception.dashboard.pending_checkout') }}</div>
             <div class="text-xl font-black text-red-600">{{ checkoutAlerts.length }}</div>
           </div>
           <div class="bg-white border px-4 py-2 rounded-xl text-center">
-            <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wide">{{ $t('reception.dashboard.today_reservations') }}</div>
+            <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wide">{{ t('reception.dashboard.today_reservations') }}</div>
             <div class="text-xl font-black text-blue-600">{{ reservations.length }}</div>
           </div>
         </div>
@@ -36,17 +36,17 @@
            but it's useful context here too) -->
       <div v-if="activeShift" class="mb-6 rounded-xl border-2 border-green-200 bg-green-50 p-4 flex items-center justify-between">
         <div>
-          <div class="text-xs font-bold text-green-700 uppercase tracking-wide">{{ $t('reception.dashboard.active_shift') }}</div>
+          <div class="text-xs font-bold text-green-700 uppercase tracking-wide">{{ t('reception.dashboard.active_shift') }}</div>
           <div class="text-sm text-green-800 mt-1">
-            {{ $t('reception.dashboard.opened_at') }} {{ formatDateTime(activeShift.opened_at) }} —
-            {{ $t('reception.dashboard.opening_cash') }} {{ Number(activeShift.opening_cash || 0).toLocaleString('vi-VN') }}đ
+            {{ t('reception.dashboard.opened_at') }} {{ formatDateTime(activeShift.opened_at) }} —
+            {{ t('reception.dashboard.opening_cash') }} {{ Number(activeShift.opening_cash || 0).toLocaleString('vi-VN') }}đ
           </div>
         </div>
         <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
       </div>
 
       <!-- Alerts Section: checkout requests from tables / tablets -->
-      <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">{{ $t('reception.dashboard.needs_action_now') }}</h3>
+      <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">{{ t('reception.dashboard.needs_action_now') }}</h3>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
         <div
           v-for="alert in checkoutAlerts"
@@ -58,33 +58,33 @@
           </div>
           <div class="flex items-center gap-3 mb-3">
             <div class="w-3 h-3 rounded-full bg-red-500 animate-pulse"></div>
-            <span class="font-bold text-red-700">{{ $t('reception.dashboard.checkout_request') }}</span>
+            <span class="font-bold text-red-700">{{ t('reception.dashboard.checkout_request') }}</span>
           </div>
           <div class="text-3xl font-black text-gray-900 mb-1">{{ alert.tableCode }}</div>
-          <div class="text-sm text-gray-600 mb-6">{{ alert.guests ?? '—' }} {{ $t('reception.dashboard.guests') }}</div>
+          <div class="text-sm text-gray-600 mb-6">{{ alert.guests ?? '—' }} {{ t('reception.dashboard.guests') }}</div>
           <RouterLink
             :to="`/reception/checkout/${alert.tableId}`"
             class="block w-full bg-red-600 hover:bg-red-700 text-white text-center font-bold py-3 rounded-xl transition-colors"
           >
-            {{ $t('reception.dashboard.proceed_to_checkout') }}
+            {{ t('reception.dashboard.proceed_to_checkout') }}
           </RouterLink>
         </div>
 
         <div v-if="checkoutAlerts.length === 0" class="col-span-full text-sm text-gray-400">
-          {{ $t('reception.dashboard.no_checkout_requests') }}
+          {{ t('reception.dashboard.no_checkout_requests') }}
         </div>
       </div>
 
-      <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">{{ $t('reception.dashboard.tables_serving_list') }}</h3>
+      <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">{{ t('reception.dashboard.tables_serving_list') }}</h3>
       <div class="bg-white border rounded-2xl overflow-hidden shadow-sm">
         <table class="w-full text-left border-collapse">
           <thead>
             <tr class="bg-gray-50 border-b">
-              <th class="py-3 px-4 text-xs font-bold text-gray-500 uppercase">{{ $t('reception.dashboard.table_code') }}</th>
-              <th class="py-3 px-4 text-xs font-bold text-gray-500 uppercase">{{ $t('reception.dashboard.guest_col') }}</th>
-              <th class="py-3 px-4 text-xs font-bold text-gray-500 uppercase">{{ $t('reception.dashboard.time_col') }}</th>
-              <th class="py-3 px-4 text-xs font-bold text-gray-500 uppercase">{{ $t('reception.dashboard.status_col') }}</th>
-              <th class="py-3 px-4 text-xs font-bold text-gray-500 uppercase text-right">{{ $t('reception.dashboard.invoice_col') }}</th>
+              <th class="py-3 px-4 text-xs font-bold text-gray-500 uppercase">{{ t('reception.dashboard.table_code') }}</th>
+              <th class="py-3 px-4 text-xs font-bold text-gray-500 uppercase">{{ t('reception.dashboard.guest_col') }}</th>
+              <th class="py-3 px-4 text-xs font-bold text-gray-500 uppercase">{{ t('reception.dashboard.time_col') }}</th>
+              <th class="py-3 px-4 text-xs font-bold text-gray-500 uppercase">{{ t('reception.dashboard.status_col') }}</th>
+              <th class="py-3 px-4 text-xs font-bold text-gray-500 uppercase text-right">{{ t('reception.dashboard.invoice_col') }}</th>
             </tr>
           </thead>
           <tbody class="text-sm divide-y">
@@ -94,7 +94,7 @@
               <td class="py-3 px-4 text-gray-600">—</td>
               <td class="py-3 px-4">
                 <span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-bold">
-                  {{ $t('reception.dashboard.dining') }}
+                  {{ t('reception.dashboard.dining') }}
                 </span>
               </td>
               <td class="py-3 px-4 text-right">
@@ -102,28 +102,28 @@
                   :to="`/reception/checkout/${table.id}`"
                   class="text-red-600 hover:text-red-700 font-bold text-xs uppercase"
                 >
-                  {{ $t('reception.dashboard.checkout_action') }} →
+                  {{ t('reception.dashboard.checkout_action') }} →
                 </RouterLink>
               </td>
             </tr>
             <tr v-if="diningTables.length === 0">
-              <td colspan="5" class="py-4 text-center text-gray-400">{{ $t('reception.dashboard.no_tables_serving') }}</td>
+              <td colspan="5" class="py-4 text-center text-gray-400">{{ t('reception.dashboard.no_tables_serving') }}</td>
             </tr>
           </tbody>
         </table>
       </div>
 
       <!-- Today's bookings list -->
-      <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wider mt-8 mb-4">{{ $t('reception.dashboard.today_reservations') }}</h3>
+      <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wider mt-8 mb-4">{{ t('reception.dashboard.today_reservations') }}</h3>
       <div class="bg-white border rounded-2xl overflow-hidden shadow-sm">
         <table class="w-full text-left border-collapse">
           <thead>
             <tr class="bg-gray-50 border-b">
-              <th class="py-3 px-4 text-xs font-bold text-gray-500 uppercase">{{ $t('reception.dashboard.booking_code') }}</th>
-              <th class="py-3 px-4 text-xs font-bold text-gray-500 uppercase">{{ $t('reception.dashboard.guest_col') }}</th>
-              <th class="py-3 px-4 text-xs font-bold text-gray-500 uppercase">{{ $t('reception.dashboard.hour') }}</th>
-              <th class="py-3 px-4 text-xs font-bold text-gray-500 uppercase">{{ $t('reception.dashboard.num_guests') }}</th>
-              <th class="py-3 px-4 text-xs font-bold text-gray-500 uppercase">{{ $t('reception.dashboard.status_col') }}</th>
+              <th class="py-3 px-4 text-xs font-bold text-gray-500 uppercase">{{ t('reception.dashboard.booking_code') }}</th>
+              <th class="py-3 px-4 text-xs font-bold text-gray-500 uppercase">{{ t('reception.dashboard.guest_col') }}</th>
+              <th class="py-3 px-4 text-xs font-bold text-gray-500 uppercase">{{ t('reception.dashboard.hour') }}</th>
+              <th class="py-3 px-4 text-xs font-bold text-gray-500 uppercase">{{ t('reception.dashboard.num_guests') }}</th>
+              <th class="py-3 px-4 text-xs font-bold text-gray-500 uppercase">{{ t('reception.dashboard.status_col') }}</th>
             </tr>
           </thead>
           <tbody class="text-sm divide-y">
@@ -142,7 +142,7 @@
               </td>
             </tr>
             <tr v-if="reservations.length === 0">
-              <td colspan="5" class="py-4 text-center text-gray-400">{{ $t('reception.dashboard.no_bookings_today') }}</td>
+              <td colspan="5" class="py-4 text-center text-gray-400">{{ t('reception.dashboard.no_bookings_today') }}</td>
             </tr>
           </tbody>
         </table>
@@ -152,8 +152,9 @@
 </template>
 
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
-const { t } = useI18n()
+import { useLanguageStore } from '@/stores/useLanguageStore'
+const langStore = useLanguageStore()
+  const t = langStore.t
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import { supabase } from '@/lib/supabase'

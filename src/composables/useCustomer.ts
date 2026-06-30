@@ -53,6 +53,41 @@ export function useCustomer() {
     return (data ?? []) as Customer[]
   }
 
-  return { loading, error, searchByPhone, upsert, listVip }
+  // Full profile with loyalty data
+  async function getCustomerProfile(customerId: string): Promise<any> {
+    const { data, error } = await supabase
+      .rpc('get_customer_with_loyalty', { p_customer_id: customerId })
+    if (error) throw error
+    return data
+  }
+
+  // Paginated list with tier join (replaces existing flat query)
+  async function listCustomers(params?: {
+    search?: string;
+    tierId?: string;
+    limit?: number;
+    offset?: number;
+    sortBy?: string;
+  }) {
+    const { data, error } = await supabase.rpc('list_customers_with_tier', {
+      p_branch_id: (activeBranchId.value ?? throwBranchGuard()),
+      p_search:    params?.search ?? null,
+      p_tier_id:   params?.tierId ?? null,
+      p_limit:     params?.limit ?? 30,
+      p_offset:    params?.offset ?? 0,
+      p_sort_by:   params?.sortBy ?? 'total_spent'
+    });
+    if (error) throw error;
+    return data; // { customers: [...], total: number }
+  }
+
+  // CRM Dashboard stats (replaces all hardcoded vars in ManagerCRMView.vue)
+  async function fetchCrmStats() {
+    const { data } = await supabase
+      .rpc('get_crm_dashboard_stats', { p_branch_id: (activeBranchId.value ?? throwBranchGuard()) });
+    return data;
+  }
+
+  return { loading, error, searchByPhone, upsert, listVip, getCustomerProfile, listCustomers, fetchCrmStats }
 }
 

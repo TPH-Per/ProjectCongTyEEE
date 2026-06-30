@@ -4,7 +4,7 @@
 // =============================================================================
 
 // ─── Enums ──────────────────────────────────────────────────────────────────
-export type UserRole = 'admin' | 'manager' | 'reception' | 'staff' | 'kitchen'
+export type UserRole = 'superadmin' | 'admin' | 'manager' | 'reception' | 'staff' | 'kitchen' | 'purchasing' | 'accounting' | 'crm' | 'marketing' | 'bod' | 'tablet' | 'customer'
 export type TableStatus = 'available' | 'reserved' | 'occupied' | 'maintenance' | 'needs_cleaning'
 export type ReservationStatus = 'Pending' | 'Arrived' | 'Dining' | 'Completed' | 'Cancelled'
 export type OrderStatus = 'Pending' | 'Preparing' | 'Served' | 'Paid' | 'Cancelled'
@@ -415,6 +415,63 @@ type TableShape<Row, InsertT = Partial<Row>, UpdateT = Partial<Row>> = {
 export type Database = {
   public: {
     Tables: {
+      bod_approvals: {
+        Row: {
+          entity_id: string
+          entity_type: string
+          id: string
+          metadata: Json | null
+          review_note: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          submitted_at: string | null
+          submitted_by: string
+          title: string | null
+        }
+        Insert: {
+          entity_id: string
+          entity_type: string
+          id?: string
+          metadata?: Json | null
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          submitted_at?: string | null
+          submitted_by: string
+          title?: string | null
+        }
+        Update: {
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          metadata?: Json | null
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          submitted_at?: string | null
+          submitted_by?: string
+          title?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bod_approvals_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bod_approvals_submitted_by_fkey"
+            columns: ["submitted_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       branches: TableShape<BranchRow>
       users: TableShape<UserRow>
       tables: TableShape<TableRow>

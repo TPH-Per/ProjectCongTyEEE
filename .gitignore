@@ -46,3 +46,6 @@ lerna-debug.log*
 *.kate-swp
 *.swp
 *.swo
+
+# Ignore local SQL dumps at root
+/*.sql

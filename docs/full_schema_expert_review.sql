@@ -6590,3 +6590,359 @@ INSERT INTO public.branch_settings (branch_id, key, value) VALUES
 ON CONFLICT DO NOTHING;
 
 
+
+-- ==========================================
+-- FILE: 20260701000002_tax_records_accounting_rls.sql
+-- ==========================================
+-- Siết chặt quyền truy cập bảng tax_records 
+-- Chỉ cho phép role 'accounting' và 'admin' được chỉnh sửa (Thêm/Sửa/Xóa).
+-- Role 'manager' chỉ được xem (SELECT).
+-- Các role khác (thu ngân, bếp, phục vụ) KHÔNG được truy cập.
+
+-- 1. Xóa policy lỏng lẻo cũ
+DROP POLICY IF EXISTS "tax_records_branch_access" ON public.tax_records;
+
+-- 2. Policy cho quyền XEM (SELECT): admin, accounting, manager
+CREATE POLICY "tax_records_select" ON public.tax_records
+  FOR SELECT
+  USING (
+    public.has_role(ARRAY['admin']::user_role[])
+    OR (
+      branch_id = public.current_branch_id() 
+      AND public.has_role(ARRAY['accounting', 'manager']::user_role[])
+    )
+  );
+
+-- 3. Policy cho quyền GHI (INSERT, UPDATE, DELETE): CHỈ admin và accounting
+CREATE POLICY "tax_records_modify" ON public.tax_records
+  FOR ALL
+  USING (
+    public.has_role(ARRAY['admin']::user_role[])
+    OR (
+      branch_id = public.current_branch_id() 
+      AND public.has_role(ARRAY['accounting']::user_role[])
+    )
+  )
+  WITH CHECK (
+    public.has_role(ARRAY['admin']::user_role[])
+    OR (
+      branch_id = public.current_branch_id() 
+      AND public.has_role(ARRAY['accounting']::user_role[])
+    )
+  );
+
+-- 4. Vá lại hàm RPC generate_tax_record để chặn các role không phận sự gọi hàm
+CREATE OR REPLACE FUNCTION public.generate_tax_record(
+  p_branch_id    uuid,
+  p_period_type  text,
+  p_period_start date,
+  p_period_end   date
+)
+RETURNS uuid LANGUAGE plpgsql SECURITY DEFINER
+SET search_path = public, auth
+AS $$
+DECLARE
+  v_gross_revenue numeric(16,2);
+  v_vat_amount    numeric(16,2);
+  v_discount      numeric(16,2);
+  v_expense       numeric(16,2);
+  v_tax_id        uuid;
+BEGIN
+  -- CHẶN NGAY nếu không phải admin hoặc accounting
+  IF NOT public.has_role(ARRAY['admin', 'accounting']::user_role[]) THEN
+    RAISE EXCEPTION 'FORBIDDEN: only admin or accounting can generate tax records' USING ERRCODE = '28000';
+  END IF;
+
+  IF p_branch_id IS DISTINCT FROM public.current_branch_id()
+     AND NOT public.has_role(ARRAY['admin']::user_role[]) THEN
+    RAISE EXCEPTION 'FORBIDDEN: branch mismatch' USING ERRCODE = '28000';
+  END IF;
+
+  SELECT
+    COALESCE(SUM(grand_total), 0),
+    COALESCE(SUM(vat_8_amount + vat_10_amount), 0),
+    COALESCE(SUM(discount_total), 0)
+  INTO v_gross_revenue, v_vat_amount, v_discount
+  FROM public.bills
+  WHERE branch_id = p_branch_id
+    AND status = 'PAID'
+    AND created_at::date BETWEEN p_period_start AND p_period_end;
+
+  SELECT COALESCE(SUM(amount), 0) INTO v_expense
+  FROM public.financial_transactions
+  WHERE branch_id = p_branch_id
+    AND transaction_type = 'EXPENSE'
+    AND transaction_date::date BETWEEN p_period_start AND p_period_end;
+
+  INSERT INTO public.tax_records (
+    branch_id, period_type, period_start, period_end,
+    gross_revenue, discount_total, net_revenue,
+    vat_amount, expense_total, gross_profit, status
+  ) VALUES (
+    p_branch_id, p_period_type, p_period_start, p_period_end,
+    v_gross_revenue, v_discount, v_gross_revenue - v_discount,
+    v_vat_amount, v_expense, v_gross_revenue - v_discount - v_expense, 'DRAFT'
+  )
+  ON CONFLICT (branch_id, period_type, period_start)
+  DO UPDATE SET
+    gross_revenue  = EXCLUDED.gross_revenue,
+    discount_total = EXCLUDED.discount_total,
+    net_revenue    = EXCLUDED.net_revenue,
+    vat_amount     = EXCLUDED.vat_amount,
+    expense_total  = EXCLUDED.expense_total,
+    gross_profit   = EXCLUDED.gross_profit,
+    status         = 'DRAFT'
+  RETURNING id INTO v_tax_id;
+
+  RETURN v_tax_id;
+END;
+$$;
+REVOKE EXECUTE ON FUNCTION public.generate_tax_record(uuid,text,date,date) FROM PUBLIC;
+GRANT  EXECUTE ON FUNCTION public.generate_tax_record(uuid,text,date,date) TO authenticated;
+
+
+-- ==========================================
+-- FILE: 20260701000003_rpc_inventory_transaction.sql
+-- ==========================================
+-- Tạo RPC để ghi nhận nhập/xuất kho và tự động cập nhật tồn kho (Atomic Transaction)
+-- RPC này giải quyết dataflow nhập hàng / kiểm kê của phân hệ Procurement
+
+CREATE OR REPLACE FUNCTION public.record_inventory_transaction(
+  p_ingredient_id uuid,
+  p_transaction_type text, -- 'IN', 'OUT', 'ADJUST', 'PURCHASE'
+  p_quantity numeric,
+  p_unit_cost numeric DEFAULT 0,
+  p_supplier_id uuid DEFAULT NULL,
+  p_notes text DEFAULT NULL
+)
+RETURNS uuid LANGUAGE plpgsql SECURITY DEFINER
+SET search_path = public, auth
+AS $$
+DECLARE
+  v_branch_id uuid;
+  v_transaction_id uuid;
+  v_current_stock numeric;
+  v_new_stock numeric;
+BEGIN
+  -- Lấy chi nhánh hiện tại từ JWT
+  v_branch_id := public.current_branch_id();
+
+  -- Bắt buộc phải thuộc một chi nhánh mới được nhập/xuất kho
+  IF v_branch_id IS NULL THEN
+    RAISE EXCEPTION 'FORBIDDEN: current_branch_id is required' USING ERRCODE = '28000';
+  END IF;
+
+  -- Khóa row tồn kho hiện tại để chống race-condition (nếu có người khác đang nhập cùng lúc)
+  SELECT quantity INTO v_current_stock
+  FROM public.inventory_stock
+  WHERE branch_id = v_branch_id AND ingredient_id = p_ingredient_id
+  FOR UPDATE;
+
+  IF NOT FOUND THEN
+    v_current_stock := 0;
+  END IF;
+
+  -- Tính toán số lượng tồn kho mới
+  IF p_transaction_type IN ('IN', 'PURCHASE') THEN
+    v_new_stock := v_current_stock + p_quantity;
+  ELSIF p_transaction_type = 'OUT' THEN
+    v_new_stock := v_current_stock - p_quantity;
+    -- Kiểm tra âm kho
+    IF v_new_stock < 0 THEN
+      RAISE EXCEPTION 'INSUFFICIENT_STOCK: Không đủ tồn kho để xuất' USING ERRCODE = 'P0001';
+    END IF;
+  ELSIF p_transaction_type = 'ADJUST' THEN
+    -- Ở chế độ kiểm kê, p_quantity chính là số lượng thực tế kiểm đếm được
+    v_new_stock := p_quantity;
+  ELSE
+    RAISE EXCEPTION 'INVALID_TYPE: Loại giao dịch kho không hợp lệ' USING ERRCODE = 'P0001';
+  END IF;
+
+  -- 1. Ghi log vào inventory_transactions
+  INSERT INTO public.inventory_transactions (
+    branch_id, ingredient_id, transaction_type, 
+    quantity, unit_cost, supplier_id, notes, created_by
+  ) VALUES (
+    v_branch_id, p_ingredient_id, p_transaction_type, 
+    p_quantity, p_unit_cost, p_supplier_id, p_notes, auth.uid()
+  ) RETURNING id INTO v_transaction_id;
+
+  -- 2. Upsert tồn kho mới vào inventory_stock
+  INSERT INTO public.inventory_stock (
+    branch_id, ingredient_id, quantity, last_updated
+  ) VALUES (
+    v_branch_id, p_ingredient_id, v_new_stock, now()
+  )
+  ON CONFLICT (branch_id, ingredient_id)
+  DO UPDATE SET
+    quantity = EXCLUDED.quantity,
+    last_updated = EXCLUDED.last_updated;
+
+  RETURN v_transaction_id;
+END;
+$$;
+
+REVOKE EXECUTE ON FUNCTION public.record_inventory_transaction(uuid, text, numeric, numeric, uuid, text) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.record_inventory_transaction(uuid, text, numeric, numeric, uuid, text) TO authenticated;
+
+
+-- ==========================================
+-- FILE: 20260701000004_rpc_procurement_reads.sql
+-- ==========================================
+-- =================================================================================
+-- MIGRATION: Procurement Read RPCs
+-- Tuân thủ Rule: Strict RPC Architecture (Database as an API)
+-- Không cho phép Frontend query trực tiếp vào table.
+-- =================================================================================
+
+-- 1. Lấy danh sách Nhà cung cấp
+CREATE OR REPLACE FUNCTION public.get_suppliers()
+RETURNS TABLE (
+  id uuid,
+  name text,
+  contact_info text,
+  tax_code text,
+  payment_terms text
+)
+LANGUAGE plpgsql SECURITY DEFINER
+SET search_path = public, auth
+AS $$
+BEGIN
+  RETURN QUERY
+  SELECT s.id, s.name, s.contact_info, s.tax_code, s.payment_terms
+  FROM public.suppliers s
+  WHERE s.is_active = true
+  ORDER BY s.name ASC;
+END;
+$$;
+
+-- 2. Lấy từ điển nguyên liệu
+CREATE OR REPLACE FUNCTION public.get_ingredients()
+RETURNS TABLE (
+  id uuid,
+  name text,
+  unit text,
+  category text
+)
+LANGUAGE plpgsql SECURITY DEFINER
+SET search_path = public, auth
+AS $$
+BEGIN
+  RETURN QUERY
+  SELECT i.id, i.name, i.unit, i.category
+  FROM public.ingredients i
+  WHERE i.is_active = true
+  ORDER BY i.name ASC;
+END;
+$$;
+
+-- 3. Xem tồn kho hiện tại (Tự động theo chi nhánh)
+CREATE OR REPLACE FUNCTION public.get_current_stock(p_branch_id uuid DEFAULT NULL)
+RETURNS TABLE (
+  id uuid,
+  ingredient_id uuid,
+  ingredient_name text,
+  unit text,
+  quantity numeric,
+  last_updated timestamptz
+)
+LANGUAGE plpgsql SECURITY DEFINER
+SET search_path = public, auth
+AS $$
+DECLARE
+  v_branch_id uuid;
+BEGIN
+  -- Lấy branch_id từ JWT nếu không truyền vào
+  v_branch_id := COALESCE(p_branch_id, public.current_branch_id());
+  
+  IF v_branch_id IS NULL THEN
+    RAISE EXCEPTION 'FORBIDDEN: Branch ID is required' USING ERRCODE = '28000';
+  END IF;
+
+  -- Bảo mật chéo: Chặn query chi nhánh khác nếu không phải admin
+  IF v_branch_id IS DISTINCT FROM public.current_branch_id()
+     AND NOT public.has_role(ARRAY['admin']::user_role[]) THEN
+    RAISE EXCEPTION 'FORBIDDEN: branch mismatch' USING ERRCODE = '28000';
+  END IF;
+
+  RETURN QUERY
+  SELECT 
+    s.id,
+    i.id as ingredient_id,
+    i.name as ingredient_name,
+    i.unit as unit,
+    s.quantity,
+    s.last_updated
+  FROM public.inventory_stock s
+  JOIN public.ingredients i ON i.id = s.ingredient_id
+  WHERE s.branch_id = v_branch_id
+  ORDER BY s.quantity DESC;
+END;
+$$;
+
+-- 4. Lịch sử giao dịch nhập/xuất kho
+CREATE OR REPLACE FUNCTION public.get_inventory_transactions(
+  p_branch_id uuid DEFAULT NULL, 
+  p_limit int DEFAULT 100
+)
+RETURNS TABLE (
+  id uuid,
+  transaction_type text,
+  ingredient_name text,
+  unit text,
+  quantity numeric,
+  unit_cost numeric,
+  supplier_name text,
+  notes text,
+  created_at timestamptz
+)
+LANGUAGE plpgsql SECURITY DEFINER
+SET search_path = public, auth
+AS $$
+DECLARE
+  v_branch_id uuid;
+BEGIN
+  v_branch_id := COALESCE(p_branch_id, public.current_branch_id());
+  
+  IF v_branch_id IS NULL THEN
+    RAISE EXCEPTION 'FORBIDDEN: Branch ID is required' USING ERRCODE = '28000';
+  END IF;
+
+  IF v_branch_id IS DISTINCT FROM public.current_branch_id()
+     AND NOT public.has_role(ARRAY['admin']::user_role[]) THEN
+    RAISE EXCEPTION 'FORBIDDEN: branch mismatch' USING ERRCODE = '28000';
+  END IF;
+
+  RETURN QUERY
+  SELECT 
+    t.id,
+    t.transaction_type,
+    i.name as ingredient_name,
+    i.unit as unit,
+    t.quantity,
+    t.unit_cost,
+    s.name as supplier_name,
+    t.notes,
+    t.created_at
+  FROM public.inventory_transactions t
+  JOIN public.ingredients i ON i.id = t.ingredient_id
+  LEFT JOIN public.suppliers s ON s.id = t.supplier_id
+  WHERE t.branch_id = v_branch_id
+  ORDER BY t.created_at DESC
+  LIMIT p_limit;
+END;
+$$;
+
+-- Thu hồi quyền mặc định và cấp quyền truy cập chuẩn
+REVOKE EXECUTE ON FUNCTION public.get_suppliers() FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.get_suppliers() TO authenticated;
+
+REVOKE EXECUTE ON FUNCTION public.get_ingredients() FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.get_ingredients() TO authenticated;
+
+REVOKE EXECUTE ON FUNCTION public.get_current_stock(uuid) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.get_current_stock(uuid) TO authenticated;
+
+REVOKE EXECUTE ON FUNCTION public.get_inventory_transactions(uuid, int) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.get_inventory_transactions(uuid, int) TO authenticated;
+

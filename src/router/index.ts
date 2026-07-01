@@ -10,6 +10,8 @@ import StaffLayout from '@/layouts/StaffLayout.vue'
 import ReceptionLayout from '@/layouts/ReceptionLayout.vue'
 import KitchenLayout from '@/layouts/KitchenLayout.vue'
 import SuperadminLayout from '@/layouts/SuperadminLayout.vue'
+import CustomerLayout from '@/layouts/CustomerLayout.vue'
+
 
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 import LoginView from '@/views/LoginView.vue'
@@ -54,6 +56,14 @@ import KitchenKDSView from '@/views/kitchen/KitchenKDSView.vue'
 import SuperadminDashboardView from '@/views/superadmin/SuperadminDashboardView.vue'
 import SuperadminBrandsView from '@/views/superadmin/SuperadminBrandsView.vue'
 import SuperadminIntegrationsView from '@/views/superadmin/SuperadminIntegrationsView.vue'
+
+// ─── Customer Views ─────────────────────────────────────────────────────────────
+import CustomerHome from '@/views/customer/CustomerHome.vue'
+import CustomerMenu from '@/views/customer/CustomerMenu.vue'
+import CustomerCart from '@/views/customer/CustomerCart.vue'
+import ServiceRequest from '@/views/customer/ServiceRequest.vue'
+import OrderHistory from '@/views/customer/OrderHistory.vue'
+import Feedback from '@/views/customer/Feedback.vue'
 
 const routes: RouteRecordRaw[] = [
   {
@@ -236,6 +246,46 @@ const routes: RouteRecordRaw[] = [
       },
     ],
   },
+  {
+    path: '/customer',
+    component: CustomerLayout,
+    meta: { 
+      requiresAuth: false,
+      role: 'customer'
+    },
+    children: [
+      {
+        path: '',
+        name: 'CustomerHome',
+        component: CustomerHome
+      },
+      {
+        path: 'menu',
+        name: 'CustomerMenu',
+        component: CustomerMenu
+      },
+      {
+        path: 'cart',
+        name: 'CustomerCart',
+        component: CustomerCart
+      },
+      {
+        path: 'service-request',
+        name: 'ServiceRequest',
+        component: ServiceRequest
+      },
+      {
+        path: 'order-history',
+        name: 'OrderHistory',
+        component: OrderHistory
+      },
+      {
+        path: 'feedback',
+        name: 'Feedback',
+        component: Feedback
+      }
+    ]
+  },
 
   // ═══════════════════════════════════════════════════════════════
   // KITCHEN KDS (Display — Role: Kitchen / Bếp)
@@ -312,20 +362,28 @@ router.beforeEach(async (to) => {
     })
   }
 
+  console.log('[DEBUG ROUTER] Navigating to:', to.path, 'requiresAuth:', to.meta.requiresAuth, 'isAuthenticated:', isAuthenticated.value);
+
   // Public routes.
-  if (to.meta.requiresAuth === false) return
+  if (to.path.startsWith('/customer') || to.meta.requiresAuth === false) {
+    console.log('[DEBUG ROUTER] Bypass match for public customer route:', to.path);
+    return;
+  }
 
   // Must be signed in for everything else.
   if (!isAuthenticated.value) {
+    console.warn('[DEBUG ROUTER] Redirecting to login: User not authenticated for route', to.path);
     return { name: 'login' }
   }
 
   const prefix = String(to.path.split('/')[1] ?? '')
   const allowed = ROUTE_ROLES[prefix]
   if (allowed && role.value && !allowed.includes(role.value)) {
+    console.warn('[DEBUG ROUTER] Role mismatch for:', to.path, 'user role:', role.value, 'allowed:', allowed);
     return getFallbackRouteForRole(role.value)
   }
 
+  console.log('[DEBUG ROUTER] Navigation allowed to:', to.path);
   return
 })
 

@@ -1,0 +1,90 @@
+ 1. Cấu trúc khu vực và danh sách bàn
+
+Hiển thị tất cả bàn theo từng khu vực như sau:
+
+### Khu A
+
+* A01
+* A02
+* A03
+* A04
+* A05
+* A06
+* A07
+* A08
+* A09
+
+### Khu B
+
+* B01
+* B02
+* B03
+
+### Khu C
+
+* C01
+* C02
+* C03
+* C04
+* C05
+* C06
+* C07
+* C08
+
+### Khu R
+
+* R01
+* R02
+* R03
+* R04
+* R05
+* R06
+* R07
+* R08
+
+### Khu T
+
+* T01
+* T02
+* T03
+* T04
+* T05
+* T06
+* T07
+* T08
+
+### Khu Capichi
+
+* CP01
+* CP02
+* CP03
+* CP04
+* CP05
+
+### Khu Shopee
+
+* Shopee01
+* Shopee02
+* Shopee03
+* Shopee04
+* Shopee05
+
+### Khu BE
+
+* BE01
+* BE02
+* BE03
+* BE04
+* BE05
+
+### Khu Grab
+
+* Grab01
+* Grab02
+* Grab03
+* Grab04
+* Grab05
+
+### Khu Catalog
+
+* Catalog

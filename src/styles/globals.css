@@ -149,3 +149,318 @@
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 103, 46, 0.5);
 }
+
+/* === BUTTON DESIGN SYSTEM === */
+
+/* Base Button Styles */
+.header-btn {
+  /* Kích thước chuẩn */
+  height: 48px;
+  min-width: 120px;
+  padding: 0 20px;
+  
+  /* Typography */
+  font-size: 14px;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  letter-spacing: 0.3px;
+  
+  /* Layout */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  
+  /* Visual */
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  
+  /* Text */
+  color: #FFFFFF;
+  text-transform: none; /* Không viết hoa tất cả */
+  text-decoration: none;
+}
+
+/* Hover State */
+.header-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  filter: brightness(1.1);
+}
+
+/* Active State */
+.header-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* Focus State (Accessibility) */
+.header-btn:focus-visible {
+  outline: 3px solid #2196F3;
+  outline-offset: 2px;
+}
+
+/* === BUTTON VARIANTS === */
+
+/* Primary Action (Xanh dương - Navigation chính) */
+.header-btn.primary,
+.header-btn.btn-kitchen-kds,
+.header-btn.btn-prep-list {
+  background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+}
+
+/* Secondary Action (Tím - Expo QC) */
+.header-btn.secondary,
+.header-btn.btn-expo-qc {
+  background: linear-gradient(135deg, #9C27B0 0%, #7B1FA2 100%);
+}
+
+/* Warning Action (Cam - Yêu cầu Vỉ/Than) */
+.header-btn.warning,
+.header-btn.btn-grill-request {
+  background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);
+}
+
+/* Success Action (Xanh lá - HACCP) */
+.header-btn.success,
+.header-btn.btn-haccp {
+  background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%);
+}
+
+/* Danger Action (Đỏ - 86'd) */
+.header-btn.danger,
+.header-btn.btn-86d {
+  background: linear-gradient(135deg, #F44336 0%, #D32F2F 100%);
+}
+
+/* Neutral Action (Xám - Ẩn Panel) */
+.header-btn.neutral,
+.header-btn.btn-hide-panel {
+  background: linear-gradient(135deg, #616161 0%, #424242 100%);
+}
+
+/* Urgent Alert (Đỏ đậm - Cảnh báo trễ) */
+.header-btn.urgent,
+.header-btn.btn-alert-delayed {
+  background: linear-gradient(135deg, #C62828 0%, #B71C1C 100%) !important;
+  animation: pulse-urgent 2s infinite;
+  height: 56px; /* Lớn hơn để nổi bật */
+  font-size: 15px;
+  font-weight: 700;
+}
+
+/* Active State for routing links / active buttons */
+.header-btn.active {
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.5);
+  filter: brightness(1.2);
+}
+
+/* === ICON STYLES === */
+
+.header-btn .btn-icon {
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+}
+
+/* === BADGE STYLES === */
+
+.header-btn .badge {
+  /* Vị trí */
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  
+  /* Kích thước */
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  
+  /* Visual */
+  background: #F44336;
+  color: #FFFFFF;
+  border-radius: 11px;
+  border: 2px solid #1A1A1A; /* Viền đồng màu với header */
+  
+  /* Typography */
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  /* Animation */
+  transition: all 0.3s ease;
+}
+
+/* Badge với số lượng lớn */
+.header-btn .badge.large {
+  background: #FF5722;
+  animation: badge-pulse 1.5s infinite;
+}
+
+/* === ANIMATIONS === */
+
+@keyframes pulse-urgent {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(198, 40, 40, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(198, 40, 40, 0);
+  }
+}
+
+@keyframes badge-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+/* === RESPONSIVE === */
+
+@media (max-width: 1366px) {
+  .header-btn {
+    height: 44px;
+    min-width: 100px;
+    padding: 0 16px;
+    font-size: 13px;
+  }
+  
+  .header-btn .btn-icon {
+    font-size: 16px;
+  }
+  
+  .header-btn .badge {
+    min-width: 20px;
+    height: 20px;
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 768px) {
+  .header-btn {
+    height: 40px;
+    min-width: 90px;
+    padding: 0 12px;
+    font-size: 12px;
+  }
+  
+  .header-btn .btn-icon {
+    font-size: 14px;
+  }
+  
+  .header-btn .badge {
+    min-width: 18px;
+    height: 18px;
+    font-size: 9px;
+    top: -4px;
+    right: -4px;
+  }
+}
+
+/* === LAYOUT IMPROVEMENTS === */
+
+/* Container cho header buttons */
+.header-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
+  background: #2D2D2D;
+  border-bottom: 1px solid #404040;
+  gap: 16px;
+}
+
+.header-toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.header-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* Group buttons theo chức năng */
+.button-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  border-right: 1px solid #404040;
+}
+
+.button-group:last-child {
+  border-right: none;
+}
+
+/* Separator giữa các nhóm */
+.button-separator {
+  width: 1px;
+  height: 32px;
+  background: #404040;
+  margin: 0 8px;
+}
+
+/* === ACCESSIBILITY === */
+
+/* Keyboard Navigation */
+.header-btn:focus-visible {
+  outline: 3px solid #2196F3;
+  outline-offset: 2px;
+}
+
+/* Screen Reader */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .header-btn {
+    border: 2px solid currentColor;
+  }
+  
+  .header-btn .badge {
+    border: 2px solid white;
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .header-btn,
+  .header-btn .badge,
+  .btn-alert-delayed {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* Touch Targets (Mobile) */
+@media (max-width: 768px) {
+  .header-btn {
+    min-height: 44px; /* iOS minimum */
+    min-width: 44px;
+  }
+}
+

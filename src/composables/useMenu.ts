@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 import { supabase } from '@/lib/supabase'
-import { useBranch } from './useBranch'
+import { useBranch, throwBranchGuard } from './useBranch'
 import type { MenuCategory, MenuItem, Package as PackageRow } from '@/types/database'
 
 export function useMenu() {
@@ -14,7 +14,7 @@ export function useMenu() {
     const { data, error: err } = await supabase
       .from('menu_categories')
       .select('*')
-      .eq('branch_id', activeBranchId.value!)
+      .eq('branch_id', (activeBranchId.value ?? throwBranchGuard()))
       .eq('is_active', true)
       .order('sort_order')
     loading.value = false
@@ -31,7 +31,7 @@ export function useMenu() {
     let q = supabase
       .from('menu_items')
       .select('*, menu_categories(name)')
-      .eq('branch_id', activeBranchId.value!)
+      .eq('branch_id', (activeBranchId.value ?? throwBranchGuard()))
       .eq('is_available', true)
       .order('name')
     if (categoryId) q = q.eq('category_id', categoryId)
@@ -50,7 +50,7 @@ export function useMenu() {
     const { data, error: err } = await supabase
       .from('packages')
       .select('*')
-      .eq('branch_id', activeBranchId.value!)
+      .eq('branch_id', (activeBranchId.value ?? throwBranchGuard()))
       .eq('is_active', true)
       .order('name')
     loading.value = false
@@ -74,3 +74,4 @@ export function useMenu() {
 
   return { loading, error, getCategories, getItems, getPackages, upsertItem }
 }
+

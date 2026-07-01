@@ -13,6 +13,7 @@ dist-ssr/
 
 # Supabase CLI temp/cache (auto-generated, never commit)
 supabase/.temp/
+supabase/.branches/
 
 # Logs
 logs
@@ -33,3 +34,18 @@ lerna-debug.log*
 *.njsproj
 *.sln
 *.sw?
+
+# Stray one-off refactor scripts dropped at the project root.
+# We keep the historical copies under scripts/_archive/per-onetime/.
+# New root-level .py files are almost always a smell — if you need a
+# bulk-edit, use a shell loop, the Node REPL, or a properly namespaced
+# script under scripts/.
+/*.py
+
+# IDE swap files (KDE Kate, vim, etc.)
+*.kate-swp
+*.swp
+*.swo
+
+# Ignore local SQL dumps at root
+/*.sql

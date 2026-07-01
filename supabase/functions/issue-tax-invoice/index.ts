@@ -1,6 +1,6 @@
 // supabase/functions/issue-tax-invoice/index.ts
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
-import { getAdminClient, requireUser } from '../_shared/auth.ts'
+import { requireAppUser, AuthError } from '../_shared/auth.ts'
 import { corsHeaders } from '../_shared/cors.ts'
 
 interface TaxInvoicePayload {
@@ -14,13 +14,20 @@ interface TaxInvoicePayload {
 serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
   try {
-    const { user } = await requireUser(req)
-    const admin = getAdminClient()
+    // Manager / admin only — this calls a paid 3rd-party API (VNPT/VT).
+    const { profile, admin } = await requireAppUser(req, {
+      roles: ['manager', 'admin'],
+    })
     const body: TaxInvoicePayload = await req.json()
+
+    // Validate payload
+    if (!body.invoiceId) throw new AuthError('invoiceId là bắt buộc', 400)
+    const uuidRe = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+    if (!uuidRe.test(body.invoiceId)) throw new AuthError('invoiceId không phải UUID', 400)
 
     // 1. Validate MST format (10 hoặc 13 số)
     if (!/^\d{10}(-\d{3})?$/.test(body.taxCode)) {
-      throw new Error('MST không hợp lệ (phải 10 hoặc 13 số)')
+      throw new AuthError('MST không hợp lệ (phải 10 hoặc 13 số)', 400)
     }
 
     // 2. Lấy invoice + order items
@@ -28,14 +35,22 @@ serve(async (req) => {
       .from('invoices')
       .select(`
         id, invoice_number, subtotal, vat, discount, total, branch_id,
-        order:orders(
-          id, order_number, table_id, reservation_id,
-          order_items(name_snapshot, quantity, unit_price, line_total)
+        reservations(
+          orders(
+            id, order_number, reservation_id,
+            order_items(name_snapshot, quantity, unit_price, line_total)
+          )
         )
       `)
       .eq('id', body.invoiceId)
-      .single()
-    if (!invoice) throw new Error('Invoice not found')
+      .maybeSingle()
+    if (!invoice) throw new AuthError('Invoice không tồn tại', 404)
+
+    // Branch ownership — fail BEFORE calling the external API so we never
+    // bill an invoice we don't have permission to issue.
+    if (profile.role !== 'admin' && profile.branch_id !== invoice.branch_id) {
+      throw new AuthError('Invoice thuộc chi nhánh khác — bạn không có quyền xuất HĐ', 403)
+    }
 
     // 3. Build XML theo chuẩn Nghị định 123/2020
     const xml = buildVNInvoiceXML({
@@ -43,14 +58,20 @@ serve(async (req) => {
       taxCode: body.taxCode,
       customerCompany: body.customerCompany,
       customerAddress: body.customerAddress,
-      items: (invoice as any).order.order_items,
+      items: (invoice as any).reservations?.orders?.[0]?.order_items ?? [],
       subtotal: invoice.subtotal,
       vat: invoice.vat,
       total: invoice.total,
     })
 
-    // 4. Gọi cổng thuế (VNPT example)
-    const vtApiKey = Deno.env.get('VT_API_KEY')!
+    // 4. Gọi cổng thuế (VNPT/VT example). Fail fast if API key is missing
+    //    rather than letting `fetch` get an opaque 500 downstream. We throw
+    //    a plain Error (not AuthError) because this is a misconfiguration,
+    //    not an auth failure — the caller should treat it as 500.
+    const vtApiKey = Deno.env.get('VT_API_KEY')
+    if (!vtApiKey) {
+      throw new Error('Cấu hình VT_API_KEY chưa có — không thể xuất hóa đơn điện tử')
+    }
     const vtApiUrl = Deno.env.get('VT_API_URL') ?? 'https://api.vntax.vn/v1/invoices'
     const resp = await fetch(vtApiUrl, {
       method: 'POST',
@@ -67,9 +88,7 @@ serve(async (req) => {
     await admin
       .from('invoices')
       .update({
-        tax_code: body.taxCode,
-        customer_company: body.customerCompany,
-        customer_address: body.customerAddress,
+        tax_info: { tax_code: body.taxCode, company_name: body.customerCompany, address: body.customerAddress },
         metadata: {
           ...(invoice as any).metadata,
           vt_invoice_id: result.id,
@@ -107,9 +126,10 @@ serve(async (req) => {
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
     )
   } catch (e: any) {
+    const status = e.name === 'AuthError' ? e.status : (e.status || 400)
     return new Response(
-      JSON.stringify({ error: e.message }),
-      { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      JSON.stringify({ error: e.message, errorName: e.name }),
+      { status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
     )
   }
 })

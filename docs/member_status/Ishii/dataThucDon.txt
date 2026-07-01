@@ -1,0 +1,1391 @@
+{{
+BUFFET{SET 1390{Vé Người Lớn 1380 (Vé)
+1.380K
+}
+SET 1150{Vé Người Lớn 1150 (Vé)
+1.150K
+}
+SET 680{Vé Người Lớn 680 (Vé)
+680K
+}
+SET 490{Vé Người Lớn 490 (Vé)
+490K
+}
+SET 380{Vé Người Lớn 380 (Vé)
+380K
+}
+SET DRINK{BUFFET NƯỚC GÓI 250 (JP) (Vé)
+227,273K
+BUFFET NƯỚC GÓI 250 (JP) (Vé)
+227,273K
+Nước ngọt uống không giới hạn (Vé)
+80K
+Rượu bia cao cấp uống không giới hạn trong 2 giờ (Vé)
+350K
+Rượu bia uống không giới hạn trong 2 giờ (Vé)
+250K
+}
+
+A la carte{A la carte (Vé)
+0K
+SET LUNCH (Vé)
+0K
+Sét Tiệc Chiêu Đãi JP (Vé)
+0K
+Sét Tiệc Chiêu Đãi VN (Vé)
+0K
+}
+
+Set 550JP{Vé Người Lớn 550 (JP) (Vé)
+509,259K
+}
+
+Buffet Lẩu{Set Lẩu 250 (Vé)
+250K
+Set Lẩu 250 (Vé)
+250K
+}
+
+{{
+Set Lunch{Cơm Bibimbap - Lunch Menu (Phần)
+99K
+Cơm Cà Ri Ushiyoshi - Lunch (Phần)
+89K
+Cơm gà Nanban Nhật Bản- Lunch (Phần)
+179K
+Lunch - Cơm thịt heo kim chi (Phần)
+129K
+Lunch - Cơm thịt heo kim chi phủ trứng (Phần)
+139K
+Lunch - Set Bò Cao Cấp (Phần)
+259K
+Lunch - Sét Cơm Gà Cay Ngọt (Phần)
+109K
+Lunch - Set Heo Tổng Hợp (Phần)
+169K
+Lunch - Sét Nướng Healthy (Phần)
+199K
+Lunch - Sét Nướng Thập Cẩm (Heo & Gà ) (Phần)
+149K
+Lunch - Set Nướng ThậP Cẩm(Heo & Bò ) (Phần)
+189K
+Lunch - Sét Oyakodon (Cơm Gà & Trứng) (Phần)
+119K
+Lunch - Sét Wagyu Thượng Hạng (Phần)
+450K
+Lunch - Set Wagyu Tuyển Chọn (Phần)
+325K
+Mì Chua Cay Kiểu Á Đông - Lunch (Phần)
+179K
+Mì Udon Kim Chi - Lunch (Phần)
+149K
+Mì udon xào cùng thịt bò - Lunch (Phần)
+129K
+Sét Chiên Thâp Cẩm Và Cơm Kiểu Nhật- Lunch (Phần)
+189K
+Sét trưa Hamburger - Lunch (Phần)
+99K
+Tôm Tempura - Lunch (Phần)
+40K
+Cá Ngân chiên giòn (Phần)
+45K
+Gà Chiên Nhật Bản - Lunch (Phần)
+35K
+
+}},
+
+{{
+SET TIỆC CHIÊU ĐÃI{SET1-Drink Tiệc Chiêu Đãi (Phần)
+250K
+SET1-Tiệc Chiêu Đãi (Phần)
+450K
+SET2-Drink Tiệc Chiêu Đãi (Phần)
+350K
+SET2-Tiệc Chiêu Đãi (Phần)
+550K
+SET3-Drink Tiệc Chiêu Đãi (Phần)
+350K
+SET3-Tiệc Chiêu Đãi (Phần)
+850K
+
+}
+SET TIỆC CHIÊU ĐÃI (JP){SET DRINK 250K (Vé)
+227,273K
+SET DRINK 350K (Vé)
+318,182K
+Set tiệc chiêu đãi - 001 (Vé)
+416,667K
+Set tiệc chiêu đãi - 002 (Vé)
+509,259K
+Set tiệc chiêu đãi - 003 (Vé)
+787,037K
+SET TIỆC GUMA (Vé)
+1.310,185K
+SET TIỆC NAGASAKI (Vé)
+1.032,407K
+
+}
+SET Vietravel{
+Set tiệc Vietravel D Course (Vé)
+500K}
+Thức Ăn{
+Wagyu{Sườn Wagyu Xốt Ushiyoshi (Phần)
+0K
+Thăn Ngoại Wagyu Chọn Lọc (Phần)
+0K
+Thăn Lưng Wagyu Chọn Lọc (Phần)1
+0K
+Sườn Ngắn Wagyu Nướng Kiểu Shabu (Phần)
+0K
+Lõi Vai Wagyu (Phần)
+0K
+Lưỡi bò cắt dày (BỊCH)
+0K
+Lưỡi bò cắt dày (Phần)
+170K
+Thịt đỏ Wagyu (Phần)
+0K
+}
+Beef tongue{Lưỡi Bò Cắt Mỏng (Phần)
+0K
+Lưỡi Bò Xốt Muối Ushiyoshi (Phần)
+0K
+Lưỡi Bò Hoa (Phần)
+0K
+}
+
+Beef{Set Thịt Đặc Trưng Ushiyoshi (2 người) (Phần)
+0K
+Set Thịt Đặc Trưng Ushiyoshi (3 người) (Phần)
+0K
+Set Thịt Đặc Trưng Ushiyoshi (4 người) (Phần)
+0K
+Set Thịt Tổng Hợp Đặc Biệt (4 người) (Phần)
+0K
+Set Thịt Tổng Hợp Đặc Biệt (2 người) (Phần)
+0K
+Set Thịt Tổng Hợp Đặc Biệt (3 người) (Phần)
+0K
+Set Thịt Tuyển Chọn (2 người) (Phần)
+0K
+Set Thịt Tuyển Chon (3 người) (Phần)
+0K
+Set Thịt Tuyển Chọn (4 người) (Phần)
+0K
+Thăn Lưng Ushiyoshi Cao Cấp (Phần)
+0K
+Thăn Lưng Ushiyoshi (Phần)
+0K
+Sườn Ngắn Ushiyoshi Cao Cấp (Phần)
+0K
+Sườn Ngắn Ushiyoshi Ướp Miso (Phần)
+0K
+Sườn Ngắn Cao Cấp Nướng Kiểu Shabu ( Xốt Ushiyoshi) (Phần)
+0K
+Sườn Ngắn Cao Cấp Nướng Kiểu Shabu (Xốt Sukiyaki) (Phần)
+0K
+Sườn Ngắn Xốt Muối Ushiyoshi (Phần)
+0K
+Sườn Ngắn Xốt Ushiyoshi (Phần)
+0K
+Sườn Ngắn Miso Cay (Phần)
+0K
+Sườn Ngắn Nướng Kiểu Shabu (Xốt Ushiyoshi) (Phần)
+0K
+Sườn Ngắn Nướng Kiểu Shabu (Xốt Miso Cay) (Phần)
+0K
+Sườn Ngắn Nướng Kiểu Shabu (Xốt Sukiyaki) (Phần)
+0K
+Sườn Nguyên Tảng (Phần)
+0K
+Diềm Thăn Xốt Ushiyoshi (Phần)
+0K
+}
+
+Nội Tạng{Lòng Bò Đặc Trưng (Phần)
+0K
+Lòng Bò Non Ushiyoshi Xốt (Phần)
+0K
+Lòng Bò Già Ushiyoshi Xốt (Phần)
+0K
+Gan Bò Xốt Đặc Biệt (Phần)
+0K
+Lòng Bò Non Miso Cay (Phần)
+0K
+Lòng Bò Già Miso Cay (Phần)
+0K
+Gan Bò Miso Cay (Phần)
+0K
+Dạ dày bò (tổ ong) sốt miso cay (BỊCH)
+0K
+Dạ dày bò (tổ ong) sốt miso cay (BỊCH)
+0K
+Dạ dày bò (tổ ong) sốt miso cay (BỊCH)
+0K
+Dạ dày bò (tổ ong) sốt miso cay (BỊCH)
+0K
+Dạ dày bò (tổ ong) sốt miso cay (Phần)
+50K
+Dạ dày bò (tổ ong) sốt tare (Phần)
+0K
+Dạ dày bò (tổ ong) sốt tare (Phần)
+0K
+Dạ dày bò (tổ ong) sốt tare (Phần)
+0K
+Dạ dày bò (tổ ong) sốt tare (Phần)
+0K
+}
+
+Thịt Heo{Ba Chỉ Heo Vị Muối (Phần)
+0K
+Ba Chỉ Heo Ướp Miso (Phần)
+0K
+Ba Chỉ Heo Miso Cay (Phần)
+0K
+Nọng Heo Vị Muối (Phần)
+0K
+Nọng Heo Ướp Miso (Phần)
+0K
+Nọng Heo Ướp Miso Cay (Phần)
+0K
+}
+
+Thịt Gà{Đùi Gà Vị Muối (Phần)
+0K
+Đùi Gà Miso Cay (Phần)
+0K
+Cổ Gà Vị Muối (Phần)
+0K
+Cổ Gà Ướp Miso Cay (Phần)
+0K
+Cánh Gà Vị Muối (Phần)
+0K
+Cánh Gà Miso Cay (Phần)
+0K
+}
+
+Grill a la carte{Trứng gà (Phần)
+20K
+Rau Củ Nướng Thập Cẩm (Phần)
+0K
+Tôm (Phần)
+0K
+Bạch Tuộc (Phần)
+0K
+Hải Sản Nướng Giấy Bạc (Phần)
+0K
+Bắp Nướng Bơ (Phần)
+0K
+Khoai Tây Nướng Bơ (Phần)
+0K
+Tỏi Nướng Giấy Bạc (Phần)
+0K
+}
+
+A la carte{Cá Ngân Chiên Giòn (Phần)
+0K
+Tôm Tempura (Phần)
+0K
+Chả Cá Nhật Chiên (Phần)
+0K
+Cua Lột Chiên Giòn (Phần)
+0K
+Râu Sò Điệp Trộn Tiêu Tứ Xuyên (Phần)
+0K
+Cá Trứng Chiên Giòn (Phần)
+0K
+Trứng Hấp Kiểu Nhật (Phần)
+0K
+Gà Chiên Nhật Bản (Phần)
+0K
+Cánh Gà Chiên (Phần)
+0K
+Khoai Tây Chiên (Phần)
+0K
+Bánh Bạch Tuộc (Phần)
+0K
+Bánh Xèo Nhật Mini (Phần)
+0K
+Há Cảo Chiên (Phần)
+0K
+Hamburger (Phần)
+0K
+Trứng Cuộn Nhật (Phần)
+0K
+Set Trẻ Em (Phần)
+0K
+Sushi Bò Wagyu Áp Lửa Hồng (Phần)
+0K
+}
+
+Khai Vị{Đậu Nành Nhật (Phần)
+0K
+Dưa Leo Trộn Kiểu Nhật (Phần)
+0K
+Kimchi Tổng Hợp (Phần)
+0K
+Kimchi Cải Thảo (Phần)
+0K
+Kimchi Dưa Leo (Phần)
+0K
+Kimchi Củ Cải (Phần)
+0K
+Rau Trộn Hàn Quốc (Tổng Hợp) (Phần)
+0K
+}
+
+Xà Lách{Salad Ushiyoshi (Phần)
+0K
+Salad Đậu Hũ (Phần)
+0K
+Salad Caesar (Phần)
+0K
+Xà lách (Phần)
+0K
+Xà lách (Phần)
+0K
+Xà lách (Phần)
+0K
+Xà lách (Phần)
+0K
+}
+
+Cơm{Bibimbap Thố Đá (Phần)
+0K
+Bibimbap Mini (Phần)
+0K
+Cơm Chiên Tỏi Thố Đá (Phần)
+0K
+Canh Cơm Hàn Quốc (Phần)
+0K
+Cơm Chiên Kimchi (Phần)
+0K
+Cơm Gân Bò Mini (Phần)
+0K
+Cà Ri Ushiyoshi (Phần)
+0K
+Cơm Ăn Kèm Yakiniku (Phần)
+0K
+Cơm Trắng (Phần)
+0K
+}
+
+Mì các loại{Mì Udon Lạnh Goto (Phần)
+0K
+Mì Udon Bò (Phần)
+0K
+Mì Xương Ống Hầm (Phần)
+0K
+Mì Ramen Xào Bò (Phần)
+0K
+Mì Ramen Xào Hải Sản (Phần)
+0K
+Súp Mala Cay Tê (Phần)
+0K
+}
+
+Súp{Súp mala cay tê (Phần)
+45K
+Súp Phở (Phần)
+0K
+Súp Rong Biển (Phần)
+0K
+Súp Nghêu (Phần)
+0K
+Súp Nghêu Cay (Phần)
+0K
+Súp Trứng (Phần)
+0K
+Súp Chua Cay (Phần)
+0K
+}
+
+Tráng Miệng{Kem Vani (Phần)
+0K
+Kem Vani Sốt Dâu (Phần)
+0K
+Kem Vani Sốt Socola (Phần)
+0K
+Kem Matcha (Phần)
+0K
+Kem Chanh Yuzu (Phần)
+0K
+Kem Nho (Phần)
+0K
+Bánh Bông Lan Phô Mai Trứng Muối (Phần)
+0K
+Bánh Cá Nhân Đậu Đỏ (Phần)
+0K
+Bánh Cá Nhân Kem Trứng (Phần)
+0K
+Dorayaki Đậu Đỏ (Phần)
+0K
+Dorayaki Kem Trứng (Phần)
+0K
+Bánh Su Kem (Phần)
+0K
+Bánh Chuối Nướng (Phần)
+0K
+Gateau Sô-cô-la (Phần)
+0K
+}
+
+Sốt{Xốt Bơ Tỏi Xì Dầu (Phần)
+0K
+Xốt Phô Mai Nóng Chảy (Phần)
+0K
+}
+
+Lẩu Sukiyaki{Đĩa rau thập cẩm (Phần cho 2 người ) (Phần)
+0K
+Đĩa rau thập cẩm (Phần cho 3 người ) (Phần)
+0K
+Mì Udon (Phần)
+0K
+Nấm đùi gà (Phần)
+0K
+Nấm hương (Phần)
+0K
+Nấm kim châm (BỊCH)
+0K
+Rau củ và nấm thập cẩm (Phần cho 2 người) (Phần)
+0K
+Rau củ và nấm thập cẩm (Phần cho 3 người ) (Phần)
+0K
+Trứng gà (Phần)
+0K
+Các loại nấm (Phần cho 2 người) (Phần)
+0K
+Các loại nấm (Phần cho 3 người) (Phần)
+0K
+Cải thảo (Phần)
+0K
+Cải thìa (Phần)
+0K
+Cơm trắng (Phần)
+0K
+Đậu hũ chiên (Phần)
+0K
+Đậu hũ non (Phần)
+0K
+Thịt bò dùng cho lẩu Shabu-Shabu (Phần)
+0K
+Nước lẩu (Phần)
+0K
+}}
+
+{{
+Thức Uống{Soft drink{(A)Trà Đào (Ly)
+72K
+(A)Trà Vải (Ly)
+72K
+(A)Nước Cam (Ly)
+35K
+(A)Nước Cam (Ly)
+35K
+(A)Nước Cam (Ly)
+35K
+(A)Nước Cam (Ly)
+35K
+(A)Nước Ép Táo (Ly)
+35K
+(A)Nước Ép Táo (Ly)
+35K
+(A)Nước Ép Táo (Ly)
+35K
+(A)Nước Ép Táo (Ly)
+35K
+(A)Nước Ép Trái Cây Tổng Hợp (Ly)
+35K
+(A)Nước Ép Trái Cây Tổng Hợp (Ly)
+35K
+(A)Nước Ép Trái Cây Tổng Hợp (Ly)
+35K
+(A)Nước Ép Trái Cây Tổng Hợp (Ly)
+35K
+(A)Coca-Cola (Lon)
+35K
+(A)Coca-Cola (Lon)
+35K
+(A)Coca-Cola (Lon)
+35K
+(A)Coca-Cola (Lon)
+35K
+(A)Trà Sữa Trân Châu (Ly)
+50K
+(A)Trà Sữa Trân Châu (Ly)
+50K
+(A)Trà Sữa Trân Châu (Ly)
+50K
+(A)Trà Sữa Trân Châu (Ly)
+50K
+(A)Coca-Cola Zero (Lon)
+35K
+(A)Coca-Cola Zero (Lon)
+35K
+(A)Coca-Cola Zero (Lon)
+35K
+(A)Coca-Cola Zero (Lon)
+35K
+(A)Trà Sữa Thái Xanh (Ly)
+50K
+(A)Trà Sữa Thái Xanh (Ly)
+50K
+(A)Trà Sữa Thái Xanh (Ly)
+50K
+(A)Trà Sữa Thái Xanh (Ly)
+50K
+(A)7UP (Lon)
+35K
+(A)Trà Sữa Thái Đỏ (Ly)
+50K
+(A)Trà Sữa Thái Đỏ (Ly)
+50K
+(A)Trà Sữa Thái Đỏ (Ly)
+50K
+(A)Trà Sữa Thái Đỏ (Ly)
+50K
+(A)Soda (Lon)
+35K
+(A)Soda (Lon)
+35K
+(A)Soda (Lon)
+35K
+(A)Soda (Lon)
+35K
+(A)Trà Lài (Ly)
+35K
+(A)Trà Lài (Ly)
+35K
+(A)Trà Lài (Ly)
+35K
+(A)Trà Lài (Ly)
+35K
+(A)Nước Suối (Chai)
+25K
+(A)Nước Suối (Chai)
+25K
+(A)Nước Suối (Chai)
+25K
+(A)Nước Suối (Chai)
+25K
+}
+NON ALCOHOLIC{(A)Nước chanh xanh biển (Ly)
+80K
+(A)Soda Chanh Vải (Ly)
+78K
+(A)Soda Chanh Vải (Ly)
+78K
+(A)Soda Chanh Vải (Ly)
+78K
+(A)Soda Chanh Vải (Ly)
+78K
+(A)Soda Cassis Nho (Ly)
+108K
+(A)Soda Cassis Nho (Ly)
+108K
+(A)Soda Cassis Nho (Ly)
+108K
+(A)Soda Cassis Nho (Ly)
+108K
+(A)Soda Dứa Chanh Dây (Ly)
+78K
+(A)Soda Dứa Chanh Dây (Ly)
+78K
+(A)Soda Dứa Chanh Dây (Ly)
+78K
+(A)Soda Dứa Chanh Dây (Ly)
+78K
+}
+Tea{(A) Trà Rang Nhật Bản (Ly)
+80K
+(A) Trà Xanh Nhật Bản (Ly)
+80K
+(A)Trà Đào (Ly)
+72K
+(A)Trà Đào (Ly)
+72K
+}
+Đồ uống - Set{7UP (Lon)
+0K
+7UP (Lon)
+0K
+7UP (Lon)
+0K
+Coca-Cola (Lon)
+0K
+Coca-Cola (Lon)
+0K
+Coca-Cola (Lon)
+0K
+Coca-Cola Zero (Lon)
+0K
+Coca-Cola Zero (Lon)
+0K
+Coca-Cola Zero (Lon)
+0K
+Nước Cam (Ly)
+0K
+Nước Cam (Ly)
+0K
+Nước Cam (Ly)
+0K
+Nước Ép Táo (Ly)
+0K
+Nước Ép Táo (Ly)
+0K
+Nước Ép Táo (Ly)
+0K
+Nước Ép Trái Cây Tổng Hợp (Ly)
+0K
+Nước Ép Trái Cây Tổng Hợp (Ly)
+0K
+Nước Ép Trái Cây Tổng Hợp (Ly)
+0K
+Nước Suối (Chai)
+0K
+Nước Suối (Chai)
+0K
+Nước Suối (Chai)
+0K
+Trà Lài (Ly)
+0K
+Trà Lài (Ly)
+0K
+Trà Lài (Ly)
+0K
+Soda (Lon)
+0K
+Soda (Lon)
+0K
+Soda (Lon)
+0K
+Trà Sữa Thái Đỏ (Ly)
+0K
+Trà Sữa Thái Đỏ (Ly)
+0K
+Trà Sữa Thái Đỏ (Ly)
+0K
+Trà Sữa Thái Xanh (Ly)
+0K
+Trà Sữa Thái Xanh (Ly)
+0K
+Trà Sữa Thái Xanh (Ly)
+0K
+Trà Sữa Trân Châu (Ly)
+0K
+Trà Sữa Trân Châu (Ly)
+0K
+Trà Sữa Trân Châu (Ly)
+0K
+}}
+}}
+
+{{
+Thức Uống Có Cồn{Bia( món đơn){Rượu iichiko/glass (Ly)
+0K
+Rượu Jim Beam /glass (Ly)
+0K
+Rượu Jim Beam /glass (Ly)
+0K
+Rượu Suntory Kaku/glass (Ly)
+0K
+Chuhai Đào Fukushima (Ly)
+0K
+Chuhai Quýt Arita (Lọ)
+0K
+Rượu Lemon Soda Liqueur (Ly)
+0K
+Rượu Lemon Soda Liqueur (Ly)
+0K
+Rượu Mơ (Ly)
+0K
+Rượu Mơ (Ly)
+0K
+Bia Tiger (Lon)
+0K
+Bia Tiger (Lon)
+0K
+Bia Tươi Sapporo (Ly)
+0K
+Bia Tươi Sapporo (Ly)
+0K
+Rượu Kuro Kirishima/glass (Ly)
+0K
+(A)Bia Tươi Sapporo (Ly)
+78K
+(A)Bia Tươi Sapporo (Ly)
+78K
+(A)Bia Tươi Sapporo (Ly)
+78K
+(A)Bia Tươi Sapporo (Ly)
+78K
+(A)Bia Tiger (Lon)
+55K
+(A)Bia Tiger (Lon)
+55K
+(A)Bia Tiger (Lon)
+55K
+(A)Bia Tiger (Lon)
+55K
+(A)Rượu Jim Beam/glass (Ly)
+0K
+(A)Rượu Suntory Kaku/glass (Ly)
+0K
+(A)Rượu Kuro Kurishima Bottle (Chai)
+1.200K
+Rượu Sâm Cau Việt Nam (Lọ)
+1.000K
+Rượu Sâm Cau Việt Nam (Lọ)
+1.000K
+Rượu Sâm Cau Việt Nam (Lọ)
+1.000K
+Rượu Sâm Cau Việt Nam (Lọ)
+1.000K
+(A)Rượu Lemon Soda (Ly)
+90K
+(A)Rượu Lemon Soda (Ly)
+90K
+(A)Rượu Lemon Soda (Ly)
+90K
+(A)Rượu Lemon Soda (Ly)
+90K
+(A)Rượu Mơ (Ly)
+86K
+(A)Rượu Mơ (Ly)
+86K
+(A)Rượu Mơ (Ly)
+86K
+(A)Rượu Mơ (Ly)
+86K
+(A)Chuhai Đào Fukushima (Ly)
+119K
+(A)Chuhai Đào Fukushima (Ly)
+119K
+(A)Chuhai Đào Fukushima (Ly)
+119K
+(A)Chuhai Đào Fukushima (Ly)
+119K
+(A)Chuhai Quýt Arita (Ly)
+119K
+(A)Chuhai Quýt Arita (Ly)
+119K
+(A)Chuhai Quýt Arita (Ly)
+119K
+(A)Chuhai Quýt Arita (Ly)
+119K
+(A)Rượu iichiko/glass (Ly)
+98K
+(A)Rượu iichiko/glass (Ly)
+98K
+(A)Rượu iichiko/glass (Ly)
+98K
+(A)Rượu iichiko/glass (Ly)
+98K
+(A)Rượu Kuro Kirishima/glass (Ly)
+98K
+(A)Rượu Kuro Kirishima/glass (Ly)
+98K
+(A)Rượu Kuro Kirishima/glass (Ly)
+98K
+(A)Rượu Kuro Kirishima/glass (Ly)
+98K
+Awayuki Sparkling Sake/bottle 300ml (Chai)
+450K
+Awayuki Sparkling Sake/bottle 300ml (Chai)
+450K
+Awayuki Sparkling Sake/bottle 300ml (Chai)
+450K
+Awayuki Sparkling Sake/bottle 300ml (Chai)
+450K
+Kijuro (喜十郎)/ bottle 720ml (Chai)
+1.200K
+Kijuro (喜十郎)/ bottle 720ml (Chai)
+1.200K
+Kijuro (喜十郎)/ bottle 720ml (Chai)
+1.200K
+Kijuro (喜十郎)/ bottle 720ml (Chai)
+1.200K
+Dassai (獺祭)/ bottle 300ml (Chai)
+890K
+Dassai (獺祭)/ bottle 300ml (Chai)
+890K
+Dassai (獺祭)/ bottle 300ml (Chai)
+890K
+Dassai (獺祭)/ bottle 300ml (Chai)
+890K
+Nabeshima (鍋島)/ bottle 720ml (Chai)
+2.000K
+Nabeshima (鍋島)/ bottle 720ml (Chai)
+2.000K
+Nabeshima (鍋島)/ bottle 720ml (Chai)
+2.000K
+Nabeshima (鍋島)/ bottle 720ml (Chai)
+2.000K
+Mussel Bay (chai) (Chai)
+880K
+Mussel Bay (chai) (Chai)
+880K
+Mussel Bay (chai) (Chai)
+880K
+Mussel Bay (chai) (Chai)
+880K
+(A)Mussel Bay/white (ly) (Ly)
+150K
+(A)Mussel Bay/white (ly) (Ly)
+150K
+(A)Mussel Bay/white (ly) (Ly)
+150K
+(A)Mussel Bay/white (ly) (Ly)
+150K
+Michel Lynch (chai) (Chai)
+880K
+Michel Lynch (chai) (Chai)
+880K
+Michel Lynch (chai) (Chai)
+880K
+Michel Lynch (chai) (Chai)
+880K
+(A)Michel Lynch/ red (ly) (Ly)
+150K
+(A)Michel Lynch/ red (ly) (Ly)
+150K
+(A)Michel Lynch/ red (ly) (Ly)
+150K
+(A)Michel Lynch/ red (ly) (Ly)
+150K
+(A)Champagne Bollinger Special Cuvée /Sparkling (Chai)
+4.000K
+(A)Champagne Bollinger Special Cuvée /Sparkling (Chai)
+4.000K
+(A)Champagne Bollinger Special Cuvée /Sparkling (Chai)
+4.000K
+(A)Champagne Bollinger Special Cuvée /Sparkling (Chai)
+4.000K
+Parallèle 45 Côtes du Rhône PJA/white (Chai)
+1.200K
+Parallèle 45 Côtes du Rhône PJA/white (Chai)
+1.200K
+Parallèle 45 Côtes du Rhône PJA/white (Chai)
+1.200K
+Parallèle 45 Côtes du Rhône PJA/white (Chai)
+1.200K
+(A)Chablis – Courtault Michelet/white (Chai)
+2.300K
+(A)Chablis – Courtault Michelet/white (Chai)
+2.300K
+(A)Chablis – Courtault Michelet/white (Chai)
+2.300K
+(A)Chablis – Courtault Michelet/white (Chai)
+2.300K
+Logan Weemala/red (Chai)
+1.180K
+Logan Weemala/red (Chai)
+1.180K
+Logan Weemala/red (Chai)
+1.180K
+Logan Weemala/red (Chai)
+1.180K
+La Posta Fazzio/red (Chai)
+1.380K
+La Posta Fazzio/red (Chai)
+1.380K
+La Posta Fazzio/red (Chai)
+1.380K
+La Posta Fazzio/red (Chai)
+1.380K
+(A)Château Haut-Cadet Saint-Émilion Grand Cru/red (Chai)
+2.500K
+(A)Château Haut-Cadet Saint-Émilion Grand Cru/red (Chai)
+2.500K
+(A)Château Haut-Cadet Saint-Émilion Grand Cru/red (Chai)
+2.500K
+(A)Château Haut-Cadet Saint-Émilion Grand Cru/red (Chai)
+2.500K
+(A)Côte de Nuits Villages – Lou Dumont/red (Chai)
+3.800K
+(A)Côte de Nuits Villages – Lou Dumont/red (Chai)
+3.800K
+(A)Côte de Nuits Villages – Lou Dumont/red (Chai)
+3.800K
+(A)Côte de Nuits Villages – Lou Dumont/red (Chai)
+3.800K
+}
+Whisky{(A)Rượu Jim Beam/glass (Ly)
+0K
+(A)Rượu Suntory Kaku/glass (Ly)
+0K
+}
+Shochu{(A)Rượu Kuro Kurishima Bottle (Chai)
+1.200K
+Rượu Sâm Cau Việt Nam (Lọ)
+1.000K
+Rượu Sâm Cau Việt Nam (Lọ)
+1.000K
+Rượu Sâm Cau Việt Nam (Lọ)
+1.000K
+Rượu Sâm Cau Việt Nam (Lọ)
+1.000K
+(A)Rượu Lemon Soda (Ly)
+90K
+(A)Rượu Lemon Soda (Ly)
+90K
+(A)Rượu Lemon Soda (Ly)
+90K
+(A)Rượu Lemon Soda (Ly)
+90K
+(A)Rượu Mơ (Ly)
+86K
+(A)Rượu Mơ (Ly)
+86K
+(A)Rượu Mơ (Ly)
+86K
+(A)Rượu Mơ (Ly)
+86K
+(A)Chuhai Đào Fukushima (Ly)
+119K
+(A)Chuhai Đào Fukushima (Ly)
+119K
+(A)Chuhai Đào Fukushima (Ly)
+119K
+(A)Chuhai Đào Fukushima (Ly)
+119K
+(A)Chuhai Quýt Arita (Ly)
+119K
+(A)Chuhai Quýt Arita (Ly)
+119K
+(A)Chuhai Quýt Arita (Ly)
+119K
+(A)Chuhai Quýt Arita (Ly)
+119K
+(A)Rượu iichiko/glass (Ly)
+98K
+(A)Rượu iichiko/glass (Ly)
+98K
+(A)Rượu iichiko/glass (Ly)
+98K
+(A)Rượu iichiko/glass (Ly)
+98K
+(A)Rượu Kuro Kirishima/glass (Ly)
+98K
+(A)Rượu Kuro Kirishima/glass (Ly)
+98K
+(A)Rượu Kuro Kirishima/glass (Ly)
+98K
+(A)Rượu Kuro Kirishima/glass (Ly)
+98K
+}
+Nihonshuu{Awayuki Sparkling Sake/bottle 300ml (Chai)
+450K
+Awayuki Sparkling Sake/bottle 300ml (Chai)
+450K
+Awayuki Sparkling Sake/bottle 300ml (Chai)
+450K
+Awayuki Sparkling Sake/bottle 300ml (Chai)
+450K
+Kijuro (喜十郎)/ bottle 720ml (Chai)
+1.200K
+Kijuro (喜十郎)/ bottle 720ml (Chai)
+1.200K
+Kijuro (喜十郎)/ bottle 720ml (Chai)
+1.200K
+Kijuro (喜十郎)/ bottle 720ml (Chai)
+1.200K
+Dassai (獺祭)/ bottle 300ml (Chai)
+890K
+Dassai (獺祭)/ bottle 300ml (Chai)
+890K
+Dassai (獺祭)/ bottle 300ml (Chai)
+890K
+Dassai (獺祭)/ bottle 300ml (Chai)
+890K
+Nabeshima (鍋島)/ bottle 720ml (Chai)
+2.000K
+Nabeshima (鍋島)/ bottle 720ml (Chai)
+2.000K
+Nabeshima (鍋島)/ bottle 720ml (Chai)
+2.000K
+Nabeshima (鍋島)/ bottle 720ml (Chai)
+2.000K
+}
+Wine{Mussel Bay (chai) (Chai)
+880K
+Mussel Bay (chai) (Chai)
+880K
+Mussel Bay (chai) (Chai)
+880K
+Mussel Bay (chai) (Chai)
+880K
+(A)Mussel Bay/white (ly) (Ly)
+150K
+(A)Mussel Bay/white (ly) (Ly)
+150K
+(A)Mussel Bay/white (ly) (Ly)
+150K
+(A)Mussel Bay/white (ly) (Ly)
+150K
+Michel Lynch (chai) (Chai)
+880K
+Michel Lynch (chai) (Chai)
+880K
+Michel Lynch (chai) (Chai)
+880K
+Michel Lynch (chai) (Chai)
+880K
+(A)Michel Lynch/ red (ly) (Ly)
+150K
+(A)Michel Lynch/ red (ly) (Ly)
+150K
+(A)Michel Lynch/ red (ly) (Ly)
+150K
+(A)Michel Lynch/ red (ly) (Ly)
+150K
+(A)Champagne Bollinger Special Cuvée /Sparkling (Chai)
+4.000K
+(A)Champagne Bollinger Special Cuvée /Sparkling (Chai)
+4.000K
+(A)Champagne Bollinger Special Cuvée /Sparkling (Chai)
+4.000K
+(A)Champagne Bollinger Special Cuvée /Sparkling (Chai)
+4.000K
+Parallèle 45 Côtes du Rhône PJA/white (Chai)
+1.200K
+Parallèle 45 Côtes du Rhône PJA/white (Chai)
+1.200K
+Parallèle 45 Côtes du Rhône PJA/white (Chai)
+1.200K
+Parallèle 45 Côtes du Rhône PJA/white (Chai)
+1.200K
+(A)Chablis – Courtault Michelet/white (Chai)
+2.300K
+(A)Chablis – Courtault Michelet/white (Chai)
+2.300K
+(A)Chablis – Courtault Michelet/white (Chai)
+2.300K
+(A)Chablis – Courtault Michelet/white (Chai)
+2.300K
+Logan Weemala/red (Chai)
+1.180K
+Logan Weemala/red (Chai)
+1.180K
+Logan Weemala/red (Chai)
+1.180K
+Logan Weemala/red (Chai)
+1.180K
+La Posta Fazzio/red (Chai)
+1.380K
+La Posta Fazzio/red (Chai)
+1.380K
+La Posta Fazzio/red (Chai)
+1.380K
+La Posta Fazzio/red (Chai)
+1.380K
+(A)Château Haut-Cadet Saint-Émilion Grand Cru/red (Chai)
+2.500K
+(A)Château Haut-Cadet Saint-Émilion Grand Cru/red (Chai)
+2.500K
+(A)Château Haut-Cadet Saint-Émilion Grand Cru/red (Chai)
+2.500K
+(A)Château Haut-Cadet Saint-Émilion Grand Cru/red (Chai)
+2.500K
+(A)Côte de Nuits Villages – Lou Dumont/red (Chai)
+3.800K
+(A)Côte de Nuits Villages – Lou Dumont/red (Chai)
+3.800K
+(A)Côte de Nuits Villages – Lou Dumont/red (Chai)
+3.800K
+(A)Côte de Nuits Villages – Lou Dumont/red (Chai)
+3.800K
+}
+Đồ uống có cồn - Set{Rượu iichiko/glass (Ly)
+0K
+Rượu Jim Beam /glass (Ly)
+0K
+Rượu Jim Beam /glass (Ly)
+0K
+Rượu Suntory Kaku/glass (Ly)
+0K
+Chuhai Đào Fukushima (Ly)
+0K
+Chuhai Quýt Arita (Lọ)
+0K
+Rượu Lemon Soda Liqueur (Ly)
+0K
+Rượu Lemon Soda Liqueur (Ly)
+0K
+Rượu Mơ (Ly)
+0K
+Rượu Mơ (Ly)
+0K
+Bia Tiger (Lon)
+0K
+Bia Tiger (Lon)
+0K
+Bia Tươi Sapporo (Ly)
+0K
+Bia Tươi Sapporo (Ly)
+0K
+Rượu Kuro Kirishima/glass (Ly)
+0K
+}}
+}}
+
+{{
+Khác{Phục vụ{Chén (BỊCH)
+0K
+Chén (BỊCH)
+0K
+Chén (BỊCH)
+0K
+Đĩa Trẻ Em (cái)
+0K
+Đĩa Trẻ Em (cái)
+0K
+Đĩa Trẻ Em (cái)
+0K
+Đĩa Trẻ Em (BỊCH)
+0K
+Đĩa Trẻ Em (BỊCH)
+0K
+Đĩa Trẻ Em (BỊCH)
+0K
+Đĩa Trẻ Em (BỊCH)
+0K
+Khăn giấy lau (hộp)
+0K
+Khăn giấy lau (hộp)
+0K
+Khăn giấy lau (hộp)
+0K
+Khăn giấy lau (hộp)
+0K
+Khăn giấy lau (cái)
+0K
+Khăn giấy lau (cái)
+0K
+Khăn giấy lau (cái)
+0K
+Lấy Kéo (cái)
+0K
+Lấy Kéo (cái)
+0K
+Lấy Kéo (cái)
+0K
+Lấy Kéo (BỊCH)
+0K
+Lấy Kéo (BỊCH)
+0K
+Lấy Kéo (BỊCH)
+0K
+Lấy Kéo (BỊCH)
+0K
+Lấy Kẹp Gắp (BỊCH)
+0K
+Lấy Kẹp Gắp (BỊCH)
+0K
+Lấy Kẹp Gắp (BỊCH)
+0K
+Lấy Kẹp Gắp (BỊCH)
+0K
+Lấy Kẹp Gắp (cái)
+0K
+Lấy Kẹp Gắp (cái)
+0K
+Lấy Kẹp Gắp (cái)
+0K
+Lấy Muôi Múc Canh (cái)
+0K
+Lấy Muôi Múc Canh (cái)
+0K
+Lấy Muôi Múc Canh (cái)
+0K
+Lấy Muôi Múc Canh (BỊCH)
+0K
+Lấy Muôi Múc Canh (BỊCH)
+0K
+Lấy Muôi Múc Canh (BỊCH)
+0K
+Lấy Muôi Múc Canh (BỊCH)
+0K
+Lấy Muỗng (BỊCH)
+0K
+Lấy Muỗng (BỊCH)
+0K
+Lấy Muỗng (BỊCH)
+0K
+Lấy Thìa Desert (cái)
+0K
+Lấy Thìa Desert (cái)
+0K
+Lấy Thìa Desert (cái)
+0K
+Lấy Thìa Desert (BỊCH)
+0K
+Lấy Thìa Desert (BỊCH)
+0K
+Lấy Thìa Desert (BỊCH)
+0K
+Lấy Thìa Desert (BỊCH)
+0K
+Nĩa Trẻ Em (BỊCH)
+0K
+Nĩa Trẻ Em (BỊCH)
+0K
+Nĩa Trẻ Em (BỊCH)
+0K
+Nĩa Trẻ Em (BỊCH)
+0K
+Nĩa Trẻ Em (cái)
+0K
+Nĩa Trẻ Em (cái)
+0K
+Nĩa Trẻ Em (cái)
+0K
+Tạp dề giấy (cái)
+0K
+Tạp dề giấy (cái)
+0K
+Tạp dề giấy (cái)
+0K
+Thay Đũa (đôi)
+0K
+Thay Đũa (đôi)
+0K
+Thay Đũa (đôi)
+0K
+Thay Đũa (BỊCH)
+0K
+Thay Đũa (BỊCH)
+0K
+Thay Đũa (BỊCH)
+0K
+Thay Đũa (BỊCH)
+0K
+Thay Khăn (BỊCH)
+0K
+Thay Khăn (BỊCH)
+0K
+Thay Khăn (BỊCH)
+0K
+Thay Khăn (BỊCH)
+0K
+Thay Khăn (cái)
+0K
+Thay Khăn (cái)
+0K
+Thay Khăn (cái)
+0K
+Thay Than (cái)
+0K
+Thay Than (cái)
+0K
+Thay Than (cái)
+0K
+Thay Than (BỊCH)
+0K
+Thay Than (BỊCH)
+0K
+Thay Than (BỊCH)
+0K
+Thay Than (BỊCH)
+0K
+Thay Vỉ (Phần)
+0K
+Thay Vỉ (Phần)
+0K
+Thay Vỉ (Phần)
+0K
+Thay Vỉ (Phần)
+0K
+Thay Vỉ (cái)
+0K
+Thay Vỉ (cái)
+0K
+Thay Vỉ (cái)
+0K
+Thêm Đĩa (Đĩa Thường) (cái)
+0K
+Thêm Đĩa (Đĩa Thường) (cái)
+0K
+Thêm Đĩa (Đĩa Thường) (cái)
+0K
+Thêm Đĩa (Đĩa Thường) (BỊCH)
+0K
+Thêm Đĩa (Đĩa Thường) (BỊCH)
+0K
+Thêm Đĩa (Đĩa Thường) (BỊCH)
+0K
+Thêm Đĩa (Đĩa Thường) (BỊCH)
+0K
+Thìa Trẻ Em (BỊCH)
+0K
+Thìa Trẻ Em (BỊCH)
+0K
+Thìa Trẻ Em (BỊCH)
+0K
+Thìa Trẻ Em (BỊCH)
+0K
+Thìa Trẻ Em (cái)
+0K
+Thìa Trẻ Em (cái)
+0K
+Thìa Trẻ Em (cái)
+0K
+}
+Gia Vị{Chanh (BỊCH)
+0K
+Chanh (BỊCH)
+0K
+Chanh (BỊCH)
+0K
+Hành lá nhỏ (BỊCH)
+0K
+Hành lá nhỏ (BỊCH)
+0K
+Hành lá nhỏ (BỊCH)
+0K
+Mù Tạt (BỊCH)
+0K
+Mù Tạt (BỊCH)
+0K
+Mù Tạt (BỊCH)
+0K
+Muối (BỊCH)
+0K
+Muối (BỊCH)
+0K
+Muối (BỊCH)
+0K
+Ớt Xắt (BỊCH)
+0K
+Ớt Xắt (BỊCH)
+0K
+Ớt Xắt (BỊCH)
+0K
+Sốt chấm (Đĩa)
+0K
+Sốt chấm (Đĩa)
+0K
+Sốt chấm (Đĩa)
+0K
+Sốt chấm (BỊCH)
+0K
+Sốt chấm (BỊCH)
+0K
+Sốt chấm (BỊCH)
+0K
+Sốt chấm (BỊCH)
+0K
+Tỏi Băm (BỊCH)
+0K
+Tỏi Băm (BỊCH)
+0K
+Tỏi Băm (BỊCH)
+0K
+}
+PHÍ PHỤ THU{Phí phụ thu mang rượu (Chai)
+400K
+Phí phụ thu thức ăn thừa (100g) (gram)
+50K
+}}
+}}

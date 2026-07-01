@@ -15,7 +15,7 @@
         <p class="text-gray-400 text-lg mb-6">{{ t('auto_xin_qu__kh_ch_vui_l_ng_di_chuy') }}</p>
         <div class="flex items-center justify-center gap-2 text-sm text-gray-500">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="animate-spin"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
-          {{ t('auto_ang_th_ng_b_o_cho_thu_ng_n', 'Đang thông báo cho thu ngân...') }}
+          {{ t('auto_ang_th_ng_b_o_cho_thu_ng_n') }}
         </div>
       </div>
     </div>
@@ -36,7 +36,8 @@ onMounted(async () => {
   const orderId = 'mock-order-id-checkout'
   try {
     await checkout({
-      order_id: orderId,
+      orderId: orderId,
+      revenueType: 'dinner',
       payments: [{ method: 'cash', amount: 0 }]
     })
   } catch (e) {
@@ -44,4 +45,3 @@ onMounted(async () => {
   }
 })
 </script>
-

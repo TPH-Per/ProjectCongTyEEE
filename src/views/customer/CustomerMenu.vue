@@ -1,134 +1,122 @@
 <!-- File: src/views/customer/CustomerMenu.vue -->
 <template>
-  <div class="w-full h-full flex overflow-hidden bg-[#3D2817]">
-    
-    <!-- LEFT SIDEBAR (200px width, light gray background) -->
-    <aside class="w-[200px] bg-[#F5F5F5] border-r border-gray-300 flex shrink-0 relative overflow-hidden flex-col">
-      <!-- Decorative vertical orange banner label "BUFFET" -->
-      <div class="absolute top-0 bottom-0 left-0 w-8 bg-[#E8772E] flex items-center justify-center select-none shadow-sm shrink-0">
-        <span class="text-white font-black text-sm tracking-[8px] uppercase font-serif [writing-mode:vertical-lr] rotate-180">
-          BUFFET
-        </span>
-      </div>
-
-      <!-- Category List Container -->
-      <div class="flex-1 pl-10 pr-3 py-6 overflow-y-auto flex flex-col gap-2.5">
-        <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-3 border-b border-gray-200 pb-1.5 font-serif">
-          Danh mục
-        </h3>
-
-        <!-- Categories vertical list -->
-        <button v-for="cat in categories" :key="cat.id"
-                @click="onCategorySelect(cat.id)"
-                :class="[
-                  'w-full text-left px-4 py-3.5 rounded-lg text-xs font-bold transition-all border active:scale-95 flex items-center gap-2 select-none shadow-sm',
-                  
-                  // Active state: Orange background (#E8772E), white text
-                  selectedCategory?.id === cat.id
-                    ? 'bg-[#E8772E] border-[#E8772E] text-white font-extrabold shadow-md scale-102'
-                    : 'bg-white border-gray-200 text-[#333333] hover:bg-gray-100 hover:border-gray-300'
-                ]">
-          <span class="text-sm">
-            {{ getCategoryEmoji(cat.id) }}
-          </span>
-          <span class="truncate">{{ cat.name }}</span>
+  <div class="menu-layout">
+    <!-- 1. SIDEBAR: Cấp 1 & Cấp 2 danh mục chính -->
+    <aside class="sidebar scrollbar-hide">
+      <!-- Section: Danh Mục Món -->
+      <div class="sidebar-section full-height">
+        <h3 class="section-title pink-text">DANH MỤC MÓN</h3>
+        
+        <button
+          v-for="cat in menuCategories"
+          :key="cat.id"
+          :class="['category-btn', 'pink', { active: selectedCategory?.id === cat.id }]"
+          @click="selectCategory(cat)"
+        >
+          {{ cat.name }}
         </button>
       </div>
     </aside>
 
-    <!-- RIGHT CONTENT AREA (dark brown wood theme background) -->
-    <main class="flex-1 flex flex-col overflow-hidden relative">
-      
-      <!-- Hàng 2 - Subcategory Selector Bar (Pink Theme, only shows dynamically for pink categories) -->
-      <MenuSubcategoryBar v-if="selectedCategory?.color === 'pink' && subcategories.length > 0"
-                          :subcategories="subcategories"
-                          :selected-subcategory-id="selectedSubcategory?.id || null"
-                          @select="onSubcategorySelect" />
-
-      <!-- Section Title & Grid -->
-      <div class="flex-1 overflow-y-auto p-6 md:p-8 flex flex-col gap-6">
+    <!-- 2. MAIN AREA -->
+    <div class="main-area">
+      <!-- Scrollable Content -->
+      <main :class="['main-content', 'scrollbar-hide', { 'has-tabs': hasSubcategories, 'has-cart': cartItemCount > 0 }]">
         
-        <!-- Section Header (Category name + price if available) -->
-        <div class="flex items-center justify-between border-b border-[#442c19] pb-4 shrink-0">
-          <div class="flex items-baseline gap-3">
-            <h2 class="text-xl md:text-2xl font-black text-white font-serif tracking-wide">
-              {{ selectedCategory?.name }}
-            </h2>
-            <!-- If category is a Set, show set pricing in header -->
-            <span v-if="selectedCategorySetPrice" class="text-sm font-extrabold text-[#E8772E]">
-              Giá gói: {{ selectedCategorySetPrice }}
-            </span>
+        <!-- Package Purchase Banner (Only for set packages) -->
+        <div v-if="selectedCategory && selectedCategory.id.startsWith('buffet-') && !selectedCategory.id.includes('drink') && !selectedCategory.id.includes('alacarte')"
+             class="bg-gradient-to-r from-amber-950/40 to-amber-900/20 border border-amber-500/20 rounded-2xl p-5 mb-6 flex flex-col sm:flex-row items-center justify-between gap-4 shrink-0">
+          <div class="flex items-center gap-4">
+            <div class="text-4xl">👑</div>
+            <div>
+              <h3 class="text-base font-bold text-white">Bạn đang xem thực đơn của gói: {{ selectedCategory.name }}</h3>
+              <p class="text-xs text-amber-200/70 mt-1">Hãy thêm vé buffet này vào giỏ hàng để chọn các món ăn kèm giá 0đ nhé!</p>
+            </div>
           </div>
-          <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-            {{ filteredItems.length }} Món ăn khả dụng
-          </span>
+          <div class="flex items-center gap-3 shrink-0">
+            <span class="text-lg font-black text-amber-400">{{ getSetPriceDisplay(selectedCategory) }}</span>
+            <button @click="addSetToCart(selectedCategory)"
+                    :class="[
+                      'px-5 py-2.5 rounded-xl font-bold text-xs transition-all duration-200 active:scale-95 flex items-center gap-1.5 shadow-md shadow-amber-500/10',
+                      isSetInCart(selectedCategory.id)
+                        ? 'bg-amber-600/20 text-amber-300 border border-amber-500/30 cursor-default pointer-events-none'
+                        : 'bg-[#ff9800] hover:bg-amber-600 text-white border-none'
+                    ]">
+              {{ isSetInCart(selectedCategory.id) ? '✓ Đã chọn gói' : '+ Chọn gói này' }}
+            </button>
+          </div>
         </div>
 
-        <!-- Menu Items List Section (3 columns grid) -->
-        <div class="flex-1">
+        <div v-if="selectedCategory" class="category-content">
+          <!-- Header -->
+          <div class="category-header">
+            <h1>{{ selectedCategory.name }}</h1>
+            <span class="item-count">{{ displayedItems.length }} món</span>
+          </div>
+
+          <!-- Loading State -->
+          <div v-if="store.loading" class="flex flex-col gap-4 py-8">
+            <div v-for="i in 3" :key="i" class="h-24 bg-gray-800/40 animate-pulse rounded-xl"></div>
+          </div>
+
           <!-- Empty State -->
-          <div v-if="filteredItems.length === 0" class="flex flex-col items-center justify-center py-20 text-center text-gray-500 gap-2">
-            <span class="text-4xl">🍽️</span>
-            <p class="text-sm font-bold">Không tìm thấy món ăn nào</p>
+          <div v-else-if="displayedItems.length === 0" class="empty-state">
+            <div class="empty-icon">🍽️</div>
+            <h2>Không có món nào</h2>
+            <p>Danh mục này hiện chưa có món</p>
           </div>
 
           <!-- Items Grid -->
-          <div v-else class="grid grid-cols-2 md:grid-cols-3 gap-5">
-            <MenuItemCard v-for="item in filteredItems" :key="item.id"
-                          :item="item"
-                          :quantity-in-cart="getQuantity(item.id)"
-                          :category-color="selectedCategory?.color || 'yellow'"
-                          @update-quantity="onUpdateQuantity(item.id, $event)"
-                          @click-detail="openDetail" />
+          <div v-else class="items-grid">
+            <MenuItemCard
+              v-for="item in displayedItems"
+              :key="item.id"
+              :item="item"
+              :quantity-in-cart="getQuantity(item.id)"
+              @add="handleAddToCart"
+              @click-detail="openDetail"
+            />
           </div>
         </div>
+
+        <!-- Empty State (No Category selected) -->
+        <div v-else class="empty-state">
+          <div class="empty-icon">🍽️</div>
+          <h2>Chọn danh mục để xem món</h2>
+          <p>Vui lòng chọn một danh mục từ menu bên trái</p>
+        </div>
+      </main>
+
+      <!-- Fixed bottom layout container -->
+      <div v-if="!isModalOpen" class="fixed-bottom-container">
+        <!-- BottomCartBar (above Tabs or at the bottom if no tabs) -->
+        <BottomCartBar
+          v-if="cartItemCount > 0"
+          :cart-item-count="cartItemCount"
+          :cart-total="store.cartTotal"
+          @go-to-cart="goToCart"
+        />
+
+        <!-- CategoryTabs (always at bottom if available) -->
+        <CategoryTabs
+          v-if="hasSubcategories && selectedCategory"
+          :subcategories="selectedCategory.subcategories || []"
+          :selected-tab="selectedSubId"
+          :total-items="totalItems"
+          @update:selected-tab="selectedSubId = $event"
+        />
       </div>
-
-      <!-- Sticky Cart Summary bar (displays at the bottom when cart contains items) -->
-      <transition name="slide-up">
-        <div v-if="cartItemCount > 0" 
-             class="bg-[#1a110a] border-t border-[#2d1e12] p-4 px-6 md:px-8 flex items-center justify-between shrink-0 z-20 shadow-[0_-10px_25px_rgba(0,0,0,0.5)]">
-          <div class="flex items-center gap-4">
-            <div class="w-12 h-12 bg-amber-500/10 border border-[#E8772E]/20 text-[#E8772E] rounded-xl flex items-center justify-center text-xl font-bold">
-              🛒
-            </div>
-            <div>
-              <h4 class="text-sm font-bold text-white">Giỏ hàng của bàn</h4>
-              <p class="text-xs font-semibold text-gray-400 mt-0.5">
-                Đã chọn <span class="text-[#E8772E] font-extrabold">{{ cartItemCount }} món</span> · Tổng cộng: <span class="text-amber-400 font-extrabold">{{ cartTotalDisplay }}</span>
-              </p>
-            </div>
-          </div>
-
-          <button @click="goToCart"
-                  class="bg-[#E8772E] hover:bg-amber-600 active:scale-95 text-white font-extrabold px-8 py-3.5 rounded-xl transition-all shadow-lg shadow-amber-500/15 text-sm flex items-center gap-2 select-none">
-            Xem giỏ hàng
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-              <polyline points="12 5 19 12 12 19"></polyline>
-            </svg>
-          </button>
-        </div>
-      </transition>
-    </main>
-
-    <!-- Floating "Gọi Phục Vụ" Action Button (bottom right corner) -->
-    <div class="absolute bottom-6 right-6 z-30 pointer-events-none">
-      <button @click="goToServiceRequest"
-              class="pointer-events-auto w-14 h-14 bg-[#E8772E] hover:bg-amber-600 active:scale-95 text-white rounded-full flex items-center justify-center shadow-2xl shadow-[#E8772E]/20 border-2 border-white/10 transition-all hover:rotate-12 select-none">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-          <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-        </svg>
-      </button>
     </div>
 
-    <!-- Detail Modal Dialog -->
-    <MenuItemDetail :item="focusedItem"
-                    :initial-quantity="focusedItemQty"
-                    :initial-note="focusedItemNote"
-                    @close="closeDetail"
-                    @confirm="confirmDetailAdd" />
+    <!-- Modal Detail - Teleport to body -->
+    <MenuItemDetailModal
+      :item="focusedItem"
+      :is-open="isModalOpen"
+      :cart-count="store.cartItemCount"
+      @close="closeDetail"
+      @add="confirmDetailAdd"
+      @go-to-cart="goToCart"
+    />
 
   </div>
 </template>
@@ -138,83 +126,188 @@ import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useCustomerStore } from '@/stores/customerStore';
 import { useCustomerSession } from '@/composables/useCustomerSession';
-import MenuSubcategoryBar from '@/components/customer/MenuSubcategoryBar.vue';
+import MenuItemDetailModal from '@/components/customer/MenuItemDetailModal.vue';
 import MenuItemCard from '@/components/customer/MenuItemCard.vue';
-import MenuItemDetail from './MenuItemDetail.vue';
-import type { MenuItem } from '@/types/customer';
+import CategoryTabs from '@/components/customer/CategoryTabs.vue';
+import BottomCartBar from '@/components/customer/BottomCartBar.vue';
+import { menuData, type MenuCategory, type MenuItem } from '@/data/menuData';
 
 const store = useCustomerStore();
 const router = useRouter();
 const { syncCart } = useCustomerSession();
 
 const focusedItem = ref<MenuItem | null>(null);
+const isModalOpen = computed(() => focusedItem.value !== null);
 
-const categories = computed(() => store.menuData);
-const selectedCategory = computed(() => store.selectedCategory);
-const selectedSubcategory = computed(() => store.selectedSubcategory);
+// State
+const selectedCategory = ref<MenuCategory | null>(null);
+const selectedYellowCategoryId = ref<string | null>(null);
+const selectedSubId = ref<string>('all');
+
 const cart = computed(() => store.cart);
 const cartItemCount = computed(() => store.cartItemCount);
 const cartTotalDisplay = computed(() => store.cartTotal.toLocaleString('vi-VN') + 'đ');
 
-// Subcategories computed
+// Computed: Categories of Gói dịch vụ (Used for price calculation mapping)
+const yellowCategories = computed(() => {
+  const buffetCat = menuData.categories.find(c => c.id === 'buffet');
+  return buffetCat?.subcategories || [];
+});
+
+// Computed: Menu Categories in Sidebar (Only 9 items)
+const menuCategories = computed(() => {
+  const list: any[] = [];
+  const buffetCat = menuData.categories.find(c => c.id === 'buffet');
+  if (buffetCat) {
+    list.push(buffetCat);
+  }
+  const others = menuData.categories.filter(c => c.color === 'pink');
+  list.push(...others);
+  return list;
+});
+
+// Computed: Check if has subcategories
+const hasSubcategories = computed(() => 
+  selectedCategory.value?.subcategories && 
+  selectedCategory.value.subcategories.length > 0
+);
+
 const subcategories = computed(() => {
   return selectedCategory.value?.subcategories || [];
 });
 
-// Dynamic category set price search
-const selectedCategorySetPrice = computed(() => {
-  if (!selectedCategory.value) return '';
-  // Check if category name starts with SET or contains numeric digits
-  const name = selectedCategory.value.name;
-  if (name.toUpperCase().startsWith('SET ')) {
-    const numPart = name.replace(/[^0-9]/g, '');
-    if (numPart) {
-      return parseInt(numPart) * 1000 + 'đ';
+// Computed: Total items in category
+const totalItems = computed(() => {
+  if (!selectedCategory.value) return 0;
+  if (selectedCategory.value.items) return selectedCategory.value.items.length;
+  return selectedCategory.value.subcategories?.reduce(
+    (sum, sub) => sum + sub.items.length, 0
+  ) || 0;
+});
+
+// Computed: Displayed items
+const displayedItems = computed(() => {
+  if (!selectedCategory.value) return [];
+  
+  let rawItems: MenuItem[] = [];
+  
+  if (selectedCategory.value.items) {
+    rawItems = selectedCategory.value.items;
+  }
+  else if (selectedCategory.value.subcategories) {
+    if (selectedSubId.value === 'all') {
+      rawItems = selectedCategory.value.subcategories.flatMap(sub => sub.items);
+    } else {
+      const sub = selectedCategory.value.subcategories.find(s => s.id === selectedSubId.value);
+      rawItems = sub ? sub.items : [];
     }
   }
-  return '';
+  
+  const uniqueItems = Array.from(new Map(rawItems.map(item => [item.id, item])).values());
+  
+  const activePackage = yellowCategories.value.find(c => c.id === selectedYellowCategoryId.value);
+  const packageName = activePackage?.name || '';
+  
+  if (store.searchQuery.trim()) {
+    const q = store.searchQuery.toLowerCase().trim();
+    return uniqueItems
+      .filter(item => 
+        item.name.toLowerCase().includes(q) || 
+        (item.description && item.description.toLowerCase().includes(q))
+      )
+      .map(item => getModifiedItem(item, packageName));
+  }
+  
+  return uniqueItems.map(item => getModifiedItem(item, packageName));
 });
+
+// Watch subcategory selection to sync active yellow package when browsing BUFFET
+watch(() => selectedSubId.value, (newSubId) => {
+  if (selectedCategory.value?.id === 'buffet' && newSubId !== 'all') {
+    selectedYellowCategoryId.value = newSubId;
+  }
+});
+
+// Initialize defaults
+const initDefaults = () => {
+  const buffet = menuData.categories.find(c => c.id === 'buffet');
+  if (buffet && !selectedCategory.value) {
+    selectedCategory.value = buffet;
+    if (buffet.subcategories && buffet.subcategories.length > 0) {
+      selectedSubId.value = buffet.subcategories[0].id;
+      selectedYellowCategoryId.value = buffet.subcategories[0].id;
+    }
+  }
+};
 
 // Load menu on mount
 onMounted(async () => {
-  // BR-09: Must have session to view menu
   if (!store.session) {
     router.push({ name: 'CustomerHome' });
     return;
   }
   await store.loadMenu();
+  initDefaults();
 });
 
-// Filter items based on subcategory selection & search queries (from store.searchQuery)
-const filteredItems = computed(() => {
-  let itemsToFilter: MenuItem[] = [];
+// Dynamic Package Pricing Rule
+function isItemInPackage(item: MenuItem, mainCategoryName: string): boolean {
+  if (!mainCategoryName) return false;
+  const name = mainCategoryName.toUpperCase();
+  const lowerItemName = item.name.toLowerCase();
+  const lowerItemId = item.id.toLowerCase();
+  const lowerCatId = item.category_id.toLowerCase();
 
-  if (selectedCategory.value?.color === 'yellow') {
-    // Yellow categories: return all items directly
-    const subs = selectedCategory.value.subcategories || [];
-    itemsToFilter = subs.reduce((all: MenuItem[], sub) => [...all, ...sub.items], []);
-  } else if (selectedSubcategory.value && selectedSubcategory.value.items) {
-    itemsToFilter = selectedSubcategory.value.items;
-  } else if (selectedCategory.value) {
-    // Fallback aggregator
-    const subs = selectedCategory.value.subcategories || [];
-    itemsToFilter = subs.reduce((all: MenuItem[], sub) => [...all, ...sub.items], []);
+  if (name.includes('A LA CARTE')) return false;
+
+  if (name.includes('DRINK')) {
+    return lowerCatId.includes('uong') || lowerCatId.includes('con');
   }
 
-  // Deduplicate items
-  const uniqueItems = Array.from(new Map(itemsToFilter.map(item => [item.id, item])).values());
-
-  // Apply search query from the store
-  if (store.searchQuery.trim()) {
-    const q = store.searchQuery.toLowerCase().trim();
-    return uniqueItems.filter(item => 
-      item.name.toLowerCase().includes(q) || 
-      (item.description && item.description.toLowerCase().includes(q))
-    );
+  if (name.includes('LẨU')) {
+    return lowerItemName.includes('lẩu') || lowerItemName.includes('lau') || lowerItemName.includes('rau') || lowerItemName.includes('nước') || lowerItemName.includes('coca') || lowerItemName.includes('bia') || lowerItemName.includes('nấm');
   }
 
-  return uniqueItems;
-});
+  if (name.includes('550JP')) {
+    return lowerItemName.includes('bento') || lowerItemName.includes('sashimi') || lowerItemName.includes('tempura') || lowerItemName.includes('miso');
+  }
+
+  if (name.includes('1390')) {
+    return true;
+  }
+
+  if (name.includes('1150')) {
+    const isWagyu = lowerItemName.includes('wagyu') || lowerItemId.includes('wagyu');
+    return !isWagyu;
+  }
+
+  if (name.includes('680')) {
+    const isWagyu = lowerItemName.includes('wagyu') || lowerItemId.includes('wagyu');
+    const isPremium = lowerItemName.includes('premium') || lowerItemName.includes('sirloin') || lowerItemName.includes('thăn ngoại') || lowerItemName.includes('dẻ sườn') || lowerItemName.includes('lưỡi') || lowerItemName.includes('tongue');
+    return !isWagyu && !isPremium;
+  }
+
+  if (name.includes('490') || name.includes('380')) {
+    const isWagyu = lowerItemName.includes('wagyu') || lowerItemId.includes('wagyu');
+    const isBeef = lowerItemName.includes('bò') || lowerItemName.includes('beef') || lowerItemName.includes('sirloin') || lowerItemName.includes('sườn') || lowerItemName.includes('thăn') || lowerItemName.includes('lưỡi') || lowerItemName.includes('tongue');
+    const isAlcohol = lowerCatId.includes('con') || lowerItemName.includes('rượu') || lowerItemName.includes('soju') || lowerItemName.includes('beer') || lowerItemName.includes('bia');
+    return !isWagyu && !isBeef && !isAlcohol;
+  }
+
+  return false;
+}
+
+function getModifiedItem(item: MenuItem, packageName: string): MenuItem {
+  const inPkg = isItemInPackage(item, packageName);
+  if (inPkg) {
+    return {
+      ...item,
+      price: 0,
+      price_display: '0K (Trong gói)'
+    };
+  }
+  return item;
+}
 
 // Focus item details states
 const focusedItemQty = computed(() => {
@@ -234,41 +327,61 @@ function getQuantity(itemId: string): number {
   return inCart ? inCart.quantity : 0;
 }
 
-function onCategorySelect(id: string) {
-  store.selectCategory(id);
-}
+// Actions
+const selectCategory = (cat: MenuCategory) => {
+  selectedCategory.value = cat;
+  selectedSubId.value = 'all'; // Reset to "Tất cả"
+};
 
-function onSubcategorySelect(id: string) {
-  store.selectSubcategory(id);
-}
+const handleAddToCart = (item: MenuItem) => {
+  const activePackage = yellowCategories.value.find(c => c.id === selectedYellowCategoryId.value);
+  const modifiedItem = getModifiedItem(item, activePackage?.name || '');
+  const existing = cart.value.find(c => c.menuItemId === modifiedItem.id);
+  if (existing) {
+    store.updateCartItem(modifiedItem.id, existing.quantity + 1);
+  } else {
+    store.addToCart(modifiedItem, 1);
+  }
+  syncCart();
+  store.addNotification(`Đã thêm 1 x ${modifiedItem.name} vào giỏ hàng`, 'success');
+};
 
-function onUpdateQuantity(itemId: string, qty: number) {
-  store.updateCartItem(itemId, qty);
+// Update cart quantity from modal
+function onUpdateQuantity(item: MenuItem, qty: number) {
+  const activePackage = yellowCategories.value.find(c => c.id === selectedYellowCategoryId.value);
+  const modifiedItem = getModifiedItem(item, activePackage?.name || '');
+  store.updateCartItem(modifiedItem.id, qty);
+  if (qty > getQuantity(modifiedItem.id)) {
+    const existing = cart.value.find(c => c.menuItemId === modifiedItem.id);
+    if (!existing) {
+      store.addToCart(modifiedItem, qty);
+    }
+  }
   syncCart();
 }
 
 function openDetail(item: MenuItem) {
-  focusedItem.value = item;
+  const activePackage = yellowCategories.value.find(c => c.id === selectedYellowCategoryId.value);
+  focusedItem.value = getModifiedItem(item, activePackage?.name || '');
 }
 
 function closeDetail() {
   focusedItem.value = null;
 }
 
-function confirmDetailAdd(data: { itemId: string; quantity: number; note: string }) {
-  const item = filteredItems.value.find(i => i.id === data.itemId);
+function confirmDetailAdd(item: MenuItem, quantity: number, note: string) {
   if (item) {
     const existing = cart.value.find(c => c.menuItemId === item.id);
     if (existing) {
-      store.updateCartItem(item.id, data.quantity);
-      existing.note = data.note;
+      store.updateCartItem(item.id, quantity);
+      existing.note = note;
     } else {
-      store.addToCart(item, data.quantity);
+      store.addToCart(item, quantity);
       const added = cart.value.find(c => c.menuItemId === item.id);
-      if (added) added.note = data.note;
+      if (added) added.note = note;
     }
     syncCart();
-    store.addNotification(`Đã thêm ${data.quantity} x ${item.name} vào giỏ hàng`, 'success');
+    store.addNotification(`Đã thêm ${quantity} x ${item.name} vào giỏ hàng`, 'success');
   }
   closeDetail();
 }
@@ -281,33 +394,284 @@ function goToServiceRequest() {
   router.push({ name: 'ServiceRequest' });
 }
 
-function getCategoryEmoji(id: string): string {
-  const lower = id.toLowerCase();
-  if (lower.includes('1390')) return '👑';
-  if (lower.includes('1150')) return '🥩';
-  if (lower.includes('680')) return '👨‍👩‍👧';
-  if (lower.includes('490')) return '👩‍❤️‍👨';
-  if (lower.includes('380')) return '🎓';
-  if (lower.includes('drink')) return '🥤';
-  if (lower.includes('carte')) return '🍽️';
-  if (lower.includes('550jp')) return '🍣';
-  if (lower.includes('lau') || lower.includes('lẩu')) return '🍲';
-  if (lower.includes('buffet')) return '🍢';
-  if (lower.includes('lunch')) return '🍱';
-  if (lower.includes('tiec') || lower.includes('tiệc')) return '🎉';
-  if (lower.includes('vietravel')) return '✈️';
-  if (lower.includes('an') || lower.includes('ăn')) return '🍖';
-  if (lower.includes('uong') || lower.includes('uống')) return '🍺';
-  if (lower.includes('con') || lower.includes('cồn')) return '🍶';
-  return '🌟';
+// Set/Package helper functions
+function getSetPriceDisplay(cat: MenuCategory): string {
+  if (cat.id.includes('1390')) return '1.390.000đ';
+  if (cat.id.includes('1150')) return '1.150.000đ';
+  if (cat.id.includes('680')) return '680.000đ';
+  if (cat.id.includes('490')) return '490.000đ';
+  if (cat.id.includes('380')) return '380.000đ';
+  if (cat.id.includes('550jp')) return '550.000đ';
+  return '';
+}
+
+const isSetInCart = (id: string): boolean => {
+  return cart.value.some(c => c.menuItemId.includes(id));
+};
+
+function addSetToCart(cat: MenuCategory) {
+  const subs = cat.subcategories || [];
+  const setItem = subs.reduce((found: MenuItem | null, sub) => {
+    if (found) return found;
+    return sub.items.find(i => i.id.includes(cat.id)) || null;
+  }, null);
+
+  if (setItem) {
+    store.addToCart(setItem, 1);
+    syncCart();
+    store.addNotification(`Đã chọn gói ${cat.name}`, 'success');
+  }
 }
 </script>
 
 <style scoped>
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
 .slide-up-enter-active, .slide-up-leave-active {
   transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .slide-up-enter-from, .slide-up-leave-to {
   transform: translateY(100%);
+}
+
+/* ===== LAYOUT CHÍNH ===== */
+.menu-layout {
+  display: flex;
+  height: calc(100vh - 60px);
+  background-color: #121212;
+  color: white;
+  overflow: hidden;
+}
+
+/* ===== SIDEBAR ===== */
+.sidebar {
+  width: 260px;
+  background: #1a1a1a;
+  border-right: 1px solid #333;
+  overflow-y: auto;
+  padding: 20px 15px;
+  height: calc(100vh - 60px);
+  flex-shrink: 0;
+}
+
+.sidebar-section.full-height {
+  display: flex;
+  flex-direction: column;
+}
+
+.section-title {
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.pink-text { 
+  color: #e91e63; 
+}
+
+.category-btn {
+  width: 100%;
+  padding: 16px 18px;
+  margin-bottom: 10px;
+  border-radius: 10px;
+  border: none;
+  text-align: left;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: #b56576;
+  color: white;
+  display: block;
+}
+
+.category-btn:hover {
+  background: #c67889;
+  transform: translateX(4px);
+}
+
+.category-btn.active {
+  background: #c62828;
+  border: 2px solid white;
+  box-shadow: 0 4px 12px rgba(198, 40, 40, 0.3);
+}
+
+/* ===== MAIN AREA ===== */
+.main-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+.main-content {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+  padding-bottom: 24px;
+  transition: padding-bottom 0.2s ease;
+}
+
+.main-content.has-cart {
+  padding-bottom: 94px; /* 70px cart bar + 24px default margin */
+}
+
+.main-content.has-tabs {
+  padding-bottom: 112px; /* ~88px CategoryTabs + 24px default margin */
+}
+
+.main-content.has-cart.has-tabs {
+  padding-bottom: 182px; /* 70px cart bar + ~88px CategoryTabs + 24px default margin */
+}
+
+.fixed-bottom-container {
+  position: fixed;
+  bottom: 0;
+  left: 260px; /* Sidebar width */
+  right: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  background: transparent;
+  pointer-events: none;
+}
+
+@media (max-width: 768px) {
+  .fixed-bottom-container {
+    left: 0;
+  }
+}
+
+.category-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #333;
+}
+
+.category-header h1 {
+  font-size: 28px;
+  margin: 0;
+  font-weight: 800;
+}
+
+.item-count {
+  color: #888;
+  font-size: 14px;
+}
+
+/* ===== ITEMS GRID ===== */
+.items-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(285px, 1fr));
+  gap: 16px;
+}
+
+.item-card {
+  background: #1e1e1e;
+  border: 1px solid #333;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s;
+}
+
+.item-card:hover {
+  border-color: #ff9800;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.2);
+}
+
+.item-info {
+  flex: 1;
+}
+
+.item-name {
+  margin: 0 0 4px 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.item-unit {
+  font-size: 12px;
+  color: #888;
+}
+
+.item-action {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.item-price {
+  font-size: 16px;
+  font-weight: 700;
+  color: #ff9800;
+}
+
+.item-price.free {
+  color: #4caf50;
+}
+
+.add-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #ff9800;
+  border: none;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+.add-btn:hover {
+  background: #ffb74d;
+  transform: scale(1.1);
+}
+
+/* ===== EMPTY STATE ===== */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 100px 20px;
+  color: #666;
+}
+
+.empty-icon {
+  font-size: 80px;
+  margin-bottom: 20px;
+}
+
+.empty-state h2 {
+  font-size: 24px;
+  margin-bottom: 10px;
+  color: white;
+  font-weight: 700;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 200px;
+  }
 }
 </style>

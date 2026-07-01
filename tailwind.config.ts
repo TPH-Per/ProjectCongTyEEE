@@ -65,6 +65,11 @@ const config: Config = {
   		},
   		fontFamily: {
   			sans: ["Nunito", "-apple-system", "BlinkMacSystemFont", "Hiragino Sans", "Yu Gothic", "sans-serif"],
+  			// Premium serif used for the Ngưu Cát wordmark in headers /
+  			// sidebar / login. Cormorant Garamond gives the brand an
+  			// upscale restaurant feel while still rendering Vietnamese
+  			// diacritics cleanly via the Latin subset.
+  			brand: ['"Cormorant Garamond"', '"Playfair Display"', "Georgia", "serif"],
   		},
   	}
   },

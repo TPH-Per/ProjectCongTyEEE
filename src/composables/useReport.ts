@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 import { supabase } from '@/lib/supabase'
-import { useBranch } from './useBranch'
+import { useBranch, throwBranchGuard } from './useBranch'
 import { useAuth } from './useAuth'
 
 export interface RevenueByHourRow {
@@ -31,7 +31,7 @@ export function useReport() {
     loading.value = true
     error.value = null
     const { data, error: err } = await supabase.rpc('revenue_by_hour', {
-      p_branch_id: activeBranchId.value!,
+      p_branch_id: (activeBranchId.value ?? throwBranchGuard()),
       p_date: date,
     })
     loading.value = false
@@ -54,7 +54,7 @@ export function useReport() {
     const { data: invoices, error: err } = await supabase
       .from('invoices')
       .select('total, order_id')
-      .eq('branch_id', activeBranchId.value!)
+      .eq('branch_id', (activeBranchId.value ?? throwBranchGuard()))
       .eq('status', 'paid')
       .gte('issued_at', `${today}T00:00:00Z`)
     loading.value = false
@@ -69,3 +69,4 @@ export function useReport() {
 
   return { loading, error, revenueByHour, todayHeadline }
 }
+

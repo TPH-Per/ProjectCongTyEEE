@@ -4,7 +4,7 @@
 // =============================================================================
 
 // ─── Enums ──────────────────────────────────────────────────────────────────
-export type UserRole = 'admin' | 'manager' | 'reception' | 'staff' | 'kitchen'
+export type UserRole = 'superadmin' | 'admin' | 'manager' | 'reception' | 'staff' | 'kitchen' | 'purchasing' | 'accounting' | 'crm' | 'marketing' | 'bod' | 'tablet' | 'customer'
 export type TableStatus = 'available' | 'reserved' | 'occupied' | 'maintenance' | 'needs_cleaning'
 export type ReservationStatus = 'Pending' | 'Arrived' | 'Dining' | 'Completed' | 'Cancelled'
 export type OrderStatus = 'Pending' | 'Preparing' | 'Served' | 'Paid' | 'Cancelled'
@@ -122,6 +122,7 @@ export interface MenuItemRow {
   id: string
   branch_id: string
   category_id: string
+  subcategory_id: string | null
   menu_categories?: { name: string }
   name: string
   i18n_name: I18nString
@@ -130,11 +131,38 @@ export interface MenuItemRow {
   price: number
   cost: number | null
   unit: string
+  price_display: string | null
   image_url: string | null
   is_available: boolean
+  is_active: boolean
+  sort_order: number
   modifiers: unknown[]
   tags: string[]
   nutrition: Record<string, unknown>
+  metadata: Record<string, unknown>
+  created_at: string
+  updated_at: string
+}
+
+export interface MenuSubcategoryRow {
+  id: string
+  branch_id: string
+  category_id: string
+  name: string
+  sort_order: number
+  is_active: boolean
+  metadata: Record<string, unknown>
+  created_at: string
+  updated_at: string
+}
+
+export interface PackageItemRow {
+  id: string
+  package_id: string
+  menu_item_id: string
+  item_limit: number | null
+  sort_order: number
+  is_active: boolean
   metadata: Record<string, unknown>
   created_at: string
   updated_at: string
@@ -143,14 +171,12 @@ export interface PackageRow {
   id: string
   branch_id: string
   name: string
-  i18n_name: I18nString
   type: PackageType
   price: number
   item_limit: number | null
   duration_minutes: number | null
   image_url: string | null
   is_active: boolean
-  items_included: PackageItemConfig[]
   metadata: Record<string, unknown>
   created_at: string
   updated_at: string
@@ -335,6 +361,18 @@ export interface MenuCategory {
   i18n_name?: I18nString
   sort_order?: number
   is_active?: boolean
+  color?: 'yellow' | 'pink' | string | null
+  metadata?: Record<string, unknown>
+}
+
+export interface MenuSubcategory {
+  id: string
+  branch_id: string
+  category_id: string
+  name: string
+  sort_order: number
+  is_active: boolean
+  metadata?: Record<string, unknown>
 }
 
 export interface Zone {
@@ -377,12 +415,72 @@ type TableShape<Row, InsertT = Partial<Row>, UpdateT = Partial<Row>> = {
 export type Database = {
   public: {
     Tables: {
+      bod_approvals: {
+        Row: {
+          entity_id: string
+          entity_type: string
+          id: string
+          metadata: Json | null
+          review_note: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          submitted_at: string | null
+          submitted_by: string
+          title: string | null
+        }
+        Insert: {
+          entity_id: string
+          entity_type: string
+          id?: string
+          metadata?: Json | null
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          submitted_at?: string | null
+          submitted_by: string
+          title?: string | null
+        }
+        Update: {
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          metadata?: Json | null
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          submitted_at?: string | null
+          submitted_by?: string
+          title?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bod_approvals_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bod_approvals_submitted_by_fkey"
+            columns: ["submitted_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       branches: TableShape<BranchRow>
       users: TableShape<UserRow>
       tables: TableShape<TableRow>
       customers: TableShape<CustomerRow>
+      menu_categories: TableShape<MenuCategory>
+      menu_subcategories: TableShape<MenuSubcategoryRow>
       menu_items: TableShape<MenuItemRow>
       packages: TableShape<PackageRow>
+      package_items: TableShape<PackageItemRow>
       reservations: TableShape<ReservationRow>
       orders: TableShape<OrderRow>
       order_items: TableShape<OrderItemRow>
@@ -423,7 +521,9 @@ export type Branch = BranchRow
 export type TableT = TableRow
 export type Customer = CustomerRow
 export type MenuItem = MenuItemRow
+export type MenuSub = MenuSubcategoryRow
 export type Package = PackageRow
+export type PackageItem = PackageItemRow
 export type Reservation = ReservationRow
 export type Order = OrderRow
 export type OrderItem = OrderItemRow

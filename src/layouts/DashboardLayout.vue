@@ -4,7 +4,7 @@
     <aside class="w-60 border-r border-[hsl(var(--border))] bg-white flex flex-col shrink-0">
       <div class="p-5 border-b border-[hsl(var(--border))]">
         <div class="flex items-center gap-2.5">
-          <img src="/images/nguucat-logo.png" alt="Ngưu Cát Logo" class="h-10 w-auto object-contain" />
+          <TextLogo size="md" />
         </div>
       </div>
 
@@ -149,12 +149,12 @@
           <div class="flex items-center gap-2">
             <ChevronDown :size="14" class="text-[hsl(var(--muted-foreground))]" />
           </div>
-        </div>
-      <LanguageSwitcher />
-        <!-- Header User Avatar -->
-        <div class="flex items-center gap-2 ml-4">
+        
+        <div class="flex items-center gap-2 ml-4 border-l pl-4 border-[hsl(var(--border))]">
+          <LanguageSwitcher />
           <img :src="stickerUrl" alt="User Avatar" class="w-8 h-8 rounded-full border border-[hsl(var(--border))] object-contain bg-[hsl(var(--muted))]" />
         </div>
+      </div>
       </header>
 
       <!-- Scrollable Content -->
@@ -171,6 +171,7 @@ import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute, RouterView, RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useUserSticker } from '@/composables/useUserSticker'
+import TextLogo from '@/components/TextLogo.vue'
 import {
   LayoutDashboard, List, Map, Utensils, Settings, LogOut, ChevronDown,
   Bell, Search, Check,

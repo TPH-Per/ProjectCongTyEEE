@@ -1,68 +1,58 @@
 <!-- File: src/components/customer/CartItem.vue -->
 <template>
-  <div class="bg-white border border-gray-200 rounded-2xl p-4 md:p-5 flex items-center justify-between gap-4 transition-all hover:shadow-md select-none">
-    
+  <div class="cart-item-card">
     <!-- Multi-select Checkbox on the left -->
-    <div class="flex items-center justify-center shrink-0 pr-1">
+    <div class="checkbox-wrapper">
       <input type="checkbox" 
              :checked="isSelected" 
              @change="emit('toggle-select')" 
-             class="w-5 h-5 rounded-lg border-gray-350 text-[#E8772E] focus:ring-[#E8772E]/50 focus:ring-2 cursor-pointer transition-colors" />
+             class="custom-checkbox" />
     </div>
 
     <!-- Item Details -->
-    <div class="flex-1 flex gap-3 min-w-0 items-center">
-      <div class="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center text-2xl shrink-0 select-none border border-gray-200">
-        🥩
+    <div class="item-details">
+      <!-- Dynamic Emoji & Gradient Image Placeholder -->
+      <div class="item-image" :style="{ background: imageGradient }">
+        <span class="item-emoji">{{ itemEmoji }}</span>
       </div>
       
-      <div class="flex-1 min-w-0">
-        <h3 class="text-sm font-bold text-[#333333] truncate leading-tight">{{ item.name }}</h3>
+      <div class="item-info">
+        <h3 class="item-name">{{ item.name }}</h3>
         
         <!-- Format: 170K x 1 = 170.000đ style -->
-        <p class="text-[11px] font-bold text-[#C62828] mt-0.5">
+        <p class="item-price-qty" :class="{ free: item.price === 0 }">
           {{ formatPriceDisplay(item.price) }} × {{ item.quantity }} = {{ lineTotalDisplay }}
         </p>
 
         <!-- Cooking Note Input -->
-        <div class="mt-2 flex items-center gap-1.5 w-full">
-          <span class="text-[10px] text-[#E8772E] font-black shrink-0">Ghi chú:</span>
+        <div class="note-box">
+          <span class="note-label">Ghi chú:</span>
           <input type="text" 
                  :value="item.note"
                  @input="updateNote(($event.target as HTMLInputElement).value)"
                  placeholder="Không hành, chín kỹ..." 
-                 class="bg-gray-50 border border-gray-200 rounded-lg px-2 py-0.5 text-[11px] text-[#333333] placeholder-gray-400 focus:outline-none focus:border-[#E8772E]/50 flex-1 min-w-0" />
+                 class="note-input" />
         </div>
       </div>
     </div>
 
     <!-- Right Controls: Quantity Modifier & Single Delete -->
-    <div class="flex items-center gap-4 shrink-0">
+    <div class="controls-wrapper">
       <!-- Quantity Controls -->
-      <div class="flex items-center gap-1.5 bg-gray-50 border border-gray-250 rounded-lg p-0.5 shrink-0">
-        <button @click="decrease" 
-                class="w-6.5 h-6.5 rounded bg-gray-200 active:bg-gray-300 text-[#333333] transition-colors flex items-center justify-center font-black select-none text-xs">
-          -
-        </button>
-        <span class="font-extrabold text-xs w-4 text-center text-[#333333] select-none">
-          {{ item.quantity }}
-        </span>
-        <button @click="increase" 
-                class="w-6.5 h-6.5 rounded bg-[#E8772E] hover:bg-amber-600 active:scale-95 text-white transition-all flex items-center justify-center font-black select-none text-xs">
-          +
-        </button>
+      <div class="quantity-controls">
+        <button @click="decrease" class="qty-btn" type="button">-</button>
+        <span class="qty-val">{{ item.quantity }}</span>
+        <button @click="increase" class="qty-btn plus" type="button">+</button>
       </div>
 
       <!-- Delete Bin button -->
-      <button @click="emit('remove')" 
-              class="w-8 h-8 rounded-lg border border-gray-200 text-gray-400 hover:text-rose-500 hover:border-rose-550/20 transition-all flex items-center justify-center active:scale-90 bg-gray-50 hover:bg-rose-500/5 shrink-0">
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <button @click="emit('remove')" class="btn-delete" type="button">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="3 6 5 6 21 6"></polyline>
           <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
         </svg>
       </button>
     </div>
-
   </div>
 </template>
 
@@ -81,6 +71,63 @@ const emit = defineEmits<{
   (e: 'remove'): void;
   (e: 'toggle-select'): void;
 }>();
+
+const itemEmoji = computed(() => {
+  const name = props.item.name.toLowerCase()
+  if (name.includes('wagyu') || name.includes('bò') || name.includes('beef')) return '🥩'
+  if (name.includes('sườn')) return '🍖'
+  if (name.includes('lưỡi')) return '👅'
+  if (name.includes('heo') || name.includes('pork') || name.includes('ba chỉ')) return '🐖'
+  if (name.includes('nọng')) return '🐷'
+  if (name.includes('gà') || name.includes('chicken')) return '🍗'
+  if (name.includes('tôm') || name.includes('shrimp')) return '🦐'
+  if (name.includes('cá') || name.includes('fish')) return '🐟'
+  if (name.includes('bạch tuộc')) return '🐙'
+  if (name.includes('cua') || name.includes('ghẹ')) return '🦀'
+  if (name.includes('sò') || name.includes('ốc')) return '🐚'
+  if (name.includes('bia') || name.includes('beer')) return '🍺'
+  if (name.includes('rượu') || name.includes('wine') || name.includes('sake') || name.includes('soju')) return '🍶'
+  if (name.includes('trà') || name.includes('tea')) return '🍵'
+  if (name.includes('cà phê') || name.includes('coffee')) return '☕'
+  if (name.includes('nước') || name.includes('soda') || name.includes('coca')) return '🥤'
+  if (name.includes('sinh tố') || name.includes('smoothie')) return '🍹'
+  if (name.includes('cơm') || name.includes('rice')) return '🍚'
+  if (name.includes('mì') || name.includes('noodle') || name.includes('udon') || name.includes('ramen')) return '🍜'
+  if (name.includes('súp') || name.includes('soup')) return '🥣'
+  if (name.includes('rau') || name.includes('salad')) return '🥗'
+  if (name.includes('nấm')) return '🍄'
+  if (name.includes('trứng')) return '🥚'
+  if (name.includes('kem') || name.includes('ice cream')) return '🍦'
+  if (name.includes('bánh') || name.includes('cake')) return '🍰'
+  if (name.includes('trái cây') || name.includes('fruit')) return '🍉'
+  if (name.includes('lẩu') || name.includes('hotpot')) return '🍲'
+  return '🍲'
+})
+
+const imageGradient = computed(() => {
+  const name = props.item.name.toLowerCase()
+  if (name.includes('wagyu') || name.includes('bò') || name.includes('beef')) 
+    return 'linear-gradient(135deg, #8B0000 0%, #DC143C 100%)'
+  if (name.includes('heo') || name.includes('pork') || name.includes('ba chỉ')) 
+    return 'linear-gradient(135deg, #FFB6C1 0%, #FF69B4 100%)'
+  if (name.includes('gà') || name.includes('chicken')) 
+    return 'linear-gradient(135deg, #FFA500 0%, #FF8C00 100%)'
+  if (name.includes('hải sản') || name.includes('tôm') || name.includes('cá') || name.includes('bạch tuộc') || name.includes('cua') || name.includes('sò')) 
+    return 'linear-gradient(135deg, #00CED1 0%, #20B2AA 100%)'
+  if (name.includes('rau') || name.includes('salad') || name.includes('nấm')) 
+    return 'linear-gradient(135deg, #98FB98 0%, #3CB371 100%)'
+  if (name.includes('cơm') || name.includes('rice')) 
+    return 'linear-gradient(135deg, #FFF8DC 0%, #F5DEB3 100%)'
+  if (name.includes('mì') || name.includes('noodle') || name.includes('udon') || name.includes('ramen')) 
+    return 'linear-gradient(135deg, #FFE4B5 0%, #DEB887 100%)'
+  if (name.includes('kem') || name.includes('bánh') || name.includes('dessert') || name.includes('tráng miệng')) 
+    return 'linear-gradient(135deg, #FFB6C1 0%, #FF69B4 100%)'
+  if (name.includes('bia') || name.includes('beer')) 
+    return 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)'
+  if (name.includes('rượu') || name.includes('wine') || name.includes('soju') || name.includes('sake')) 
+    return 'linear-gradient(135deg, #722F37 0%, #8B0000 100%)'
+  return 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+})
 
 const lineTotalDisplay = computed(() => {
   const lineTotal = props.item.price * props.item.quantity;
@@ -110,3 +157,221 @@ function formatPriceDisplay(val: number): string {
   return val.toLocaleString('vi-VN') + 'đ';
 }
 </script>
+
+<style scoped>
+.cart-item-card {
+  background: #1e1e1e;
+  border: 1px solid #333;
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  transition: all 0.3s ease;
+  user-select: none;
+}
+
+.cart-item-card:hover {
+  border-color: #ff9800;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.checkbox-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.custom-checkbox {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  border: 2px solid #555;
+  background: transparent;
+  accent-color: #ff9800;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.custom-checkbox:checked {
+  border-color: #ff9800;
+}
+
+.item-details {
+  flex: 1;
+  display: flex;
+  gap: 12px;
+  min-width: 0;
+  align-items: center;
+}
+
+.item-image {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.item-emoji {
+  font-size: 28px;
+}
+
+.item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.item-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.item-price-qty {
+  font-size: 12px;
+  font-weight: 700;
+  color: #ff9800;
+  margin: 4px 0 0 0;
+}
+
+.item-price-qty.free {
+  color: #4CAF50;
+}
+
+.note-box {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+}
+
+.note-label {
+  font-size: 11px;
+  color: #888;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.note-input {
+  background: #2d2d2d;
+  border: 1px solid #444;
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 11px;
+  color: #ffffff;
+  font-family: inherit;
+  flex: 1;
+  min-width: 0;
+  transition: border-color 0.2s;
+}
+
+.note-input:focus {
+  outline: none;
+  border-color: #ff9800;
+}
+
+.note-input::placeholder {
+  color: #666;
+}
+
+.controls-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-shrink: 0;
+}
+
+.quantity-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #2d2d2d;
+  border: 1px solid #444;
+  border-radius: 10px;
+  padding: 4px;
+}
+
+.qty-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: #3d3d3d;
+  border: none;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  transition: all 0.2s;
+}
+
+.qty-btn:hover {
+  background: #4d4d4d;
+}
+
+.qty-btn.plus {
+  background: #ff9800;
+}
+
+.qty-btn.plus:hover {
+  background: #ffb74d;
+}
+
+.qty-val {
+  font-size: 14px;
+  font-weight: 700;
+  color: white;
+  min-width: 20px;
+  text-align: center;
+}
+
+.btn-delete {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid #444;
+  background: #2d2d2d;
+  color: #888;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.btn-delete:hover {
+  color: #ff6b6b;
+  border-color: rgba(255, 107, 107, 0.2);
+  background: rgba(255, 107, 107, 0.05);
+}
+
+@media (max-width: 576px) {
+  .cart-item-card {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  
+  .controls-wrapper {
+    justify-content: space-between;
+    margin-top: 4px;
+    border-top: 1px solid #333;
+    padding-top: 12px;
+  }
+}
+</style>

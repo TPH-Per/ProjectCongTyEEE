@@ -3,7 +3,7 @@
     <!-- Sidebar -->
     <aside class="w-64 bg-white kawaii-shadow flex flex-col z-20">
       <div class="h-16 flex items-center justify-center border-b border-gray-100 kawaii-gradient">
-        <img src="/images/nguucat-logo.png" alt="Ngưu Cát Logo" class="h-8 w-auto object-contain" />
+        <TextLogo size="sm" />
       </div>
       <nav class="flex-1 overflow-y-auto py-4">
         <ul class="space-y-1 px-3">
@@ -21,9 +21,7 @@
       </nav>
       <div class="p-4 border-t border-gray-100">
         <button class="flex items-center text-sm text-gray-500 hover:text-red-500 transition-colors w-full px-4 py-2" @click="handleSignOut">
-          <LogOutIcon class="w-4 h-4 mr-2" />
-          Đăng xuất
-        </button>
+          <LogOutIcon class="w-4 h-4 mr-2" />{{ $t('layout.logout') }}</button>
       </div>
     </aside>
 
@@ -39,30 +37,13 @@
             <BellIcon class="w-6 h-6" />
             <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
           </button>
-          <div class="relative">
-            <!-- Backdrop to close dropdown on click outside -->
-            <div v-if="isDropdownOpen" class="fixed inset-0 z-40" @click="isDropdownOpen = false"></div>
 
-            <div @click="isDropdownOpen = !isDropdownOpen" class="flex items-center gap-2 cursor-pointer p-1 rounded-xl hover:bg-gray-50 transition-colors select-none z-50 relative">
-              <img :src="stickerUrl" alt="Avatar" class="w-8 h-8 object-contain drop-shadow-sm rounded-full" />
-              <span class="text-sm font-medium hidden md:block">Superadmin</span>
-              <ChevronDownIcon class="w-4 h-4 text-gray-400" />
-            </div>
-            
-            <!-- Dropdown Menu -->
-            <div v-if="isDropdownOpen" class="absolute right-0 top-full mt-2 w-48 bg-white border border-gray-100 rounded-xl shadow-lg py-1.5 z-50">
-              <button @click="handleSignOut" class="w-full flex items-center px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors">
-                <LogOutIcon class="w-4 h-4 mr-2" />
-                Đăng xuất
-              </button>
-            </div>
-          </div>
-        </div>
-      <LanguageSwitcher />
-        <!-- Header User Avatar -->
-        <div class="flex items-center gap-2 ml-4">
+        
+        <div class="flex items-center gap-2 ml-4 border-l pl-4 border-[hsl(var(--border))]">
+          <LanguageSwitcher />
           <img :src="stickerUrl" alt="User Avatar" class="w-8 h-8 rounded-full border border-[hsl(var(--border))] object-contain bg-[hsl(var(--muted))]" />
         </div>
+      </div>
       </header>
 
       <!-- Page Content -->
@@ -80,7 +61,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
+import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
+import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
   LayoutDashboardIcon,
@@ -92,21 +76,25 @@ import {
   LogOutIcon
 } from 'lucide-vue-next'
 import { useAuth } from '@/composables/useAuth'
+import { useUserSticker } from '@/composables/useUserSticker'
+import TextLogo from '@/components/TextLogo.vue'
 
 const route = useRoute()
 const router = useRouter()
 const { signOut, profile } = useAuth()
+const { stickerUrl } = useUserSticker()
+const isDropdownOpen = ref(false)
 
 const menuItems = [
-  { name: 'Tổng quan', path: '/superadmin/dashboard', icon: LayoutDashboardIcon },
-  { name: 'Quản lý chi nhánh', path: '/superadmin/brands', icon: StoreIcon },
-  { name: 'Tích hợp', path: '/superadmin/integrations', icon: PuzzleIcon },
-  { name: 'Cài đặt hệ thống', path: '/superadmin/settings', icon: SettingsIcon },
+  { name: t('layout.overview'), path: '/superadmin/dashboard', icon: LayoutDashboardIcon },
+  { name: t('layout.branch_management'), path: '/superadmin/brands', icon: StoreIcon },
+  { name: t('layout.integrations'), path: '/superadmin/integrations', icon: PuzzleIcon },
+  { name: t('layout.system_settings'), path: '/superadmin/settings', icon: SettingsIcon },
 ]
 
 const currentRouteName = computed(() => {
   const current = menuItems.find(item => route.path.includes(item.path))
-  return current ? current.name : 'Quản lý'
+  return current ? current.name : t('layout.manager')
 })
 
 async function handleSignOut() {

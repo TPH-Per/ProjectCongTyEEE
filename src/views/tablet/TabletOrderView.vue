@@ -8,18 +8,18 @@
           🐂
         </div>
         <div>
-          <h2 class="text-xl font-bold text-white">{{ t('auto_b_n_t1_a4') }}</h2>
+          <h2 class="text-xl font-bold text-white">{{ $t('tablet.order.table_t1_a4') }}</h2>
           <p class="text-sm text-gray-400">Premium Buffet 1380k + Drink A</p>
         </div>
       </div>
       
       <div class="flex items-center gap-6">
         <div class="bg-gray-800 rounded-full px-4 py-2 flex items-center gap-2">
-          <span class="text-gray-400 font-medium">{{ t('auto_gi_i_h_n_g_i_m_n_') }}</span>
-          <span class="text-white font-bold"><span class="text-red-500">3</span> {{ t('auto___10_m_n') }}</span>
+          <span class="text-gray-400 font-medium">{{ $t('tablet.order.order_limit') }}</span>
+          <span class="text-white font-bold"><span class="text-red-500">3</span> {{ $t('tablet.order.max_items') }}</span>
         </div>
         <button @click="submitOrder" :disabled="submitting" class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-full text-lg shadow-[0_0_15px_rgba(220,38,38,0.5)] transition-all disabled:opacity-50 disabled:cursor-not-allowed">
-          {{ submitting ? 'Đang gửi...' : 'Gửi Bếp' }}
+          {{ submitting ? $t('tablet.order.sending') : $t('tablet.order.send_to_kitchen') }}
         </button>
       </div>
     </header>
@@ -50,8 +50,8 @@
         <div class="mb-6 bg-blue-900/30 border border-blue-800 rounded-xl p-4 flex items-start gap-3">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-400 mt-0.5"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
           <div>
-            <h4 class="text-blue-400 font-bold text-sm">{{ t('auto_lu_ng_g_i_m_n_1_chi_u') }}</h4>
-            <p class="text-gray-400 text-sm mt-1">{{ t('auto_qu__kh_ch_vui_l_ng_ch_n_c_c_m_') }}</p>
+            <h4 class="text-blue-400 font-bold text-sm">{{ $t('tablet.order.one_way_order_flow') }}</h4>
+            <p class="text-gray-400 text-sm mt-1">{{ $t('tablet.order.please_select_items') }}</p>
           </div>
         </div>
 
@@ -87,12 +87,12 @@
     <footer class="bg-black border-t border-gray-800 p-4 flex justify-between items-center shrink-0">
       <button class="text-gray-400 hover:text-white px-6 py-2 flex items-center gap-2 font-medium">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-        {{ t('auto_c_n_h_tr', 'Cần Hỗ Trợ') }}
+        {{ $t('tablet.order.need_support') }}
       </button>
       
       <button class="bg-gray-800 hover:bg-gray-700 text-white px-8 py-3 rounded-xl font-bold flex items-center gap-2 border border-gray-700 transition-colors">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>
-        {{ t('auto_y_u_c_u_thanh_to_n', 'Yêu Cầu Thanh Toán') }}
+        {{ $t('tablet.order.request_payment') }}
       </button>
     </footer>
   </div>
@@ -103,6 +103,7 @@ import { useI18n } from 'vue-i18n'
 import { ref, onMounted } from 'vue'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/composables/useAuth'
+import { DEFAULT_BRANCH_ID } from '@/lib/branch-constants'
 import type { MenuCategory, MenuItem } from '@/types/database'
 
 import Swal from 'sweetalert2'
@@ -119,7 +120,7 @@ const loadingItems = ref(false)
 
 // Assume order_id is in localStorage, or provide mock
 const orderId = ref(localStorage.getItem('tablet_order_id') || 'mock-order-id-for-tablet')
-const activeBranchId = branchId.value || localStorage.getItem('branch_id') || 'B001'
+const activeBranchId = branchId.value || localStorage.getItem('branch_id') || DEFAULT_BRANCH_ID
 
 onMounted(async () => {
   await loadCategories()
@@ -184,8 +185,8 @@ async function submitOrder() {
       if (qty > 0) {
         const { error } = await supabase.functions.invoke('add-order-item', {
           body: {
-            order_id: orderId.value,
-            menu_item_id: itemId,
+            orderId: orderId.value,
+            menuItemId: itemId,
             quantity: qty
           }
         })
@@ -194,10 +195,10 @@ async function submitOrder() {
     }
 
     cart.value = {}
-    Swal.fire('Thành công', 'Đã gửi bếp!', 'success')
+    Swal.fire(t('tablet.order.success'), t('tablet.order.sent_to_kitchen'), 'success')
   } catch (err) {
-    console.error('Lỗi khi gửi order:', err)
-    Swal.fire('Lỗi', 'Có lỗi xảy ra khi gửi order!', 'error')
+    console.error(t('tablet.order.error_sending_order_log'), err)
+    Swal.fire(t('tablet.order.error'), t('tablet.order.error_sending_order'), 'error')
   } finally {
     submitting.value = false
   }

@@ -1,6 +1,6 @@
 // supabase/functions/add-order-item/index.ts
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
-import { getAdminClient, requireUser } from '../_shared/auth.ts'
+import { requireAppUser, AuthError } from '../_shared/auth.ts'
 import { corsHeaders } from '../_shared/cors.ts'
 
 interface AddItemPayload {
@@ -15,14 +15,33 @@ serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
 
   try {
-    const { user } = await requireUser(req)
-    const admin = getAdminClient()
+    // Staff add items to orders; reception too (when reception helps guests).
+    // Branch consistency is enforced after we fetch the order so the admin
+    // client (which bypasses RLS) can't be tricked into cross-branch writes.
+    const { profile, admin } = await requireAppUser(req, {
+      roles: ['staff', 'reception', 'manager', 'admin'],
+    })
     const body: AddItemPayload = await req.json()
+
+    // Validate payload.
+    if (!body.orderId || !body.menuItemId) {
+      throw new AuthError('orderId và menuItemId là bắt buộc', 400)
+    }
+    const uuidRe = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+    if (!uuidRe.test(body.orderId)) throw new AuthError('orderId không phải UUID', 400)
+    if (!uuidRe.test(body.menuItemId)) throw new AuthError('menuItemId không phải UUID', 400)
+    if (!Number.isFinite(body.quantity) || body.quantity <= 0) {
+      throw new AuthError('quantity phải > 0', 400)
+    }
+    // Sanity cap — a waiter shouldn't add 1000 portions of anything.
+    if (body.quantity > 99) {
+      throw new AuthError('quantity vượt giới hạn cho phép (99)', 400)
+    }
 
     // 1. Lấy order + menu_item song song (table_assignment cần order.table_id nên phải lấy sau)
     const [orderRes, menuRes] = await Promise.all([
-      admin.from('orders').select('id, status, table_id, branch_id').eq('id', body.orderId).single(),
-      admin.from('menu_items').select('id, name, price, cost, is_available, category_id').eq('id', body.menuItemId).single(),
+      admin.from('orders').select('id, status, branch_id, reservation_id, reservation:reservations(table_id)').eq('id', body.orderId).single(),
+      admin.from('menu_items').select('id, name, price, cost, is_available, branch_id, category_id').eq('id', body.menuItemId).single(),
     ])
 
     const order = orderRes.data
@@ -31,15 +50,28 @@ serve(async (req) => {
     if (order.status === 'Paid' || order.status === 'Cancelled') throw new Error('Order đã đóng')
     if (!menu.is_available) throw new Error('Món tạm hết')
 
-    // 2. Lấy table_assignment theo table_id
-    const { data: assignment } = await admin
-      .from('table_assignments')
-      .select('id, metadata, released_at')
-      .eq('table_id', order.table_id!)
-      .is('released_at', null)
-      .order('assigned_at', { ascending: false })
-      .limit(1)
-      .maybeSingle()
+    // Branch ownership check — admin bypasses; staff/reception/manager must
+    // operate on resources inside their own branch.
+    if (profile.role !== 'admin' && profile.branch_id !== order.branch_id) {
+      throw new AuthError('Order thuộc chi nhánh khác — bạn không có quyền sửa', 403)
+    }
+    // The menu item must belong to the same branch as the order. Otherwise
+    // a staff member could attach a menu item from a DIFFERENT branch's
+    // catalogue to this order — even though they'd never be able to query
+    // it from the menu UI (RLS hides it), this is defence in depth.
+    if (profile.role !== 'admin' && menu.branch_id !== order.branch_id) {
+      throw new AuthError('Menu item thuộc chi nhánh khác với order', 403)
+    }
+
+    // 2. Lấy table_assignment theo table_id (filter by branch too)
+    const tableId = (order.reservation as any)?.table_id;
+    const { data: table } = await admin
+      .from('tables')
+      .select('metadata')
+      .eq('id', tableId)
+      .single()
+    
+    const assignment = { metadata: table?.metadata }
 
     // 3. Validate item_limit (nếu có)
     const itemLimit = assignment?.metadata?.item_limit
@@ -90,6 +122,8 @@ serve(async (req) => {
         line_total: lineTotal,
         modifiers: body.modifiers ?? [],
         note: body.note,
+        status: 'Pending',
+        metadata: {},
       })
       .select()
       .single()
@@ -120,9 +154,10 @@ serve(async (req) => {
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
     )
   } catch (e: any) {
+    const status = e.name === 'AuthError' ? e.status : (e.status || 400)
     return new Response(
-      JSON.stringify({ error: e.message }),
-      { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      JSON.stringify({ error: e.message, errorName: e.name }),
+      { status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
     )
   }
 })

@@ -1,6 +1,6 @@
 // supabase/functions/checkout/index.ts
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
-import { getAdminClient, requireUser } from '../_shared/auth.ts'
+import { requireAppUser, AuthError } from '../_shared/auth.ts'
 import { corsHeaders } from '../_shared/cors.ts'
 
 interface CheckoutPayload {
@@ -24,19 +24,52 @@ serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
 
   try {
-    const { user } = await requireUser(req)
-    const admin = getAdminClient()
+    // Checkout is the most sensitive write path (creates invoice, payment,
+    // updates order, releases table). Restrict to reception/manager/admin.
+    // Branch ownership is enforced after we read the order (so the admin
+    // client's RLS-bypass can't leak cross-branch data).
+    const { user, profile, admin } = await requireAppUser(req, {
+      roles: ['reception', 'manager', 'admin'],
+    })
     const body: CheckoutPayload = await req.json()
 
+    // Validate payload.
+    if (!body.orderId) throw new AuthError('orderId là bắt buộc', 400)
+    const uuidRe = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+    if (!uuidRe.test(body.orderId)) throw new AuthError('orderId không phải UUID', 400)
+    if (!Array.isArray(body.payments) || body.payments.length === 0) {
+      throw new AuthError('payments phải là mảng không rỗng', 400)
+    }
+    const validMethods = ['cash', 'card', 'transfer', 'voucher', 'other']
+    for (const p of body.payments) {
+      if (!validMethods.includes(p.method)) {
+        throw new AuthError(`Payment method không hợp lệ: '${p.method}'`, 400)
+      }
+      if (!Number.isFinite(p.amount) || p.amount <= 0) {
+        throw new AuthError('payment.amount phải > 0', 400)
+      }
+      if (p.receivedAmount !== undefined && (!Number.isFinite(p.receivedAmount) || p.receivedAmount < 0)) {
+        throw new AuthError('payment.receivedAmount không hợp lệ', 400)
+      }
+    }
+
     // 1. Lấy order + items
+    //    IMPORTANT: `table_id` MUST be selected — the table-release branch
+    //    (step 8 below) calls `order.table_id` and would fail silently if
+    //    it were missing from the SELECT.
     const { data: order } = await admin
       .from('orders')
-      .select('id, branch_id, reservation_id, status, subtotal, vat, total, discount')
+      .select('id, branch_id, reservation_id, table_id, status, subtotal, vat, total, discount')
       .eq('id', body.orderId)
       .single()
     if (!order) throw new Error('Order not found')
     if (order.status === 'Paid' || order.status === 'Cancelled') {
       throw new Error('Order đã thanh toán')
+    }
+
+    // Branch ownership: admin bypasses; everyone else must match.
+    if (profile.role !== 'admin' && profile.branch_id !== order.branch_id) {
+      throw new AuthError('Order thuộc chi nhánh khác — bạn không có quyền thanh toán', 403)
     }
 
     // 2. Validate voucher (nếu có)
@@ -70,28 +103,51 @@ serve(async (req) => {
       throw new Error(`Tổng thanh toán ${paidAmount} ≠ tổng bill ${finalTotal}`)
     }
 
-    // 4. Tạo invoice
-    const { data: customer } = await admin
-      .from('customers')
-      .select('id, name, phone, email, tax_code')
-      .eq('id', body.customerId ?? order.reservation_id ?? '')
-      .maybeSingle()
+    // 4. Tạo invoice — customer must belong to the same branch as the order
+    //    (if a customerId is provided).
+    let customer: any = null
+    if (body.customerId) {
+      if (!uuidRe.test(body.customerId)) {
+        throw new AuthError('customerId không phải UUID', 400)
+      }
+      const { data: c } = await admin
+        .from('customers')
+        .select('id, branch_id, name, phone, email, tax_code')
+        .eq('id', body.customerId)
+        .maybeSingle()
+      if (!c) throw new AuthError('Customer không tồn tại', 404)
+      if (profile.role !== 'admin' && c.branch_id !== order.branch_id) {
+        throw new AuthError('Customer thuộc chi nhánh khác với order', 403)
+      }
+      customer = c
+    } else {
+      // Fallback: try to find a customer via the reservation.
+      const { data: c } = await admin
+        .from('customers')
+        .select('id, branch_id, name, phone, email, tax_code')
+        .eq('id', order.reservation_id ?? '')
+        .maybeSingle()
+      // Only use this customer if it's in our branch. Otherwise treat as walk-in.
+      if (c && (profile.role === 'admin' || c.branch_id === order.branch_id)) {
+        customer = c
+      }
+    }
 
     const invoiceNumber = `INV-${Date.now()}-${order.branch_id.slice(0, 4)}`
     const { data: invoice, error: invErr } = await admin
       .from('invoices')
       .insert({
         branch_id: order.branch_id,
-        order_id: order.id,
+        reservation_id: order.reservation_id,
         invoice_number: invoiceNumber,
         status: 'paid',
         subtotal: order.subtotal,
         vat: order.vat,
         discount: Number(order.discount) + voucherDiscount,
         total: finalTotal,
-        tax_code: body.taxCode ?? customer?.tax_code,
-        customer_company: body.customerCompany,
-        customer_address: body.customerAddress,
+        tax_info: { tax_code: body.taxCode ?? customer?.tax_code, company_name: body.customerCompany, address: body.customerAddress },
+        applied_vouchers: voucher ? [{ voucher_id: voucher.id, code: voucher.code, discount_amount: voucherDiscount }] : [],
+        notes: {},
         customer_snapshot: customer ?? { name: 'Walk-in' },
         issued_at: new Date().toISOString(),
         issued_by: user.id,
@@ -101,10 +157,10 @@ serve(async (req) => {
       .single()
     if (invErr) throw invErr
 
-    // 5. Tạo payments
+    // 5. Tạo payments — open shift must belong to our branch (defence in depth)
     const { data: openShift } = await admin
       .from('shifts')
-      .select('id')
+      .select('id, branch_id')
       .eq('branch_id', order.branch_id)
       .eq('user_id', user.id)
       .eq('status', 'open')
@@ -126,22 +182,16 @@ serve(async (req) => {
     const { error: payErr } = await admin.from('payments').insert(paymentRows)
     if (payErr) throw payErr
 
-    // 6. Ghi voucher_redemption (nếu có)
+    // 6. Update voucher (nếu có)
     if (voucher) {
-      await admin.from('voucher_redemptions').insert({
-        branch_id: order.branch_id,
-        voucher_id: voucher.id,
-        invoice_id: invoice.id,
-        discount_amount: voucherDiscount,
-        redeemed_by: user.id,
-      })
       await admin
         .from('vouchers')
         .update({ used_count: voucher.used_count + 1 })
         .eq('id', voucher.id)
+        .eq('branch_id', order.branch_id)
     }
 
-    // 7. Update order → Paid
+    // 7. Update order → Paid (filter by branch — defence in depth)
     await admin
       .from('orders')
       .update({
@@ -150,26 +200,22 @@ serve(async (req) => {
         total: finalTotal,
       })
       .eq('id', order.id)
+      .eq('branch_id', order.branch_id)
 
-    // 8. Release table_assignments
-    if (order.table_id) {
-      await admin
-        .from('table_assignments')
-        .update({ released_at: new Date().toISOString() })
-        .eq('table_id', order.table_id)
-        .is('released_at', null)
-      await admin
-        .from('tables')
-        .update({ status: 'available' })
-        .eq('id', order.table_id)
+    // 8. Release tables based on metadata (filter by reservation_id)
+    const { data: tbs } = await admin.from('tables').select('id, metadata').eq('status', 'occupied');
+    const myTbs = (tbs || []).filter((t: any) => t.metadata?.reservation_id === order.reservation_id);
+    if (myTbs.length > 0) {
+      await admin.from('tables').update({ status: 'available', metadata: {} }).in('id', myTbs.map(t => t.id));
     }
 
-    // 9. Update reservation → Completed
+    // 9. Update reservation → Completed (filter by branch)
     if (order.reservation_id) {
       await admin
         .from('reservations')
         .update({ status: 'Completed', completed_at: new Date().toISOString() })
         .eq('id', order.reservation_id)
+        .eq('branch_id', order.branch_id)
     }
 
     // 10. Update customer stats
@@ -191,9 +237,10 @@ serve(async (req) => {
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
     )
   } catch (e: any) {
+    const status = e.name === 'AuthError' ? e.status : (e.status || 400)
     return new Response(
-      JSON.stringify({ error: e.message }),
-      { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      JSON.stringify({ error: e.message, errorName: e.name }),
+      { status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
     )
   }
 })

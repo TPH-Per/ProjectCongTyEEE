@@ -5,13 +5,8 @@ export function useUserSticker() {
   const { profile } = useAuth()
   
   const stickerUrl = computed(() => {
-    if (!profile.value?.id) return '/images/sticker1.png'
-    let hash = 0
-    for (let i = 0; i < profile.value.id.length; i++) {
-      hash = profile.value.id.charCodeAt(i) + ((hash << 5) - hash)
-    }
-    const stickerNum = (Math.abs(hash) % 23) + 1
-    return `/images/sticker${stickerNum}.png`
+    const seed = profile.value?.id || 'default-user'
+    return `https://api.dicebear.com/7.x/notionists/svg?seed=${seed}&backgroundColor=f87171,fb923c,fbbf24,34d399,38bdf8,818cf8,c084fc`
   })
 
   return {

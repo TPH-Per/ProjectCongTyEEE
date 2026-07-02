@@ -51,6 +51,7 @@ export const useCustomerStore = defineStore('customer', {
     feedback: null as Feedback | null,
     
     // UI State
+    loading: false,
     currentView: 'home' as 'home' | 'menu' | 'cart' | 'history' | 'feedback',
     notifications: [] as Notification[],
     searchQuery: '',

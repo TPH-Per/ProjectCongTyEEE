@@ -52,6 +52,10 @@ const form = ref({
 })
 
 const submitCheckout = async () => {
+  if (!activeBranchId.value) {
+    throw new Error('Active branch is required for checkout')
+  }
+
   const { data: userData } = await supabase.auth.getUser()
   await executeCheckout({
     orderId: form.value.orderId,

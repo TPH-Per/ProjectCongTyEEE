@@ -2996,11 +2996,6 @@ import { supabase } from "@/lib/supabase";
 import { useRealtime } from "@/composables/useRealtime";
 import { useOrder } from "@/composables/useOrder";
 import { useBranch } from "@/composables/useBranch";
-import {
-  mockTickets,
-  mockGrillRequests,
-  mock86dItems,
-} from "@/data/mockKitchenData";
 import type { OrderStatus } from "@/types/database";
 import { useKitchenStore } from "@/stores/kitchen";
 import HeaderButtons from "@/components/HeaderButtons.vue";
@@ -4706,51 +4701,6 @@ const formatWaitTime = (seconds: number): string => {
   return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
 };
 
-const loadMockTickets = () => {
-  const mapped = mockTickets.map((t: any) => {
-    const d = new Date(t.createdAt);
-    return {
-      id: t.id,
-      table: t.tableNumber,
-      time: d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-      timestamp: d.getTime(),
-      waitTime: Math.floor((Date.now() - d.getTime()) / 1000),
-      status: t.status === "delayed" ? "pending" : t.status,
-      items: t.items.map((i: any) => ({
-        id: i.id,
-        name: i.name,
-        qty: i.quantity,
-        note: i.notes || (i.hasAllergy ? i.allergyInfo : ""),
-        done: t.status === "ready" || t.status === "done",
-      })),
-    };
-  });
-
-  mapped.forEach((o: any) => {
-    if (!orders.value.some((existing) => existing.id === o.id)) {
-      orders.value.push(o);
-    }
-  });
-};
-
-const loadMockGrillRequests = () => {
-  const mapped = mockGrillRequests.map((r: any) => ({
-    id: r.id,
-    table: r.tableNumber,
-    type: r.type === "vỉ" ? ("GrillChange" as const) : ("CoalRefill" as const),
-    status:
-      r.status === "pending" ? ("Pending" as const) : ("Inprogress" as const),
-    priority: r.type === "than" ? ("Urgent" as const) : ("Normal" as const),
-    createdAt: r.createdAt.getTime(),
-    timeLeft: r.estimatedTime * 60,
-  }));
-  mapped.forEach((req: any) => {
-    if (!grillRequests.value.some((existing) => existing.id === req.id)) {
-      grillRequests.value.push(req);
-    }
-  });
-};
-
 onMounted(async () => {
   // Load local requests, sub-steps, HACCP, remake & prep states
   loadGrillRequests();
@@ -4758,8 +4708,6 @@ onMounted(async () => {
   loadHaccpState();
   loadRemakeOrders();
   loadPrepTasks();
-  loadMockTickets();
-  loadMockGrillRequests();
   await fetchTodayBookingsForPrep();
   await fetchMenuItems();
 

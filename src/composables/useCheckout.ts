@@ -31,25 +31,8 @@ export function useCheckout() {
     orderTotal: number;
     customerId?: string;
   }): Promise<CheckoutPreview> {
-    // In a real app, you would call a RPC or calculate this dynamically
-    // Here we provide a stub estimation
-    let voucherDiscount = 0
-    if (params.voucherCode) {
-      voucherDiscount = 0 // Mock, would validate
-    }
-    const pointsDiscount = (params.pointsToRedeem || 0) * 1000
-    const netBeforeTax = Math.max(0, params.orderTotal - voucherDiscount - pointsDiscount)
-    const vat = netBeforeTax * 0.1
-    const grandTotal = netBeforeTax + vat
-
-    return {
-      subtotal: params.orderTotal,
-      voucherDiscount,
-      pointsDiscount,
-      netBeforeTax,
-      vat,
-      grandTotal
-    }
+    void params
+    throw new Error('previewCheckout is disabled; use hall_get_checkout_summary RPC for checkout totals')
   }
 
   async function executeCheckout(params: {

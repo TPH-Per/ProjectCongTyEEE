@@ -18,6 +18,7 @@ import SuperadminLayout from "@/layouts/SuperadminLayout.vue";
 import PurchasingLayout from "@/layouts/PurchasingLayout.vue";
 import AccountingLayout from "@/layouts/AccountingLayout.vue";
 import CustomerLayout from "@/layouts/CustomerLayout.vue";
+import CRMLayout from "@/layouts/CRMLayout.vue";
 
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 import LoginView from "@/views/LoginView.vue";
@@ -48,6 +49,11 @@ import ManagerCOGSView from "@/views/manager/ManagerCOGSView.vue";
 import ManagerMarketingView from "@/views/manager/ManagerMarketingView.vue";
 import ManagerCRMView from "@/views/manager/ManagerCRMView.vue";
 import ManagerInventoryView from "@/views/manager/ManagerInventoryView.vue";
+
+// ─── CRM Views ───────────────────────────────────────────────────────────────
+import CRMDashboardView from "@/views/crm/CRMDashboardView.vue";
+import CustomerFeedbackView from "@/views/crm/CustomerFeedbackView.vue";
+import CRMServingTablesView from "@/views/crm/CRMServingTablesView.vue";
 
 // ─── Kitchen Views ────────────────────────────────────────────────────────────
 import KitchenKDSView from "@/views/kitchen/KitchenKDSView.vue";
@@ -304,6 +310,31 @@ const routes: RouteRecordRaw[] = [
     ],
   },
   {
+    path: "/crm",
+    component: CRMLayout,
+    children: [
+      {
+        path: "",
+        redirect: "/crm/serving-tables",
+      },
+      {
+        path: "dashboard",
+        name: "crm-dashboard",
+        component: CRMDashboardView,
+      },
+      {
+        path: "serving-tables",
+        name: "crm-serving-tables",
+        component: CRMServingTablesView,
+      },
+      {
+        path: "feedback",
+        name: "crm-feedback",
+        component: CustomerFeedbackView,
+      },
+    ],
+  },
+  {
     path: "/staff",
     component: StaffLayout,
     children: [
@@ -385,6 +416,7 @@ const ROUTE_ROLES: Record<string, string[]> = {
   kitchen: ["admin", "kitchen"],
   purchasing: ["admin", "purchasing"],
   accounting: ["admin", "accounting"],
+  crm: ["admin", "manager", "crm"],
   tablet: ["admin", "hall", "customer"],
 };
 

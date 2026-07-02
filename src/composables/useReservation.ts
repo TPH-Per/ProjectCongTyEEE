@@ -1,14 +1,18 @@
 import { ref } from 'vue'
 import { supabase } from '@/lib/supabase'
+import { useBranch, throwBranchGuard } from './useBranch'
 
 export interface Reservation {
   id: string
   branch_id: string
-  guest_name: string
-  guest_phone: string
+  guest_name?: string
+  guest_phone?: string
+  customer_snapshot?: Record<string, unknown>
   reservation_time: string
-  guest_count: number
-  status: 'PENDING' | 'CONFIRMED' | 'SEATED' | 'COMPLETED' | 'NO_SHOW'
+  reservation_date?: string
+  guests: number
+  guest_count?: number
+  status: 'Pending' | 'Arrived' | 'Dining' | 'Completed' | 'Cancelled'
   notes?: string
   assigned_table_id?: string
   created_at: string
@@ -22,6 +26,7 @@ export interface ReservationStats {
 }
 
 export function useReservation() {
+  const { activeBranchId } = useBranch()
   const reservations = ref<Reservation[]>([])
   const stats = ref<ReservationStats | null>(null)
   const loading = ref(false)
@@ -35,32 +40,31 @@ export function useReservation() {
     loading.value = true
     error.value = null
     try {
-      let query = supabase.from('reservations').select('*', { count: 'exact' })
-      
-      if (params?.date) {
-        // filter by date
-        const startOfDay = new Date(params.date)
-        startOfDay.setHours(0, 0, 0, 0)
-        const endOfDay = new Date(params.date)
-        endOfDay.setHours(23, 59, 59, 999)
-        query = query.gte('reservation_time', startOfDay.toISOString())
-                     .lte('reservation_time', endOfDay.toISOString())
-      }
-      
-      if (params?.status) {
-        query = query.eq('status', params.status)
-      }
-      
-      if (params?.search) {
-        query = query.or(`guest_name.ilike.%${params.search}%,guest_phone.ilike.%${params.search}%`)
-      }
-
-      query = query.order('reservation_time', { ascending: true })
-
-      const { data, error: err, count } = await query
+      const { data, error: err } = await supabase.rpc('hall_list_reservations_by_date', {
+        p_branch_id: activeBranchId.value ?? throwBranchGuard(),
+        p_date: params?.date || new Date().toISOString().split('T')[0],
+      })
       if (err) throw err
-      reservations.value = data as Reservation[]
-      return { reservations: reservations.value, total: count || 0 }
+
+      let rows = (data ?? []) as Reservation[]
+      if (params?.date) {
+        rows = rows.filter((r) => r.reservation_date === params.date)
+      }
+      if (params?.status) {
+        rows = rows.filter((r) => r.status === params.status)
+      }
+      if (params?.search) {
+        const q = params.search.toLowerCase()
+        rows = rows.filter((r) => {
+          const snap = r.customer_snapshot ?? {}
+          return String(snap.name ?? r.guest_name ?? '').toLowerCase().includes(q)
+            || String(snap.phone ?? r.guest_phone ?? '').toLowerCase().includes(q)
+        })
+      }
+
+      rows = rows.sort((a, b) => String(a.reservation_time).localeCompare(String(b.reservation_time)))
+      reservations.value = rows
+      return { reservations: reservations.value, total: rows.length }
     } catch (e: any) {
       error.value = e.message
       return { reservations: [], total: 0 }
@@ -87,6 +91,11 @@ export function useReservation() {
     }
   }
 
+  async function listByDate(date: string): Promise<Reservation[]> {
+    const result = await listReservations({ date })
+    return result.reservations
+  }
+
   async function createReservation(params: {
     guestName: string
     guestPhone: string
@@ -98,10 +107,11 @@ export function useReservation() {
     error.value = null
     try {
       const { data, error: err } = await supabase.rpc('create_reservation', {
+        p_branch_id: activeBranchId.value ?? throwBranchGuard(),
         p_guest_name: params.guestName,
         p_guest_phone: params.guestPhone,
         p_reservation_time: params.reservationTime,
-        p_guest_count: params.guestCount,
+        p_guests: params.guestCount,
         p_notes: params.notes || null
       })
       if (err) throw err
@@ -122,20 +132,25 @@ export function useReservation() {
     loading.value = true
     error.value = null
     try {
-      if (status === 'CONFIRMED') {
+      if (status === 'Arrived') {
         const { error: err } = await supabase.rpc('confirm_reservation', {
           p_reservation_id: id,
           p_table_id: tableId || null
         })
         if (err) throw err
-      } else if (status === 'SEATED') {
+      } else if (status === 'Dining') {
         const { error: err } = await supabase.rpc('seat_reservation', {
           p_reservation_id: id,
           p_table_id: tableId || null
         })
         if (err) throw err
       } else {
-        const { error: err } = await supabase.from('reservations').update({ status, updated_at: new Date().toISOString() }).eq('id', id)
+        const { error: err } = await supabase.rpc('hall_update_reservation_status', {
+          p_reservation_id: id,
+          p_status: status,
+          p_table_id: tableId || null,
+          p_reason: null,
+        })
         if (err) throw err
       }
     } catch (e: any) {
@@ -146,8 +161,32 @@ export function useReservation() {
     }
   }
 
+  async function seatReservation(id: string, tableId?: string): Promise<void> {
+    return updateStatus(id, 'Dining', tableId)
+  }
+
+  async function cancelReservation(id: string, reason?: string): Promise<void> {
+    loading.value = true
+    error.value = null
+    try {
+      const { error: err } = await supabase.rpc('hall_update_reservation_status', {
+        p_reservation_id: id,
+        p_status: 'Cancelled',
+        p_table_id: null,
+        p_reason: reason || null,
+      })
+      if (err) throw err
+    } catch (e: any) {
+      error.value = e.message
+      throw e
+    } finally {
+      loading.value = false
+    }
+  }
+
   return {
     reservations, stats, loading, error,
-    listReservations, fetchStats, createReservation, updateStatus
+    listReservations, listByDate, fetchStats, createReservation, updateStatus,
+    seatReservation, cancelReservation
   }
 }

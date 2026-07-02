@@ -29,13 +29,14 @@ import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useLanguageStore } from '@/stores/useLanguageStore';
 import { useTablet } from '@/composables/useTablet';
+import { DEFAULT_BRANCH_ID } from '@/lib/branch-constants';
 
 const router = useRouter();
 const route = useRoute();
 const { t } = useLanguageStore();
 const { content, fetchContent, subscribeToSession, activateSession } = useTablet();
 
-const branchId = (route.query.branch_id as string) || 'default-branch';
+const branchId = (route.query.branch_id as string) || localStorage.getItem('branch_id') || DEFAULT_BRANCH_ID;
 const tableId = (route.query.table_id as string) || 'default-table';
 
 const currentIndex = ref(0);
@@ -70,4 +71,3 @@ async function handleTouch() {
   router.push({ name: 'tablet-language', query: route.query });
 }
 </script>
-

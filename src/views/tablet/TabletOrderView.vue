@@ -85,12 +85,12 @@
     
     <!-- Footer actions -->
     <footer class="bg-black border-t border-gray-800 p-4 flex justify-between items-center shrink-0">
-      <button class="text-gray-400 hover:text-white px-6 py-2 flex items-center gap-2 font-medium">
+      <button @click="requestSupport" :disabled="submittingRequest" class="text-gray-400 hover:text-white px-6 py-2 flex items-center gap-2 font-medium disabled:opacity-50">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
         {{ $t('tablet.order.need_support') }}
       </button>
       
-      <button class="bg-gray-800 hover:bg-gray-700 text-white px-8 py-3 rounded-xl font-bold flex items-center gap-2 border border-gray-700 transition-colors">
+      <button @click="requestPayment" :disabled="submittingRequest" class="bg-gray-800 hover:bg-gray-700 text-white px-8 py-3 rounded-xl font-bold flex items-center gap-2 border border-gray-700 transition-colors disabled:opacity-50">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>
         {{ $t('tablet.order.request_payment') }}
       </button>
@@ -102,44 +102,40 @@
 import { useI18n } from 'vue-i18n'
 import { ref, onMounted } from 'vue'
 import { supabase } from '@/lib/supabase'
-import { useAuth } from '@/composables/useAuth'
+import { useRoute } from 'vue-router'
+import { useMenu } from '@/composables/useMenu'
+import { useServiceRequest } from '@/composables/useServiceRequest'
 import { DEFAULT_BRANCH_ID } from '@/lib/branch-constants'
 import type { MenuCategory, MenuItem } from '@/types/database'
 
 import Swal from 'sweetalert2'
 
 const { t } = useI18n()
-const { branchId } = useAuth()
+const route = useRoute()
+const { getCategories, getItems } = useMenu()
+const { createRequest } = useServiceRequest()
 
 const submitting = ref(false)
+const submittingRequest = ref(false)
 const categories = ref<MenuCategory[]>([])
 const items = ref<MenuItem[]>([])
 const selectedCategoryId = ref<string | null>(null)
 const cart = ref<Record<string, number>>({})
 const loadingItems = ref(false)
 
-// Assume order_id is in localStorage, or provide mock
-const orderId = ref(localStorage.getItem('tablet_order_id') || 'mock-order-id-for-tablet')
-const activeBranchId = branchId.value || localStorage.getItem('branch_id') || DEFAULT_BRANCH_ID
+const activeBranchId = (route.query.branch_id as string) || localStorage.getItem('tablet_branch_id') || localStorage.getItem('branch_id') || DEFAULT_BRANCH_ID
+const tableId = (route.query.table_id as string) || localStorage.getItem('tablet_table_id') || ''
+const sessionId = ref(localStorage.getItem('tablet_session_id') || '')
 
 onMounted(async () => {
   await loadCategories()
 })
 
 async function loadCategories() {
-  const { data, error } = await supabase
-    .from('menu_categories')
-    .select('*')
-    .eq('branch_id', activeBranchId)
-    .eq('is_active', true)
-    .order('sort_order')
+  categories.value = await getCategories(activeBranchId)
 
-  if (!error && data) {
-    categories.value = data as MenuCategory[]
-
-    if (categories.value.length > 0) {
-      await loadItems(categories.value[0].id)
-    }
+  if (categories.value.length > 0) {
+    await loadItems(categories.value[0].id)
   }
 }
 
@@ -147,17 +143,7 @@ async function loadItems(categoryId: string) {
   loadingItems.value = true
   selectedCategoryId.value = categoryId
 
-  const { data, error } = await supabase
-    .from('menu_items')
-    .select('*, menu_categories(name)')
-    .eq('branch_id', activeBranchId)
-    .eq('is_available', true)
-    .eq('category_id', categoryId)
-    .order('name')
-
-  if (!error) {
-    items.value = (data ?? []) as MenuItem[]
-  }
+  items.value = await getItems(categoryId, activeBranchId)
 
   loadingItems.value = false
 }
@@ -176,23 +162,31 @@ function decrement(item: MenuItem) {
 async function submitOrder() {
   const itemIds = Object.keys(cart.value)
   if (itemIds.length === 0) return
+  if (!tableId || !sessionId.value) {
+    Swal.fire(t('tablet.order.error'), 'Tablet session is not active for this table.', 'error')
+    return
+  }
 
   submitting.value = true
 
   try {
-    for (const itemId of itemIds) {
-      const qty = cart.value[itemId]
-      if (qty > 0) {
-        const { error } = await supabase.functions.invoke('add-order-item', {
-          body: {
-            orderId: orderId.value,
-            menuItemId: itemId,
-            quantity: qty
-          }
-        })
-        if (error) throw error
-      }
-    }
+    const payload = itemIds
+      .map((itemId) => ({
+        menu_item_id: itemId,
+        quantity: cart.value[itemId],
+        modifiers: [],
+        note: null,
+      }))
+      .filter((line) => line.quantity > 0)
+
+    const { error } = await supabase.rpc('customer_submit_table_order', {
+      p_branch_id: activeBranchId,
+      p_table_id: tableId,
+      p_session_id: sessionId.value,
+      p_items: payload,
+      p_idempotency_key: crypto.randomUUID(),
+    })
+    if (error) throw error
 
     cart.value = {}
     Swal.fire(t('tablet.order.success'), t('tablet.order.sent_to_kitchen'), 'success')
@@ -203,5 +197,48 @@ async function submitOrder() {
     submitting.value = false
   }
 }
-</script>
 
+async function requestSupport() {
+  if (!tableId || !sessionId.value) {
+    Swal.fire(t('tablet.order.error'), 'Tablet session is not active for this table.', 'error')
+    return
+  }
+  submittingRequest.value = true
+  try {
+    await createRequest({
+      branchId: activeBranchId,
+      tableId,
+      sessionId: sessionId.value,
+      type: 'CALL_WAITER',
+      priority: 'NORMAL',
+    })
+    Swal.fire(t('tablet.order.success'), t('tablet.order.need_support'), 'success')
+  } catch (err) {
+    Swal.fire(t('tablet.order.error'), err instanceof Error ? err.message : String(err), 'error')
+  } finally {
+    submittingRequest.value = false
+  }
+}
+
+async function requestPayment() {
+  if (!tableId || !sessionId.value) {
+    Swal.fire(t('tablet.order.error'), 'Tablet session is not active for this table.', 'error')
+    return
+  }
+  submittingRequest.value = true
+  try {
+    await createRequest({
+      branchId: activeBranchId,
+      tableId,
+      sessionId: sessionId.value,
+      type: 'REQUEST_BILL',
+      priority: 'URGENT',
+    })
+    Swal.fire(t('tablet.order.success'), t('tablet.order.request_payment'), 'success')
+  } catch (err) {
+    Swal.fire(t('tablet.order.error'), err instanceof Error ? err.message : String(err), 'error')
+  } finally {
+    submittingRequest.value = false
+  }
+}
+</script>

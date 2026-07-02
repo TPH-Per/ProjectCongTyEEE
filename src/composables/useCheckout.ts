@@ -3,9 +3,11 @@ import { supabase } from '@/lib/supabase'
 
 export interface CheckoutResult {
   success: boolean
+  bill_id: string
   invoice_id: string
   invoice_number: string
   grand_total: number
+  linked_crm_surveys?: number
 }
 
 export interface CheckoutPreview {
@@ -83,6 +85,23 @@ export function useCheckout() {
     }
   }
 
+  async function checkout(params: any): Promise<CheckoutResult | null> {
+    if (!params?.branchId || !params?.cashierId || !params?.paymentMethod) {
+      throw new Error('checkout requires branchId, cashierId and paymentMethod')
+    }
+    return executeCheckout({
+      orderId: params.orderId,
+      branchId: params.branchId,
+      cashierId: params.cashierId,
+      paymentMethod: params.paymentMethod,
+      voucherCode: params.voucherCode,
+      pointsToRedeem: params.pointsToRedeem,
+      paymentRef: params.paymentRef,
+      serviceChargePct: params.serviceChargePct,
+      vatPct: params.vatPct,
+    })
+  }
+
   function printReceipt(result: CheckoutResult): void {
     console.log('Printing receipt for', result.invoice_number)
     window.print()
@@ -90,6 +109,6 @@ export function useCheckout() {
 
   return {
     checkoutResult, loading, error,
-    previewCheckout, executeCheckout, printReceipt
+    previewCheckout, executeCheckout, checkout, printReceipt
   }
 }

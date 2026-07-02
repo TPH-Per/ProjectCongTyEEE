@@ -19,15 +19,13 @@ export function useServiceRequest() {
   const { activeBranchId } = useBranch()
 
   async function fetchOpenRequests(): Promise<ServiceRequest[]> {
-    const { data, error } = await supabase
-      .from('service_requests')
-      .select('*')
-      .eq('branch_id', activeBranchId.value)
-      .in('status', ['OPEN', 'IN_PROGRESS'])
-      .order('created_at', { ascending: false })
+    const { data, error } = await supabase.rpc('hall_list_service_requests', {
+      p_branch_id: activeBranchId.value,
+      p_statuses: ['OPEN', 'IN_PROGRESS'],
+    })
     if (error) throw error
-    openRequests.value = data as ServiceRequest[]
-    return data as ServiceRequest[]
+    openRequests.value = (data ?? []) as ServiceRequest[]
+    return openRequests.value
   }
 
   async function createRequest(params: {
@@ -35,6 +33,7 @@ export function useServiceRequest() {
     tableId: string;
     type: 'CALL_WAITER' | 'REQUEST_BILL' | 'REQUEST_CONDIMENT' | 'COMPLAINT' | 'OTHER';
     orderId?: string;
+    sessionId?: string;
     message?: string;
     priority?: 'NORMAL' | 'URGENT';
   }): Promise<string> {
@@ -42,19 +41,26 @@ export function useServiceRequest() {
       p_branch_id: params.branchId,
       p_table_id: params.tableId,
       p_type: params.type,
-      p_message: params.message
+      p_message: params.message || null,
+      p_order_id: params.orderId || null,
+      p_priority: params.priority || 'NORMAL',
+      p_session_id: params.sessionId || null,
     })
     if (error) throw error
-    return data.request_id
+    return (data as ServiceRequest).id
   }
 
   async function startHandling(requestId: string): Promise<void> {
-    const { error } = await supabase.from('service_requests').update({ status: 'IN_PROGRESS' }).eq('id', requestId)
+    const { error } = await supabase.rpc('hall_ack_service_request', {
+      p_request_id: requestId,
+    })
     if (error) throw error
   }
 
   async function resolveRequest(requestId: string): Promise<void> {
-    const { error } = await supabase.from('service_requests').update({ status: 'RESOLVED', resolved_at: new Date().toISOString() }).eq('id', requestId)
+    const { error } = await supabase.rpc('hall_complete_service_request', {
+      p_request_id: requestId,
+    })
     if (error) throw error
   }
 

@@ -8,6 +8,9 @@
         </div>
       </div>
       <nav class="flex-1 px-3 space-y-1 py-4 overflow-y-auto">
+        <RouterLink to="/crm/serving-tables" class="flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all text-sm font-semibold text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]" active-class="bg-[hsl(var(--primary))]/12 text-[hsl(var(--primary))] font-extrabold border-[hsl(var(--primary))]/30">
+          <span>Serving Tables</span>
+        </RouterLink>
         <RouterLink to="/crm/dashboard" class="flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all text-sm font-semibold text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]" active-class="bg-[hsl(var(--primary))]/12 text-[hsl(var(--primary))] font-extrabold border-[hsl(var(--primary))]/30">
           <span>{{ $t('crm.dashboard') }}</span>
         </RouterLink>
@@ -31,7 +34,4 @@
 <script setup lang="ts">
 import TextLogo from '@/components/TextLogo.vue'
 import { RouterView, RouterLink } from 'vue-router'
-import { useI18n } from 'vue-i18n'
-
-const { t } = useI18n()
 </script>

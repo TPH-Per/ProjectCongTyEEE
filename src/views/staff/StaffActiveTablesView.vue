@@ -61,26 +61,27 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 import { ref, onMounted, onUnmounted } from 'vue'
-import { supabase } from '@/lib/supabase'
-import { useAuth } from '@/composables/useAuth'
-import { DEFAULT_BRANCH_ID } from '@/lib/branch-constants'
+import { useTable } from '@/composables/useTable'
 
 const { t } = useI18n()
-const { branchId } = useAuth()
+const { listTables } = useTable()
 const activeOrders = ref<any[]>([])
 const loading = ref(true)
 
 let timer: ReturnType<typeof setInterval>
 
 async function fetchActiveOrders() {
-  const { data } = await supabase
-    .from('reservations')
-    .select('*, tables(code), orders(id, order_items(id))')
-    .eq('branch_id', branchId.value || DEFAULT_BRANCH_ID)
-    .in('status', ['CheckedIn', 'Seated'])
-    .order('created_at', { ascending: false })
-  
-  if (data) activeOrders.value = data
+  const tables = await listTables()
+  activeOrders.value = tables
+    .filter((table: any) => table.status === 'occupied')
+    .map((table: any) => ({
+      id: table.active_order?.order_id || table.id,
+      table_id: table.id,
+      tables: { code: table.code },
+      guests: table.active_order?.guest_count || table.capacity,
+      created_at: table.active_order?.created_at || table.created_at,
+      orders: table.active_order ? [{ id: table.active_order.order_id, order_items: [] }] : [],
+    }))
   loading.value = false
 }
 
@@ -113,4 +114,3 @@ function getOrderItemsCount(order: any): number {
   return order.orders.reduce((sum: number, o: any) => sum + (o.order_items?.length || 0), 0)
 }
 </script>
-

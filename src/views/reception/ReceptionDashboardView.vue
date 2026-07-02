@@ -164,13 +164,15 @@ import { useTable } from '@/composables/useTable'
 import { useReservation } from '@/composables/useReservation'
 import { useNotification } from '@/composables/useNotification'
 import { useRealtime } from '@/composables/useRealtime'
-import type { TableT, Reservation, Shift, Notification } from '@/types/database'
+import { useServiceRequest, type ServiceRequest } from '@/composables/useServiceRequest'
+import type { TableT, Shift, Notification } from '@/types/database'
 
 const { branchId } = useAuth()
 const { activeBranchId } = useBranch()
 const { listTables } = useTable()
 const { listByDate } = useReservation()
 const { listForRole } = useNotification()
+const { fetchOpenRequests } = useServiceRequest()
 const { watchTable } = useRealtime()
 
 const loading = ref(false)
@@ -178,8 +180,9 @@ const hasLoadedOnce = ref(false)
 const error = ref<string | null>(null)
 
 const tables = ref<TableT[]>([])
-const reservations = ref<Reservation[]>([])
+const reservations = ref<any[]>([])
 const checkoutNotifications = ref<Notification[]>([])
+const serviceRequests = ref<ServiceRequest[]>([])
 const activeShift = ref<Shift | null>(null)
 
 // Realtime cleanups — we MUST unsubscribe when the dashboard unmounts.
@@ -210,6 +213,17 @@ const checkoutAlerts = computed<CheckoutAlert[]>(() => {
   const out: CheckoutAlert[] = []
   // Notification channel 'reception-panel' = checkout-request notifications.
   // variables: { table_id, table_code }
+  for (const req of serviceRequests.value) {
+    if (req.type !== 'REQUEST_BILL') continue
+    if (seen.has(req.table_id)) continue
+    seen.add(req.table_id)
+    out.push({
+      id: req.id,
+      tableId: req.table_id,
+      tableCode: tableCodeCache.value[req.table_id] ?? req.table_id.slice(0, 4),
+    })
+  }
+
   for (const n of checkoutNotifications.value) {
     const tableId = (n.variables as Record<string, unknown>)?.table_id as string | undefined
     if (!tableId) continue
@@ -234,7 +248,7 @@ const checkoutAlerts = computed<CheckoutAlert[]>(() => {
   return out
 })
 
-function customerNameOf(r: Reservation): string {
+function customerNameOf(r: any): string {
   // customer_snapshot is a JSONB blob; the reservation row itself doesn't
   // expose a customer name directly. Fall back to id-derived label.
   const snap = r.customer_snapshot as Record<string, unknown> | null
@@ -243,7 +257,7 @@ function customerNameOf(r: Reservation): string {
   return r.customer_id?.slice(0, 8) ?? '—'
 }
 
-function statusClass(status: Reservation['status']): string {
+function statusClass(status: string): string {
   switch (status) {
     case 'Pending': return 'bg-yellow-100 text-yellow-700'
     case 'Arrived': return 'bg-blue-100 text-blue-700'
@@ -262,16 +276,10 @@ function formatDateTime(iso?: string | null): string {
 
 async function fetchActiveShift() {
   if (!activeBranch.value) return
-  // Edge Functions close-shift / export-shift-csv require a real shiftId.
-  // Surfacing it here helps the receptionist see whether the shift is open.
-  const { data } = await supabase
-    .from('shifts')
-    .select('*')
-    .eq('branch_id', activeBranch.value)
-    .eq('status', 'open')
-    .order('opened_at', { ascending: false })
-    .limit(1)
-    .maybeSingle()
+  const { data, error: err } = await supabase.rpc('hall_get_active_shift', {
+    p_branch_id: activeBranch.value,
+  })
+  if (err) throw err
   activeShift.value = (data as Shift) ?? null
 }
 
@@ -285,16 +293,18 @@ async function fetchAll() {
   error.value = null
   try {
     const today = new Date().toISOString().split('T')[0]
-    const [tablesData, resData, notifData] = await Promise.all([
+    const [tablesData, resData, notifData, reqData] = await Promise.all([
       listTables(),
       listByDate(today),
       listForRole('reception-panel', 50).catch(() => [] as Notification[]),
+      fetchOpenRequests().catch(() => [] as ServiceRequest[]),
     ])
     tables.value = tablesData
     reservations.value = resData
     checkoutNotifications.value = (notifData ?? []).filter(
       (n) => n.template === 'checkout_request',
     )
+    serviceRequests.value = reqData ?? []
     await fetchActiveShift()
   } catch (err) {
     error.value = err instanceof Error ? err.message : String(err)
@@ -312,8 +322,9 @@ function subscribeRealtime() {
   // so they're released on unmount.
   cleanups.push(
     watchTable<TableT>('tables', '*', () => fetchAll()),
-    watchTable<Reservation>('reservations', '*', () => fetchAll()),
+    watchTable<any>('reservations', '*', () => fetchAll()),
     watchTable<Notification>('notifications', '*', () => fetchAll()),
+    watchTable<ServiceRequest>('service_requests', '*', () => fetchAll()),
   )
 }
 

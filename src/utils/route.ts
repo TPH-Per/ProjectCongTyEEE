@@ -28,6 +28,8 @@ export function getHomeRouteForRole(role: UserRole | string | null | undefined):
       return { name: 'purchasing-receipts' }
     case 'accounting':
       return { name: 'accounting-invoices' }
+    case 'crm':
+      return { name: 'crm-serving-tables' }
     case 'customer':
       return { name: 'tablet-idle' }
     default:

@@ -1,136 +1,153 @@
 <template>
-  <div class="p-4 flex flex-col min-h-full">
-
-    <div class="mb-6 flex items-center gap-3">
-      <RouterLink to="/staff/active-tables" class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+  <div class="min-h-full bg-gray-50 p-4">
+    <div class="mb-5 flex items-center gap-3">
+      <RouterLink to="/staff/active-tables" class="flex h-9 w-9 items-center justify-center rounded-lg bg-white text-gray-600 shadow-sm">
+        ‹
       </RouterLink>
       <div>
-        <h2 class="text-xl font-bold text-gray-900">{{ tableInfo?.name || t('auto_b_n__t1_a4') }}</h2>
-        <div class="flex items-center gap-2">
-          <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
-          <p class="text-xs text-red-600 font-bold">{{ t('auto__ang_d_ng_b_a') }}</p>
-        </div>
+        <h1 class="text-xl font-black text-gray-900">{{ currentTable?.table_code || 'CRM Survey' }}</h1>
+        <p class="text-xs font-semibold text-gray-500">
+          {{ currentTable ? `Order ${currentTable.order_id.slice(0, 8)}` : 'No serving order found' }}
+        </p>
       </div>
     </div>
 
-    <!-- Order Summary -->
-    <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-200 mb-4" v-if="orderInfo">
-      <div class="flex justify-between items-center mb-2">
-        <div class="text-sm font-bold text-gray-800">{{ t('auto_g_i_hi_n_t_i') }}</div>
-        <button class="text-xs text-blue-600 font-bold">{{ t('auto_s_a') }}</button>
-      </div>
-      <div class="text-sm font-medium text-gray-600">{{ $t('auto_khach') }} {{ orderInfo.guests_count }} {{ $t('auto_nguoi') }}</div>
-      <div class="text-xs text-gray-500 mt-1">Order ID: {{ orderInfo.id.substring(0,8) }}</div>
+    <div v-if="error" class="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm font-semibold text-red-700">
+      {{ error }}
     </div>
 
-    <!-- In-Dining CRM -->
-    <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-200 mb-4 flex-1">
-      <div class="text-sm font-bold text-gray-800 mb-4 flex items-center gap-2">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-red-500"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
-        {{ t('auto_crm_t_i_b_n_in_dining') }}
-      </div>
-      
-      <div class="space-y-5">
-        <div>
-          <label class="text-xs text-gray-500 font-bold block mb-2">{{ t('auto_k_nh_marketing__kh_ch_bi_t_qua') }}</label>
-          <select v-model="form.marketing_channel" class="w-full h-12 bg-gray-50 border border-gray-200 rounded-xl px-3 text-sm font-semibold text-gray-900">
-            <option value="" disabled selected>{{ t('auto_ch_n_k_nh___') }}</option>
-            <option value="facebook">Facebook Ads</option>
-            <option value="tiktok">Tiktok Reviewer</option>
-            <option value="friend">{{ t('auto_ng__i_quen_gi_i_thi_u') }}</option>
-            <option value="walkin">{{ t('auto__i_ngang_qua') }}</option>
-            <option value="google">Google Map</option>
-          </select>
-        </div>
-
-        <div>
-          <label class="text-xs text-gray-500 font-bold block mb-2">{{ t('auto_xin_ph_p_truy_n_th_ng__photo_v') }}</label>
-          <div class="flex items-center gap-4 bg-gray-50 p-3 rounded-xl border border-gray-200">
-            <label class="flex items-center gap-2 cursor-pointer">
-              <input type="radio" value="yes" v-model="form.media_consent" class="text-red-600 accent-red-600 w-4 h-4" />
-              <span class="text-sm font-medium">{{ t('auto___ng__') }}</span>
-            </label>
-            <label class="flex items-center gap-2 cursor-pointer">
-              <input type="radio" value="no" v-model="form.media_consent" class="text-red-600 accent-red-600 w-4 h-4" />
-              <span class="text-sm font-medium">{{ t('auto_t__ch_i') }}</span>
-            </label>
-          </div>
-        </div>
-
-        <div>
-          <label class="text-xs text-gray-500 font-bold block mb-2">{{ t('auto_qu__t_ng_gi__ch_n__voucher_') }}</label>
-          <label class="flex items-center gap-3 p-3 border border-gray-200 bg-gray-50 rounded-xl cursor-pointer">
-            <input type="checkbox" v-model="form.given_voucher" class="w-5 h-5 text-red-600 accent-red-600" />
-            <span class="text-sm font-bold text-gray-800">{{ t('auto____t_ng_voucher_10__cho_l_n_sa') }}</span>
-          </label>
-        </div>
-      </div>
+    <div v-if="!currentTable && !loading" class="rounded-lg border border-gray-200 bg-white p-8 text-center text-sm text-gray-500">
+      This table has no active serving order.
     </div>
 
-    <button @click="saveCRM" :disabled="saving" class="mt-auto w-full bg-gray-900 hover:bg-black text-white font-bold py-4 rounded-2xl shadow-lg transition-colors text-lg disabled:opacity-50">
-      {{ saving ? $t('auto_dang_luu') : $t('auto_cap_nhat_tt') }}
-    </button>
+    <form v-else class="space-y-4 rounded-lg border border-gray-200 bg-white p-4" @submit.prevent="submitSurvey">
+      <div class="rounded-lg bg-gray-50 p-3 text-sm font-bold text-gray-700">
+        CRM status: {{ currentTable?.crm_status || 'not_started' }}
+      </div>
+
+      <label class="block">
+        <span class="mb-1 block text-xs font-bold uppercase text-gray-500">Source</span>
+        <select v-model="form.sourceCode" class="h-11 w-full rounded-lg border border-gray-200 bg-gray-50 px-3 text-sm font-semibold">
+          <option value="">Select source</option>
+          <option value="google_map">Google Map</option>
+          <option value="facebook">Facebook</option>
+          <option value="tiktok">TikTok</option>
+          <option value="friend_referral">Friend referral</option>
+          <option value="walk_by">Walk by</option>
+          <option value="returning_customer">Returning customer</option>
+          <option value="other">Other</option>
+        </select>
+      </label>
+
+      <label class="block">
+        <span class="mb-1 block text-xs font-bold uppercase text-gray-500">Visit reason</span>
+        <select v-model="form.visitReason" class="h-11 w-full rounded-lg border border-gray-200 bg-gray-50 px-3 text-sm font-semibold">
+          <option value="">Select reason</option>
+          <option value="family_meal">Family meal</option>
+          <option value="birthday">Birthday</option>
+          <option value="date">Date</option>
+          <option value="company">Company</option>
+          <option value="friends">Friends</option>
+          <option value="first_try">First try</option>
+          <option value="regular">Regular customer</option>
+          <option value="other">Other</option>
+        </select>
+      </label>
+
+      <label class="block">
+        <span class="mb-1 block text-xs font-bold uppercase text-gray-500">Feedback</span>
+        <textarea v-model="form.feedback" rows="3" class="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm" />
+      </label>
+
+      <label class="block">
+        <span class="mb-1 block text-xs font-bold uppercase text-gray-500">Improvement note</span>
+        <textarea v-model="form.improvementNote" rows="3" class="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm" />
+      </label>
+
+      <div class="grid gap-3 sm:grid-cols-2">
+        <input v-model="form.customerName" placeholder="Customer name optional" class="h-11 rounded-lg border border-gray-200 bg-gray-50 px-3 text-sm" />
+        <input v-model="form.customerPhone" placeholder="Phone optional" inputmode="tel" class="h-11 rounded-lg border border-gray-200 bg-gray-50 px-3 text-sm" />
+      </div>
+
+      <label class="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm font-semibold text-gray-700">
+        <input v-model="form.marketingConsent" type="checkbox" class="h-4 w-4 accent-red-600" />
+        Marketing consent
+      </label>
+
+      <div class="grid gap-2 sm:grid-cols-3">
+        <button type="submit" class="rounded-lg bg-gray-900 px-4 py-3 text-sm font-black text-white disabled:opacity-50" :disabled="loading || !currentTable">
+          {{ loading ? 'Saving...' : 'Submit' }}
+        </button>
+        <button type="button" class="rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-black text-gray-700" @click="markRefused">
+          Refused
+        </button>
+        <button type="button" class="rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-black text-gray-700" @click="skipSurvey">
+          Skip
+        </button>
+      </div>
+    </form>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
-import { ref, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { supabase } from '@/lib/supabase'
+import { computed, onMounted, ref } from 'vue'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
+import { useCRM, type CrmServingTable } from '@/composables/useCRM'
 
-const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
-
 const tableId = route.params.id as string
-const tableInfo = ref<any>(null)
-const orderInfo = ref<any>(null)
-const saving = ref(false)
+const { loading, error, listServingTables, markSurveyInProgress, submitTableSurvey, refuseTableSurvey, skipTableSurvey } = useCRM()
+
+const servingTables = ref<CrmServingTable[]>([])
+const currentTable = computed(() => servingTables.value.find((table) => table.table_id === tableId) ?? null)
 
 const form = ref({
-  marketing_channel: '',
-  media_consent: '',
-  given_voucher: false
+  sourceCode: '',
+  visitReason: '',
+  feedback: '',
+  improvementNote: '',
+  customerName: '',
+  customerPhone: '',
+  marketingConsent: false,
 })
 
-onMounted(async () => {
-  const { data: tData } = await supabase.from('tables').select('*').eq('id', tableId).single()
-  tableInfo.value = tData
-
-  const { data: oData } = await supabase.from('orders')
-    .select('*')
-    .eq('table_id', tableId)
-    .in('status', ['Open', 'Serving'])
-    .order('created_at', { ascending: false })
-    .limit(1)
-    .single()
-    
-  if (oData) {
-    orderInfo.value = oData
-    if (oData.metadata) {
-      form.value.marketing_channel = oData.metadata.marketing_channel || ''
-      form.value.media_consent = oData.metadata.media_consent || ''
-      form.value.given_voucher = oData.metadata.given_voucher || false
-    }
+async function load() {
+  servingTables.value = await listServingTables()
+  if (currentTable.value?.crm_status === 'not_started') {
+    await markSurveyInProgress(currentTable.value)
+    servingTables.value = await listServingTables()
   }
-})
+}
 
-async function saveCRM() {
-  if (!orderInfo.value) return
-  saving.value = true
-  const newMeta = {
-    ...(orderInfo.value.metadata || {}),
-    ...form.value
-  }
-  
-  await supabase.from('orders')
-    .update({ metadata: newMeta })
-    .eq('id', orderInfo.value.id)
-    
-  saving.value = false
+async function submitSurvey() {
+  if (!currentTable.value) return
+  await submitTableSurvey({
+    tableId: currentTable.value.table_id,
+    orderId: currentTable.value.order_id,
+    tableAssignmentId: currentTable.value.table_assignment_id,
+    sourceCode: form.value.sourceCode,
+    visitReason: form.value.visitReason,
+    feedback: form.value.feedback,
+    improvementNote: form.value.improvementNote,
+    customerName: form.value.customerName,
+    customerPhone: form.value.customerPhone,
+    marketingConsent: form.value.marketingConsent,
+  })
   router.push('/staff/active-tables')
 }
-</script>
 
+async function markRefused() {
+  if (!currentTable.value) return
+  await refuseTableSurvey(currentTable.value)
+  router.push('/staff/active-tables')
+}
+
+async function skipSurvey() {
+  if (!currentTable.value) return
+  await skipTableSurvey(currentTable.value)
+  router.push('/staff/active-tables')
+}
+
+onMounted(load)
+</script>

@@ -1225,12 +1225,15 @@ import { storeToRefs } from 'pinia';
 import { menuData, type MenuItem } from '@/data/menuData'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/composables/useAuth'
-import { useOrder } from '@/composables/useOrder'
+import { useTable } from '@/composables/useTable'
+import { useMenu } from '@/composables/useMenu'
 import Swal from 'sweetalert2'
 
 const router = useRouter();
 const restaurantStore = useRestaurantStore();
 const { selectedTableCode } = storeToRefs(restaurantStore);
+const { listTables } = useTable()
+const { getItems } = useMenu()
 
 function getMenuItemFromCartItem(item: any): MenuItem {
   for (const cat of menuData.categories) {
@@ -2253,7 +2256,7 @@ function addOptionQty(option: any) {
     option.quantity = 1;
   } else {
     if (count >= max) {
-      triggerToast('warning', t('reception_order.da_chon_gioi_han_toi_da', { max }));
+      triggerToast('warning', t('reception_order.da_chon_gioi_han_toi_da', { max: String(max) }));
       return;
     }
     option.quantity++;
@@ -2314,7 +2317,7 @@ function saveDetailPanelQty() {
       if (added) added.quantity = modalItemQty.value;
     }
     
-    triggerToast('success', t('reception_order.da_them_mon_phan', { name: product.name, qty: modalItemQty.value }));
+    triggerToast('success', t('reception_order.da_them_mon_phan', { name: product.name, qty: String(modalItemQty.value) }));
     isDetailPanelOpen.value = false;
   } else {
     // ─── Complex Item Submission ───
@@ -2477,7 +2480,12 @@ function clearLastPinDigit() {
 
 // Operational Actions
 function printDraftBill() {
-  alert(t('reception_order.hoa_don_tam_tinh_alert', { table: selectedTableCode.value, package: activeSettings.value.package, guests: activeOrder.value.guestCount, total: formatVND(summary.value.grandTotal) }));
+  alert(t('reception_order.hoa_don_tam_tinh_alert', {
+    table: selectedTableCode.value ?? '',
+    package: activeSettings.value.package,
+    guests: String(activeOrder.value.guestCount),
+    total: formatVND(summary.value.grandTotal),
+  }));
   triggerToast('info', t('reception_order.da_gui_lenh_in_tam_tinh'));
 }
 
@@ -2494,17 +2502,10 @@ async function checkoutTable() {
   })
   if (!ok.isConfirmed) return
   try {
-    // Resolve the mock table code to the real DB UUID — the checkout route
-    // expects `tables.id` (UUID), not the human-readable code (e.g. 'A01').
+    // Resolve the mock table code to the real DB UUID through Hall RPC.
     const { branchId } = useAuth()
     if (!branchId.value) throw new Error(t('reception_order.tai_khoan_chua_gan_chi_nhanh'))
-    const { data: tableRow, error: tErr } = await supabase
-      .from('tables')
-      .select('id')
-      .eq('branch_id', branchId.value)
-      .eq('code', code)
-      .maybeSingle()
-    if (tErr) throw tErr
+    const tableRow = (await listTables()).find((table: any) => table.code === code)
     if (!tableRow) throw new Error(t('reception_order.khong_tim_thay_ban', { code }))
     router.push(`/reception/checkout/${(tableRow as { id: string }).id}`)
   } catch (err) {
@@ -2525,16 +2526,13 @@ function holdOrder() {
   router.push('/reception/floors');
 }
 
-// Loading flag for the kitchen-send action — we still keep the local mock
-// cart untouched so the POS UI doesn't desync. The Edge Function `add-order-item`
-// is called once per cart item against the real `orders` row that backs this
-// table.
+// Loading flag for the kitchen-send action. The local POS cart stays intact so
+// the UI does not desync; persistence is handled in one DB RPC call.
 const kitchenLoading = ref(false)
 
 // menuData items carry slugs like 'set1390_ticket' — these are NOT UUIDs and
-// the Edge Function `add-order-item` rejects them at the UUID regex check.
-// We resolve the slug → DB UUID lazily from the live `menu_items` table
-// (matched by `metadata.slug` first, then by `name` as a fallback).
+// DB order RPCs require real menu item UUIDs. Resolve the slug → DB UUID lazily
+// through the menu RPC (matched by `metadata.slug`, then by `name`).
 const menuDbIdCache = ref<Record<string, string>>({})
 
 function isUuid(value: string): boolean {
@@ -2545,31 +2543,18 @@ async function ensureMenuDbIds(branch: string, items: { id: string; name: string
   // Only resolve IDs that aren't already UUIDs AND aren't already cached.
   const missing = items.filter((it) => !isUuid(it.id) && !menuDbIdCache.value[it.id])
   if (missing.length === 0) return
-  const slugs = missing.map((it) => it.id)
-  const names = missing.map((it) => it.name)
-  // Try matching by metadata.slug first (set during seed).
-  const { data: bySlug } = await supabase
-    .from('menu_items')
-    .select('id, name, metadata')
-    .eq('branch_id', branch)
-    .eq('is_active', true)
-    .in('metadata->>slug', slugs)
-  for (const row of (bySlug ?? []) as Array<{ id: string; metadata: Record<string, unknown> | null }>) {
-    const slug = (row.metadata as { slug?: string } | null)?.slug
-    if (slug) menuDbIdCache.value[slug] = row.id
-  }
-  // Fallback: match remaining slugs by exact name (i18n-blind; demo data is VI).
-  const stillMissing = missing.filter((it) => !menuDbIdCache.value[it.id])
-  if (stillMissing.length > 0) {
-    const { data: byName } = await supabase
-      .from('menu_items')
-      .select('id, name')
-      .eq('branch_id', branch)
-      .eq('is_active', true)
-      .in('name', names)
-    for (const row of (byName ?? []) as Array<{ id: string; name: string }>) {
-      const match = stillMissing.find((it) => it.name === row.name)
-      if (match) menuDbIdCache.value[match.id] = row.id
+  const dbItems = await getItems(undefined, branch)
+
+  for (const item of missing) {
+    const bySlug = dbItems.find((row: any) => (row.metadata as { slug?: string } | null)?.slug === item.id)
+    if (bySlug) {
+      menuDbIdCache.value[item.id] = bySlug.id
+      continue
+    }
+
+    const byName = dbItems.find((row: any) => row.name === item.name)
+    if (byName) {
+      menuDbIdCache.value[item.id] = byName.id
     }
   }
 }
@@ -2588,85 +2573,47 @@ async function sendToKitchen() {
   try {
     const { branchId } = useAuth()
     if (!branchId.value) throw new Error(t('reception_order.tai_khoan_chua_gan_chi_nhanh'))
-    const { addItem } = useOrder()
-    // 1. Resolve the real `tables.id` from the mock table code.
-    const { data: tableRow, error: tableErr } = await supabase
-      .from('tables')
-      .select('id')
-      .eq('branch_id', branchId.value)
-      .eq('code', code)
-      .maybeSingle()
-    if (tableErr) throw tableErr
+    // 1. Resolve the real `tables.id` from the mock table code through Hall RPC.
+    const tableRow = (await listTables()).find((table: any) => table.code === code)
     if (!tableRow) throw new Error(t('reception_order.khong_tim_thay_ban', { code }))
     const tableId: string = (tableRow as { id: string }).id
 
-    // 2. Find-or-create the in-progress order for this table.
-    //    DB enum order_status is 'Pending' | 'Preparing' | 'Served' | 'Paid'
-    //    | 'Cancelled'. We must use one of the first three for in-progress
-    //    orders — 'Open' / 'Serving' are NOT in the enum and would be
-    //    rejected by Postgres (22P02).
-    let orderId: string | null = null
-    const { data: existing } = await supabase
-      .from('orders')
-      .select('id')
-      .eq('table_id', tableId)
-      .in('status', ['Pending', 'Preparing', 'Served'])
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .maybeSingle()
-    if (existing) {
-      orderId = (existing as { id: string }).id
-    } else {
-      const { data: created, error: createErr } = await supabase
-        .from('orders')
-        .insert({
-          branch_id: branchId.value,
-          table_id: tableId,
-          // 'Pending' = order exists but kitchen hasn't acknowledged yet.
-          status: 'Pending',
-          subtotal: 0,
-          vat: 0,
-          vat_rate: 0.08,
-          discount: 0,
-          total: 0,
-        })
-        .select('id')
-        .single()
-      if (createErr) throw createErr
-      orderId = (created as { id: string }).id
-    }
-
-    // 3. Send each cart line through the Edge Function. The function validates
-    // the menu item, computes the price snapshot, and inserts an `order_items`
-    // row that the KDS realtime channel picks up.
     await ensureMenuDbIds(
       branchId.value,
       activeOrder.value.items.map((it) => ({ id: it.id, name: it.name })),
     )
-    let sent = 0
     const skipped: string[] = []
+    const payload: Array<{ menu_item_id: string; quantity: number; modifiers: unknown[]; note: string | null }> = []
+
     for (const line of activeOrder.value.items) {
       const dbId = isUuid(line.id) ? line.id : menuDbIdCache.value[line.id]
       if (!dbId) {
-        // Mock item with no DB equivalent — the Edge Function would 400 it,
-        // so we skip rather than send garbage. UI surfaces a clear toast.
         skipped.push(line.name)
         continue
       }
-      await addItem({
-        orderId,
-        menuItemId: dbId,
+      payload.push({
+        menu_item_id: dbId,
         quantity: line.quantity,
-        // CartItem doesn't carry a note field; pass undefined so the Edge
-        // Function uses the default (no special instructions).
+        modifiers: [],
+        note: (line as any).note || null,
       })
-      sent++
     }
-    if (sent > 0) triggerToast('success', t('reception_order.da_gui_mon_den_kds', { sent }))
+
+    if (payload.length > 0) {
+      const { error: rpcErr } = await supabase.rpc('hall_submit_table_order', {
+        p_branch_id: branchId.value,
+        p_table_id: tableId,
+        p_items: payload,
+        p_idempotency_key: crypto.randomUUID(),
+      })
+      if (rpcErr) throw rpcErr
+      triggerToast('success', t('reception_order.da_gui_mon_den_kds', { sent: String(payload.length) }))
+    }
+
     if (skipped.length > 0) {
       triggerToast(
         'warning',
-        t('reception_order.bo_qua_mon_chua_map_db', { length: skipped.length, items: skipped.slice(0, 3).join(', ') + (skipped.length > 3 ? '…' : '') }),
+        t('reception_order.bo_qua_mon_chua_map_db', { length: String(skipped.length), items: skipped.slice(0, 3).join(', ') + (skipped.length > 3 ? '…' : '') }),
       )
     }
   } catch (err) {

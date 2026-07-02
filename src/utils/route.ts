@@ -14,6 +14,12 @@ export function getHomeRouteForRole(role: UserRole | string | null | undefined):
   switch (role) {
     case 'admin':
       return { name: 'admin-dashboard' }
+    case 'manager':
+      return { name: 'manager-dashboard' }
+    case 'reception':
+      return { name: 'reception-dashboard' }
+    case 'staff':
+      return { name: 'staff-floor-plan' }
     case 'hall':
       return { name: 'hall-floor-plan' }
     case 'kitchen':
@@ -22,6 +28,8 @@ export function getHomeRouteForRole(role: UserRole | string | null | undefined):
       return { name: 'purchasing-receipts' }
     case 'accounting':
       return { name: 'accounting-invoices' }
+    case 'crm':
+      return { name: 'crm-serving-tables' }
     case 'customer':
       return { name: 'tablet-idle' }
     default:

@@ -4,7 +4,7 @@ import { setI18nLocale, i18n } from '@/locales';
 export type Lang = 'vi' | 'en' | 'ja';
 
 const dict: Record<Lang, Record<string, string>> = {
-  vi: {\n
+  vi: {
     // Hall / Checkout
     'hall.title':              'Tiền Sảnh',
     'hall.dashboard':          'Bảng Điều Khiển',
@@ -557,7 +557,7 @@ const dict: Record<Lang, Record<string, string>> = {
     'bod.audit_logs': 'Nhật Ký Hệ Thống',
     'bod.system_config': 'Cấu Hình',
   },
-  en: {\n
+  en: {
     // Hall / Checkout
     'hall.title':              'Hall',
     'hall.dashboard':          'Dashboard',
@@ -1103,7 +1103,7 @@ const dict: Record<Lang, Record<string, string>> = {
     'bod.audit_logs': 'Audit Logs',
     'bod.system_config': 'System Config',
   },
-  ja: {\n
+  ja: {
     // Hall / Checkout
     'hall.title':              'ホール',
     'hall.dashboard':          'ダッシュボード',

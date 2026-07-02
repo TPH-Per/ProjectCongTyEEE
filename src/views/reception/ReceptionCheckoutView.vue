@@ -131,7 +131,7 @@
                     class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
                   />
                   <div class="text-sm font-bold text-green-600" v-if="pointsToRedeem && pointsToRedeem > 0">
-                    {{ t('checkout.points_preview', { points: pointsToRedeem, amount: Number(pointsDiscount).toLocaleString('vi-VN') }) }}
+                    {{ t('checkout.points_preview', { points: String(pointsToRedeem), amount: Number(pointsDiscount).toLocaleString('vi-VN') }) }}
                   </div>
                   <p class="text-xs text-gray-500">Max redeemable points: {{ maxRedeemablePoints }} (capped at 50% order total)</p>
                 </div>
@@ -370,14 +370,14 @@ const tierDiscount = computed(() => {
 const maxRedeemablePoints = computed(() => {
   if (!customerInfo.value || !rules.value) return 0
   const total = Math.max(0, subTotal.value - tierDiscount.value - voucherDiscount.value)
-  const maxDiscountValue = total * 0.5
-  const maxPointsByValue = Math.floor(maxDiscountValue / (rules.value.point_value_vnd || 1000))
+  const maxDiscountValue = total * ((rules.value.max_redeem_percent || 50) / 100)
+  const maxPointsByValue = Math.floor(maxDiscountValue / (rules.value.vnd_per_point || 1000))
   return Math.min(customerInfo.value.current_points || 0, maxPointsByValue)
 })
 
 const pointsDiscount = computed(() => {
   if (!pointsToRedeem.value || !rules.value) return 0
-  return pointsToRedeem.value * (rules.value.point_value_vnd || 1000)
+  return pointsToRedeem.value * (rules.value.vnd_per_point || 1000)
 })
 
 const net = computed(() => Math.max(0, subTotal.value - tierDiscount.value - voucherDiscount.value - pointsDiscount.value))
@@ -498,36 +498,16 @@ async function loadOrder() {
   try {
     await fetchRules()
     
-    const { data: tData, error: tErr } = await supabase
-      .from('tables')
-      .select('*')
-      .eq('id', tableId.value)
-      .maybeSingle()
-    if (tErr) throw tErr
-    tableInfo.value = (tData as TableT) ?? null
+    const { data, error: rpcErr } = await supabase.rpc('hall_get_checkout_summary', {
+      p_branch_id: branchId.value,
+      p_table_id: tableId.value,
+      p_order_id: null,
+    })
+    if (rpcErr) throw rpcErr
 
-    const { data: oData, error: oErr } = await supabase
-      .from('orders')
-      .select('*')
-      .eq('table_id', tableId.value)
-      .in('status', ['Pending', 'Preparing', 'Served'])
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .maybeSingle()
-    if (oErr) throw oErr
-    orderInfo.value = (oData as OrderRow) ?? null
-
-    if (orderInfo.value) {
-      const { data: items, error: iErr } = await supabase
-        .from('order_items')
-        .select('*')
-        .eq('order_id', orderInfo.value.id)
-        .order('created_at', { ascending: true })
-      if (iErr) throw iErr
-      orderItems.value = (items as OrderItem[]) ?? []
-    } else {
-      orderItems.value = []
-    }
+    tableInfo.value = (data?.table as TableT) ?? null
+    orderInfo.value = (data?.order as OrderRow) ?? null
+    orderItems.value = (data?.items as OrderItem[]) ?? []
   } catch (err) {
     error.value = err instanceof Error ? err.message : String(err)
   } finally {

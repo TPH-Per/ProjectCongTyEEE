@@ -70,14 +70,15 @@
 import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
 import { ref, onMounted, computed, watch } from 'vue'
-import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/composables/useAuth'
+import { useTable } from '@/composables/useTable'
 import type { TableT } from '@/types/database'
 import { useRealtime } from '@/composables/useRealtime'
 
 const { t } = useI18n()
 const { watchTable } = useRealtime()
 const { branchId } = useAuth()
+const { listTables } = useTable()
 
 const tables = ref<TableT[]>([])
 
@@ -85,15 +86,7 @@ const activeCount = computed(() => tables.value.filter(t => t.status === 'occupi
 
 const fetchTables = async () => {
   if (!branchId.value) return
-  const { data, error } = await supabase
-    .from('tables')
-    .select('*')
-    .eq('branch_id', branchId.value)
-    .eq('is_active', true)
-    
-  if (!error && data) {
-    tables.value = data as TableT[]
-  }
+  tables.value = await listTables()
 }
 
 onMounted(() => {
@@ -107,4 +100,3 @@ watch(branchId, () => {
   fetchTables()
 })
 </script>
-

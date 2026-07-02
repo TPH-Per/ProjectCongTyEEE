@@ -8,15 +8,12 @@ export function useMenu() {
   const loading = ref(false)
   const error = ref<string | null>(null)
 
-  async function getCategories(): Promise<MenuCategory[]> {
+  async function getCategories(branchOverride?: string): Promise<MenuCategory[]> {
     loading.value = true
     error.value = null
-    const { data, error: err } = await supabase
-      .from('menu_categories')
-      .select('*')
-      .eq('branch_id', (activeBranchId.value ?? throwBranchGuard()))
-      .eq('is_active', true)
-      .order('sort_order')
+    const { data, error: err } = await supabase.rpc('customer_list_menu_categories', {
+      p_branch_id: branchOverride ?? activeBranchId.value ?? throwBranchGuard(),
+    })
     loading.value = false
     if (err) {
       error.value = err.message
@@ -25,17 +22,13 @@ export function useMenu() {
     return (data ?? []) as MenuCategory[]
   }
 
-  async function getItems(categoryId?: string): Promise<MenuItem[]> {
+  async function getItems(categoryId?: string, branchOverride?: string): Promise<MenuItem[]> {
     loading.value = true
     error.value = null
-    let q = supabase
-      .from('menu_items')
-      .select('*, menu_categories(name)')
-      .eq('branch_id', (activeBranchId.value ?? throwBranchGuard()))
-      .eq('is_available', true)
-      .order('name')
-    if (categoryId) q = q.eq('category_id', categoryId)
-    const { data, error: err } = await q
+    const { data, error: err } = await supabase.rpc('customer_list_menu_items', {
+      p_branch_id: branchOverride ?? activeBranchId.value ?? throwBranchGuard(),
+      p_category_id: categoryId ?? null,
+    })
     loading.value = false
     if (err) {
       error.value = err.message
@@ -47,12 +40,9 @@ export function useMenu() {
   async function getPackages(): Promise<PackageRow[]> {
     loading.value = true
     error.value = null
-    const { data, error: err } = await supabase
-      .from('packages')
-      .select('*')
-      .eq('branch_id', (activeBranchId.value ?? throwBranchGuard()))
-      .eq('is_active', true)
-      .order('name')
+    const { data, error: err } = await supabase.rpc('hall_list_packages', {
+      p_branch_id: activeBranchId.value ?? throwBranchGuard(),
+    })
     loading.value = false
     if (err) {
       error.value = err.message
@@ -74,4 +64,3 @@ export function useMenu() {
 
   return { loading, error, getCategories, getItems, getPackages, upsertItem }
 }
-

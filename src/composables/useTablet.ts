@@ -5,7 +5,8 @@ import { useI18nStore } from '@/stores/i18n'
 export interface TabletContent {
   id: string
   branch_id: string
-  content_type: string
+  content_type?: string
+  type?: string
   title_vi: string | null
   title_en: string | null
   title_ja: string | null
@@ -24,10 +25,11 @@ export interface TabletSession {
   id: string
   branch_id: string
   table_id: string
-  status: 'IDLE' | 'ACTIVE' | 'ORDERING' | 'AWAITING_PAYMENT'
+  status: 'IDLE' | 'ACTIVE' | 'CHECKOUT_REQUESTED' | 'ENDED'
   language: 'vi' | 'en' | 'ja'
   order_id: string | null
   started_at: string | null
+  ended_at?: string | null
   last_activity_at: string
 }
 
@@ -38,51 +40,45 @@ export function useTablet() {
 
   // Fetch idle-screen content
   async function fetchContent(branchId: string) {
-    const now = new Date().toISOString()
-    const { data, error } = await supabase
-      .from('tablet_content')
-      .select('*')
-      .eq('branch_id', branchId)
-      .eq('is_active', true)
-      .or(`valid_from.is.null,valid_from.lte.${now}`)
-      .or(`valid_until.is.null,valid_until.gte.${now}`)
-      .order('display_order', { ascending: true })
-    
+    const { data, error } = await supabase.rpc('customer_get_tablet_content', {
+      p_branch_id: branchId,
+    })
     if (error) throw error
-    content.value = data as TabletContent[]
-    return data
+    content.value = (data ?? []) as TabletContent[]
+    return content.value
   }
 
   // Touch screen → transition IDLE → ACTIVE
   async function activateSession(tableId: string, branchId: string) {
-    const { data, error } = await supabase
-      .from('tablet_sessions')
-      .upsert(
-        {
-          table_id: tableId,
-          branch_id: branchId,
-          status: 'ACTIVE',
-          started_at: new Date().toISOString(),
-          last_activity_at: new Date().toISOString()
-        },
-        { onConflict: 'table_id' }
-      )
-      .select()
-      .single()
-      
+    const { data, error } = await supabase.rpc('customer_activate_tablet_session', {
+      p_branch_id: branchId,
+      p_table_id: tableId,
+    })
     if (error) throw error
     currentSession.value = data as TabletSession
+    localStorage.setItem('tablet_session_id', currentSession.value.id)
+    localStorage.setItem('tablet_table_id', currentSession.value.table_id)
+    localStorage.setItem('tablet_branch_id', currentSession.value.branch_id)
     return data
   }
 
   // Set language and sync to session
   async function setLanguage(tableId: string, lang: 'vi' | 'en' | 'ja') {
-    const { error } = await supabase
-      .from('tablet_sessions')
-      .update({ language: lang, last_activity_at: new Date().toISOString() })
-      .eq('table_id', tableId)
+    let sessionId = currentSession.value?.id || localStorage.getItem('tablet_session_id')
+    if (!sessionId) {
+      const branchId = localStorage.getItem('tablet_branch_id')
+      if (!branchId) throw new Error('Tablet session is not active')
+      const session = await activateSession(tableId, branchId)
+      sessionId = session.id
+    }
+
+    const { data, error } = await supabase.rpc('customer_set_tablet_language', {
+      p_session_id: sessionId,
+      p_language: lang,
+    })
       
     if (error) throw error
+    currentSession.value = data as TabletSession
     
     // Also update Pinia language store
     const languageStore = useI18nStore()

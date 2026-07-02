@@ -14,6 +14,8 @@ export type ShiftStatus = 'open' | 'closed'
 export type PackageType = 'buffet' | 'set' | 'drink' | 'other'
 export type RevenueType = 'lunch' | 'dinner' | 'wine' | 'delivery' | 'other'
 export type VoucherType = 'percent' | 'amount'
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
+export type CrmSurveyStatus = 'not_started' | 'assigned' | 'in_progress' | 'completed' | 'skipped' | 'customer_refused' | 'expired' | 'late_submitted'
 
 // ─── JSONB Interfaces ───────────────────────────────────────────────────────
 export interface I18nString {
@@ -106,7 +108,14 @@ export interface CustomerRow {
   branch_id: string
   name: string
   phone: string | null
+  normalized_phone?: string | null
   email: string | null
+  source_code?: string | null
+  visit_reason?: string | null
+  first_visit_at?: string | null
+  marketing_consent?: boolean
+  marketing_tags?: Json
+  zalo?: string | null
   total_visits: number
   total_spent: number
   last_visit_at: string | null
@@ -213,15 +222,65 @@ export interface ReservationRow {
 export interface OrderRow {
   id: string
   branch_id: string
-  reservation_id: string
+  reservation_id: string | null
+  table_id?: string | null
+  customer_id?: string | null
   order_number: string
   status: OrderStatus
+  guest_count?: number
   subtotal: number
   vat_rate: number
   vat: number
+  discount?: number
   total: number
   notes: Record<string, unknown>
   created_by: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface BillRow {
+  id: string
+  branch_id: string
+  bill_code: string
+  order_id: string | null
+  table_id: string | null
+  cashier_id: string | null
+  sub_total: number
+  discount_total: number
+  vat_8_amount: number
+  vat_10_amount: number
+  grand_total: number
+  payment_method: string | null
+  status: 'OPEN' | 'PRINTED' | 'PAID' | 'VOID'
+  created_at: string
+}
+
+export interface CrmSurveyRow {
+  id: string
+  branch_id: string
+  table_id: string
+  order_id: string | null
+  table_assignment_id: string | null
+  reservation_id: string | null
+  bill_id: string | null
+  customer_id: string | null
+  source_code: string | null
+  visit_reason: string | null
+  feedback: string | null
+  improvement_note: string | null
+  customer_name: string | null
+  customer_phone: string | null
+  normalized_phone: string | null
+  zalo: string | null
+  marketing_consent: boolean
+  tags: string[]
+  note: string | null
+  survey_status: CrmSurveyStatus
+  asked_by: string | null
+  asked_at: string | null
+  submitted_at: string | null
+  closed_at: string | null
   created_at: string
   updated_at: string
 }
@@ -484,6 +543,8 @@ export type Database = {
       reservations: TableShape<ReservationRow>
       orders: TableShape<OrderRow>
       order_items: TableShape<OrderItemRow>
+      bills: TableShape<BillRow>
+      crm_surveys: TableShape<CrmSurveyRow>
       invoices: TableShape<InvoiceRow>
       payments: TableShape<PaymentRow>
       vouchers: TableShape<VoucherRow>

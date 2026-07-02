@@ -3,7 +3,7 @@
     <div class="flex justify-between items-center mb-6">
       <div>
         <h1 class="text-3xl font-bold text-gray-900">Tiếp nhận Phiếu giao hàng (Daily Receipt)</h1>
-        <p class="text-gray-500 mt-1">Scan phiếu giao từ bếp và cập nhật số lượng tồn kho thực tế.</p>
+        <p class="text-gray-500 mt-1">Scan phiếu giao từ nhà cung cấp và cập nhật số lượng tồn kho thực tế.</p>
       </div>
     </div>
 
@@ -67,7 +67,12 @@
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700">Nhà Cung Cấp</label>
-              <input v-model="form.supplierName" type="text" placeholder="VD: Công ty TNHH Rau Sạch" class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required />
+              <select v-model="form.supplierId" class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
+                <option value="" disabled>Chọn Nhà cung cấp</option>
+                <option v-for="sup in suppliers" :key="sup.id" :value="sup.id">
+                  {{ sup.name }}
+                </option>
+              </select>
             </div>
           </div>
 
@@ -85,9 +90,9 @@
             <div v-for="(item, index) in form.items" :key="index" class="flex gap-2 mb-3 items-start bg-gray-50 p-3 rounded border border-gray-100">
               <div class="flex-1">
                 <select v-model="item.item_id" class="block w-full px-3 py-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
-                  <option value="" disabled>Chọn mã NVL</option>
-                  <option v-for="inv in inventoryItems" :key="inv.id" :value="inv.id">
-                    [{{ inv.code }}] - {{ inv.name }} ({{ inv.unit }})
+                  <option value="" disabled>Chọn nguyên vật liệu</option>
+                  <option v-for="inv in ingredients" :key="inv.id" :value="inv.id">
+                    {{ inv.name }} ({{ inv.unit }})
                   </option>
                 </select>
               </div>
@@ -135,7 +140,7 @@ import { ref, computed, onMounted } from 'vue'
 import { usePurchasing } from '@/composables/usePurchasing'
 import { useBranch } from '@/composables/useBranch'
 
-const { loading, error, inventoryItems, fetchInventoryItems, submitGoodsReceipt, uploadScanImage } = usePurchasing()
+const { loading, error, ingredients, suppliers, fetchIngredients, fetchSuppliers, submitGoodsReceipt, uploadScanImage } = usePurchasing()
 const { activeBranchId } = useBranch()
 
 // -- File Upload State --
@@ -165,7 +170,7 @@ const clearImage = () => {
 // -- Form State --
 const form = ref({
   receiptCode: '',
-  supplierName: '',
+  supplierId: '',
   items: [] as Array<{ item_id: string; quantity: number | string; unit_price: number | string }>
 })
 
@@ -215,7 +220,7 @@ const submitForm = async () => {
     await submitGoodsReceipt(
       activeBranchId.value,
       form.value.receiptCode,
-      form.value.supplierName,
+      form.value.supplierId,
       uploadedUrl,
       formattedItems
     )
@@ -224,7 +229,7 @@ const submitForm = async () => {
     
     // Reset form
     form.value.receiptCode = ''
-    form.value.supplierName = ''
+    form.value.supplierId = ''
     form.value.items = []
     clearImage()
 
@@ -235,8 +240,7 @@ const submitForm = async () => {
 
 // -- Lifecycle --
 onMounted(() => {
-  if (activeBranchId.value) {
-    fetchInventoryItems(activeBranchId.value)
-  }
+  fetchIngredients()
+  fetchSuppliers()
 })
 </script>

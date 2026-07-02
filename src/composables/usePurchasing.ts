@@ -4,12 +4,16 @@ import { supabase } from '@/lib/supabase'
 export function usePurchasing() {
   const loading = ref(false)
   const error = ref<string | null>(null)
+  
+  const suppliers = ref<any[]>([])
+  const ingredients = ref<any[]>([])
+  const currentStock = ref<any[]>([])
 
-  // 1. Submit Goods Receipt (RPC)
+  // 1. Submit Goods Receipt (RPC) - Loop through items and record transaction
   const submitGoodsReceipt = async (
     branchId: string,
     receiptCode: string,
-    supplierName: string,
+    supplierId: string,
     scanImageUrl: string,
     items: Array<{ item_id: string; quantity: number; unit_price: number }>
   ) => {
@@ -17,45 +21,110 @@ export function usePurchasing() {
     error.value = null
     
     try {
-      const { data, error: rpcError } = await supabase.rpc('submit_goods_receipt', {
-        p_branch_id: branchId,
-        p_receipt_code: receiptCode,
-        p_supplier_name: supplierName,
-        p_scan_image_url: scanImageUrl,
-        p_items: items
+      const notes = `Receipt: ${receiptCode}` + (scanImageUrl ? ` | URL: ${scanImageUrl}` : '')
+      
+      const promises = items.map(item => {
+        return supabase.rpc('record_inventory_transaction', {
+          p_ingredient_id: item.item_id,
+          p_transaction_type: 'PURCHASE',
+          p_quantity: item.quantity,
+          p_unit_cost: item.unit_price,
+          p_supplier_id: supplierId || null,
+          p_notes: notes
+        })
       })
 
-      if (rpcError) throw rpcError
-      return data // Returns the receipt ID
+      const results = await Promise.all(promises)
+      
+      // Check for errors in any of the promises
+      for (const result of results) {
+        if (result.error) throw result.error
+      }
+      
+      return true
     } catch (err: any) {
       console.error('Error submitting goods receipt:', err)
-      error.value = err.message
+      error.value = err.message || 'Lỗi khi nhập hàng'
       throw err
     } finally {
       loading.value = false
     }
   }
 
-  // 2. Lấy danh sách Nguyên vật liệu
-  const inventoryItems = ref<any[]>([])
-  const fetchInventoryItems = async (branchId: string) => {
+  // 2. Lấy danh sách Nhà cung cấp (RPC)
+  const fetchSuppliers = async () => {
     try {
-      const { data, error: fetchError } = await supabase
-        .from('inventory_items')
-        .select('*')
-        .eq('branch_id', branchId)
-        .order('name')
-      
+      const { data, error: fetchError } = await supabase.rpc('get_suppliers')
       if (fetchError) throw fetchError
-      inventoryItems.value = data || []
+      suppliers.value = data || []
       return data
     } catch (err: any) {
-      console.error('Error fetching inventory items:', err)
+      console.error('Error fetching suppliers:', err)
       return []
     }
   }
 
-  // 3. Upload ảnh scan phiếu giao hàng (Lên Supabase Storage)
+  // 3. Lấy danh sách Nguyên vật liệu (RPC)
+  const fetchIngredients = async () => {
+    try {
+      const { data, error: fetchError } = await supabase.rpc('get_ingredients')
+      if (fetchError) throw fetchError
+      ingredients.value = data || []
+      return data
+    } catch (err: any) {
+      console.error('Error fetching ingredients:', err)
+      return []
+    }
+  }
+
+  // 4. Lấy tồn kho hiện tại (RPC)
+  const fetchCurrentStock = async (branchId?: string) => {
+    try {
+      const { data, error: fetchError } = await supabase.rpc('get_current_stock', {
+        p_branch_id: branchId || undefined
+      })
+      if (fetchError) throw fetchError
+      currentStock.value = data || []
+      return data
+    } catch (err: any) {
+      console.error('Error fetching current stock:', err)
+      return []
+    }
+  }
+
+  // 5. Nộp phiếu kiểm kho (Audit)
+  const submitAudit = async (
+    items: Array<{ item_id: string; new_quantity: number; notes: string }>
+  ) => {
+    loading.value = true
+    error.value = null
+    try {
+      const promises = items.map(item => {
+        return supabase.rpc('record_inventory_transaction', {
+          p_ingredient_id: item.item_id,
+          p_transaction_type: 'ADJUST',
+          p_quantity: item.new_quantity,
+          p_unit_cost: 0,
+          p_supplier_id: null,
+          p_notes: 'Kiểm kho: ' + item.notes
+        })
+      })
+
+      const results = await Promise.all(promises)
+      for (const result of results) {
+        if (result.error) throw result.error
+      }
+      return true
+    } catch (err: any) {
+      console.error('Error submitting audit:', err)
+      error.value = err.message || 'Lỗi khi lưu kiểm kho'
+      throw err
+    } finally {
+      loading.value = false
+    }
+  }
+
+  // 6. Upload ảnh scan phiếu giao hàng (Lên Supabase Storage)
   const uploadScanImage = async (file: File) => {
     try {
       const fileExt = file.name.split('.').pop()
@@ -79,12 +148,19 @@ export function usePurchasing() {
     }
   }
 
+  const fetchPurchaseOrders = async () => [];
   return {
+    fetchPurchaseOrders,
     loading,
     error,
-    inventoryItems,
+    suppliers,
+    ingredients,
+    currentStock,
     submitGoodsReceipt,
-    fetchInventoryItems,
+    fetchSuppliers,
+    fetchIngredients,
+    fetchCurrentStock,
+    submitAudit,
     uploadScanImage
   }
 }

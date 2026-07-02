@@ -20,10 +20,15 @@
       </div>
       <select class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-gray-400 font-medium">
         <option value="all">{{ t('admin_accounts.all_roles') }}</option>
-        <option value="admin">{{ t('admin_accounts.roles.system_admin') }}</option>
-        <option value="manager">{{ t('admin_accounts.roles.manager') }}</option>
-        <option value="reception">{{ t('admin_accounts.roles.reception') }}</option>
-        <option value="staff">{{ t('admin_accounts.roles.staff') }}</option>
+        <option value="superadmin">Superadmin</option>
+        <option value="manager">Manager</option>
+        <option value="reception">Reception</option>
+        <option value="staff">Staff</option>
+        <option value="procurement_manager">Procurement Manager</option>
+        <option value="procurement_staff">Procurement Staff</option>
+        <option value="accountant">Accountant</option>
+        <option value="crm_manager">CRM Manager</option>
+        <option value="marketing">Marketing</option>
       </select>
     </div>
 
@@ -50,10 +55,17 @@
               {{ branches.find(b => b.id === user.branch_id)?.name || '-' }}
             </td>
             <td class="px-5 py-3">
-              <span v-if="user.role === 'admin'" class="px-2.5 py-1 rounded-md text-xs font-bold bg-gray-900 text-white">Admin</span>
-              <span v-else-if="user.role === 'manager'" class="px-2.5 py-1 rounded-md text-xs font-bold bg-blue-100 text-blue-700 border border-blue-200">Manager</span>
-              <span v-else-if="user.role === 'reception'" class="px-2.5 py-1 rounded-md text-xs font-bold bg-purple-100 text-purple-700 border border-purple-200">{{ t('admin_accounts.roles.reception') }}</span>
-              <span v-else class="px-2.5 py-1 rounded-md text-xs font-bold bg-orange-100 text-orange-700 border border-orange-200">{{ t('admin_accounts.roles.staff') }}</span>
+              <span class="px-2.5 py-1 rounded-md text-xs font-bold border"
+                :class="{
+                  'bg-gray-900 text-white': user.role === 'superadmin',
+                  'bg-blue-100 text-blue-700 border-blue-200': user.role === 'manager',
+                  'bg-purple-100 text-purple-700 border-purple-200': user.role === 'reception',
+                  'bg-emerald-100 text-emerald-700 border-emerald-200': user.role.startsWith('procurement'),
+                  'bg-red-100 text-red-700 border-red-200': user.role === 'accountant',
+                  'bg-orange-100 text-orange-700 border-orange-200': user.role === 'staff'
+                }">
+                {{ user.role }}
+              </span>
             </td>
             <td class="px-5 py-3">
               <span class="flex items-center gap-1.5 text-green-600 font-medium text-xs" v-if="user.is_active">
@@ -98,11 +110,15 @@
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('admin_accounts.form.role') }}</label>
             <select v-model="form.role" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900">
-              <option value="admin">{{ t('admin_accounts.roles.system_admin') }}</option>
-              <option value="manager">{{ t('admin_accounts.roles.manager') }}</option>
-              <option value="reception">{{ t('admin_accounts.roles.reception') }}</option>
-              <option value="staff">{{ t('admin_accounts.roles.staff') }}</option>
-              <option value="kitchen">{{ t('admin_accounts.roles.kitchen') }}</option>
+              <option value="superadmin">Superadmin</option>
+              <option value="manager">Manager</option>
+              <option value="reception">Reception</option>
+              <option value="staff">Staff</option>
+              <option value="procurement_manager">Procurement Manager</option>
+              <option value="procurement_staff">Procurement Staff</option>
+              <option value="accountant">Accountant</option>
+              <option value="crm_manager">CRM Manager</option>
+              <option value="marketing">Marketing</option>
             </select>
           </div>
           <div>

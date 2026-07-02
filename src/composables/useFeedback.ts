@@ -6,8 +6,9 @@ export interface Feedback {
   branch_id: string
   order_id: string
   customer_id?: string
-  rating: number
+  overall_rating: number
   comment?: string
+  staff_response?: string
   created_at: string
 }
 
@@ -43,7 +44,7 @@ export function useFeedback() {
     try {
       const { data, error: err } = await supabase.rpc('record_customer_feedback', {
         p_order_id: params.orderId,
-        p_rating: params.rating,
+        p_overall_rating: params.rating,
         p_comment: params.comment || null,
         p_customer_id: params.customerId || null
       })
@@ -57,8 +58,25 @@ export function useFeedback() {
     }
   }
 
+  async function replyToFeedback(feedbackId: string, reply: string) {
+    loading.value = true
+    error.value = null
+    try {
+      // Need an RPC or direct update, fallback to direct update if RPC doesn't exist
+      const { error: err } = await supabase.from('customer_feedback')
+        .update({ staff_response: reply, responded_at: new Date().toISOString() })
+        .eq('id', feedbackId)
+      if (err) throw err
+    } catch (e: any) {
+      error.value = e.message
+      throw e
+    } finally {
+      loading.value = false
+    }
+  }
+
   return {
     feedbacks, loading, error,
-    listFeedback, submitFeedback
+    listFeedback, submitFeedback, replyToFeedback
   }
 }

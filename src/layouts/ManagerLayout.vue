@@ -69,7 +69,7 @@
         <div v-if="isDropdownOpen" class="absolute bottom-full left-3 right-3 mb-2 bg-white border border-[hsl(var(--border))] rounded-2xl shadow-lg py-1.5 z-50">
           <button @click="handleSignOut" class="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50 transition-colors">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
-
+            <span>{{ $t('layout.logout') }}</span>
           </button>
         </div>
 
@@ -134,12 +134,18 @@ const isMobileMenuOpen = ref(false)
 const isDropdownOpen = ref(false)
 
 const ROLE_LABELS: Record<string, string> = {
-  admin: t('layout.role_admin'),
-  manager: t('layout.role_manager'),
-  reception: t('layout.role_reception'),
-  staff: t('layout.role_staff'),
-  kitchen: t('layout.role_kitchen'),
+  superadmin: 'Quản trị viên (Superadmin)',
+  manager: 'Quản lý',
+  reception: 'Thu ngân / Lễ tân',
+  staff: 'Nhân viên',
+  procurement_manager: 'Quản lý Mua hàng',
+  procurement_staff: 'Nhân viên Mua hàng',
+  accountant: 'Kế toán',
+  customer: 'Khách hàng',
+  crm_manager: 'Quản lý CRM',
+  marketing: 'Marketing'
 }
+
 const roleLabel = computed(() => {
   const r = role.value ?? profile.value?.role
   if (!r) return 'Manager'

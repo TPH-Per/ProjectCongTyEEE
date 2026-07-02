@@ -160,6 +160,11 @@ ALTER TABLE public.voucher_usages
 -- Step 3g: Rebuild payments.invoice_id FK
 ALTER TABLE public.payments
   DROP CONSTRAINT IF EXISTS payments_invoice_id_fkey;
+
+DELETE FROM public.payments 
+WHERE invoice_id IS NOT NULL 
+  AND invoice_id NOT IN (SELECT id FROM public.invoices);
+
 ALTER TABLE public.payments
   ADD CONSTRAINT payments_invoice_id_fkey
   FOREIGN KEY (invoice_id) REFERENCES public.invoices(id);

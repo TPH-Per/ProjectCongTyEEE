@@ -20,16 +20,16 @@
 import { onMounted } from 'vue'
 import { useAccounting } from '@/composables/useAccounting'
 
-const { taxRecords, listTaxRecords, generateTaxRecord, finalizeTaxRecord } = useAccounting()
+const { taxRecords, fetchTaxRecords, generateTaxRecord, finalizeTaxRecord } = useAccounting()
 
 onMounted(async () => {
-  await listTaxRecords(new Date().getFullYear())
+  await fetchTaxRecords()
 })
 
 const handleGenerate = async () => {
   try {
     await generateTaxRecord('DAILY', '2026-06-29', '2026-06-29')
-    await listTaxRecords()
+    await fetchTaxRecords()
   } catch (e: any) {
     alert(e.message)
   }
@@ -38,7 +38,7 @@ const handleGenerate = async () => {
 const handleFinalize = async (id: string) => {
   try {
     await finalizeTaxRecord(id)
-    await listTaxRecords()
+    await fetchTaxRecords()
   } catch (e: any) {
     alert(e.message)
   }

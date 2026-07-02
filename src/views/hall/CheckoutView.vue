@@ -58,7 +58,7 @@ const submitCheckout = async () => {
     paymentMethod: form.value.paymentMethod,
     voucherCode: form.value.voucherCode,
     pointsToRedeem: form.value.pointsToRedeem,
-    branchId: activeBranchId.value,
+    branchId: activeBranchId.value || "",
     cashierId: userData.user?.id || ''
   })
 }

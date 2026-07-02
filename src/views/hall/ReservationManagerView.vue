@@ -5,7 +5,7 @@
     <div v-else>
       <ul class="space-y-2">
         <li v-for="res in reservations" :key="res.id" class="p-4 border rounded">
-          <p class="font-bold">{{ res.guest_name }} - {{ res.guest_count }} guests</p>
+          <p class="font-bold">{{ (res.customer_snapshot as any)?.name || 'Guest' }} - {{ res.guests }} guests</p>
           <p>Time: {{ res.reservation_time }}</p>
           <p>Status: {{ res.status }}</p>
           <div class="mt-2 space-x-2">

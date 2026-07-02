@@ -80,8 +80,9 @@
             <div class="text-xs font-extrabold text-[hsl(var(--foreground))] truncate">{{ t('header.profile_name') }}</div>
             <div class="text-[10px] text-[hsl(var(--muted-foreground))] font-semibold">{{ t('header.profile_role') }}</div>
           </div>
-          <button class="p-1 rounded-lg hover:bg-white text-[hsl(var(--muted-foreground))]">
+          <button class="flex items-center gap-2 p-1 px-2 rounded-lg hover:bg-white text-[hsl(var(--muted-foreground))] hover:text-red-500 transition-colors" @click="handleSignOut">
             <LogOut :size="13" />
+            <span class="text-xs font-semibold">{{ t('layout.logout') }}</span>
           </button>
         </div>
       </div>
@@ -168,9 +169,10 @@
 <script setup lang="ts">
 import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
 import { ref, onMounted, onBeforeUnmount } from 'vue'
-import { useRoute, RouterView, RouterLink } from 'vue-router'
+import { useRoute, RouterView, RouterLink, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useUserSticker } from '@/composables/useUserSticker'
+import { useAuth } from '@/composables/useAuth'
 import TextLogo from '@/components/TextLogo.vue'
 import {
   LayoutDashboard, List, Map, Utensils, Settings, LogOut, ChevronDown,
@@ -181,8 +183,15 @@ import type { AppLocale } from '@/locales'
 
 const { stickerUrl } = useUserSticker()
 const route = useRoute()
+const router = useRouter()
 const { t } = useI18n()
 const i18n = useI18nStore()
+const { signOut } = useAuth()
+
+async function handleSignOut() {
+  await signOut()
+  await router.push({ name: 'login' })
+}
 
 const openLang = ref(false)
 const langWrap = ref<HTMLElement | null>(null)

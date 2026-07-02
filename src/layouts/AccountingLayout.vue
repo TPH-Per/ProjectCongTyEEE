@@ -103,9 +103,18 @@ const isMobileMenuOpen = ref(false)
 const isDropdownOpen = ref(false)
 
 const ROLE_LABELS: Record<string, string> = {
-  admin: 'Admin',
-  accounting: 'Accountant',
-}
+  superadmin: 'Quản trị viên (Superadmin)',
+  manager: 'Quản lý',
+  reception: 'Thu ngân / Lễ tân',
+  staff: 'Nhân viên',
+  procurement_manager: 'Quản lý Mua hàng',
+  procurement_staff: 'Nhân viên Mua hàng',
+  accountant: 'Kế toán',
+  customer: 'Khách hàng',
+  crm_manager: 'Quản lý CRM',
+  marketing: 'Marketing'
+};
+
 const roleLabel = computed(() => {
   const r = role.value ?? profile.value?.role
   if (!r) return 'Accountant'
@@ -123,3 +132,4 @@ async function handleSignOut() {
   await $router.push({ name: 'login' })
 }
 </script>
+

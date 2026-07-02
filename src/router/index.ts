@@ -408,6 +408,7 @@ const router = createRouter({
 });
 
 const ROUTE_ROLES: Record<string, string[]> = {
+<<<<<<< ours
   admin: ["admin"],
   manager: ["admin", "manager"],
   reception: ["admin", "manager", "reception"],
@@ -419,6 +420,15 @@ const ROUTE_ROLES: Record<string, string[]> = {
   crm: ["admin", "manager", "crm"],
   tablet: ["admin", "hall", "customer"],
 };
+=======
+  admin: ['superadmin', 'manager'],
+  hall: ['superadmin', 'manager', 'reception', 'staff'],
+  kitchen: ['superadmin', 'manager', 'kitchen'],
+  purchasing: ['superadmin', 'procurement_manager', 'procurement_staff'],
+  accounting: ['superadmin', 'accountant'],
+  tablet: ['superadmin', 'manager', 'reception', 'staff', 'customer'],
+}
+>>>>>>> theirs
 
 router.beforeEach(async (to) => {
   const { isAuthenticated, loading, role, isAdmin } = useAuth();
@@ -468,10 +478,21 @@ router.beforeEach(async (to) => {
     }
   }
 
+<<<<<<< ours
   const prefix = String(to.path.split("/")[1] ?? "");
   const allowed = ROUTE_ROLES[prefix];
   if (allowed && role.value && !allowed.includes(role.value)) {
     return getFallbackRouteForRole(role.value);
+=======
+  const prefix = String(to.path.split('/')[1] ?? '')
+  const allowed = ROUTE_ROLES[prefix]
+  
+  // Normalize checking
+  const currentRole = role.value;
+
+  if (allowed && currentRole && !allowed.includes(currentRole)) {
+    return getFallbackRouteForRole(currentRole)
+>>>>>>> theirs
   }
 
   console.log("[DEBUG ROUTER] Navigation allowed to:", to.path);

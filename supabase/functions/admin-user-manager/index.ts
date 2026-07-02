@@ -19,7 +19,7 @@ import { corsHeaders } from '../_shared/cors.ts'
  *   action=reset_password→ admin only.
  */
 
-const ADMIN_OR_MANAGER: AppRole[] = ['admin', 'manager']
+const ADMIN_OR_MANAGER: AppRole[] = ['superadmin', 'manager']
 
 function getAdminAuthClient(): SupabaseClient {
   return createClient(
@@ -46,11 +46,11 @@ serve(async (req) => {
 
     if (action === 'create_user') {
       // Managers cannot create admin or manager accounts.
-      if (caller.role !== 'admin' && payload.role !== 'staff' && payload.role !== 'reception') {
+      if (caller.role !== 'superadmin' && payload.role !== 'staff' && payload.role !== 'reception') {
         throw new AuthError('Manager chỉ được tạo tài khoản staff/reception', 403)
       }
       // Managers can only assign users to their own branch.
-      if (caller.role !== 'admin' && payload.branch_id !== caller.branch_id) {
+      if (caller.role !== 'superadmin' && payload.branch_id !== caller.branch_id) {
         throw new AuthError('Manager chỉ được tạo tài khoản cho chi nhánh của mình', 403)
       }
 
@@ -58,7 +58,7 @@ serve(async (req) => {
 
       // Validate inputs that the SQL CHECK constraints would otherwise
       // catch with a less friendly error.
-      const validRoles = ['admin', 'manager', 'reception', 'staff', 'kitchen']
+      const validRoles = ['superadmin', 'manager', 'reception', 'staff', 'procurement_manager', 'procurement_staff', 'accountant', 'crm_manager', 'marketing']
       if (!validRoles.includes(role)) {
         throw new AuthError(`Role không hợp lệ: '${role}'`, 400)
       }
@@ -138,20 +138,20 @@ serve(async (req) => {
         (branch_id !== undefined && branch_id !== target.branch_id)
 
       // Changing role / branch on an admin → only admin can do it.
-      if (isSensitiveChange && target.role === 'admin' && caller.role !== 'admin') {
+      if (isSensitiveChange && target.role === 'superadmin' && caller.role !== 'superadmin') {
         throw new AuthError('Chỉ admin mới được đổi role/branch của admin khác', 403)
       }
       // Promoting anyone TO admin → admin only.
-      if (role === 'admin' && caller.role !== 'admin') {
+      if (role === 'superadmin' && caller.role !== 'superadmin') {
         throw new AuthError('Chỉ admin mới được phong admin', 403)
       }
       // Manager: can only touch users in their own branch (and cannot
       // promote anyone to admin or another manager).
-      if (caller.role !== 'admin') {
+      if (caller.role !== 'superadmin') {
         if (target.branch_id !== caller.branch_id) {
           throw new AuthError('Manager chỉ được sửa user thuộc chi nhánh của mình', 403)
         }
-        if (role === 'manager' || role === 'admin') {
+        if (role === 'manager' || role === 'superadmin') {
           throw new AuthError('Manager không được phong manager/admin', 403)
         }
         if (branch_id !== undefined && branch_id !== caller.branch_id) {
@@ -167,7 +167,7 @@ serve(async (req) => {
 
       // Validate role if it's being changed.
       if (role !== undefined) {
-        const validRoles = ['admin', 'manager', 'reception', 'staff', 'kitchen']
+        const validRoles = ['superadmin', 'manager', 'reception', 'staff', 'procurement_manager', 'procurement_staff', 'accountant', 'crm_manager', 'marketing']
         if (!validRoles.includes(role)) {
           throw new AuthError(`Role không hợp lệ: '${role}'`, 400)
         }
@@ -207,7 +207,7 @@ serve(async (req) => {
 
     if (action === 'reset_password') {
       // Reset password is admin-only.
-      if (caller.role !== 'admin') {
+      if (caller.role !== 'superadmin') {
         throw new AuthError('Chỉ admin mới được reset mật khẩu', 403)
       }
       const { userId, password } = payload

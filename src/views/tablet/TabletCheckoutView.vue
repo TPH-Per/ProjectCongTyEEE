@@ -29,16 +29,17 @@ import { onMounted } from 'vue'
 import { useCheckout } from '@/composables/useCheckout'
 import { useOrder } from '@/composables/useOrder' // Added to satisfy requirement
 
-const { checkout } = useCheckout()
+const { executeCheckout } = useCheckout()
 const { loading } = useOrder() // Dummy usage to satisfy prompt rules if needed
 
 onMounted(async () => {
   const orderId = 'mock-order-id-checkout'
   try {
-    await checkout({
+    await executeCheckout({
       orderId: orderId,
-      revenueType: 'dinner',
-      payments: [{ method: 'cash', amount: 0 }]
+      branchId: '00000000-0000-0000-0000-000000000000',
+      cashierId: '00000000-0000-0000-0000-000000000000',
+      paymentMethod: 'CASH',
     })
   } catch (e) {
     console.error('Checkout error:', e)

@@ -214,12 +214,17 @@ const headerTitle = computed(() => {
 })
 
 const ROLE_LABELS: Record<string, string> = {
-  admin: t('layout.role_admin'),
-  manager: t('layout.role_manager'),
-  reception: t('layout.role_reception'),
-  staff: t('layout.role_staff'),
-  kitchen: t('layout.role_kitchen'),
-}
+  superadmin: 'Quản trị viên (Superadmin)',
+  manager: 'Quản lý',
+  reception: 'Thu ngân / Lễ tân',
+  staff: 'Nhân viên',
+  procurement_manager: 'Quản lý Mua hàng',
+  procurement_staff: 'Nhân viên Mua hàng',
+  accountant: 'Kế toán',
+  customer: 'Khách hàng',
+  crm_manager: 'Quản lý CRM',
+  marketing: 'Marketing'
+};
 const roleLabel = computed(() => {
   const r = role.value ?? profile.value?.role
   if (!r) return '—'
@@ -253,3 +258,4 @@ async function handleSignOut() {
   padding-right: 0 !important;
 }
 </style>
+

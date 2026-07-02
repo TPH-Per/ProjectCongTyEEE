@@ -2633,6 +2633,4 @@ export default {
   'reception_order.lua_chon_nua': 'Lua chon nua',
   'reception_order.lua_chon': 'Lua chon',
   'reception_order.menu_goi_theo_bua_tiec': 'Menu goi theo bua tiec',
-  'reception_order.guestWalkIn': 'KháchWalkIn',
-  'reception_order.courseLockedSuccess': 'CourseLockedSuccess',
 }

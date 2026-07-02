@@ -1,10 +1,11 @@
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 // =============================================================================
 // src/types/database.ts
 // Hand-written mirror of docs/DATABASE_SCHEMA.sql (Refactored 2026-06-25)
 // =============================================================================
 
 // ─── Enums ──────────────────────────────────────────────────────────────────
-export type UserRole = 'superadmin' | 'admin' | 'manager' | 'reception' | 'staff' | 'kitchen' | 'purchasing' | 'accounting' | 'crm' | 'marketing' | 'bod' | 'tablet' | 'customer'
+export type UserRole = 'superadmin' | 'manager' | 'reception' | 'staff' | 'customer' | 'procurement_manager' | 'procurement_staff' | 'accountant' | 'crm_manager' | 'marketing'
 export type TableStatus = 'available' | 'reserved' | 'occupied' | 'maintenance' | 'needs_cleaning'
 export type ReservationStatus = 'Pending' | 'Arrived' | 'Dining' | 'Completed' | 'Cancelled'
 export type OrderStatus = 'Pending' | 'Preparing' | 'Served' | 'Paid' | 'Cancelled'

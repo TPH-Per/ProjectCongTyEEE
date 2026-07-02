@@ -24,6 +24,7 @@ export function getHomeRouteForRole(role: UserRole | string | null | undefined):
       return { name: 'hall-floor-plan' }
     case 'kitchen':
       return { name: 'kitchen-kds' }
+    case 'procurement':
     case 'purchasing':
       return { name: 'purchasing-receipts' }
     case 'accounting':

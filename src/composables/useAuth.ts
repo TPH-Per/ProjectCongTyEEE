@@ -92,6 +92,7 @@ function readClaimsFromSession(s: Session | null): {
  */
 function normaliseRole(raw: unknown): UserRole | undefined {
   const r = String(raw ?? '').toLowerCase()
+<<<<<<< ours
   if (r === 'superadmin') {
     return 'admin'
   }
@@ -110,6 +111,9 @@ function normaliseRole(raw: unknown): UserRole | undefined {
     'customer'
   ]
   if (validRoles.includes(r as UserRole)) {
+=======
+  if (r === 'superadmin' || r === 'manager' || r === 'reception' || r === 'staff' || r === 'procurement_manager' || r === 'accountant' || r === 'customer') {
+>>>>>>> theirs
     return r as UserRole
   }
   return undefined
@@ -120,11 +124,13 @@ function normaliseRole(raw: unknown): UserRole | undefined {
 function performMockLogin(email: string) {
   const cleanEmail = email.trim().toLowerCase()
   let detectedRole: UserRole = 'staff'
-  if (cleanEmail.startsWith('admin')) detectedRole = 'admin'
+  if (cleanEmail.startsWith('superadmin')) detectedRole = 'superadmin'
   else if (cleanEmail.startsWith('manager')) detectedRole = 'manager'
   else if (cleanEmail.startsWith('reception')) detectedRole = 'reception'
+  else if (cleanEmail.startsWith('procurement_manager')) detectedRole = 'procurement_manager'
+  else if (cleanEmail.startsWith('accountant')) detectedRole = 'accountant'
+  else if (cleanEmail.startsWith('customer')) detectedRole = 'customer'
   else if (cleanEmail.startsWith('staff')) detectedRole = 'staff'
-  else if (cleanEmail.startsWith('kitchen')) detectedRole = 'kitchen'
 
   const mockUser: AppUser = {
     id: 'mock-id-' + detectedRole,
@@ -365,9 +371,9 @@ export function useAuth() {
   })
 
   const isAuthenticated = computed<boolean>(() => !!session.value && !!profile.value)
-  const isAdmin = computed<boolean>(() => role.value === 'admin')
+  const isAdmin = computed<boolean>(() => role.value === 'superadmin')
   const isManager = computed<boolean>(
-    () => role.value === 'admin' || role.value === 'manager',
+    () => role.value === 'superadmin' || role.value === 'manager',
   )
 
   return {

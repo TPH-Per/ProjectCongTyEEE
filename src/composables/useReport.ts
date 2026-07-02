@@ -21,7 +21,7 @@ export function useReport() {
   const error = ref<string | null>(null)
 
   function guardManager() {
-    if (role.value !== 'manager' && role.value !== 'admin') {
+    if (role.value !== 'manager' && role.value !== 'superadmin') {
       throw new Error('Forbidden: manager role required for reports')
     }
   }

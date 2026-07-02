@@ -22,6 +22,8 @@ export function useBOD() {
   const loading = ref(false)
   const error = ref<string | null>(null)
 
+  const branchPerformance = ref<any[]>([])
+
   async function fetchDashboard(): Promise<ExecutiveDashboard | null> {
     loading.value = true
     error.value = null
@@ -33,6 +35,66 @@ export function useBOD() {
     } catch (e: any) {
       error.value = e.message
       return null
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function fetchBranchPerformance(startDate: string, endDate: string) {
+    loading.value = true
+    error.value = null
+    try {
+      const { data, error: err } = await supabase.rpc('get_executive_dashboard', {
+        p_period_start: startDate,
+        p_period_end: endDate
+      })
+      if (err) throw err
+      branchPerformance.value = (data as any)?.branches || []
+      return branchPerformance.value
+    } catch (e: any) {
+      error.value = e.message
+      return []
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function getAuditLogs() {
+    loading.value = true
+    error.value = null
+    try {
+      // Temporarily use direct query until RPC is added, or assume RPC get_audit_events
+      const { data, error: err } = await supabase.rpc('get_audit_events')
+      if (err) {
+        // Fallback if RPC not ready
+        const { data: fbData, error: fbErr } = await supabase.from('audit_events').select('*').order('created_at', { ascending: false }).limit(50)
+        if (fbErr) throw fbErr
+        return fbData
+      }
+      return data || []
+    } catch (e: any) {
+      error.value = e.message
+      return []
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function fetchBODApprovals() {
+    loading.value = true
+    error.value = null
+    try {
+      const { data, error: err } = await supabase.rpc('get_bod_approvals')
+      if (err) {
+        // Fallback
+        const { data: fbData, error: fbErr } = await supabase.from('bod_approvals').select('*').order('created_at', { ascending: false })
+        if (fbErr) throw fbErr
+        return fbData
+      }
+      return data || []
+    } catch (e: any) {
+      error.value = e.message
+      return []
     } finally {
       loading.value = false
     }
@@ -58,7 +120,8 @@ export function useBOD() {
   }
 
   return {
-    dashboard, loading, error,
-    fetchDashboard, reviewCampaign
+    dashboard, loading, error, branchPerformance,
+    fetchDashboard, reviewCampaign,
+    getAuditLogs, fetchBODApprovals, fetchBranchPerformance
   }
 }

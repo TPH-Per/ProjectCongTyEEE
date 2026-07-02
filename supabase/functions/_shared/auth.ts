@@ -9,7 +9,7 @@
 // Contract:
 //
 //   const { user, profile, supabase, admin } = await requireAppUser(req, {
-//     roles: ['manager', 'admin'],
+//     roles: ['manager', 'superadmin'],
 //     resourceBranchId: order?.branch_id,   // optional cross-check
 //   });
 //
@@ -22,7 +22,7 @@
 
 import { createClient, type SupabaseClient, type User } from 'https://esm.sh/@supabase/supabase-js@2'
 
-export type AppRole = 'admin' | 'manager' | 'reception' | 'staff' | 'kitchen'
+export type AppRole = 'superadmin' | 'manager' | 'reception' | 'staff' | 'kitchen'
 
 export interface AppProfile {
   id: string
@@ -213,7 +213,7 @@ export async function requireAppUser(
   if (
     options.resourceBranchId !== undefined &&
     options.resourceBranchId !== null &&
-    profile.role !== 'admin'
+    profile.role !== 'superadmin'
   ) {
     if (!profile.branch_id) {
       throw new AuthError('Tài khoản chưa gán chi nhánh', 403)

@@ -58,7 +58,7 @@ serve(async (req) => {
 
       // Validate inputs that the SQL CHECK constraints would otherwise
       // catch with a less friendly error.
-      const validRoles = ['superadmin', 'manager', 'reception', 'staff', 'procurement_manager', 'procurement_staff', 'accountant', 'crm_manager', 'marketing']
+      const validRoles = ['superadmin', 'admin', 'manager', 'reception', 'staff', 'procurement_manager', 'procurement_staff', 'accountant', 'crm_manager', 'marketing']
       if (!validRoles.includes(role)) {
         throw new AuthError(`Role không hợp lệ: '${role}'`, 400)
       }
@@ -167,7 +167,7 @@ serve(async (req) => {
 
       // Validate role if it's being changed.
       if (role !== undefined) {
-        const validRoles = ['superadmin', 'manager', 'reception', 'staff', 'procurement_manager', 'procurement_staff', 'accountant', 'crm_manager', 'marketing']
+        const validRoles = ['superadmin', 'admin', 'manager', 'reception', 'staff', 'procurement_manager', 'procurement_staff', 'accountant', 'crm_manager', 'marketing']
         if (!validRoles.includes(role)) {
           throw new AuthError(`Role không hợp lệ: '${role}'`, 400)
         }

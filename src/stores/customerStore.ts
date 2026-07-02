@@ -175,6 +175,13 @@ export const useCustomerStore = defineStore('customer', {
       }
     },
 
+    updateCartItemNote(itemId: string, note: string): void {
+      const existing = this.cart.find(c => c.menuItemId === itemId);
+      if (existing) {
+        existing.note = note;
+      }
+    },
+
     removeFromCart(itemId: string): void {
       this.cart = this.cart.filter(c => c.menuItemId !== itemId);
     },

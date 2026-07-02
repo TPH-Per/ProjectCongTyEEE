@@ -39,7 +39,7 @@ onMounted(() => {
 async function onFeedbackSubmit(data: { rating: number; criteria: string[]; comment: string }) {
   try {
     // BR-35/36/37/38 logic handled in store actions
-    await store.submitFeedback(data);
+    await store.submitFeedback(data as { rating: 1 | 2 | 3 | 4 | 5; criteria: string[]; comment: string });
   } catch (e) {
     console.error('Feedback submit failed', e);
   }

@@ -18,11 +18,8 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
-import { useCRM } from '@/composables/useCRM'
-
-const { fetchCustomerFeedback, loading } = useCRM()
-const feedbacks = ref<any[]>([])
+import { onMounted } from 'vue'
+import { useFeedback } from '@/composables/useFeedback'
 
 const { feedbacks, loading, listFeedback, replyToFeedback } = useFeedback()
 

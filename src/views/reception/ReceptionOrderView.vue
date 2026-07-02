@@ -2604,7 +2604,7 @@ async function sendToKitchen() {
       if (rpcErr) throw rpcErr
       triggerToast('success', t('reception_order.da_gui_mon_den_kds', { sent: String(payload.length) }))
     }
-    if (sent > 0) triggerToast('success', t('reception_order.da_gui_mon_den_kds', { sent: String(sent) }))
+    
     if (skipped.length > 0) {
       triggerToast(
         'warning',

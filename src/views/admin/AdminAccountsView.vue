@@ -24,11 +24,15 @@
         <option value="manager">Manager</option>
         <option value="reception">Reception</option>
         <option value="staff">Staff</option>
+        <option value="kitchen">Kitchen</option>
+        <option value="customer">Customer</option>
         <option value="procurement_manager">Procurement Manager</option>
         <option value="procurement_staff">Procurement Staff</option>
         <option value="accountant">Accountant</option>
         <option value="crm_manager">CRM Manager</option>
         <option value="marketing">Marketing</option>
+        <option value="bod">BOD</option>
+        <option value="tablet">Tablet</option>
       </select>
     </div>
 
@@ -114,11 +118,15 @@
               <option value="manager">Manager</option>
               <option value="reception">Reception</option>
               <option value="staff">Staff</option>
+              <option value="kitchen">Kitchen</option>
+              <option value="customer">Customer</option>
               <option value="procurement_manager">Procurement Manager</option>
               <option value="procurement_staff">Procurement Staff</option>
               <option value="accountant">Accountant</option>
               <option value="crm_manager">CRM Manager</option>
               <option value="marketing">Marketing</option>
+              <option value="bod">BOD</option>
+              <option value="tablet">Tablet</option>
             </select>
           </div>
           <div>

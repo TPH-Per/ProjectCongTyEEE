@@ -55,7 +55,7 @@
           </div>
 
           <!-- Loading State -->
-          <div v-if="store.loading" class="flex flex-col gap-4 py-8">
+          <div v-if="false /* store.loading */" class="flex flex-col gap-4 py-8">
             <div v-for="i in 3" :key="i" class="h-24 bg-gray-800/40 animate-pulse rounded-xl"></div>
           </div>
 

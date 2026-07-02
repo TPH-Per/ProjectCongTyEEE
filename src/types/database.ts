@@ -5,7 +5,7 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 // =============================================================================
 
 // ─── Enums ──────────────────────────────────────────────────────────────────
-export type UserRole = 'superadmin' | 'manager' | 'reception' | 'staff' | 'customer' | 'procurement_manager' | 'procurement_staff' | 'accountant' | 'crm_manager' | 'marketing'
+export type UserRole = 'superadmin' | 'manager' | 'reception' | 'staff' | 'customer' | 'procurement_manager' | 'procurement_staff' | 'accountant' | 'crm_manager' | 'marketing' | 'kitchen' | 'bod' | 'tablet'
 export type TableStatus = 'available' | 'reserved' | 'occupied' | 'maintenance' | 'needs_cleaning'
 export type ReservationStatus = 'Pending' | 'Arrived' | 'Dining' | 'Completed' | 'Cancelled'
 export type OrderStatus = 'Pending' | 'Preparing' | 'Served' | 'Paid' | 'Cancelled'
@@ -15,7 +15,7 @@ export type ShiftStatus = 'open' | 'closed'
 export type PackageType = 'buffet' | 'set' | 'drink' | 'other'
 export type RevenueType = 'lunch' | 'dinner' | 'wine' | 'delivery' | 'other'
 export type VoucherType = 'percent' | 'amount'
-export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
+
 export type CrmSurveyStatus = 'not_started' | 'assigned' | 'in_progress' | 'completed' | 'skipped' | 'customer_refused' | 'expired' | 'late_submitted'
 
 // ─── JSONB Interfaces ───────────────────────────────────────────────────────

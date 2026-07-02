@@ -408,6 +408,7 @@ const router = createRouter({
 });
 
 const ROUTE_ROLES: Record<string, string[]> = {
+  superadmin: ['superadmin'],
   admin: ['superadmin'],
   manager: ['superadmin', 'manager'],
   reception: ['superadmin', 'manager', 'reception'],

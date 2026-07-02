@@ -408,27 +408,19 @@ const router = createRouter({
 });
 
 const ROUTE_ROLES: Record<string, string[]> = {
-<<<<<<< ours
-  admin: ["admin"],
-  manager: ["admin", "manager"],
-  reception: ["admin", "manager", "reception"],
-  staff: ["admin", "manager", "staff"],
-  hall: ["admin", "hall"],
-  kitchen: ["admin", "kitchen"],
-  purchasing: ["admin", "purchasing"],
-  accounting: ["admin", "accounting"],
-  crm: ["admin", "manager", "crm"],
-  tablet: ["admin", "hall", "customer"],
-};
-=======
-  admin: ['superadmin', 'manager'],
+  admin: ['superadmin'],
+  manager: ['superadmin', 'manager'],
+  reception: ['superadmin', 'manager', 'reception'],
+  staff: ['superadmin', 'manager', 'staff'],
   hall: ['superadmin', 'manager', 'reception', 'staff'],
   kitchen: ['superadmin', 'manager', 'kitchen'],
   purchasing: ['superadmin', 'procurement_manager', 'procurement_staff'],
   accounting: ['superadmin', 'accountant'],
+  crm: ['superadmin', 'manager', 'crm_manager'],
+  marketing: ['superadmin', 'manager', 'marketing'],
+  bod: ['superadmin', 'bod'],
   tablet: ['superadmin', 'manager', 'reception', 'staff', 'customer'],
 }
->>>>>>> theirs
 
 router.beforeEach(async (to) => {
   const { isAuthenticated, loading, role, isAdmin } = useAuth();
@@ -478,12 +470,6 @@ router.beforeEach(async (to) => {
     }
   }
 
-<<<<<<< ours
-  const prefix = String(to.path.split("/")[1] ?? "");
-  const allowed = ROUTE_ROLES[prefix];
-  if (allowed && role.value && !allowed.includes(role.value)) {
-    return getFallbackRouteForRole(role.value);
-=======
   const prefix = String(to.path.split('/')[1] ?? '')
   const allowed = ROUTE_ROLES[prefix]
   
@@ -492,7 +478,6 @@ router.beforeEach(async (to) => {
 
   if (allowed && currentRole && !allowed.includes(currentRole)) {
     return getFallbackRouteForRole(currentRole)
->>>>>>> theirs
   }
 
   console.log("[DEBUG ROUTER] Navigation allowed to:", to.path);

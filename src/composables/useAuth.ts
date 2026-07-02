@@ -92,28 +92,25 @@ function readClaimsFromSession(s: Session | null): {
  */
 function normaliseRole(raw: unknown): UserRole | undefined {
   const r = String(raw ?? '').toLowerCase()
-<<<<<<< ours
-  if (r === 'superadmin') {
-    return 'admin'
+  if (r === 'superadmin' || r === 'admin') {
+    return 'superadmin'
   }
   const validRoles: UserRole[] = [
-    'admin',
+    'superadmin',
     'manager',
     'reception',
     'staff',
     'kitchen',
-    'purchasing',
-    'accounting',
-    'crm',
+    'customer',
+    'procurement_manager',
+    'procurement_staff',
+    'accountant',
+    'crm_manager',
     'marketing',
     'bod',
-    'tablet',
-    'customer'
+    'tablet'
   ]
   if (validRoles.includes(r as UserRole)) {
-=======
-  if (r === 'superadmin' || r === 'manager' || r === 'reception' || r === 'staff' || r === 'procurement_manager' || r === 'accountant' || r === 'customer') {
->>>>>>> theirs
     return r as UserRole
   }
   return undefined

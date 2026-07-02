@@ -370,11 +370,7 @@ const tierDiscount = computed(() => {
 const maxRedeemablePoints = computed(() => {
   if (!customerInfo.value || !rules.value) return 0
   const total = Math.max(0, subTotal.value - tierDiscount.value - voucherDiscount.value)
-<<<<<<< ours
-  const maxDiscountValue = total * ((rules.value.max_redeem_percent || 50) / 100)
-=======
   const maxDiscountValue = total * 0.5
->>>>>>> theirs
   const maxPointsByValue = Math.floor(maxDiscountValue / (rules.value.vnd_per_point || 1000))
   return Math.min(customerInfo.value.current_points || 0, maxPointsByValue)
 })

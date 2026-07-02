@@ -2480,16 +2480,7 @@ function clearLastPinDigit() {
 
 // Operational Actions
 function printDraftBill() {
-<<<<<<< ours
-  alert(t('reception_order.hoa_don_tam_tinh_alert', {
-    table: selectedTableCode.value ?? '',
-    package: activeSettings.value.package,
-    guests: String(activeOrder.value.guestCount),
-    total: formatVND(summary.value.grandTotal),
-  }));
-=======
   alert(t('reception_order.hoa_don_tam_tinh_alert', { table: selectedTableCode.value || "", package: activeSettings.value.package, guests: String(activeOrder.value.guestCount), total: formatVND(summary.value.grandTotal) }));
->>>>>>> theirs
   triggerToast('info', t('reception_order.da_gui_lenh_in_tam_tinh'));
 }
 
@@ -2613,11 +2604,7 @@ async function sendToKitchen() {
       if (rpcErr) throw rpcErr
       triggerToast('success', t('reception_order.da_gui_mon_den_kds', { sent: String(payload.length) }))
     }
-<<<<<<< ours
-
-=======
     if (sent > 0) triggerToast('success', t('reception_order.da_gui_mon_den_kds', { sent: String(sent) }))
->>>>>>> theirs
     if (skipped.length > 0) {
       triggerToast(
         'warning',

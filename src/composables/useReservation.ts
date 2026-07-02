@@ -2,25 +2,7 @@ import { ref } from 'vue'
 import { supabase } from '@/lib/supabase'
 import { useBranch, throwBranchGuard } from './useBranch'
 
-<<<<<<< ours
-export interface Reservation {
-  id: string
-  branch_id: string
-  guest_name?: string
-  guest_phone?: string
-  customer_snapshot?: Record<string, unknown>
-  reservation_time: string
-  reservation_date?: string
-  guests: number
-  guest_count?: number
-  status: 'Pending' | 'Arrived' | 'Dining' | 'Completed' | 'Cancelled'
-  notes?: string
-  assigned_table_id?: string
-  created_at: string
-}
-=======
 import type { ReservationRow as Reservation } from "@/types/database"
->>>>>>> theirs
 
 export interface ReservationStats {
   total: number
@@ -57,19 +39,8 @@ export function useReservation() {
       if (params?.status) {
         rows = rows.filter((r) => r.status === params.status)
       }
-<<<<<<< ours
-      if (params?.search) {
-        const q = params.search.toLowerCase()
-        rows = rows.filter((r) => {
-          const snap = r.customer_snapshot ?? {}
-          return String(snap.name ?? r.guest_name ?? '').toLowerCase().includes(q)
-            || String(snap.phone ?? r.guest_phone ?? '').toLowerCase().includes(q)
-        })
-      }
-=======
       
       // search removed
->>>>>>> theirs
 
       rows = rows.sort((a, b) => String(a.reservation_time).localeCompare(String(b.reservation_time)))
       reservations.value = rows
@@ -101,13 +72,8 @@ export function useReservation() {
   }
 
   async function listByDate(date: string): Promise<Reservation[]> {
-<<<<<<< ours
-    const result = await listReservations({ date })
-    return result.reservations
-=======
     const res = await listReservations({ date })
     return res.reservations
->>>>>>> theirs
   }
 
   async function createReservation(params: {
@@ -146,11 +112,7 @@ export function useReservation() {
     loading.value = true
     error.value = null
     try {
-<<<<<<< ours
-      if (status === 'Arrived') {
-=======
       if ((status as string) === 'CONFIRMED') {
->>>>>>> theirs
         const { error: err } = await supabase.rpc('confirm_reservation', {
           p_reservation_id: id,
           p_table_id: tableId || null
@@ -179,22 +141,6 @@ export function useReservation() {
     }
   }
 
-<<<<<<< ours
-  async function seatReservation(id: string, tableId?: string): Promise<void> {
-    return updateStatus(id, 'Dining', tableId)
-  }
-
-  async function cancelReservation(id: string, reason?: string): Promise<void> {
-    loading.value = true
-    error.value = null
-    try {
-      const { error: err } = await supabase.rpc('hall_update_reservation_status', {
-        p_reservation_id: id,
-        p_status: 'Cancelled',
-        p_table_id: null,
-        p_reason: reason || null,
-      })
-=======
   async function seatReservation(id: string, tableId?: string) {
     return updateStatus(id, 'Dining', tableId)
   }
@@ -210,7 +156,6 @@ export function useReservation() {
       const updates: any = { status: 'NO_SHOW', updated_at: new Date().toISOString() }
       if (reason) updates.notes = reason
       const { error: err } = await supabase.from('reservations').update(updates).eq('id', id)
->>>>>>> theirs
       if (err) throw err
     } catch (e: any) {
       error.value = e.message
@@ -222,12 +167,7 @@ export function useReservation() {
 
   return {
     reservations, stats, loading, error,
-<<<<<<< ours
-    listReservations, listByDate, fetchStats, createReservation, updateStatus,
-    seatReservation, cancelReservation
-=======
     listReservations, fetchStats, createReservation, updateStatus,
     seatReservation, cancelReservation, listByDate
->>>>>>> theirs
   }
 }

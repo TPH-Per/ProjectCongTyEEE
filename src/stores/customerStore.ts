@@ -1,18 +1,19 @@
 // File: src/stores/customerStore.ts
 import { defineStore } from 'pinia';
-import type { 
-  CustomerSession, 
-  Table, 
-  Area, 
-  MenuItem, 
-  MenuCategory, 
-  CartItem, 
-  Order, 
-  ServiceRequest, 
+import type {
+  CustomerSession,
+  Table,
+  Area,
+  MenuItem,
+  MenuCategory,
+  CartItem,
+  Order,
+  ServiceRequest,
   Feedback,
   SubCategory
 } from '@/types/customer';
 import { customerApiImpl } from '@/services/customerApi';
+import { computeTotals } from '@/utils/packageRules';
 
 export interface Notification {
   id: string;
@@ -118,12 +119,64 @@ export const useCustomerStore = defineStore('customer', {
     
     // NV2: Menu & Add to Cart
     async loadMenu(): Promise<void> {
-      const menu = await customerApiImpl.getMenu();
-      this.menuData = menu;
-      if (menu.length > 0) {
-        this.selectedCategory = menu[0];
-        if (menu[0].subcategories && menu[0].subcategories.length > 0) {
-          this.selectedSubcategory = menu[0].subcategories[0];
+      // The store exposes the same nested shape that
+      // `src/data/menuData.ts` ships (categories → subcategories →
+      // items). The mock file uses fake auto-counter ids
+      // (`bf1390-1`, `lunch-16`, …); the live Supabase `menu_items`
+      // rows have real UUIDs. We deep-clone the template, then walk
+      // it and substitute each leaf item's `id` / `price` /
+      // `price_display` with the DB values matched on `name`.
+      //
+      // Some names appear multiple times in the DB (e.g. `7UP` has
+      // both a 35.000đ "à la carte" row and a 0đ "in-package" row).
+      // Tie-break on price: prefer the DB row whose price matches the
+      // mock item's price; if neither matches, take the first.
+      const dbItems = await customerApiImpl.getRawMenuItems()
+      const byName = new Map<string, Array<{ id: string; price: number; price_display?: string }>>()
+      for (const it of dbItems) {
+        if (!it?.name || !it?.id) continue
+        const arr = byName.get(it.name) ?? []
+        arr.push({ id: it.id, price: it.price, price_display: it.price_display })
+        byName.set(it.name, arr)
+      }
+      const template = await customerApiImpl.getMenuTemplate()
+      const transformed = JSON.parse(JSON.stringify(template)) as MenuCategory[]
+      const pickReal = (
+        name: string,
+        mockPrice: number,
+      ): { id: string; price: number; price_display?: string } | undefined => {
+        const arr = byName.get(name)
+        if (!arr || arr.length === 0) return undefined
+        const exact = arr.find((r) => r.price === mockPrice)
+        if (exact) return exact
+        // Prefer non-zero when mock is zero, and zero when mock is non-zero.
+        const dir = arr.find((r) => (mockPrice === 0 ? r.price === 0 : r.price > 0))
+        return dir ?? arr[0]
+      }
+      const walk = (items?: MenuItem[]) => {
+        if (!items) return
+        for (const it of items) {
+          const real = pickReal(it.name, Number(it.price ?? 0))
+          if (real) {
+            it.id = real.id
+            it.price = real.price
+            if (real.price_display) it.price_display = real.price_display
+          }
+        }
+      }
+      for (const cat of transformed) {
+        if (cat.items) walk(cat.items)
+        if (cat.subcategories) {
+          for (const sub of cat.subcategories) {
+            walk(sub.items)
+          }
+        }
+      }
+      this.menuData = transformed
+      if (transformed.length > 0) {
+        this.selectedCategory = transformed[0]
+        if (transformed[0].subcategories && transformed[0].subcategories.length > 0) {
+          this.selectedSubcategory = transformed[0].subcategories[0]
         }
       }
     },
@@ -344,28 +397,31 @@ export const useCustomerStore = defineStore('customer', {
   },
   
   getters: {
+    /**
+     * Cart subtotal AFTER all rules: package-pricing (zero when in-pkg)
+     * + lunch 50% discount are both baked into the stored `price`
+     * field at add-to-cart time via the shared `@/utils/packageRules`
+     * engine. So `cartTotal` collapses to `price * quantity`. Service
+     * charge / VAT use the shared `computeTotals()` so the customer
+     * and cashier previews agree to the đồng.
+     */
     cartTotal: (state) => {
-      return state.cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+      return state.cart.reduce(
+        (sum, item) => sum + Number(item.price ?? 0) * Number(item.quantity ?? 1),
+        0,
+      )
     },
     cartItemCount: (state) => {
       return state.cart.reduce((sum, item) => sum + item.quantity, 0);
     },
-    serviceCharge: (state) => {
-      // 5% service charge
-      const total = state.cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-      return Math.round(total * 0.05);
+    serviceCharge(): number {
+      return computeTotals(this.cartTotal).serviceCharge
     },
-    vat: (state) => {
-      // 8% VAT on total + service charge
-      const total = state.cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-      const service = Math.round(total * 0.05);
-      return Math.round((total + service) * 0.08);
+    vat(): number {
+      return computeTotals(this.cartTotal).vat
     },
-    grandTotal: (state) => {
-      const total = state.cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-      const service = Math.round(total * 0.05);
-      const vat = Math.round((total + service) * 0.08);
-      return total + service + vat;
+    grandTotal(): number {
+      return computeTotals(this.cartTotal).total
     },
     activeServiceRequests: (state) => {
       return state.serviceRequests.filter(r => r.status !== 'completed' && r.status !== 'cancelled');

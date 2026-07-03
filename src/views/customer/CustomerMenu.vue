@@ -131,7 +131,8 @@ import MenuItemDetailModal from '@/components/customer/MenuItemDetailModal.vue';
 import MenuItemCard from '@/components/customer/MenuItemCard.vue';
 import CategoryTabs from '@/components/customer/CategoryTabs.vue';
 import CartBar from '@/components/customer/CartBar.vue';
-import { menuData, type MenuCategory, type MenuItem } from '@/data/menuData';
+import type { MenuCategory, MenuItem } from '@/types/customer';
+import { applyPackage, calculateItemUnitPrice } from '@/utils/packageRules';
 
 const store = useCustomerStore();
 const router = useRouter();
@@ -151,18 +152,18 @@ const cartTotalDisplay = computed(() => store.cartTotal.toLocaleString('vi-VN') 
 
 // Computed: Categories of Gói dịch vụ (Used for price calculation mapping)
 const yellowCategories = computed(() => {
-  const buffetCat = menuData.categories.find(c => c.id === 'buffet');
+  const buffetCat = store.menuData.find(c => c.id === 'buffet');
   return buffetCat?.subcategories || [];
 });
 
 // Computed: Menu Categories in Sidebar (Only 9 items)
 const menuCategories = computed(() => {
   const list: any[] = [];
-  const buffetCat = menuData.categories.find(c => c.id === 'buffet');
+  const buffetCat = store.menuData.find(c => c.id === 'buffet');
   if (buffetCat) {
     list.push(buffetCat);
   }
-  const others = menuData.categories.filter(c => c.color === 'pink');
+  const others = store.menuData.filter(c => c.color === 'pink');
   list.push(...others);
   return list;
 });
@@ -224,14 +225,27 @@ const displayedItems = computed(() => {
 
 // Watch subcategory selection to sync active yellow package when browsing BUFFET
 watch(() => selectedSubId.value, (newSubId) => {
-  if (selectedCategory.value?.id === 'buffet' && newSubId !== 'all') {
-    selectedYellowCategoryId.value = newSubId;
+  const cat = selectedCategory.value
+  if (!cat || !newSubId || newSubId === 'all') return
+  // BUFFET-shaped categories are surfaced by the banner; their ids
+  // start with `buffet-` (e.g. `buffet-1390`, `buffet-1150`,
+  // `buffet-kids`, `buffet-lau`). When the customer enters one, the
+  // SET ticket must be in the cart — otherwise `tạm tính` collapses
+  // to 0đ (only in-pkg items carry price=0).
+  const isBuffetLike =
+    cat.id === 'buffet' ||
+    cat.id.startsWith('buffet-') ||
+    !!cat.subcategories?.some((s) => s.id === 'set-' + cat.id || s.id.startsWith('set-'))
+  if (!isBuffetLike) return
+  selectedYellowCategoryId.value = newSubId
+  if (!isSetInCart(cat.id)) {
+    addSetToCart(cat)
   }
 });
 
 // Initialize defaults
 const initDefaults = () => {
-  const buffet = menuData.categories.find(c => c.id === 'buffet');
+  const buffet = store.menuData.find(c => c.id === 'buffet');
   if (buffet && !selectedCategory.value) {
     selectedCategory.value = buffet;
     if (buffet.subcategories && buffet.subcategories.length > 0) {
@@ -251,63 +265,50 @@ onMounted(async () => {
   initDefaults();
 });
 
-// Dynamic Package Pricing Rule
+// ---- Package pricing rules ----
+// The shared engine lives in `@/utils/packageRules`. We just build a
+// one-shot subcategory lookup here so the rule can resolve tier
+// membership without us walking the menu tree for every item on every
+// render.  Performance: O(items) build once, O(1) per call.
+const subCatIdByItemId = computed(() => {
+  const out = new Map<string, string>()
+  for (const cat of store.menuData) {
+    if (cat.subcategories) {
+      for (const sub of cat.subcategories) {
+        for (const item of sub.items) {
+          if (!out.has(item.id)) out.set(item.id, sub.id)
+        }
+      }
+    }
+  }
+  return out
+})
+
 function isItemInPackage(item: MenuItem, mainCategoryName: string): boolean {
-  if (!mainCategoryName) return false;
-  const name = mainCategoryName.toUpperCase();
-  const lowerItemName = item.name.toLowerCase();
-  const lowerItemId = item.id.toLowerCase();
-  const lowerCatId = item.category_id.toLowerCase();
-
-  if (name.includes('A LA CARTE')) return false;
-
-  if (name.includes('DRINK')) {
-    return lowerCatId.includes('uong') || lowerCatId.includes('con');
-  }
-
-  if (name.includes('LẨU')) {
-    return lowerItemName.includes('lẩu') || lowerItemName.includes('lau') || lowerItemName.includes('rau') || lowerItemName.includes('nước') || lowerItemName.includes('coca') || lowerItemName.includes('bia') || lowerItemName.includes('nấm');
-  }
-
-  if (name.includes('550JP')) {
-    return lowerItemName.includes('bento') || lowerItemName.includes('sashimi') || lowerItemName.includes('tempura') || lowerItemName.includes('miso');
-  }
-
-  if (name.includes('1390')) {
-    return true;
-  }
-
-  if (name.includes('1150')) {
-    const isWagyu = lowerItemName.includes('wagyu') || lowerItemId.includes('wagyu');
-    return !isWagyu;
-  }
-
-  if (name.includes('680')) {
-    const isWagyu = lowerItemName.includes('wagyu') || lowerItemId.includes('wagyu');
-    const isPremium = lowerItemName.includes('premium') || lowerItemName.includes('sirloin') || lowerItemName.includes('thăn ngoại') || lowerItemName.includes('dẻ sườn') || lowerItemName.includes('lưỡi') || lowerItemName.includes('tongue');
-    return !isWagyu && !isPremium;
-  }
-
-  if (name.includes('490') || name.includes('380')) {
-    const isWagyu = lowerItemName.includes('wagyu') || lowerItemId.includes('wagyu');
-    const isBeef = lowerItemName.includes('bò') || lowerItemName.includes('beef') || lowerItemName.includes('sirloin') || lowerItemName.includes('sườn') || lowerItemName.includes('thăn') || lowerItemName.includes('lưỡi') || lowerItemName.includes('tongue');
-    const isAlcohol = lowerCatId.includes('con') || lowerItemName.includes('rượu') || lowerItemName.includes('soju') || lowerItemName.includes('beer') || lowerItemName.includes('bia');
-    return !isWagyu && !isBeef && !isAlcohol;
-  }
-
-  return false;
+  // Delegates to the shared package-rule engine so customer and cashier
+  // never disagree on which item is free inside a buffet.
+  return applyPackage(item, mainCategoryName).price === 0
 }
 
 function getModifiedItem(item: MenuItem, packageName: string): MenuItem {
-  const inPkg = isItemInPackage(item, packageName);
-  if (inPkg) {
-    return {
-      ...item,
-      price: 0,
-      price_display: '0K (Trong gói)'
-    };
+  // Apply package rule (free inside buffet), then re-apply lunch 50%
+  // via the shared rule engine — same math as the cashier preview.
+  const inPkg = applyPackage(
+    { ...item, subCatId: subCatIdByItemId.value.get(item.id) },
+    packageName,
+  )
+  if (inPkg.price === 0) return inPkg
+  // Preserve `price` and `price_display` semantics:
+  // - in-pkg → 0 / "0K (Trong gói)"  (returned by applyPackage)
+  // - lunch  → half price / updated display
+  const unit = calculateItemUnitPrice(item, packageName)
+  if (unit === Number(item.price ?? 0)) return item
+  const half = Math.round(Number(item.price ?? 0) * 0.5)
+  return {
+    ...item,
+    price: unit,
+    price_display: `${half.toLocaleString('vi-VN')}đ (Lunch 50%)`,
   }
-  return item;
 }
 
 // Focus item details states
@@ -406,21 +407,31 @@ function getSetPriceDisplay(cat: MenuCategory): string {
   return '';
 }
 
-const isSetInCart = (id: string): boolean => {
-  return cart.value.some(c => c.menuItemId.includes(id));
+const isSetInCart = (catId: string): boolean => {
+  // `catId` is the buffet subcategory id (e.g. `buffet-1390`). The
+  // SET ticket is whichever first item belongs to that subcategory in
+  // the live menu (matched via `subCatIdByItemId`). After the
+  // loadMenu() id remap, item ids are real UUIDs so a substring
+  // check on the menuItemId would fail — we use the resolved map.
+  const ticket = store.menuData
+    .flatMap((c) => c.subcategories ?? [])
+    .find((s) => s.id === catId)
+    ?.items?.[0]
+  if (!ticket) return false
+  return cart.value.some((c) => c.menuItemId === ticket.id)
 };
 
 function addSetToCart(cat: MenuCategory) {
-  const subs = cat.subcategories || [];
-  const setItem = subs.reduce((found: MenuItem | null, sub) => {
-    if (found) return found;
-    return sub.items.find(i => i.id.includes(cat.id)) || null;
-  }, null);
+  // The SET ticket is always the first item in the first subcategory
+  // (per Ishii 02/07_2026 spec: each buffet tier has one `Vé` ticket
+  //  listed first, then the eligible items). Take that one.
+  const subs = cat.subcategories || []
+  const setItem = subs[0]?.items?.[0] ?? null
 
   if (setItem) {
-    store.addToCart(setItem, 1);
-    syncCart();
-    store.addNotification(`Đã chọn gói ${cat.name}`, 'success');
+    store.addToCart(setItem, 1)
+    syncCart()
+    store.addNotification(`Đã chọn gói ${cat.name}`, 'success')
   }
 }
 </script>

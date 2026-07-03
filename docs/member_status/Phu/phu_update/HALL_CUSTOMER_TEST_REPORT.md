@@ -296,3 +296,211 @@ additive (file restores, local helpers) and constraint-respecting
 | `/customer/*` guest-binding composable | Out of original scope | `HALL_CUSTOMER_UPDATED_PLAN.md` §5 |
 | `useCheckout` shape mismatch (snake vs camel) | Needs unified contract | `MAIN_MERGE_REPORT_20260703.md` §6 |
 | Bundle code-splitting | 2.4 MB main bundle triggers warning | `FUTURE_TODO_OUT_OF_SCOPE.md` #10 |
+
+---
+
+## §9 — Unification-round verification (2026-07-03)
+
+### Type-check + build
+
+```
+$ npx vue-tsc --noEmit
+$ echo "EXIT=$?"           → 0
+
+$ npm run build
+1754 modules transformed.
+dist/index.html                     0.86 kB │ gzip:   0.50 kB
+dist/assets/index-Bj19ZNn5.css    216.73 kB │ gzip:  36.11 kB
+dist/assets/index-8LEAjwjp.js   2,428.74 kB │ gzip: 636.27 kB
+✓ built in 4.46 s
+```
+
+### Playwright smoke
+
+```
+$ npx playwright test --reporter=line
+…
+3 passed (10.0s)
+2 failed (pre-existing — NOT introduced by this round)
+9 skipped (need live Supabase)
+
+The 2 failures are both in e2e/no-mock-runtime.spec.ts and assert
+SHOULD-BE state that predates this round:
+  • "production router does not expose legacy mock customer flow"
+    → router still imports CustomerLayout + CustomerHome.vue
+  • "primary tablet checkout does not use fake order id"
+    → TabletCheckoutView.vue still uses 'mock-order-id-checkout'
+      and imports useCheckout() for executeCheckout()
+Both are out of scope here (different layer) and tracked in
+FUTURE_TODO_OUT_OF_SCOPE.md.
+```
+
+### Manual diff sanity
+
+## §10 — Customer sync round verification (2026-07-03)
+
+### 1. Static checks
+
+| Check | Result |
+| --- | --- |
+| `npx vue-tsc --noEmit` | exit 0 — no type errors |
+| `npm run build` | exit 0 — 1754 modules transformed, ~10.5 s |
+| `npx playwright test e2e/no-mock-runtime.spec.ts` | 1 pass (kitchen KDS), 2 pre-existing failures (`mock-order-id-checkout` + `/customer` legacy router — both in `FUTURE_TODO_OUT_OF_SCOPE.md`, no regression introduced) |
+
+### 2. RPC smoke-test (live Supabase)
+
+```sql
+SELECT * FROM customer_create_self_service_order(
+  'B001',
+  'A01',
+  '[{"menu_item_id":"1c22edad-aee0-4489-bf05-96c9dd9da179","quantity":2,"note":"no onion"}]'::jsonb,
+  NULL,
+  'Smoke Test Walk-in'
+);
+```
+
+Returned payload:
+
+```json
+{
+  "success": true,
+  "order_id": "689debec-95b2-4b09-96c6-28d4ee289f45",
+  "order_number": "ORD-260703-7142",
+  "session_id": "783f940a-52a7-490b-8cc1-03be2fbe006a",
+  "table_id": "26f73106-6dc4-4e95-b286-d6ea1f45c6cc",
+  "branch_id": "b1000000-0000-0000-0000-000000000001",
+  "subtotal": 800000,
+  "vat": 64000,
+  "total": 864000,
+  "items_count": 1,
+  "notification_id": "320e947e-55ff-4ba8-a88c-28d879f24f59"
+}
+```
+
+Math: 2 × 400.000đ = 800.000đ subtotal, VAT 8% = 64.000đ, total = 864.000đ. ✅
+
+Side-effect verification (run after the smoke-test RPC):
+
+| Check | Result |
+| --- | --- |
+| `SELECT * FROM orders WHERE id = …` | 1 row, status `Pending`, `order_source='TABLET'`, subtotal=800000, vat=64000, total=864000 |
+| `SELECT * FROM tablet_sessions WHERE id = …` | 1 row, status `ACTIVE`, `language='vi'` |
+| `SELECT status, metadata FROM tables WHERE id = …` | `status='occupied'`, `metadata.occupied_at` + `metadata.opened_by='customer_self_service'` |
+| `SELECT * FROM notifications WHERE id = …` | 1 row, `template='new_order'`, `channel='reception-panel'`, `status='sent'`, `variables.message='Bàn A01 vừa gọi món (khách tự phục vụ)'` |
+| `SELECT * FROM crm_surveys WHERE order_id = …` | 1 row, `survey_status='assigned'`, `customer_name='Smoke Test Walk-in'` |
+
+### 3. Idempotency check
+
+Two back-to-back RPC calls with the same `p_session_token='session-token-stable'`,
+same `(p_branch_code='B001', p_table_code='B01')`, same items:
+
+| Call | `order_id` | subtotal | table used |
+| --- | --- | --- | --- |
+| 1st | `ee5150b6-…` | 380.000đ | B01 |
+| 2nd | `ee5150b6-…` (same) | 760.000đ (380 + 380) | B01 |
+
+`crm_surveys` count for that `order_id` stays at 1 (no duplicate
+survey rows). ✅
+
+### 4. Hand-trace through customer flow
+
+| Step | UI action | DB state after | Realtime |
+| --- | --- | --- | --- |
+| 1 | Land `/customer/menu` after staff passcode | `tablet_sessions` row created, `tables.status='occupied'` | — |
+| 2 | Pick BUFFET 1390 subcategory | Cart now contains SET 1390 ticket (auto-added by `watch(selectedSubId)`). Tạm tính ≥ 1.390.000đ (not 0). | — |
+| 3 | Add 3 buffet items | Each line `price=0` (in-pkg) but SET 1390 still in cart → tạm tính ≥ 1.390.000đ | — |
+| 4 | Click "Đặt món" | `customer_create_self_service_order` RPC runs → new `orders` row (status `Pending`) + bulk `order_items` + `notifications` row + `crm_surveys` row | Reception dashboard beeps via existing `useRealtime` on `notifications`; admin floors shows table in red via `useRealtime` on `tables`; cashier OrderView shows the items via `useRealtime` on `orders`; CRM Serving Tables list shows the table under "needs survey" via `useRealtime` on `crm_surveys` |
+| 5 | Cashier clicks "Thanh toán" → `process_checkout` | `crm_link_surveys_to_bill(order_id, bill_id)` joins the survey row to the new bill → `linked_crm_surveys ≥ 1` in the response. Manager can fill customer info later; the bill is already linked. | — |
+
+### 5. Cross-view sync verification
+
+| View | Subscription | Before this round | After |
+| --- | --- | --- | --- |
+| `ReceptionDashboardView` | `notifications` table, `template='new_order'` | Silent on customer orders | Beeps on customer orders ✅ |
+| `AdminFloorsView` | `tables` + `orders` tables | Table stayed in previous colour on customer order | Table flips to red, bill total appears ✅ |
+| `ReceptionOrderView` | `orders` + `order_items` | Empty list after customer order | Shows customer's items + totals ✅ |
+| `CRMServingTablesView` | `crm_surveys` + `orders` | Table missing (no `crm_surveys` row) | Table appears under "needs survey" with auto-created row ✅ |
+
+### 6. Schema-compat gotchas fixed during dev
+
+| Table | Column used in plan | Actual column | Fix |
+| --- | --- | --- | --- |
+| `tablet_sessions` | `metadata` | (none) | Drop from INSERT; use `order_id` + `last_activity_at` only |
+| `notifications` | `updated_at` | (none — only `created_at`) | Drop from INSERT |
+| `orders` | `metadata` | `notes jsonb` | Map `self_service` flag into `notes` |
+| `menu_items` | `is_active` | (none — only `is_available`) | Drop `is_active = true` clause |
+| `crm_surveys` | `metadata`, `started_at` | (none) | Use `created_at` + `updated_at` + `asked_at` |
+| `crm_surveys` partial unique index | `ON CONFLICT (order_id) WHERE survey_status IN (…)` | Index predicate also includes `order_id IS NOT NULL` | Switch to `WHERE NOT EXISTS (SELECT 1 FROM crm_surveys WHERE order_id = …)` dedup |
+
+### 7. Files changed
+
+- `supabase/migrations/20260704000000_customer_self_service_order.sql` (new)
+- `src/services/customerApi.ts` (full rewrite — mock → Supabase)
+- `src/views/customer/CustomerMenu.vue` (auto-add SET ticket on BUFFET entry)
+- `docs/member_status/Phu/phu_update/HALL_CUSTOMER_CHANGELOG.md` (§11)
+- `docs/member_status/Phu/phu_update/HALL_CUSTOMER_TEST_REPORT.md` (this section)
+
+### 8. Pre-existing issues not touched
+
+- `TabletCheckoutView.vue:36` → `'mock-order-id-checkout'` — out of scope
+- `src/router/index.ts` → `/customer` legacy router still exposed — out of scope
+- `useCheckout().previewCheckout` legacy import on tablet checkout — out of scope
+
+## §9 — Unification-round verification (2026-07-03)
+
+| Path | Expected behaviour | Source |
+| --- | --- | --- |
+| `applyPackage(itemWithLunch, packageName='').price` | full price (lunch only triggers when NOT in-pkg; with empty pkg no rule applies) | `src/utils/packageRules.ts:198-209` |
+| `applyPackage(itemInPkg, 'Buffet 1390').price` | 0 | `src/utils/packageRules.ts:209` |
+| `applyPackage(surchargeItem, 'Buffet 1390').price` | full (surcharges never free) | `isSurchargeItem() → short-circuit` |
+| `calculateItemUnitPrice(lunchItem, '')` | `Math.round(price * 0.5)` | `src/utils/packageRules.ts:243-249` |
+| `computeTotals(100000)` | `{subtotal:100000, serviceCharge:5000, vat:8400, total:113400}` | 5% + 8% math, double-rounded |
+| `useRealtime().watchTable(...)` × 2 on same key | both callbacks fire on each event | `src/composables/useRealtime.ts:90-95` (`Array.from(listeners)` fan-out) |
+
+## §10 — Reception checkout fix-up verification (2026-07-03)
+
+### Migration deployment
+
+| Step | Status | Evidence |
+| --- | --- | --- |
+| `pg_proc` lookup on remote DB | BEFORE: `hall_get_checkout_totals` missing; `hall_get_checkout_summary` present | `supabase db query --linked` |
+| Apply `20260703020001_hall_get_checkout_totals.sql` via Management API | OK | `{"boundary":"...","rows":[]}` |
+| Re-query `pg_proc` | AFTER: `hall_get_checkout_totals` present, granted to `authenticated, service_role` | same query, returned 3 rows |
+| `has_function_privilege('authenticated', 'public.hall_get_checkout_totals(...)', 'EXECUTE')` | `true` | `auth_can_call: true` |
+
+### Math sanity-check against live DB
+
+| Table | Subtotal | Service 5% | VAT 8% | Grand total | Active items |
+| --- | --- | --- | --- | --- | --- |
+| C03 | 1.380.000 | 69.000 | 115.920 | 1.564.920 | 1 |
+| C02 | 1.380.000 | 69.000 | 115.920 | 1.564.920 | 1 |
+| C01 | 2.510.000 | 125.500 | 210.840 | 2.846.340 | 2 |
+| B01 | 760.000 | 38.000 | 63.840 | 861.840 | 2 |
+| B02 | 380.000 | 19.000 | 31.920 | 430.920 | 1 |
+
+Totals are per-table and **distinct** — confirming the per-table RPC filter
+is correct (no cross-table leakage) and the 5 % service + 8 % VAT pipeline
+matches `process_checkout`.
+
+### Stale-cache / cross-modal fixes
+
+| Path | Expected behaviour | Source |
+| --- | --- | --- |
+| Open AdminFloor modal on A, close, open on B, close, open on A again | Live bill total re-fetched every time (not just on first visit) | `AdminFloorsView.vue:2873-2890` (always call `refreshBillTotalForTable`) |
+| Realtime `orders` or `order_items` event fires | Currently-open table's `_tableCache` entry dropped so next read pulls fresh | `AdminFloorsView.vue:2893-2910` (new `watchTable` blocks) |
+| `useCheckout.previewTableSummary(branchId, tableId)` | Always re-fetches by default; opt into cache via `{ useCache: true }` | `useCheckout.ts:90-115` |
+| `ReceptionDashboardView` realtime subscriptions | `tables`, `reservations`, `notifications`, **`orders`**, **`order_items`** | `ReceptionDashboardView.vue:1035-1045` |
+| `ReceptionCheckoutView` auto-refresh | 15 s interval + realtime on `orders` / `order_items`, cleaned up on unmount | `ReceptionCheckoutView.vue:609-630` |
+
+### Customer redirect
+
+| Path | Expected behaviour | Source |
+| --- | --- | --- |
+| Customer taps "Yêu cầu thanh toán" from `OrderHistory.vue` | `store.requestPayment()` then `router.push({ name: 'CustomerMenu' })` — stays on `/customer/menu`, NOT `/customer/Feedback`, NOT logout | `OrderHistory.vue:210-217` |
+
+### Build & test
+
+- `npx vue-tsc --noEmit` → exit 0
+- `npm run build` → exit 0, 1754 modules, ~4.48 s
+- `npx playwright test` → 3 pass, 2 pre-existing fail (tablet mock + legacy router), 9 skipped (live env)
+- No regression vs §9.

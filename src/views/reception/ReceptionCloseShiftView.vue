@@ -180,7 +180,7 @@ const activeShift = ref<Shift | null>(null)
 interface PaymentRow {
   id: string
   method: 'cash' | 'card' | 'transfer' | 'voucher' | 'other'
-  revenue_type: 'lunch' | 'dinner' | 'wine' | 'delivery' | 'other' | null
+  revenue_type: 'lunch' | 'dinner' | 'wine' | 'delivery' | 'other' | 'refund' | null
   amount: number
   received_amount: number | null
   change_amount: number | null
@@ -205,17 +205,26 @@ const totalRevenue = computed(() =>
 const cashSummary = computed(() => {
   if (!activeShift.value) return null
   const opening = Number(activeShift.value.opening_cash || 0)
-  let cashRevenue = 0
+  let cashInTill = 0
   let nonCashRevenue = 0
   for (const p of payments.value) {
-    if (p.method === 'cash') cashRevenue += Number(p.amount)
-    else nonCashRevenue += Number(p.amount)
+    if (p.method === 'cash') {
+      // Mirror the server-side math: physical cash in the till after this
+      // payment = (received_amount − change_amount). Use `amount` only as a
+      // fallback for legacy rows that pre-date the column.
+      const received = Number(p.received_amount ?? p.amount ?? 0)
+      const change = Number(p.change_amount ?? 0)
+      const isRefund = (p.revenue_type ?? 'other') === 'refund'
+      cashInTill += isRefund ? -Math.abs(received) : received - change
+    } else {
+      nonCashRevenue += Number(p.amount)
+    }
   }
   return {
     opening,
-    cashRevenue,
+    cashRevenue: cashInTill,
     nonCashRevenue,
-    expected: opening + cashRevenue,
+    expected: opening + cashInTill,
   }
 })
 

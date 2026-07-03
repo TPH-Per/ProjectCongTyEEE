@@ -206,6 +206,37 @@ serve(async (req) => {
       .upsert(assignmentRows, { onConflict: 'reservation_id,table_id', ignoreDuplicates: true })
     if (assignErr) throw assignErr
 
+    // 5.5 Realtime notification for the reception panel. The dashboard
+    // subscribes via useRealtime on `notifications` and bumps the new
+    // walk-in into the notification list. Best-effort — never block the
+    // seating flow on this.
+    try {
+      const { data: tablesForCode } = await admin
+        .from('tables')
+        .select('id, code')
+        .in('id', body.tableIds)
+      const codes = (tablesForCode ?? []).map((t) => t.code).join(', ')
+      await admin.from('notifications').insert({
+        branch_id: branchId,
+        channel: 'reception-panel',
+        recipient: 'reception',
+        template: 'new_seated',
+        variables: {
+          table_ids: body.tableIds,
+          table_codes: codes,
+          reservation_id: finalResvId,
+          customer_name: customerName ?? null,
+          party_size: body.partySize,
+          message: `${codes ? `Bàn ${codes}` : 'Bàn'} vừa nhận khách.`,
+        },
+        status: 'sent',
+        sent_at: new Date().toISOString(),
+        metadata: { source: 'check-in', reservation_id: finalResvId },
+      })
+    } catch (notifErr) {
+      console.warn('[check-in] notification insert failed:', notifErr)
+    }
+
     // 6. Nếu có reservation → update status = Dining (filter by branch)
     if (body.reservationId) {
       await admin

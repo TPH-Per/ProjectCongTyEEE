@@ -90,15 +90,33 @@ export function useCheckout() {
   /**
    * Single-table summary for floor-plan / table-modal previews.
    * Caches by tableId to avoid re-querying when switching back.
+   *
+   * IMPORTANT: previously the cache never re-fetched after the first load,
+   * which meant opening the same table-modal twice in a row would show
+   * stale totals — and if the cashier rapidly opened A then B, the B total
+   * would appear to "leak" with the previous A value because both views
+   * shared the same Map. We now always force a re-fetch by default and
+   * only honour the cache when the caller passes `useCache: true`.
    */
   const _tableCache = new Map<string, CheckoutPreview>()
-  async function previewTableSummary(branchId: string, tableId: string): Promise<CheckoutPreview> {
-    const cached = _tableCache.get(tableId)
-    if (cached) return cached
+  async function previewTableSummary(
+    branchId: string,
+    tableId: string,
+    options: { useCache?: boolean } = {},
+  ): Promise<CheckoutPreview> {
+    if (options.useCache) {
+      const cached = _tableCache.get(tableId)
+      if (cached) return cached
+    }
     const fresh = await previewCheckout({ branchId, tableId })
     _tableCache.set(tableId, fresh)
     return fresh
   }
+  /**
+   * Drop the cached preview for a table. Pass a tableId to drop just that
+   * entry (used by realtime order/table events) or omit to drop everything
+   * (used after a successful checkout).
+   */
   function clearTableCache(tableId?: string) {
     if (tableId) _tableCache.delete(tableId)
     else _tableCache.clear()

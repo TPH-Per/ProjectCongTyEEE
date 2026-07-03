@@ -1271,6 +1271,7 @@ import { useRestaurantStore } from '@/stores/restaurantStore';
 import { storeToRefs } from 'pinia';
 import { menuData, type MenuItem } from '@/data/menuData'
 import { supabase } from '@/lib/supabase'
+import { applyPackage, calculateItemUnitPrice } from '@/utils/packageRules'
 import { useAuth } from '@/composables/useAuth'
 import { useTable } from '@/composables/useTable'
 import { useMenu } from '@/composables/useMenu'
@@ -1349,13 +1350,21 @@ function selectTable(code: string) {
 }
 
 function calculateNetPrice(item: any): number {
-  const inPackage = isItemInPackage(item, activeSettings.value.package);
-  const price = inPackage ? 0 : item.price;
-  const isLunch = item.name.toLowerCase().includes('lunch');
-  const discount = isLunch ? price * 0.5 : 0;
-  const base = price - discount;
-  const vat = base * 0.08;
-  return Math.round(base + vat) * item.quantity;
+  // Unit price is resolved by the shared package-rule engine (handles
+  // package = free and lunch 50% in one place). VAT per-line is a UI
+  // concern of this row, so it stays local.
+  const price = calculateItemUnitPrice(
+    {
+      id: item.id,
+      name: item.name,
+      category_id: item.category_id ?? '',
+      subCatId: getItemSubcategoryId(item.id),
+      price: item.price,
+    },
+    activeSettings.value.package,
+  )
+  const vat = price * 0.08;
+  return Math.round(price + vat) * item.quantity;
 }
 
 function getMenuItemFromCartItem(item: any): MenuItem {
@@ -1397,7 +1406,7 @@ const uiTranslations = {
     time: t('reception_order.gio_mo_text'),
     timeLeft: t('reception_order.con_lai_text'),
     subtotal: t('reception_order.tam_tinh_text'),
-    vat: t('reception_order.thue_gtgt_10_text'),
+    vat: t('reception_order.thue_gtgt_8_text'),
     serviceCharge: t('reception_order.phi_phuc_vu_text'),
     grandTotal: t('reception_order.tong_cong_text'),
     checkout: t('reception_order.thanh_toan_text'),
@@ -1427,7 +1436,7 @@ const uiTranslations = {
     time: 'Open Time',
     timeLeft: 'remaining',
     subtotal: 'Subtotal',
-    vat: 'VAT (10%)',
+    vat: 'VAT (8%)',
     serviceCharge: 'Service Charge',
     grandTotal: 'GRAND TOTAL',
     checkout: 'Checkout',
@@ -1457,7 +1466,7 @@ const uiTranslations = {
     time: '開始時間',
     timeLeft: '残り時間',
     subtotal: '小計',
-    vat: '消費税 (10%)',
+    vat: '消費税 (8%)',
     serviceCharge: 'サービス料',
     grandTotal: '合計金額',
     checkout: 'お会計',
@@ -1487,7 +1496,7 @@ const uiTranslations = {
     time: '시작 시간',
     timeLeft: '남은 시간',
     subtotal: '소계',
-    vat: '부가세 (10%)',
+    vat: '부가세 (8%)',
     serviceCharge: '봉사료',
     grandTotal: '총합계',
     checkout: '결제하기',
@@ -1517,7 +1526,7 @@ const uiTranslations = {
     time: '开台时间',
     timeLeft: '剩余时间',
     subtotal: '小计',
-    vat: '增值税 (10%)',
+    vat: '增值税 (8%)',
     serviceCharge: '服务费',
     grandTotal: '总金额',
     checkout: '结账',
@@ -1971,62 +1980,24 @@ function getItemSubcategoryId(itemId: string): string {
   return subcategoryIdByItemId.get(itemId)?.subCatId ?? ''
 }
 
-// Check if item is included in package
-function isItemInPackage(item: { category_id: string; id: string }, packageName: string): boolean {
-  if (!packageName) return false;
-  
-  const subCatId = getItemSubcategoryId(item.id);
-  const parentCatId = item.category_id;
-
-  // Surcharges (category: khac, subcategory: surcharge) are never included in packages
-  if (parentCatId === 'khac' && subCatId === 'surcharge') return false;
-
-  // Standard buffet-eligible menus
-  const isEligibleMenu = parentCatId === 'thuc_an' || parentCatId === 'thuc_uong' || parentCatId === 'thuc_uong_co_con' || parentCatId === 'buffet';
-
-  if (packageName === 'Kids Meal') {
-    return item.id.includes('kids') || item.id.includes('egg') || item.id.includes('fries') || subCatId === 'dessert' || parentCatId === 'dessert';
-  }
-  
-  if (packageName === 'Buffet 1390') {
-    return isEligibleMenu;
-  }
-  
-  if (packageName === 'Buffet 1150') {
-    const isWagyu = item.id.includes('wagyu') || subCatId === 'wagyu';
-    return isEligibleMenu && !isWagyu;
-  }
-
-  if (packageName === 'Buffet 680') {
-    const isWagyu = item.id.includes('wagyu') || subCatId === 'wagyu';
-    const isPremiumBeef = item.id.includes('premium') || item.id.includes('sirloin') || item.id.includes('short_ribs') || item.id.includes('tongue') || subCatId === 'beef_tongue';
-    return isEligibleMenu && !isWagyu && !isPremiumBeef;
-  }
-
-  if (packageName === 'Buffet 490' || packageName === 'Buffet 380') {
-    const isBeef = item.id.includes('beef') || item.id.includes('wagyu') || item.id.includes('tongue') || subCatId === 'beef' || subCatId === 'wagyu' || subCatId === 'beef_tongue';
-    const isAlcohol = parentCatId === 'thuc_uong_co_con' || ['beer', 'whisky', 'shochu', 'nihonshuu', 'wine', 'alcohol_set'].includes(subCatId);
-    
-    return isEligibleMenu && !isBeef && !isAlcohol && (
-      subCatId === 'pork' ||
-      subCatId === 'chicken' ||
-      subCatId === 'soft_drink' ||
-      subCatId === 'tea' ||
-      subCatId === 'non_alcoholic' ||
-      subCatId === 'appetizer' ||
-      subCatId === 'salad' ||
-      subCatId === 'rice' ||
-      subCatId === 'noodle' ||
-      subCatId === 'soup' ||
-      subCatId === 'dessert' ||
-      subCatId === 'sauce' ||
-      subCatId === 'sukiyaki' ||
-      subCatId === 'grill_alacarte' ||
-      subCatId === 'alacarte'
-    );
-  }
-
-  return false;
+// Check if item is included in package — delegates to the shared
+// `@/utils/packageRules` engine so the cashier and the customer menu
+// never disagree on which item is free inside a buffet.
+function isItemInPackage(
+  item: { id: string; name: string; category_id: string; price?: number },
+  packageName: string,
+): boolean {
+  const subCatId = getItemSubcategoryId(item.id)
+  return applyPackage(
+    {
+      id: item.id,
+      name: item.name,
+      category_id: item.category_id,
+      subCatId,
+      price: Number(item.price ?? 0),
+    },
+    packageName,
+  ).price === 0
 }
 
 // Deterministic Rich Mock Item Generator
@@ -2129,7 +2100,10 @@ const summary = computed(() => {
 
   const subtotal = ticketSubtotal + itemsSubtotal;
   const serviceCharge = Math.round(subtotal * 0.05); // 5% Service Charge
-  const vat = Math.round((subtotal + serviceCharge) * 0.1); // 10% VAT
+  // Ishii spec (02/07/2026): VAT = 8%, NOT 10%. This is the cashier-side
+  // preview only; the authoritative number comes from `hall_get_checkout_totals`
+  // RPC at checkout time (which the DB-side `process_checkout` also computes).
+  const vat = Math.round((subtotal + serviceCharge) * 0.08); // 8% VAT
   const grandTotal = subtotal + serviceCharge + vat;
   // `discount` is exposed (currently 0) so the cashier-side preview matches
   // the template layout from origin/main. The real discount path is wired

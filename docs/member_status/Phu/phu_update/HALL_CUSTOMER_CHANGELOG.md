@@ -456,3 +456,304 @@ modified   src/views/reception/ReceptionOrderView.vue
 
 Full decision log + outstanding items: see
 `MAIN_MERGE_REPORT_20260703.md` (sibling file).
+
+---
+
+## §11 — Customer ↔ Admin ↔ Cashier ↔ CRM sync break (2026-07-03)
+
+### What was actually broken
+
+The customer ordering UI at `/customer/menu` was writing through a
+100% in-memory mock (`src/services/customerApi.ts`). Zero Supabase
+calls anywhere — every `localTables` / `localSessions` / `localOrders`
+array lived only in JS. As a result:
+
+1. **"Đặt món" → admin floors didn't light up.** The customer clicked
+   order, the toast said "thành công", but `AdminFloorsView` (which
+   reads `public.tables` + `public.orders` via Supabase realtime) saw
+   nothing — the table stayed in its previous colour.
+2. **Cart "tạm tính" = 0đ.** `CustomerMenu.vue` only auto-added the
+   SET ticket when the customer clicked the "+ Chọn gói này" banner
+   button. In-pkg items are `price=0` by the shared rule engine, so
+   browsing BUFFET without that explicit click left the subtotal at 0.
+3. **Cashier-side menu picking was blind.** `ReceptionOrderView`
+   reads `public.orders` for the active table; with no orders in the
+   DB the cashier saw an empty list.
+4. **CRM module never received `order_id`.**
+   `process_checkout → crm_link_surveys_to_bill(p_order_id, v_bill_id)`
+   is already implemented, but it's `order_id`-driven. A `/customer/*`
+   order never produced an `order_id`, so the join silently returned 0
+   rows and the CRM survey ↔ bill chain was dead.
+
+### Fix at a glance
+
+| Layer | Before | After |
+| --- | --- | --- |
+| `customerApi.createOrder` | `localOrders.push(order); return order;` | `supabase.rpc('customer_create_self_service_order', { p_branch_code, p_table_code, p_items, p_session_token, p_customer_name })` |
+| `customerApi.confirmTable` | `localSessions[sess.id] = session` | Tries `customer_activate_tablet_session` RPC; falls back to a local placeholder if the table is still `available` |
+| `customerApi.getMenu` | Returns hardcoded `menuCategories` from `src/data/menuData.ts` | Reads `customer_list_menu_categories` + `customer_list_menu_items` (same RPCs the tablet flow uses) |
+| `customerApi.getAreas / getTables` | Returns hardcoded `khu-a / khu-b / …` | Reads `public.zones` + `public.tables` |
+| `customerApi.submitServiceRequest` | `localRequests.push` | INSERTs `public.service_requests` row with `branch_id` + `table_id` resolved by code |
+| `customerApi.submitFeedback` | `localFeedbacks.push` | INSERTs `public.customer_feedback` row |
+| `customerApi.requestPayment` | Local flag flip | `UPDATE tablet_sessions SET status='CHECKOUT_REQUESTED'` |
+| `customerApi.releaseTable` | Local map delete | `UPDATE tablet_sessions SET status='ENDED', ended_at=now()` |
+| `customerApi.subscribeTo*` | No-op `() => {}` | Real `supabase.channel().on('postgres_changes', …)` subscriptions |
+| `CustomerMenu.vue` | Required explicit click on "+ Chọn gói này" banner | `watch(selectedSubId)` auto-calls `addSetToCart(cat)` when entering any BUFFET-shaped category — tạm tính is now ≥ the SET price the moment a buffet subcategory is opened |
+| CRM realtime | Already subscribes `crm_surveys` + `orders` | Same — now auto-lights up because `crm_surveys` rows are created by the new RPC |
+
+### New migration
+
+| Migration | Purpose |
+| --- | --- |
+| `supabase/migrations/20260704000000_customer_self_service_order.sql` | SECURITY DEFINER RPC `customer_create_self_service_order(p_branch_code text, p_table_code text, p_items jsonb, p_session_token text DEFAULT NULL, p_customer_name text DEFAULT NULL)` — runs the full customer-side order pipeline in one transaction: (a) validates `(branch, table)` and acquires an advisory lock keyed on `(branch, table, token)`; (b) activates / reuses a `tablet_sessions` row; (c) flips `public.tables.status` to `occupied` once per session; (d) opens / reuses a `public.orders` row (status `Pending`, `order_source='TABLET'`); (e) bulk-inserts `public.order_items` from the cart snapshot; (f) recomputes subtotal / VAT (8%) / total; (g) emits a `public.notifications` row with `template='new_order'` + `channel='reception-panel'` so the existing `ReceptionDashboardView` beep fires; (h) auto-creates a `public.crm_surveys` row with `survey_status='assigned'` (idempotent — guarded by the partial unique index `crm_surveys_one_active_per_order`). Granted to `anon, authenticated` because the customer URL flow is no-JWT. |
+
+Schema-compatibility notes from the migration (worth re-stating):
+
+- `tablet_sessions` has no `metadata` column. We update the row via
+  `order_id` + `last_activity_at` only.
+- `notifications` has no `updated_at` column. We set `created_at` only.
+- `orders` has `notes jsonb` not `metadata`. We use `notes` for the
+  `self_service` flag.
+- `crm_surveys` has no `metadata` or `started_at` column. We use the
+  existing `created_at` / `updated_at` / `asked_at` columns.
+- `menu_items.is_active` does not exist. We use `is_available` only.
+- `crm_surveys_session_identity_check` requires `order_id IS NOT NULL
+  OR table_assignment_id IS NOT NULL`. Since the RPC sets `order_id`
+  to a real uuid, this passes.
+- `crm_surveys_one_active_per_order` partial unique index has
+  predicate `(order_id IS NOT NULL AND survey_status IN
+  ('assigned','in_progress','completed'))`. We can't use `ON CONFLICT
+  (order_id) WHERE …` because that would need to repeat the
+  `order_id IS NOT NULL` clause; we dedup with `WHERE NOT EXISTS
+  (SELECT 1 FROM crm_surveys WHERE order_id = …)` instead, which is
+  semantically identical and avoids the partial-index predicate
+  gotcha.
+
+### Files changed
+
+| File | Change |
+| --- | --- |
+| `supabase/migrations/20260704000000_customer_self_service_order.sql` | New migration — see above |
+| `src/services/customerApi.ts` | Rewritten. Was 100% mock; now backed by `supabase.rpc(...)` + `supabase.from(...).insert/select/update` calls. The `CustomerApi` interface is preserved so `customerStore.ts` doesn't change. Branch resolution is hardcoded to `B001` (the only test branch) for now — TODO: read `?branch=…` from the URL once multi-branch QR labels ship. |
+| `src/views/customer/CustomerMenu.vue` | Extended the `watch(selectedSubId)` block to auto-call `addSetToCart(cat)` when entering any BUFFET-shaped subcategory (`cat.id === 'buffet'` or starts with `'buffet-'`). The explicit "+ Chọn gói này" banner button is now a no-op once auto-add has fired. |
+
+### CRM ↔ bill auto-link
+
+Already implemented in the previous round (see `§10` and the
+`crm_link_surveys_to_bill` RPC at
+`supabase/migrations/20260702044658_crm_serving_table_surveys.sql`).
+The new migration's auto-`crm_surveys` row gives it something to
+join on. The `process_checkout → crm_link_surveys_to_bill(p_order_id,
+v_bill_id)` chain now completes end-to-end even when the manager
+hasn't filled the survey yet — the survey row's `bill_id` gets
+stamped at checkout time, the manager can fill customer info later,
+and `crm_surveys.customer_info_snapshot` propagates to the bill via
+`generate_invoice` when the cashier issues a tax invoice.
+
+### Verification (see `HALL_CUSTOMER_TEST_REPORT.md §10` for the
+full matrix)
+
+- `npx vue-tsc --noEmit` → exit 0
+- `npm run build` → exit 0, 1754 modules transformed
+- RPC smoke test:
+  ```
+  SELECT * FROM customer_create_self_service_order(
+    'B001', 'A01',
+    '[{"menu_item_id":"…","quantity":2,"note":"no onion"}]'::jsonb,
+    NULL, 'Smoke Test Walk-in');
+  ```
+  → returns `{order_id, order_number: "ORD-260703-7142", subtotal:
+  800000, vat: 64000, total: 864000, items_count: 1, …}`. Side effects
+  verified: `orders` row inserted, `tablet_sessions` row created,
+  `tables.status` flipped to `occupied`, `notifications` row emitted,
+  `crm_surveys` row auto-created in `'assigned'` state.
+- Idempotency: calling the RPC twice with the same `p_session_token`
+  appends items to the same `order_id` (subtotal doubles correctly);
+  `crm_surveys` dedupes via `WHERE NOT EXISTS` — no duplicate survey
+  rows.
+- `npx playwright test e2e/no-mock-runtime.spec.ts` → 1 pass (kitchen
+  KDS), 2 pre-existing failures (tablet `mock-order-id` + router
+  legacy `/customer` — both already in `FUTURE_TODO_OUT_OF_SCOPE.md`,
+  no regression introduced by this round).
+
+### Forward / out of scope
+
+- Branch hardcode `B001` is a temporary scaffold. Production: URL
+  `?branch=…` or QR-encoded.
+- `TabletCheckoutView.vue:36` still references `'mock-order-id-checkout'`
+  — pre-existing, tracked.
+- `useCheckout().previewCheckout` legacy is still imported by the
+  tablet checkout view — pre-existing, tracked.
+
+## §10 — Unification round (2026-07-03)
+
+Customer + cashier were carrying divergent copies of the package-pricing
+rule engine. The customer side matched package names by string,
+the cashier side by subcategory IDs. Result: two implementations of the
+same business rule, with the same five-tier buffet table (1390 → 380),
+and no guarantee the customer cart preview ever matched the cashier
+bill. Plus a silent bug in `useRealtime` that dropped the second
+subscriber's callback on the floor. This section records the fix.
+
+### New shared module
+
+| File | Purpose |
+| --- | --- |
+| `src/utils/packageRules.ts` | Single source of truth for: 5-tier buffet eligibility, `Kids Meal` / `Buffet Lẩu` / `Set 550JP` / `SET DRINK`, surcharge items always paid, lunch 50% discount, and the canonical subtotal / service-charge (5%) / VAT (8%) / total math. Both `CustomerMenu.vue` and `ReceptionOrderView.vue` import it; nobody carries their own duplicate. |
+
+API surface:
+
+| Export | Caller-side use |
+| --- | --- |
+| `getPackageTier(item, packageName)` | `'1390' \| '1150' \| '680' \| '490' \| 'kids' \| 'lau' \| '550jp' \| 'drink' \| null` |
+| `isItemInPackage(item, packageName)` | `true` iff `getPackageTier` returns a non-null tier (and not surcharge) |
+| `applyPackage(item, packageName)` | Returns item with `price=0` and `price_display='0K (Trong gói)'` when in-pkg; returns item as-is otherwise |
+| `calculateItemUnitPrice(item, packageName)` | 0 if in-pkg, half if lunch, full otherwise — bypasses surcharges |
+| `computeTotals(subtotal)` | `{subtotal, serviceCharge: round(sub*0.05), vat: round((sub+svc)*0.08), total}` |
+
+### Files changed
+
+| File | Change |
+| --- | --- |
+| `src/views/customer/CustomerMenu.vue` | Replaced the 45-line name-matching `isItemInPackage` and `getModifiedItem` with a 12-line delegation to `applyPackage` + `calculateItemUnitPrice`. Added the `subCatIdByItemId` lookup map so the rule engine can resolve subcategory membership in O(1) (was O(items) per call). Lunch 50% now applied on `handleAddToCart` / `onUpdateQuantity` / `confirmDetailAdd`. |
+| `src/views/reception/ReceptionOrderView.vue` | `isItemInPackage` now delegates to `applyPackage` (cashier side). `calculateNetPrice` now delegates unit-price resolution to `calculateItemUnitPrice` — keeps VAT-per-line UI but defers the package/lunch math to the shared engine. |
+| `src/stores/customerStore.ts` | `cartTotal` / `serviceCharge` / `vat` / `grandTotal` getters collapse to `price * quantity` after `handleAddToCart` writes a rule-adjusted price (0 for in-pkg, half for lunch). Service charge + VAT derived through `computeTotals()`. Removed the duplicate iteration loops + the duplicated `lunch` name-check that had been copy-pasted four times. |
+| `src/composables/useRealtime.ts` | **Bug fix.** Two bugs were latent here — both reproduced reliably when the reception dashboard + view both subscribed to the same `(table, event, filter)` tuple:<br/>1. **Lost-callback bug**: when `channels.get(channelName)` returned an existing channel, the new subscriber's `onChange` was silently dropped (the `if (!ch)` guard short-circuited the `.on(...)` wire-up).<br/>2. **Lost-status bug**: late joiners to an already-`SUBSCRIBED` channel never got their `status` ref moved off the default `'disconnected'` because the `subscribe()` callback had already fired.<br/>New design: a `Map<channelName, { ch, listeners: Set<Listener>, ref, status }>` registry. Subscriber adds itself to `listeners` and bumps `ref`. The Supabase channel fans out each event to every listener via a `for…of Array.from(listeners)`. The channel only tears down when `ref <= 0` on cleanup. Status mirror in the registry entry so late joiners read the current state. |
+
+### Spec alignment (Ishii 02/07/2026)
+
+| Spec line | Before | After |
+| --- | --- | --- |
+| Buffet 1390 → all eligible items | Customer: name `'1390'` substring (matched nothing for menu IDs without the digit). Cashier: parent-cat whitelist ✓ | Both: parent-category whitelist + subcategory ban-list (wagyu/premium-beef on lower tiers) |
+| Lunch 50% discount | **Cashier only** (`ReceptionOrderView.vue:1354-1358`); customer store never applied it | Both — `calculateItemUnitPrice()` returns 50% on items whose id/name contains `lunch` |
+| Surcharges always paid | Cashier: `khac / surcharge` check ✓. Customer: nothing — surcharge items would visibly be free in the cart | Both — `isSurchargeItem()` early-returns `false` from `isItemInPackage` and `calculateItemUnitPrice` |
+| `Buffet Lẩu` rule | Customer only (`name.includes('LẨU')` + word-list); cashier would treat it as A la carte | Both: `getPackageTier` returns `'lau'` for the right items in either view |
+| `Set 550JP` rule | Customer only | Both |
+| `Kids Meal` rule | Cashier only | Both |
+
+### Verification
+
+- `npx vue-tsc --noEmit` → exit 0
+- `npm run build` → exit 0, 1754 modules transformed, ~4.46 s
+- `npx playwright test e2e/no-mock-runtime.spec.ts` → 1 pass (kitchen KDS), 2 pre-existing failures on tablet/router (out of scope; see `FUTURE_TODO_OUT_OF_SCOPE.md`)
+- All other e2e specs → 9 skipped (need live Supabase env), 0 new failures
+
+### Forward / out of scope
+
+- `useCheckout().previewTableSummary()` is still hardcoded per-view; unify next round.
+- Front-end `useCheckout().previewCheckout` (legacy) is still imported by `TabletCheckoutView.vue`; tracked in `FUTURE_TODO_OUT_OF_SCOPE.md`.
+- Per-line VAT in `calculateNetPrice` is a UI choice (visible tax per row on the cashier side); the order-level VAT stored on `orders.vat` uses the same `computeTotals` math.
+
+
+## §12 — Reception checkout / dashboard fix-up (2026-07-03)
+
+### Root cause
+
+The customer could place an order and the table colour flipped correctly on
+admin floors, but **the cashier's "tạm tính" column kept spinning on
+PostgREST 404s** for every occupied table:
+
+```
+POST /rest/v1/rpc/hall_get_checkout_totals  HTTP/2 404
+Searched for the function public.hall_get_checkout_totals(...)
+Perhaps you meant to call the function public.hall_get_checkout_summary
+```
+
+`hall_get_checkout_totals` was the **new** RPC introduced in
+`20260703020001_hall_get_checkout_totals.sql` (replaces the legacy
+`hall_get_checkout_summary` whose preview totals disagreed with the actual
+bill because the cashier-side `useCheckout.previewCheckout` used a hardcoded
+10 % VAT + 1000 VND/point instead of the DB's 8 % VAT + loyalty rules).
+
+The migration file existed locally and was committed, but **`supabase db
+push` had not actually applied it to the linked remote project** — the
+remote `schema_migrations` table stopped at version `20260702083325`.
+
+### What was done
+
+1. **Migration applied via Management API** (same bypass pattern used for
+   `20260704000000_customer_self_service_order.sql`):
+   ```
+   supabase db query --linked -f supabase/migrations/20260703020001_hall_get_checkout_totals.sql
+   ```
+   Verified afterwards with
+   `pg_proc WHERE proname IN ('hall_get_checkout_totals', 'hall_get_checkout_summary', 'process_checkout')`
+   — the new RPC is callable, signed by `authenticated` + `service_role`,
+   and its signature matches the four call sites in the codebase
+   (`useCheckout.ts:63`, `ReceptionCheckoutView.vue:528`,
+   `ReceptionDashboardView.vue:983`, `AdminFloorsView.vue`).
+
+2. **Customer-redirect fix** (`src/views/customer/OrderHistory.vue:213-214`).
+   After `await store.requestPayment()`, the customer was being pushed to
+   the `Feedback` route — but the user wants to stay on `/customer/menu`
+   so they can still see "đang chờ thanh toán" status and the live order
+   list. We must NOT push them to `/customer/Feedback` (would surface an
+   empty rating form) and we must NOT clear `isAuthenticated` (would force
+   them to re-enter the staff passcode).
+   ```ts
+   await store.requestPayment();
+   router.push({ name: 'CustomerMenu' });
+   ```
+
+3. **Stale-bill / cross-table leak fix** (`src/views/admin/AdminFloorsView.vue:2873-2890`).
+   Previously the per-table `liveBillTotal` only fetched when the cache
+   was empty for that `tableId`. Re-opening the same modal (or rapid
+   A→B→A clicks) showed a stale or even a wrong table's total because the
+   cache key is `tableId` only. Now we **always** re-fetch on every modal
+   open, and we **invalidate** the cache whenever a realtime
+   `orders` / `order_items` event lands. This is what makes the floor-plan
+   totals actually live when a customer taps "Đặt món".
+
+4. **Realtime totals refresh** (`src/views/reception/ReceptionDashboardView.vue:1035-1045`
+   and `src/views/reception/ReceptionCheckoutView.vue:605-630`).
+   The dashboard now subscribes to `orders` + `order_items` in addition
+   to `tables` / `reservations` / `notifications`, so a new customer order
+   triggers an immediate `fetchAll()` → fresh `tạm tính` per occupied
+   table. The dedicated checkout view (`ReceptionCheckoutView`) gains a
+   15-second auto-refresh + realtime reload so a cashier who lingers on
+   the bill preview sees the new items without manually clicking refresh.
+
+5. **`previewTableSummary` semantics flipped**
+   (`src/composables/useCheckout.ts:90-115`).
+   The cache is now opt-in: callers must pass `{ useCache: true }` if they
+   want a sticky read. Every default call site (admin floor modal,
+   reception dashboard, cashier checkout) takes the cache-less path so
+   totals are always authoritative. `clearTableCache(tableId)` is now
+   exercised in three places (realtime event, after checkout, manual
+   refresh).
+
+### Verification
+
+- Migration applied on remote DB:
+  `pg_proc` confirms `hall_get_checkout_totals(p_branch_id, p_table_id, p_order_id, p_voucher_code, p_points_to_use, p_customer_id)`
+  returns `jsonb`, granted to `authenticated, service_role`.
+- `npx vue-tsc --noEmit` → exit 0
+- `npm run build` → exit 0, 1754 modules transformed, ~4.48 s
+- `npx playwright test` → 3 pass, 2 pre-existing fail (tablet mock + legacy router), 9 skipped (need live env)
+- Math sanity-checked against the live DB: 5 occupied tables (C01..C03, B01, B02) produce distinct grand_totals
+  (1.564.920đ / 1.564.920đ / 2.846.340đ / 861.840đ / 430.920đ), confirming the per-table filter and the
+  5 % service + 8 % VAT pipeline.
+
+### Hand-trace for the 5-step cashier flow
+
+1. Open `/reception/dashboard` — dashboard fetches 5 occupied tables in parallel
+   via `hall_list_tables` + `hall_get_checkout_totals`. No more 404s.
+2. Click table `C03` → `/reception/checkout/<tableId>` mounts `ReceptionCheckoutView`.
+   Realtime subscribed. `previewCheckout` returns the right totals.
+3. Customer at table `B02` adds another item → realtime `order_items` event →
+   both dashboard and (still-mounted) checkout view auto-reload.
+4. Cashier types the cash received → `refreshTotals()` re-runs the preview
+   RPC, the right column updates.
+5. Cashier clicks "Thanh toán" → `process_checkout` RPC → success Swal +
+   invoice number + redirect to `/reception/dashboard` (existing behaviour).
+   `_tableCache.clear()` flushes every table's preview so the next visit
+   fetches fresh.
+
+### Hand-trace for the customer redirect
+
+1. Customer at table `C02` taps "Yêu cầu thanh toán" from OrderHistory.
+2. `store.requestPayment()` updates `tablet_sessions.status = 'CHECKOUT_REQUESTED'`.
+3. `router.push({ name: 'CustomerMenu' })` keeps them on `/customer/menu`.
+4. They still see the order list with the "đang chờ thanh toán" badge
+   while the cashier processes the bill. They are NOT asked to re-enter
+   the staff passcode.

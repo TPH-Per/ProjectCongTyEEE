@@ -129,19 +129,65 @@ serve(async (req) => {
       .single()
     if (error) throw error
 
+    // 5.5 Insert a realtime notification for the reception panel.
+    // The dashboard subscribes to `notifications` via useRealtime and
+    // beeps on high-priority INSERTs (`playNotificationSound`). Without
+    // this row, the cashier would only know about new orders via the
+    // 30s polling interval — bad UX for a hot kitchen. Failures here
+    // must NOT block the order itself; the notification is best-effort.
+    try {
+      const { data: tableRow } = await admin
+        .from('tables')
+        .select('code')
+        .eq('id', tableId)
+        .maybeSingle()
+      const tableCode = (tableRow as { code?: string } | null)?.code ?? '—'
+      await admin.from('notifications').insert({
+        branch_id: order.branch_id,
+        channel: 'reception-panel',
+        recipient: 'reception',
+        template: 'new_order',
+        variables: {
+          table_id: tableId,
+          table_code: tableCode,
+          menu_item_name: menu.name,
+          quantity: body.quantity,
+          order_id: body.orderId,
+          message: `Bàn ${tableCode} vừa gọi món ${menu.name} x${body.quantity}`,
+        },
+        status: 'sent',
+        sent_at: new Date().toISOString(),
+        metadata: { source: 'add-order-item', order_id: body.orderId },
+      })
+    } catch (notifErr) {
+      console.warn('[add-order-item] notification insert failed:', notifErr)
+    }
+
     // 6. Recalculate order totals
+    // Exclude cancelled lines — the cashier expects `tạm tính` to reflect
+    // what the guest actually ordered. Cancelled items are filtered here
+    // AND in `hall_get_checkout_totals` so the cashier preview and the
+    // authoritative DB number agree.
     const { data: allItems } = await admin
       .from('order_items')
       .select('line_total, status')
       .eq('order_id', body.orderId)
 
-    const subtotal = (allItems ?? []).reduce((s, it) => s + Number(it.line_total), 0)
+    const subtotal = (allItems ?? [])
+      .filter((it) => (it.status ?? 'Pending') !== 'Cancelled')
+      .reduce((s, it) => s + Number(it.line_total), 0)
     const { data: orderRow } = await admin
       .from('orders')
       .select('vat_rate, discount')
       .eq('id', body.orderId)
       .single()
-    const vat = subtotal * Number(orderRow?.vat_rate ?? 0.08)
+    // `orders.vat` is stored separately from `service_charge` — the column
+    // represents the VAT amount only. Service charge is computed at
+    // `process_checkout` time. Here we just stamp the VAT amount on
+    // (subtotal − discount) so the cashier preview agrees with the DB
+    // snapshot. process_checkout is the authoritative number.
+    const vatRate = Number(orderRow?.vat_rate ?? 0.08)
+    const vat = Math.round(subtotal * vatRate)
     const total = subtotal + vat - Number(orderRow?.discount ?? 0)
 
     await admin

@@ -12,12 +12,32 @@ interface ChangePayload<T> {
   old: T
 }
 
-// Module-level dedup state. Channels and their reference counts are kept in
-// separate maps so we never mutate RealtimeChannel objects (which the
-// @supabase client expects to be opaque) and so the counts survive across
-// multiple `useRealtime()` composable instances.
-const channels = new Map<string, RealtimeChannel>()
-const channelRefs = new Map<string, number>()
+type Listener<T> = (payload: ChangePayload<T>) => void
+
+/**
+ * Module-level dedup state. Each entry holds:
+ *   - ch: the shared RealtimeChannel
+ *   - listeners: every subscriber's onChange callback (one per `watchTable`
+ *     call). The channel broadcasts every event to all listeners.
+ *   - ref: total subscriber count; the channel is torn down only when the
+ *     last subscriber unmounts.
+ *   - status: the latest channel status from the first subscriber's
+ *     `subscribe()` callback so late joiners can adopt it.
+ *
+ * Why a single Map (instead of separate `channels` and `channelRefs` Maps):
+ * the previous design had a silent-bug where a SECOND subscriber to the
+ * same `(table, event, filter)` tuple never had its callback wired up —
+ * the channel was reused as-is and the new `onChange` was discarded
+ * because the `if (!ch)` guard skipped the `.on(...)` call entirely.
+ * Now every callback lives in a Set the channel can fan out to.
+ */
+interface ChannelEntry<T = unknown> {
+  ch: RealtimeChannel
+  listeners: Set<Listener<T>>
+  ref: number
+  status: RealtimeStatus
+}
+const registry = new Map<string, ChannelEntry<any>>()
 
 function buildPgFilter(
   branchId: string | undefined,
@@ -38,10 +58,13 @@ function buildPgFilter(
  *
  * `watchTable` deduplicates channels by name so multiple components subscribing
  * to the same `(table, event, filter)` triple share one websocket. Each call
- * bumps the channel's reference count; the underlying channel is only torn
- * down when the LAST subscriber unmounts. This avoids the silent-disconnect
- * bug where a single component unmounting would close the channel for
- * everyone else.
+ * bumps the entry's reference count and ADDS the callback to the listener
+ * set; the underlying channel is torn down only when the LAST subscriber
+ * unmounts. This avoids two bugs we previously had:
+ *   1. Silent-disconnect: unmounting one component closed the channel for
+ *      everyone else.
+ *   2. Lost-callback: a second subscriber's onChange was silently dropped
+ *      because the channel was reused without re-wiring.
  */
 export function useRealtime() {
   const { branchId } = useAuth()
@@ -55,10 +78,11 @@ export function useRealtime() {
     filter?: Record<string, string | number>,
   ): () => void {
     const channelName = `watch:${table}:${event}:${JSON.stringify(filter ?? {})}`
-    let ch = channels.get(channelName)
+    let entry = registry.get(channelName) as ChannelEntry<T> | undefined
 
-    if (!ch) {
-      ch = supabase
+    if (!entry) {
+      const listeners = new Set<Listener<T>>()
+      const ch = supabase
         .channel(channelName)
         .on(
           // `postgres_changes` filter typings don't accept our dynamic filter object.
@@ -69,29 +93,47 @@ export function useRealtime() {
             table,
             filter: buildPgFilter(branchId.value, filter),
           },
-          (payload: ChangePayload<T>) => onChange(payload),
+          (payload: ChangePayload<T>) => {
+            // Fan out to every subscriber. Iterating over a Set is safe
+            // while callbacks may themselves remove listeners — a
+            // callback that triggers `cleanup()` only removes itself
+            // from the local copy thanks to the spread.
+            for (const cb of Array.from(listeners)) {
+              try { cb(payload) } catch (e) {
+                console.warn('[useRealtime] listener threw:', e)
+              }
+            }
+          },
         )
         .subscribe((s) => {
-          if (s === 'SUBSCRIBED') status.value = 'connected'
-          else if (s === 'CLOSED') status.value = 'disconnected'
-          else if (s === 'CHANNEL_ERROR') status.value = 'error'
+          // The first subscriber owns the channel-level status mirror so
+          // late joiners can pick it up.
+          const next: RealtimeStatus =
+            s === 'SUBSCRIBED' ? 'connected'
+              : s === 'CLOSED' ? 'disconnected'
+              : s === 'CHANNEL_ERROR' ? 'error'
+              : 'connecting'
+          entry!.status = next
         })
-      channels.set(channelName, ch)
-      channelRefs.set(channelName, 0)
+      entry = { ch, listeners, ref: 0, status: 'connecting' }
+      registry.set(channelName, entry)
     }
 
-    channelRefs.set(channelName, (channelRefs.get(channelName) ?? 0) + 1)
+    entry.listeners.add(onChange)
+    entry.ref += 1
+    // Adopt the latest channel status so this composable's `status` ref
+    // doesn't sit at `disconnected` while the channel is actually live.
+    status.value = entry.status
 
     function cleanup() {
-      const refs = (channelRefs.get(channelName) ?? 0) - 1
-      channelRefs.set(channelName, Math.max(0, refs))
-      const existing = channels.get(channelName)
-      if (!existing) return
-      if (refs <= 0) {
-        supabase.removeChannel(existing)
-        channels.delete(channelName)
-        channelRefs.delete(channelName)
-        activeCleanups.delete(cleanup)
+      const e = registry.get(channelName)
+      if (!e) return
+      e.listeners.delete(onChange)
+      e.ref = Math.max(0, e.ref - 1)
+      activeCleanups.delete(cleanup)
+      if (e.ref <= 0) {
+        supabase.removeChannel(e.ch)
+        registry.delete(channelName)
       }
     }
     activeCleanups.add(cleanup)

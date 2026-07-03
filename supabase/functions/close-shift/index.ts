@@ -74,15 +74,38 @@ serve(async (req) => {
       )
     }
 
-    // 2. Tính expected_cash (cash payments trong ca)
+    // 2. Tính expected_cash (cash payments trong ca).
+    //
+    // Cash math is subtle. Two rules:
+    //
+    //   - The actual cash LEFT in the till = opening + (Σ received − Σ change
+    //     given back). `amount` is the net sale, but the cashier physically
+    //     pocketed `received_amount` and gave back `change_amount`; so we use
+    //     received − change, not amount.
+    //
+    //   - Refunds (future — not implemented yet, but the migration plan
+    //     reserves `transaction_type = 'refund'`) are a negative line that
+    //     reduces the cash in the till. Today we don't have a refunds table
+    //     so the second term is zero — but the loop is written so the
+    //     moment a refund row exists the math will already be correct.
+    //
+    //   - `amount` is the NET of the sale; using it directly over-counts
+    //     whenever the customer overpaid (received > amount + change).
     const { data: cashPayments } = await admin
       .from('payments')
-      .select('amount, received_amount, change_amount')
+      .select('amount, received_amount, change_amount, revenue_type')
       .eq('shift_id', shift.id)
       .eq('method', 'cash')
 
     const expectedCash = Number(shift.opening_cash) + (cashPayments ?? []).reduce(
-      (s, p) => s + Number(p.amount), 0
+      (s, p) => {
+        const received = Number(p.received_amount ?? p.amount ?? 0)
+        const change = Number(p.change_amount ?? 0)
+        const isRefund = (p.revenue_type ?? 'other') === 'refund'
+        // Refunds subtract from the till; sales add (received − change).
+        return s + (isRefund ? -Math.abs(received) : received - change)
+      },
+      0
     )
 
     const cashDifference = body.closingCash - expectedCash

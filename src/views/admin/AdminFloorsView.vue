@@ -2345,9 +2345,11 @@ const simulatedAreas = computed<AreaInfo[]>(() => {
           } else if (currentMin >= bookingMin + 15 && currentMin < bookingMin + 120) {
             computedStatus = 'Serving';
             computedCustomer = booking.customerName;
-            const guests = booking.adults + booking.children;
-            const price = guests * 200000 + 150000;
-            computedBill = price.toLocaleString('vi-VN') + 'đ';
+            // Provisional bill comes from `hall_get_checkout_totals` RPC. Until
+            // the RPC is available we show a dash so the cashier doesn't see a
+            // fabricated number; the Dashboard / ReceptionOrderView surfaces
+            // the real number once the order has at least one item.
+            computedBill = '—';
             computedCheckIn = booking.reservationTime;
             computedDuration = `${currentMin - bookingMin} phút`;
             foundActive = true;
@@ -2822,7 +2824,9 @@ const tableModalForm = ref({
 // so flipping back to the same modal is instant. Stale entries clear when
 // a checkout completes (useCheckout.clearTableCache).
 import { useCheckout } from '@/composables/useCheckout'
+import { useRealtime } from '@/composables/useRealtime'
 const { previewTableSummary, clearTableCache } = useCheckout()
+const { watchTable } = useRealtime()
 const billTotalsCache = ref<Record<string, { subtotal: number; grand_total: number; loading: boolean; error: string | null }>>({})
 const liveBillTotal = computed(() => {
   const code = selectedTableForModal.value?.code ?? ''
@@ -2868,17 +2872,46 @@ async function refreshBillTotalForTable(tableId: string) {
 
 // Watch the modal's selected table so we fetch fresh totals every time the
 // manager opens it on a different table.
+//
+// IMPORTANT: previously this only fetched when the cache was empty, which
+// meant re-opening a table modal showed stale totals AND rapid A→B→A clicks
+// could leave the wrong table's total on screen because the cache key is
+// `tableId` only. Now we always force a fresh fetch on every modal open.
 watch(
   () => selectedTableForModal.value?.code,
   (newCode, oldCode) => {
     if (newCode === oldCode) return
     const t = newCode ? getTableByCode(newCode) : null
     const tableId = (t as any)?.id as string | undefined
-    if (tableId && !billTotalsCache.value[tableId]) {
+    if (tableId) {
       refreshBillTotalForTable(tableId)
     }
   },
 )
+
+// Invalidate the per-table bill cache whenever a new order or order_item
+// lands in the DB. This is what makes the floor-plan's `liveBillTotal`
+// actually live: when a customer taps "Đặt món" at table A, the realtime
+// event fires here, we drop A's cached preview, and the next time the
+// manager opens A's modal (or refreshes the floor) they see the new total
+// instead of the stale one.
+watchTable<Record<string, unknown>>('orders', '*', () => {
+  // Drop the currently-open table's cache so the next re-read pulls fresh.
+  const code = selectedTableForModal.value?.code
+  if (code) {
+    const t = getTableByCode(code)
+    const tableId = (t as any)?.id as string | undefined
+    if (tableId) clearTableCache(tableId)
+  }
+})
+watchTable<Record<string, unknown>>('order_items', '*', () => {
+  const code = selectedTableForModal.value?.code
+  if (code) {
+    const t = getTableByCode(code)
+    const tableId = (t as any)?.id as string | undefined
+    if (tableId) clearTableCache(tableId)
+  }
+})
 
 const liveOccupiedDuration = computed(() => {
   const code = selectedTableForModal.value?.code ?? ''

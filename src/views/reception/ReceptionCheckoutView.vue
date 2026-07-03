@@ -295,12 +295,13 @@
 import Swal from 'sweetalert2'
 import { useLanguageStore } from '@/stores/useLanguageStore'
 import { useRoute, useRouter, RouterLink } from 'vue-router'
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useAuth } from '@/composables/useAuth'
 import { useCustomer } from '@/composables/useCustomer'
 import { useCheckout } from '@/composables/useCheckout'
 import { useVoucher } from '@/composables/useVoucher'
 import { useMembership } from '@/composables/useMembership'
+import { useRealtime } from '@/composables/useRealtime'
 import { supabase } from '@/lib/supabase'
 import type { OrderRow, OrderItem, TableT } from '@/types/database'
 
@@ -519,7 +520,13 @@ async function loadOrder() {
   try {
     await fetchRules()
 
-    const { data, error: rpcErr } = await supabase.rpc('hall_get_checkout_summary', {
+    // Bootstrap: pull the full order snapshot via the new totals RPC. The
+    // `table`, `order`, `items` keys are identical between
+    // `hall_get_checkout_summary` (legacy) and `hall_get_checkout_totals`
+    // (current source of truth — see 20260703020001). refreshTotals() below
+    // reads `data.totals` which is only present in the new RPC, so we always
+    // call the new one here too.
+    const { data, error: rpcErr } = await supabase.rpc('hall_get_checkout_totals', {
       p_branch_id: branchId.value,
       p_table_id: tableId.value,
       p_order_id: null,
@@ -597,4 +604,26 @@ async function handleCheckout() {
 }
 
 onMounted(loadOrder)
+
+// Live update: while the cashier is on this view, refresh the order/items
+// snapshot whenever the customer adds an item to the same order (realtime)
+// and as a 15-second belt-and-suspenders fallback.
+const { watchTable } = useRealtime()
+const cleanups: Array<() => void> = []
+let autoRefreshTimer: ReturnType<typeof setInterval> | null = null
+
+watchTable<Record<string, unknown>>('order_items', '*', () => {
+  loadOrder().catch((e) => console.error('[ReceptionCheckout] realtime reload failed:', e))
+})
+watchTable<Record<string, unknown>>('orders', '*', () => {
+  loadOrder().catch((e) => console.error('[ReceptionCheckout] realtime reload failed:', e))
+})
+autoRefreshTimer = setInterval(() => {
+  loadOrder().catch(() => {})
+}, 15_000)
+
+onUnmounted(() => {
+  if (autoRefreshTimer) clearInterval(autoRefreshTimer)
+  while (cleanups.length) cleanups.pop()!()
+})
 </script>

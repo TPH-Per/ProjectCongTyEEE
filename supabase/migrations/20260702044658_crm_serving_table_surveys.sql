@@ -160,7 +160,7 @@ CREATE POLICY "crm_surveys_branch_insert" ON public.crm_surveys
   WITH CHECK (
     (branch_id = public.current_branch_id()
       OR public.has_role(ARRAY['admin']::public.user_role[]))
-    AND public.has_role(ARRAY['admin','manager','crm','staff','reception']::public.user_role[])
+    AND public.has_role(ARRAY['admin','manager','staff','reception']::public.user_role[])
   );
 
 DROP POLICY IF EXISTS "crm_surveys_branch_update" ON public.crm_surveys;
@@ -170,12 +170,12 @@ CREATE POLICY "crm_surveys_branch_update" ON public.crm_surveys
   USING (
     (branch_id = public.current_branch_id()
       OR public.has_role(ARRAY['admin']::public.user_role[]))
-    AND public.has_role(ARRAY['admin','manager','crm','staff','reception']::public.user_role[])
+    AND public.has_role(ARRAY['admin','manager','staff','reception']::public.user_role[])
   )
   WITH CHECK (
     (branch_id = public.current_branch_id()
       OR public.has_role(ARRAY['admin']::public.user_role[]))
-    AND public.has_role(ARRAY['admin','manager','crm','staff','reception']::public.user_role[])
+    AND public.has_role(ARRAY['admin','manager','staff','reception']::public.user_role[])
   );
 
 GRANT SELECT, INSERT, UPDATE ON public.crm_surveys TO authenticated;

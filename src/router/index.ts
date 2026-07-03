@@ -17,7 +17,6 @@ import KitchenLayout from "@/layouts/KitchenLayout.vue";
 import SuperadminLayout from "@/layouts/SuperadminLayout.vue";
 import PurchasingLayout from "@/layouts/PurchasingLayout.vue";
 import AccountingLayout from "@/layouts/AccountingLayout.vue";
-import CustomerLayout from "@/layouts/CustomerLayout.vue";
 import CRMLayout from "@/layouts/CRMLayout.vue";
 
 // ─── Auth ─────────────────────────────────────────────────────────────────────
@@ -78,14 +77,6 @@ import TabletCheckoutView from "@/views/tablet/TabletCheckoutView.vue";
 import SuperadminDashboardView from "@/views/superadmin/SuperadminDashboardView.vue";
 import SuperadminBrandsView from "@/views/superadmin/SuperadminBrandsView.vue";
 import SuperadminIntegrationsView from "@/views/superadmin/SuperadminIntegrationsView.vue";
-
-// ─── Customer Views ───────────────────────────────────────────────────────────
-import CustomerHome from "@/views/customer/CustomerHome.vue";
-import CustomerMenu from "@/views/customer/CustomerMenu.vue";
-import CustomerCart from "@/views/customer/CustomerCart.vue";
-import ServiceRequest from "@/views/customer/ServiceRequest.vue";
-import OrderHistory from "@/views/customer/OrderHistory.vue";
-import Feedback from "@/views/customer/Feedback.vue";
 
 const routes: RouteRecordRaw[] = [
   {
@@ -366,43 +357,8 @@ const routes: RouteRecordRaw[] = [
   },
   {
     path: "/customer",
-    component: CustomerLayout,
-    meta: {
-      requiresAuth: false,
-      role: "customer",
-    },
-    children: [
-      {
-        path: "",
-        name: "CustomerHome",
-        component: CustomerHome,
-      },
-      {
-        path: "menu",
-        name: "CustomerMenu",
-        component: CustomerMenu,
-      },
-      {
-        path: "cart",
-        name: "CustomerCart",
-        component: CustomerCart,
-      },
-      {
-        path: "service-request",
-        name: "ServiceRequest",
-        component: ServiceRequest,
-      },
-      {
-        path: "order-history",
-        name: "OrderHistory",
-        component: OrderHistory,
-      },
-      {
-        path: "feedback",
-        name: "Feedback",
-        component: Feedback,
-      },
-    ],
+    redirect: "/tablet/idle",
+    meta: { requiresAuth: true },
   },
 ];
 
@@ -451,7 +407,7 @@ router.beforeEach(async (to) => {
   );
 
   // Public routes.
-  if (to.path.startsWith("/customer") || to.meta.requiresAuth === false) {
+  if (to.meta.requiresAuth === false) {
     console.log(
       "[DEBUG ROUTER] Bypass match for public customer route:",
       to.path,

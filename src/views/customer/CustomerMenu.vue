@@ -89,12 +89,13 @@
 
       <!-- Fixed bottom layout container -->
       <div v-if="!isModalOpen" class="fixed-bottom-container">
-        <!-- BottomCartBar (above Tabs or at the bottom if no tabs) -->
-        <BottomCartBar
+        <!-- CartBar (above Tabs or at the bottom if no tabs) -->
+        <CartBar
           v-if="cartItemCount > 0"
-          :cart-item-count="cartItemCount"
+          :cart-count="cartItemCount"
           :cart-total="store.cartTotal"
-          @go-to-cart="goToCart"
+          :style="{ bottom: hasSubcategories ? '' : '0px' }"
+          @view-cart="goToCart"
         />
 
         <!-- CategoryTabs (always at bottom if available) -->
@@ -129,7 +130,7 @@ import { useCustomerSession } from '@/composables/useCustomerSession';
 import MenuItemDetailModal from '@/components/customer/MenuItemDetailModal.vue';
 import MenuItemCard from '@/components/customer/MenuItemCard.vue';
 import CategoryTabs from '@/components/customer/CategoryTabs.vue';
-import BottomCartBar from '@/components/customer/BottomCartBar.vue';
+import CartBar from '@/components/customer/CartBar.vue';
 import { menuData, type MenuCategory, type MenuItem } from '@/data/menuData';
 
 const store = useCustomerStore();

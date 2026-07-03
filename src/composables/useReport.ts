@@ -21,7 +21,9 @@ export function useReport() {
   const error = ref<string | null>(null)
 
   function guardManager() {
-    if (role.value !== 'manager' && role.value !== 'admin') {
+    // `superadmin` covers the legacy DB `admin` enum value via the
+    // normaliseRole() mapping in useAuth.ts.
+    if (role.value !== 'manager' && role.value !== 'superadmin') {
       throw new Error('Forbidden: manager role required for reports')
     }
   }

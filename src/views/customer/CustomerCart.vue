@@ -46,7 +46,7 @@
     </div>
 
     <!-- Main Content Stream (Dark theme, scrollable) -->
-    <div class="cart-content">
+    <div class="cart-content" :class="{ 'has-items': cart.length > 0 }">
       <!-- Empty State -->
       <div v-if="cart.length === 0" class="empty-cart-state">
         <div class="empty-icon-wrapper">🧺</div>
@@ -61,94 +61,100 @@
 
       <!-- Non-empty Cart State -->
       <template v-else>
-        <!-- Checkbox Select All Toggle -->
-        <div class="select-all-row">
-          <input
-            type="checkbox"
-            :checked="isAllSelected"
-            @change="toggleSelectAll"
-            id="select-all"
-            class="custom-checkbox"
-          />
-          <label for="select-all" class="select-all-label">
-            Chọn tất cả ({{ cart.length }} món)
-          </label>
-        </div>
+        <!-- Left Column: Item List & Selection -->
+        <div class="cart-left-col">
+          <!-- Checkbox Select All Toggle -->
+          <div class="select-all-row">
+            <input
+              type="checkbox"
+              :checked="isAllSelected"
+              @change="toggleSelectAll"
+              id="select-all"
+              class="custom-checkbox"
+            />
+            <label for="select-all" class="select-all-label">
+              Chọn tất cả ({{ cart.length }} món)
+            </label>
+          </div>
 
-        <!-- Render list -->
-        <div class="cart-items-list">
-          <CartItem
-            v-for="item in cart"
-            :key="item.menuItemId"
-            :item="item"
-            :is-selected="selectedIds.has(item.menuItemId)"
-            @toggle-select="toggleItemSelection(item.menuItemId)"
-            @update-quantity="onUpdateQuantity(item.menuItemId, $event)"
-            @update-note="onUpdateNote(item.menuItemId, $event)"
-            @remove="onRemoveItem(item.menuItemId)"
-          />
-        </div>
-
-        <!-- Billing Summary Section at the bottom of the list (Matching UI-07 specs) -->
-        <div class="billing-summary-card">
-          <h3 class="summary-title">
-            <span>📊</span> Chi tiết thanh toán tạm tính
-          </h3>
-
-          <div class="summary-details">
-            <div class="summary-row">
-              <span>Tổng số món:</span>
-              <span class="value-highlight">{{ cart.length }} món</span>
-            </div>
-            <div class="summary-row">
-              <span>Tổng số lượng:</span>
-              <span class="value-highlight">{{ totalQtyCount }} phần</span>
-            </div>
-            <div class="summary-row">
-              <span>Tiền món tạm tính:</span>
-              <span class="value-highlight">{{ formatPrice(cartTotal) }}</span>
-            </div>
-            <div class="summary-row">
-              <span>Phí dịch vụ (5%):</span>
-              <span class="value-highlight">{{
-                formatPrice(serviceCharge)
-              }}</span>
-            </div>
-            <div class="summary-row">
-              <span>Thuế VAT (8%):</span>
-              <span class="value-highlight">{{ formatPrice(vat) }}</span>
-            </div>
-
-            <div class="divider"></div>
-
-            <div class="summary-row grand-total-row">
-              <span>Tạm tính (gồm VAT + phí dịch vụ):</span>
-              <span class="grand-total-price">{{
-                formatPrice(grandTotal)
-              }}</span>
-            </div>
+          <!-- Render list -->
+          <div class="cart-items-list">
+            <CartItem
+              v-for="item in cart"
+              :key="item.menuItemId"
+              :item="item"
+              :is-selected="selectedIds.has(item.menuItemId)"
+              @toggle-select="toggleItemSelection(item.menuItemId)"
+              @update-quantity="onUpdateQuantity(item.menuItemId, $event)"
+              @update-note="onUpdateNote(item.menuItemId, $event)"
+              @remove="onRemoveItem(item.menuItemId)"
+            />
           </div>
         </div>
 
-        <!-- Sticky Bottom Actions Row -->
-        <div class="cart-bottom-actions">
-          <button
-            @click="backToMenu"
-            class="btn-continue-shopping"
-            type="button"
-          >
-            Thêm món
-          </button>
+        <!-- Right Column: Billing Summary & Actions -->
+        <div class="cart-right-col">
+          <!-- Billing Summary Section at the bottom of the list (Matching UI-07 specs) -->
+          <div class="billing-summary-card">
+            <h3 class="summary-title">
+              <span>📊</span> Chi tiết thanh toán tạm tính
+            </h3>
 
-          <button
-            @click="submitOrder"
-            :disabled="submitting"
-            class="btn-place-order"
-            type="button"
-          >
-            <span v-if="submitting" class="spinner"></span>
-            {{ submitting ? "Đang gửi..." : "Đặt món" }}
-          </button>
+            <div class="summary-details">
+              <div class="summary-row">
+                <span>Tổng số món:</span>
+                <span class="value-highlight">{{ cart.length }} món</span>
+              </div>
+              <div class="summary-row">
+                <span>Tổng số lượng:</span>
+                <span class="value-highlight">{{ totalQtyCount }} phần</span>
+              </div>
+              <div class="summary-row">
+                <span>Tiền món tạm tính:</span>
+                <span class="value-highlight">{{ formatPrice(cartTotal) }}</span>
+              </div>
+              <div class="summary-row">
+                <span>Phí dịch vụ (5%):</span>
+                <span class="value-highlight">{{
+                  formatPrice(serviceCharge)
+                }}</span>
+              </div>
+              <div class="summary-row">
+                <span>Thuế VAT (8%):</span>
+                <span class="value-highlight">{{ formatPrice(vat) }}</span>
+              </div>
+
+              <div class="divider"></div>
+
+              <div class="summary-row grand-total-row">
+                <span>Tạm tính (gồm VAT + phí dịch vụ):</span>
+                <span class="grand-total-price">{{
+                  formatPrice(grandTotal)
+                }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sticky Bottom Actions Row -->
+          <div class="cart-bottom-actions">
+            <button
+              @click="backToMenu"
+              class="btn-continue-shopping"
+              type="button"
+            >
+              Thêm món
+            </button>
+
+            <button
+              @click="submitOrder"
+              :disabled="submitting"
+              class="btn-place-order"
+              type="button"
+            >
+              <span v-if="submitting" class="spinner"></span>
+              {{ submitting ? "Đang gửi..." : "Đặt món" }}
+            </button>
+          </div>
         </div>
       </template>
     </div>
@@ -657,6 +663,75 @@ function formatPrice(val: number): string {
 @keyframes spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+/* Layout columns for desktop/tablet landscape (no scroll for billing card) */
+.cart-content.has-items {
+  display: flex;
+  flex-direction: row;
+  gap: 24px;
+  overflow: hidden;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+.cart-left-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.cart-right-col {
+  width: 380px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  flex-shrink: 0;
+  justify-content: flex-start;
+}
+
+.cart-right-col .billing-summary-card {
+  margin: 0;
+  max-width: none;
+}
+
+.cart-right-col .cart-bottom-actions {
+  margin: 0;
+  max-width: none;
+  padding-bottom: 0;
+}
+
+/* Hide scrollbars for left column but allow scrolling */
+.cart-left-col::-webkit-scrollbar {
+  width: 6px;
+}
+.cart-left-col::-webkit-scrollbar-track {
+  background: transparent;
+}
+.cart-left-col::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 3px;
+}
+
+@media (max-width: 1024px) {
+  .cart-content.has-items {
+    flex-direction: column;
+    overflow-y: auto;
+  }
+  
+  .cart-left-col {
+    overflow-y: visible;
+    padding-right: 0;
+  }
+  
+  .cart-right-col {
+    width: 100%;
   }
 }
 </style>

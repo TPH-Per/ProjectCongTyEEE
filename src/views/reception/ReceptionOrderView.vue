@@ -1,6 +1,6 @@
 <!-- File: src/views/reception/ReceptionOrderView.vue -->
 <template>
-  <div class="h-screen w-full flex overflow-hidden font-sans select-none text-gray-800 bg-[#f8f9fa] relative">
+  <div class="h-screen w-full flex overflow-hidden font-sans select-none text-gray-800 bg-[#1e1e1e] relative">
     
     <!-- SYSTEM TOAST QUEUE OVERLAY -->
     <div class="fixed top-4 right-4 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none">
@@ -29,481 +29,528 @@
       </transition-group>
     </div>
 
-    <!-- IF NO TABLE IS SELECTED: Show direct access block screen -->
-    <div v-if="!selectedTableCode" class="flex-1 flex flex-col items-center justify-center p-8 text-center bg-white border border-[#e0e0e0] rounded-xl m-6 shadow-sm">
-      <div class="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center text-3xl mb-4 text-[#c62828] animate-bounce">
-        ⚠️
-      </div>
-      <h2 class="text-lg font-bold text-gray-900 tracking-tight">{{ t('reception_order.quyen_truy_cap_bi_tu_choi') }}</h2>
-      <p class="text-sm text-gray-500 font-medium max-w-sm mt-1 mb-6">{{ t('reception_order.vui_long_chon_mot_ban_an_dang') }}</p>
-      <router-link 
-        to="/reception/floors" 
-        class="px-5 py-3 bg-[#c62828] hover:bg-[#b71c1c] text-white font-bold text-xs rounded-lg shadow-sm transition-all active:scale-95 flex items-center gap-2"
-      >
-        <span>{{ t('reception_order.di_toi_so_do_ban') }}</span>
-      </router-link>
-    </div>
-
-    <!-- ELSE: Show Order Management POS interface -->
-    <div v-else class="flex-1 flex flex-col min-h-0 overflow-hidden bg-[#3a3a3a] text-gray-200">
+    <!-- MAIN POS CONTAINER -->
+    <div class="flex-1 flex flex-col min-h-0 overflow-hidden bg-[#3a3a3a] text-gray-200">
       
-      <!-- 1. Header Bar: Full width top header -->
-      <header class="h-16 shrink-0 bg-[#2d2d2d] border-b border-[#1e1e1e] flex items-center justify-between px-6 select-none z-10 text-white">
-        <div class="flex items-center gap-4">
-          <!-- Back button -->
-          <button 
-            class="back-btn mr-2"
-            @click="goBack"
-            :aria-label="t('reception_order.quay_lai_aria')"
-          >
-            <span class="back-icon">⬅️</span>
-            <span class="back-text font-bold text-xs ml-1">{{ t('reception_order.quay_lai') }}</span>
+      <!-- 1. TOP BAR (Header) -->
+      <header class="h-16 shrink-0 bg-[#2d2d2d] border-b border-[#1e1e1e] flex items-center justify-between px-6 select-none z-10 text-white shadow-md">
+        <!-- Navigation Tabs -->
+        <div class="flex items-center gap-2">
+          <button class="p-2 hover:bg-[#3a3a3a] rounded-lg transition-colors mr-2 text-gray-400 hover:text-white">
+            ☰
           </button>
-
-          <!-- Restaurant logo -->
-          <div class="flex items-center gap-2 font-bold text-base text-[#ff8f00]">
-            <span class="text-xl">🐮</span>
-            <span>{{ t('reception_order.nguu_cat_pos') }}</span>
-          </div>
           
-          <!-- Order Number -->
-          <div class="flex flex-col gap-0.5 border-l border-[#4a4a4a] pl-4">
-            <span class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">{{ t('reception_order.hoa_don') }}</span>
-            <span class="text-xs font-bold font-mono text-gray-200">{{ activeOrder.orderNumber || 'WB_00001843' }}</span>
-          </div>
-
-          <!-- Customer Name -->
-          <div class="flex flex-col gap-0.5 border-l border-[#4a4a4a] pl-4">
-            <span class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">{{ t('reception_order.khach_hang') }}</span>
-            <span class="text-xs font-bold text-gray-200 truncate max-w-[120px]">{{ activeOrder.customerName || 'Ngoc' }}</span>
-          </div>
-
-          <!-- Open Time -->
-          <div class="flex flex-col gap-0.5 border-l border-[#4a4a4a] pl-4">
-            <span class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">{{ t('reception_order.gio_mo') }}</span>
-            <span class="text-xs font-mono text-gray-300">{{ activeOrder.openedTime || '11:30 24/06/2026' }}</span>
-          </div>
-
-          <!-- Booking Status Badge -->
-          <div class="border-l border-[#4a4a4a] pl-4 flex items-center h-full">
-            <span 
-              :class="[
-                'px-2 py-0.5 rounded text-[10px] font-bold border uppercase tracking-wider',
-                activeTableStatus === 'Đang ăn' ? 'bg-emerald-950/40 text-emerald-400 border-emerald-900/50' :
-                activeTableStatus === 'Đã đặt' ? 'bg-amber-950/40 text-amber-400 border-amber-900/50' :
-                activeTableStatus === 'Khách đến' ? 'bg-blue-950/40 text-blue-400 border-blue-900/50' :
-                'bg-gray-800 text-gray-400 border-gray-700'
-              ]"
-            >
-              [{{ activeTableStatus }}]
+          <button 
+            @click="activeMainTab = 'invoice'"
+            :class="[
+              'px-4 py-2 text-xs font-bold rounded-lg transition-all', 
+              activeMainTab === 'invoice' ? 'bg-[#ff8f00] text-white shadow' : 'text-gray-400 hover:text-white'
+            ]"
+          >
+            Phiếu
+          </button>
+          
+          <button 
+            @click="activeMainTab = 'menu'"
+            :class="[
+              'px-4 py-2 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5', 
+              activeMainTab === 'menu' ? 'bg-[#ff8f00] text-white shadow' : 'text-gray-400 hover:text-white'
+            ]"
+          >
+            Chi tiết
+            <span class="bg-red-650 bg-red-600 text-white text-[9px] font-black w-4.5 h-4.5 rounded-full flex items-center justify-center">
+              {{ activeOrder.items ? activeOrder.items.reduce((sum, item) => sum + item.quantity, 0) : 0 }}
             </span>
+          </button>
+          
+          <button 
+            @click="activeMainTab = 'table_map'"
+            :class="[
+              'px-4 py-2 text-xs font-bold rounded-lg transition-all', 
+              activeMainTab === 'table_map' ? 'bg-[#ff8f00] text-white shadow' : 'text-gray-400 hover:text-white'
+            ]"
+          >
+            Sơ đồ bàn
+          </button>
+        </div>
+
+        <!-- Cashier info -->
+        <div class="flex items-center gap-6 text-xs font-bold text-gray-300">
+          <div>
+            <span class="text-gray-500 mr-1">Thu Ngân:</span>
+            <span class="text-white">{{ profile?.full_name || 'mo' }}</span>
+          </div>
+          <div class="font-mono text-gray-400 flex items-center gap-2">
+            <span>{{ formattedDate }} {{ formattedTime }}</span>
+            <span class="bg-purple-900/60 border border-purple-800 text-purple-300 px-2 py-0.5 rounded text-[10px]">Ca: 1</span>
           </div>
         </div>
 
-        <div class="flex items-center gap-3">
-          <!-- Session countdown timer -->
-          <div class="flex items-center gap-2 bg-[#3a3a3a] border border-[#4a4a4a] px-3 py-1 rounded-lg text-xs font-semibold">
-            <span class="text-gray-400 uppercase tracking-wide text-[10px]">{{ t('reception_order.thoi_gian') }}</span>
-            <span 
-              :class="[
-                'font-mono font-bold px-1 rounded text-xs',
-                timerSecondsLeft <= 0 ? 'bg-red-950/60 text-red-400 animate-pulse' :
-                timerSecondsLeft < 600 ? 'bg-red-950/30 text-red-400 animate-pulse' :
-                'text-gray-200'
-              ]"
-            >
-              🕒 {{ formattedTimeLeft }}
-            </span>
-          </div>
-
-          <!-- Search Box -->
-          <div class="relative flex items-center bg-[#3a3a3a] border border-[#4a4a4a] rounded-lg px-3 py-1 focus-within:border-[#ff8f00] transition-colors w-56">
-            <span class="text-gray-400 mr-2 text-xs">🔍</span>
-            <input 
-              v-model="searchQuery" 
-              type="text" 
-              :placeholder="t('reception_order.tim_kiem')" 
-              class="bg-transparent border-none text-xs text-white placeholder-gray-500 focus:outline-none w-full"
-            />
-            <button v-if="searchQuery" @click="searchQuery = ''" class="text-gray-400 hover:text-white text-xs ml-1">✕</button>
-          </div>
-
-          <!-- More Actions Icon -->
-          <div class="flex items-center gap-1">
-            <button 
-              @click="printDraftBill" 
-              class="p-1.5 bg-[#3a3a3a] hover:bg-[#4a4a4a] border border-[#4a4a4a] rounded-lg transition-colors" 
-              :title="t('reception_order.xem_hoa_don_tam_tinh')"
-            >
-              🖨️
-            </button>
-            <button 
-              @click="openSettingsConfig" 
-              class="p-1.5 bg-[#3a3a3a] hover:bg-[#4a4a4a] border border-[#4a4a4a] rounded-lg transition-colors" 
-              :title="t('reception_order.cau_hinh_goi_ngon_ngu')"
-            >
-              ⚙️
-            </button>
-          </div>
-
-          <!-- Area/Table Selector Dropdown -->
-          <div class="relative">
-            <select 
-              v-model="selectedTableCode" 
-              class="bg-[#3a3a3a] text-xs text-white font-bold border border-[#4a4a4a] rounded-lg px-3 py-1.5 focus:outline-none focus:border-[#ff8f00] cursor-pointer"
-            >
-              <option v-for="t in allTables" :key="t.code" :value="t.code">
-                {{ t.label }}
-              </option>
-            </select>
-          </div>
+        <!-- Actions -->
+        <div class="flex items-center gap-2">
+          <button class="relative p-2 bg-[#3a3a3a] hover:bg-[#4a4a4a] rounded-lg transition-colors mr-2" title="Thông báo">
+            🔔
+            <span class="absolute -top-1 -right-1 bg-red-650 text-white text-[8px] font-black w-4 h-4 rounded-full flex items-center justify-center animate-pulse">99+</span>
+          </button>
+          
+          <button 
+            @click="goBack"
+            class="px-4 py-2 bg-[#E8772E] hover:bg-[#d0621f] text-white text-xs font-bold rounded-lg transition-all active:scale-95 shadow"
+          >
+            Tạm thoát
+          </button>
+          
+          <button 
+            @click="goBack"
+            class="px-4 py-2 bg-red-650 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-lg transition-all active:scale-95 shadow"
+          >
+            Quay về
+          </button>
         </div>
       </header>
 
-      <!-- DRINK GROUP WARNING TIMER EXPIRATION BANNER -->
-      <transition name="fade">
-        <div 
-          v-if="timerSecondsLeft <= 0 && (activeSettings.drinkGroup === 'B' || activeSettings.drinkGroup === 'C')"
-          class="bg-amber-950/60 border-b border-amber-900/50 text-amber-400 px-6 py-2 text-xs font-bold flex items-center justify-between shadow-sm z-10 select-none"
-        >
-          <div class="flex items-center gap-2">
-            <span>⏰</span>
-            <span>{{ t('reception_order.thoi_gian_do_uong_premium_da_k') }}</span>
-          </div>
-          <button @click="openPinModal" class="px-2.5 py-1 bg-amber-700 text-white text-[10px] rounded hover:bg-amber-600 font-bold transition-all">{{ t('reception_order.mo_khoa_pin') }}</button>
-        </div>
-      </transition>
-
-      <!-- 2 & 3: Middle container (Split row: Cart Left 30%, Products Right 70%) -->
+      <!-- Split body container -->
       <div class="flex-1 flex min-h-0 relative">
         
-        <!-- Cart Sidebar (approx 30% width) -->
+        <!-- 2. LEFT PANEL - ORDER DETAILS (30% width) -->
         <aside class="w-[30%] bg-[#2d2d2d] border-r border-[#1e1e1e] flex flex-col justify-between overflow-hidden">
           
-          <!-- Cart Header -->
-          <div class="p-4 border-b border-[#3a3a3a] flex items-center justify-between shrink-0 select-none">
-            <div class="flex flex-col">
-              <span class="font-bold text-xs text-gray-200">{{ t('reception_order.ban_phuc_vu') }}</span>
-              <span class="text-sm font-black text-[#ff8f00] mt-0.5">{{ activeTableArea }} - {{ t('reception_order.ban_text') }} {{ activeOrder.tableCode }}</span>
+          <!-- Header thông tin bàn -->
+          <div class="p-4 border-b border-[#3a3a3a] shrink-0 bg-[#232323] text-xs space-y-2">
+            <div class="flex justify-between items-center">
+              <span class="text-sm font-black text-[#ff8f00]">Vị trí: {{ selectedTableCode || '[Chưa chọn]' }}</span>
+              <span class="text-[10px] text-gray-500 font-bold">Số lần in: 3</span>
             </div>
-            
+            <div class="flex justify-between items-center text-[10px] text-gray-400">
+              <span>TG tạo: {{ activeOrder.openedTime || '02/07/2026 14:09' }}</span>
+            </div>
             <div class="flex items-center gap-2">
-              <button 
-                @click="clearCart" 
-                :disabled="activeOrder.items.length === 0"
-                class="px-2.5 py-1 text-[11px] font-bold bg-red-950/40 hover:bg-red-900/40 border border-red-900/50 text-red-400 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-              >{{ t('reception_order.xoa_het') }}</button>
+              <span class="text-gray-400 shrink-0">Khách hàng:</span>
+              <input 
+                v-model="activeOrder.customerName"
+                placeholder="Nhập tên khách..." 
+                class="bg-[#3a3a3a] border border-[#4a4a4a] rounded px-2 py-0.5 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-[#ff8f00] flex-1 font-bold"
+              />
             </div>
           </div>
 
-          <!-- Order Table Scroll area -->
-          <div class="flex-1 overflow-y-auto p-4 ordering-screen-scrollbar">
-            <div class="w-full text-left text-xs">
-              <!-- Columns headers -->
-              <div class="grid grid-cols-[45%_22%_13%_20%] font-bold text-gray-500 uppercase tracking-wider pb-2 border-b border-[#3a3a3a] px-1 select-none">
-                <div>{{ t('reception_order.ten_mon') }}</div>
-                <div class="text-right">{{ t('reception_order.don_gia') }}</div>
-                <div class="text-center">VAT</div>
-                <div class="text-right">{{ t('reception_order.thanh_tien') }}</div>
-              </div>
+          <!-- Bảng món ăn scroll area -->
+          <div class="flex-1 overflow-y-auto p-3 ordering-screen-scrollbar text-xs">
+            <!-- Columns headers -->
+            <div class="grid grid-cols-[38%_20%_10%_14%_18%] font-bold text-gray-500 uppercase tracking-wider pb-2 border-b border-[#3a3a3a] px-1 select-none text-[9px] text-center">
+              <div class="text-left">Tên hàng</div>
+              <div class="text-right">Đơn giá</div>
+              <div>VAT</div>
+              <div class="text-right">Giảm</div>
+              <div class="text-right">Tổng</div>
+            </div>
 
-              <!-- Cart Empty state -->
-              <div v-if="activeOrder.items.length === 0" class="py-20 text-center text-gray-500 select-none">
-                <div class="text-4xl mb-3">🛒</div>
-                <p class="font-bold text-gray-400">{{ t('reception_order.hoa_don_trong') }}</p>
-                <p class="text-[10px] text-gray-500 mt-1 max-w-[200px] mx-auto leading-relaxed">{{ t('reception_order.vui_long_chon_mon_an_tu_thuc_d') }}</p>
-              </div>
+            <!-- Empty cart state -->
+            <div v-if="!activeOrder.items || activeOrder.items.length === 0" class="py-20 text-center text-gray-500 select-none">
+              <div class="text-4xl mb-3">🛒</div>
+              <p class="font-bold text-gray-400">Đơn hàng trống</p>
+              <p class="text-[10px] text-gray-500 mt-1 max-w-[180px] mx-auto leading-relaxed">Chọn bàn rồi chọn món từ thực đơn để thêm.</p>
+            </div>
 
-              <!-- Cart items rows -->
-              <div v-else class="divide-y divide-[#3a3a3a] mt-1">
-                <div 
-                  v-for="item in activeOrder.items" 
-                  :key="item.id"
-                  class="grid grid-cols-[45%_22%_13%_20%] items-start py-3 hover:bg-[#333333] px-1 rounded-lg transition-colors group"
-                >
-                  <div class="pr-2">
-                    <div class="font-bold text-gray-100 leading-tight">{{ item.name }}</div>
-                    <div class="text-[10px] text-gray-500 mt-0.5">{{ t('reception_order.dvt') }}: {{ item.unit }}</div>
-                    
-                    <!-- Counter Controls -->
-                    <div class="flex items-center gap-1 mt-2 select-none">
-                      <button 
-                        @click="updateQty(item.id, -1)" 
-                        class="w-5 h-5 rounded bg-[#3a3a3a] text-gray-300 hover:bg-[#ff8f00] hover:text-white flex items-center justify-center font-bold text-xs active:scale-90 transition-all"
-                      >
-                        -
-                      </button>
-                      <span class="font-bold font-mono text-xs px-2 py-0.5 text-white bg-[#1e1e1e] rounded min-w-[24px] text-center">{{ item.quantity }}</span>
-                      <button 
-                        @click="updateQty(item.id, 1)" 
-                        class="w-5 h-5 rounded bg-[#3a3a3a] text-gray-300 hover:bg-[#ff8f00] hover:text-white flex items-center justify-center font-bold text-xs active:scale-90 transition-all"
-                      >
-                        +
-                      </button>
-                      <button 
-                        @click="removeItem(item.id)" 
-                        class="text-red-500 hover:text-red-400 text-xs ml-2.5 opacity-0 group-hover:opacity-100 transition-opacity"
-                        :title="t('reception_order.xoa_mon_khoi_gio')"
-                      >
-                        ✕
-                      </button>
-                    </div>
+            <!-- Cart items rows -->
+            <div v-else class="divide-y divide-[#3a3a3a]/40 mt-1">
+              <div 
+                v-for="item in activeOrder.items" 
+                :key="item.id"
+                class="grid grid-cols-[38%_20%_10%_14%_18%] items-start py-2.5 hover:bg-[#333333] px-1 rounded-lg transition-colors group relative"
+              >
+                <div class="pr-1">
+                  <div class="font-bold text-gray-100 leading-tight">{{ item.name }}</div>
+                  <div class="text-[9px] text-gray-505 text-gray-500 mt-0.5">({{ item.unit }})</div>
+                  
+                  <!-- Counter controls -->
+                  <div class="flex items-center gap-1 mt-1.5 select-none">
+                    <button 
+                      @click="updateQty(item.id, -1)" 
+                      class="w-4 h-4 rounded bg-[#3a3a3a] text-gray-300 hover:bg-[#ff8f00] hover:text-white flex items-center justify-center font-bold text-[10px] transition-all"
+                    >-</button>
+                    <span class="font-bold font-mono text-[9px] px-1 py-0.5 text-white bg-[#1e1e1e] rounded min-w-[16px] text-center">{{ item.quantity }}</span>
+                    <button 
+                      @click="updateQty(item.id, 1)" 
+                      class="w-4 h-4 rounded bg-[#3a3a3a] text-gray-300 hover:bg-[#ff8f00] hover:text-white flex items-center justify-center font-bold text-[10px] transition-all"
+                    >+</button>
+                    <button 
+                      @click="removeItem(item.id)" 
+                      class="text-red-505 text-red-500 hover:text-red-400 text-[10px] ml-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >✕</button>
                   </div>
+                </div>
 
-                  <div class="text-right font-mono font-bold text-gray-300 mt-0.5">
-                    <span v-if="isItemInPackage(item, activeSettings.package)" class="text-emerald-500 text-[10px] block leading-tight">{{ t('reception_order.trong_goi') }}</span>
-                    <span v-else>{{ formatVND(item.price) }}</span>
-                  </div>
+                <div class="text-right font-mono font-bold text-gray-300 text-[11px] mt-0.5">
+                  {{ formatVND(item.price) }}
+                </div>
 
-                  <div class="text-center font-mono text-gray-400 mt-0.5">10%</div>
+                <div class="text-center font-mono text-gray-400 text-[11px] mt-0.5">8%</div>
 
-                  <div class="text-right font-mono font-bold text-[#ff8f00] mt-0.5">
-                    <span v-if="isItemInPackage(item, activeSettings.package)" class="text-emerald-500 text-xs">{{ t('reception_order.0d') }}</span>
-                    <span v-else>{{ formatVND(item.price * item.quantity) }}</span>
-                  </div>
+                <div class="text-right font-mono text-[11px] text-gray-400 mt-0.5">
+                  {{ item.name.toLowerCase().includes('lunch') ? formatVND(item.price * 0.5) : '0đ' }}
+                </div>
+
+                <div class="text-right font-mono font-bold text-[#ff8f00] text-[11px] mt-0.5">
+                  {{ formatVND(calculateNetPrice(item)) }}
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Sticky summary footer -->
-          <div class="border-t border-[#3a3a3a] bg-[#1e1e1e] p-4 text-xs font-semibold text-gray-300 space-y-2 select-none shrink-0">
-            <div class="flex justify-between items-center">
-              <span class="text-gray-400">{{ t('reception_order.tam_tinh_mon_goi') }}</span>
+          <!-- Pricing summary / Footer info -->
+          <div class="border-t border-[#3a3a3a] bg-[#1e1e1e] p-4 text-xs font-semibold text-gray-300 space-y-2 shrink-0">
+            <div class="flex justify-between items-center text-gray-400">
+              <span>Tiền hàng:</span>
               <span class="font-mono text-gray-200">{{ formatVND(summary.subtotal) }}</span>
             </div>
             <div class="flex justify-between items-center text-gray-400">
-              <span>{{ t('reception_order.phi_dich_vu_5') }}</span>
-              <span class="font-mono">{{ formatVND(summary.serviceCharge) }}</span>
+              <span>Giảm:</span>
+              <span class="font-mono text-red-400">{{ formatVND(summary.discount) }}</span>
             </div>
             <div class="flex justify-between items-center text-gray-400">
-              <span>{{ t('reception_order.thue_gtgt_vat_10') }}</span>
-              <span class="font-mono">{{ formatVND(summary.vat) }}</span>
+              <span>VAT (8%):</span>
+              <span class="font-mono text-gray-300">{{ formatVND(summary.vat) }}</span>
             </div>
-            
-            <div class="flex justify-between items-center pt-2 border-t border-[#3a3a3a]">
-              <span class="text-gray-400 flex items-center gap-1.5">{{ t('reception_order.tong_so_luong_mon') }}</span>
-              <span class="bg-[#ff8f00] text-white font-mono px-2 py-0.5 rounded-full text-[10px] font-bold">
-                {{ activeOrder.items.reduce((sum, item) => sum + item.quantity, 0) }} {{ t('reception_order.mon') }}
-              </span>
+            <div class="flex justify-between items-center text-gray-400">
+              <span>Phí phục vụ:</span>
+              <span class="font-mono">0đ</span>
             </div>
-            
-            <div class="flex justify-between items-center text-sm font-bold text-white pt-1">
-              <span>{{ t('reception_order.tong_thanh_toan_label') }}</span>
-              <span class="text-xl font-mono text-[#ff8f00]">{{ formatVND(summary.grandTotal) }}</span>
+
+            <div class="flex justify-between items-center text-sm font-bold text-white pt-2 border-t border-[#3a3a3a]">
+              <span>TỔNG TIỀN:</span>
+              <span class="text-lg font-mono text-[#ff8f00]">{{ formatVND(summary.grandTotal) }}</span>
             </div>
-            
-            <div class="grid grid-cols-2 gap-2 pt-3">
-              <button 
-                @click="holdOrder"
-                class="py-2 bg-[#2d2d2d] hover:bg-[#333333] border border-[#4a4a4a] text-white text-xs font-bold rounded-lg transition-all"
-              >{{ t('reception_order.tam_luu') }}</button>
-              <button
-                @click="sendToKitchen"
-                :disabled="activeOrder.items.length === 0 || kitchenLoading"
-                class="py-2 bg-[#1976d2] hover:bg-[#1565c0] text-white text-xs font-bold rounded-lg disabled:opacity-40 disabled:cursor-not-allowed transition-all"
-              >{{ kitchenLoading ? '...' : t('reception_order.gui_bep') }}</button>
-            </div>
-            
+          </div>
+
+          <!-- Bottom Navigation (Sơ đồ bàn, Thực đơn, Phiếu) -->
+          <div class="border-t border-[#3a3a3a] bg-[#1a1a1a] p-2 flex gap-1 shrink-0 select-none">
             <button 
-              @click="checkoutTable"
-              class="w-full py-2.5 bg-[#c62828] hover:bg-[#b71c1c] text-white text-xs font-bold rounded-xl shadow-md transition-all active:scale-95 flex items-center justify-center gap-2 mt-2"
+              @click="activeMainTab = 'table_map'"
+              :class="[
+                'flex-1 py-2 text-xs font-bold rounded-lg text-center transition-all',
+                activeMainTab === 'table_map' ? 'bg-[#ff8f00] text-white shadow' : 'bg-[#2d2d2d] text-gray-400 hover:text-white'
+              ]"
             >
-              💸 {{ t('reception_order.in_thanh_toan_bill') }}
+              Sơ đồ bàn
+            </button>
+            <button 
+              @click="activeMainTab = 'menu'"
+              :class="[
+                'flex-1 py-2 text-xs font-bold rounded-lg text-center transition-all',
+                activeMainTab === 'menu' ? 'bg-[#ff8f00] text-white shadow' : 'bg-[#2d2d2d] text-gray-400 hover:text-white'
+              ]"
+            >
+              Thực đơn
+            </button>
+            <button 
+              @click="activeMainTab = 'invoice'"
+              :class="[
+                'flex-1 py-2 text-xs font-bold rounded-lg text-center transition-all',
+                activeMainTab === 'invoice' ? 'bg-[#ff8f00] text-white shadow' : 'bg-[#2d2d2d] text-gray-400 hover:text-white'
+              ]"
+            >
+              Phiếu
             </button>
           </div>
         </aside>
 
-        <!-- Product Grid Area (approx 70% width) -->
+        <!-- 3. MAIN AREA (70% width) -->
         <main class="w-[70%] bg-[#3a3a3a] flex flex-col justify-between overflow-hidden relative">
           
-
-
-          <!-- Products scrollable grid container -->
-          <div class="flex-1 overflow-y-auto p-5 ordering-screen-scrollbar">
-            
-            <!-- Filters & Preferences bar -->
-            <div class="flex flex-wrap items-center justify-between gap-3 mb-5 select-none shrink-0 bg-[#2d2d2d] p-3 rounded-xl border border-[#4a4a4a]">
-              <!-- Left: Quick filters & status/price sort -->
-              <div class="flex flex-wrap items-center gap-3">
-                <div class="flex gap-1.5">
-                  <button 
-                    v-for="f in [{id: 'favorites', label: '⭐ ' + t('reception_order.yeu_thich_star')}, {id: 'popular', label: '🔥 ' + t('reception_order.ban_chay_fire')}, {id: 'recent', label: '🕒 ' + t('reception_order.moi_goi_clock')}]"
-                    :key="f.id"
-                    @click="toggleQuickFilter(activeQuickFilter === f.id ? '' : (f.id as any))"
-                    :class="[
-                      'px-3 py-1.5 rounded-full text-xs font-bold transition-all border shrink-0 active:scale-95',
-                      activeQuickFilter === f.id
-                        ? 'bg-[#ff8f00] border-[#ff8f00] text-white shadow-xs'
-                        : 'bg-[#3a3a3a] border-[#4a4a4a] text-gray-400 hover:bg-[#4a4a4a] hover:text-white'
-                    ]"
-                  >
-                    {{ f.label }}
-                  </button>
-                </div>
-
-                <!-- Sort & Filter Dropdowns -->
-                <div class="flex items-center gap-2 border-l border-[#4a4a4a] pl-3">
-                  <!-- Status Filter -->
-                  <select 
-                    v-model="activeStatusFilter" 
-                    class="bg-[#3a3a3a] text-xs text-gray-200 border border-[#4a4a4a] rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-[#ff8f00] cursor-pointer"
-                  >
-                    <option value="all">{{ t('reception_order.tat_ca_mon') }}</option>
-                    <option value="available">{{ t('reception_order.con_mon') }}</option>
-                    <option value="unavailable">{{ t('reception_order.het_mon') }}</option>
-                  </select>
-
-                  <!-- Price Sort -->
-                  <select 
-                    v-model="priceSort" 
-                    class="bg-[#3a3a3a] text-xs text-gray-200 border border-[#4a4a4a] rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-[#ff8f00] cursor-pointer"
-                  >
-                    <option value="">{{ t('reception_order.khong_sap_xep') }}</option>
-                    <option value="asc">{{ t('reception_order.gia_thap_cao') }}</option>
-                    <option value="desc">{{ t('reception_order.gia_cao_thap') }}</option>
-                  </select>
-                </div>
-              </div>
+          <!-- TAB A: TABLE MAP (Sơ đồ bàn) -->
+          <div v-if="activeMainTab === 'table_map'" class="flex-1 flex flex-col justify-between overflow-hidden p-5">
+            <!-- Table Map scrollable grid -->
+            <div class="flex-1 overflow-y-auto ordering-screen-scrollbar space-y-6 pr-1">
               
-              <!-- Right: Toggle to show only course package elements -->
-              <div v-if="activeSettings.package" class="flex items-center gap-2 bg-[#3a3a3a] border border-[#4a4a4a] px-3 py-1 rounded-full text-xs">
-                <span class="text-gray-400 font-bold text-[10px] uppercase">{{ t('reception_order.chi_mon_trong_goi') }} ({{ activeSettings.package }}):</span>
-                <button 
-                  @click="showOnlyPackageItems = !showOnlyPackageItems"
+              <!-- Grid Layout of all tables -->
+              <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4">
+                <div 
+                  v-for="table in filteredTables" 
+                  :key="table.code"
+                  @click="selectTable(table.code)"
                   :class="[
-                    'w-8 h-4 rounded-full transition-colors relative flex items-center',
-                    showOnlyPackageItems ? 'bg-[#ff8f00]' : 'bg-[#2d2d2d]'
+                    'p-3 rounded-xl border-2 transition-all cursor-pointer flex flex-col justify-between min-h-[110px] text-center hover:scale-[1.02] active:scale-[0.98] duration-200 shadow-sm',
+                    selectedTableCode === table.code ? 'border-orange-500 ring-2 ring-orange-400 bg-orange-50/5' : 'border-transparent',
+                    getTableStatusClass(table)
                   ]"
                 >
-                  <div 
-                    :class="[
-                      'w-3 h-3 rounded-full bg-white transition-transform absolute shadow-xs',
-                      showOnlyPackageItems ? 'translate-x-4' : 'translate-x-0.5'
-                    ]"
-                  ></div>
+                  <div class="flex justify-between items-center select-none">
+                    <span class="font-extrabold text-sm">{{ table.code }}</span>
+                    <span v-if="table.status === 'Serving' || table.status === 'Arrived'" class="bg-black/20 px-1.5 py-0.5 rounded text-[9px] font-black">
+                      {{ table.capacity }}
+                    </span>
+                  </div>
+
+                  <div v-if="table.status === 'Serving' || table.status === 'Arrived'" class="mt-2 text-[10px] space-y-0.5">
+                    <div class="font-extrabold text-gray-200 truncate">{{ table.customerName || 'Khách' }}</div>
+                    <div class="text-gray-400">{{ table.checkInTime || '17:00' }} — {{ table.occupiedDuration || '0ph' }}</div>
+                    <div class="font-black text-[#ff8f00] mt-1">{{ table.billAmount || '[69.660]' }}</div>
+                  </div>
+                  <div v-else-if="table.status === 'Reserved'" class="mt-2 text-[10px] text-red-300">
+                    <div class="font-black truncate">{{ table.customerName || 'Đã đặt' }}</div>
+                    <div class="text-xs mt-1">🔒</div>
+                  </div>
+                  <div v-else class="mt-2 text-[10px] text-gray-500">
+                    Trống
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bottom Controls of Sơ đồ bàn -->
+            <div class="shrink-0 bg-[#2d2d2d] p-3 rounded-xl border border-[#4a4a4a] flex items-center justify-between mt-4">
+              <div class="flex items-center gap-3">
+                <span class="text-xs text-gray-400 font-bold uppercase">Khu vực:</span>
+                <select 
+                  v-model="selectedArea" 
+                  class="bg-[#3a3a3a] text-xs text-white border border-[#4a4a4a] rounded-lg px-3 py-1.5 focus:outline-none focus:border-[#ff8f00] cursor-pointer font-bold"
+                >
+                  <option value="Tất cả">Tất cả khu</option>
+                  <option v-for="area in restaurantStore.areas" :key="area.name" :value="area.name">
+                    {{ area.name }}
+                  </option>
+                </select>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <button 
+                  @click="selectedArea = 'Tất cả'" 
+                  class="px-3.5 py-1.5 bg-[#ff8f00] hover:bg-[#e07f00] text-white text-xs font-bold rounded-lg transition-all shadow font-sans"
+                >
+                  Tất cả
+                </button>
+                <button class="p-2 bg-[#3a3a3a] hover:bg-[#4a4a4a] rounded-lg transition-colors text-xs" title="Lưới">
+                  📊
                 </button>
               </div>
             </div>
+          </div>
 
-            <!-- Loading Spinner -->
-            <div v-if="isGridLoading" class="h-64 flex flex-col items-center justify-center text-gray-400 select-none">
-              <div class="w-8 h-8 border-4 border-[#ff8f00] border-t-transparent rounded-full animate-spin"></div>
-              <p class="text-xs font-bold mt-4">{{ t('reception_order.dang_loc_danh_muc_san_pham') }}</p>
-            </div>
+          <!-- TAB B: MENU (Thực đơn) -->
+          <div v-if="activeMainTab === 'menu'" class="flex-1 flex flex-col justify-between overflow-hidden">
+            <!-- Products scrollable grid container -->
+            <div class="flex-1 overflow-y-auto p-5 ordering-screen-scrollbar">
+              
+              <!-- Quick filters & Preferences bar -->
+              <div class="flex flex-wrap items-center justify-between gap-3 mb-5 select-none shrink-0 bg-[#2d2d2d] p-3 rounded-xl border border-[#4a4a4a]">
+                <div class="flex flex-wrap items-center gap-3">
+                  <div class="flex gap-1.5">
+                    <button 
+                      v-for="f in [{id: 'favorites', label: '⭐ Yêu thích'}, {id: 'popular', label: '🔥 Bán chạy'}, {id: 'recent', label: '🕒 Gần đây'}]"
+                      :key="f.id"
+                      @click="toggleQuickFilter(activeQuickFilter === f.id ? '' : (f.id as any))"
+                      :class="[
+                        'px-3 py-1.5 rounded-full text-xs font-bold transition-all border shrink-0 active:scale-95',
+                        activeQuickFilter === f.id
+                          ? 'bg-[#ff8f00] border-[#ff8f00] text-white shadow'
+                          : 'bg-[#3a3a3a] border-[#4a4a4a] text-gray-400 hover:bg-[#4a4a4a] hover:text-white'
+                      ]"
+                    >
+                      {{ f.label }}
+                    </button>
+                  </div>
 
-            <!-- Empty Items layout -->
-            <div v-else-if="finalFilteredItems.length === 0" class="h-64 flex flex-col items-center justify-center text-gray-500 text-center border border-dashed border-[#4a4a4a] rounded-2xl p-6 select-none">
-              <div class="text-4xl mb-2">🍽️</div>
-              <h4 class="font-bold text-gray-400 text-xs">{{ t('reception_order.khong_tim_thay_mon_an_nao_khop') }}</h4>
-              <p class="text-[10px] text-gray-500 mt-1 max-w-[280px]">{{ t('reception_order.thuc_don_hien_tai_khong_co_mon') }}</p>
-            </div>
+                  <div class="flex items-center gap-2 border-l border-[#4a4a4a] pl-3">
+                    <select 
+                      v-model="activeStatusFilter" 
+                      class="bg-[#3a3a3a] text-xs text-gray-200 border border-[#4a4a4a] rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-[#ff8f00] cursor-pointer font-bold"
+                    >
+                      <option value="all">Tất cả món</option>
+                      <option value="available">Còn món</option>
+                      <option value="unavailable">Hết món</option>
+                    </select>
 
-            <!-- Responsive Product Card Grid -->
-            <div v-else class="menu-grid">
-              <div 
-                v-for="product in finalFilteredItems" 
-                :key="product.id"
-                @click="handleCardClick(product)"
-                :class="[
-                  'menu-card border cursor-pointer transition-all duration-300 relative overflow-hidden group select-none',
-                  getCartItemQty(product.id) > 0 ? 'in-cart' : 'border-[#404040]',
-                  !getEnrichedItem(product).isAvailable ? 'out-of-stock' : ''
-                ]"
-              >
-                <!-- Badge số lượng trong giỏ -->
-                <div v-if="getCartItemQty(product.id) > 0" class="qty-badge">
-                  {{ getCartItemQty(product.id) }}
+                    <select 
+                      v-model="priceSort" 
+                      class="bg-[#3a3a3a] text-xs text-gray-200 border border-[#4a4a4a] rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-[#ff8f00] cursor-pointer font-bold"
+                    >
+                      <option value="">Không sắp xếp</option>
+                      <option value="asc">Giá: Thấp -> Cao</option>
+                      <option value="desc">Giá: Cao -> Thấp</option>
+                    </select>
+                  </div>
                 </div>
 
-                <!-- Favorite icon -->
-                <span v-if="favoriteIds.includes(product.id)" class="favorite-star">⭐</span>
-
-                <!-- Tên món (1 dòng) -->
-                <h3 class="item-name" :title="product.name" :style="{ color: getCartItemQty(product.id) > 0 ? '#ff8f00' : '#ffffff' }">
-                  {{ getJpAndViNames(product.name).vi }}
-                </h3>
-
-                <!-- Badge {{ t('reception_order.trong_goi_upper') }} hoặc Giá -->
-                <div v-if="isItemInPackage(product, activeSettings.package) || product.price === 0" class="badge-included">
-                  {{ t('reception_order.trong_goi_upper') }}
+                <!-- Search Input in menu grid -->
+                <div class="relative flex items-center bg-[#3a3a3a] border border-[#4a4a4a] rounded-lg px-3 py-1.5 focus-within:border-[#ff8f00] transition-colors w-48">
+                  <input 
+                    v-model="searchQuery" 
+                    type="text" 
+                    placeholder="Tìm món..." 
+                    class="bg-transparent border-none text-xs text-white placeholder-gray-500 focus:outline-none w-full"
+                  />
                 </div>
-                <div v-else class="item-price">
-                  {{ formatPrice(product.price) }}
-                </div>
+              </div>
 
-                <!-- Footer: ĐVT + Icon Info -->
-                <div class="card-footer">
-                  <span class="unit-label">{{ t('reception_order.dvt') }}: {{ product.unit }}</span>
-                  <button 
-                    class="info-btn" 
-                    @click.stop="openDetailPanel(product)"
-                    :title="t('reception_order.chi_tiet_title') + ': ' + product.name"
-                  >
-                  </button>
-                </div>
+              <!-- Product Grid -->
+              <div v-if="finalFilteredItems.length === 0" class="h-64 flex flex-col items-center justify-center text-gray-500 text-center border border-dashed border-[#4a4a4a] rounded-2xl p-6 select-none">
+                <div class="text-4xl mb-2">🍽️</div>
+                <h4 class="font-bold text-gray-400 text-xs">Không tìm thấy món ăn phù hợp</h4>
+              </div>
 
-                <!-- Stamp HẾT MÓN -->
-                <div v-if="!getEnrichedItem(product).isAvailable" class="out-of-stock-stamp">
-                  {{ t('reception_order.het_upper') }}
+              <div v-else class="menu-grid">
+                <div 
+                  v-for="product in finalFilteredItems" 
+                  :key="product.id"
+                  @click="handleCardClick(product)"
+                  :class="[
+                    'menu-card border cursor-pointer transition-all duration-350 relative overflow-hidden group select-none',
+                    getCartItemQty(product.id) > 0 ? 'in-cart border-[#ff8f00]' : 'border-[#404040]',
+                    !getEnrichedItem(product).isAvailable ? 'opacity-40 cursor-not-allowed' : ''
+                  ]"
+                >
+                  <div v-if="getCartItemQty(product.id) > 0" class="qty-badge">
+                    {{ getCartItemQty(product.id) }}
+                  </div>
+                  
+                  <span v-if="favoriteIds.includes(product.id)" class="favorite-star text-xs absolute top-1 right-1">⭐</span>
+
+                  <h3 class="item-name text-xs font-bold text-white mt-1 pr-4 truncate" :style="{ color: getCartItemQty(product.id) > 0 ? '#ff8f00' : '#ffffff' }">
+                    {{ getJpAndViNames(product.name).vi }}
+                  </h3>
+
+                  <div class="item-price text-xs font-black text-[#ff8f00] mt-2">
+                    {{ formatPrice(product.price) }}
+                  </div>
+
+                  <div class="card-footer mt-auto pt-2 flex items-center justify-between text-[10px] text-gray-400">
+                    <span>ĐVT: {{ product.unit }}</span>
+                    <span class="w-4 h-4 rounded bg-[#3a3a3a] text-white flex items-center justify-center font-bold">+</span>
+                  </div>
                 </div>
               </div>
             </div>
 
+            <!-- Categories Selection Bottom Navigation -->
+            <div class="bg-[#2d2d2d] border-t border-[#1e1e1e] flex flex-col shrink-0 select-none">
+              <!-- Sub Categories -->
+              <div class="p-2.5 border-b border-[#1e1e1e] category-container-sub flex gap-1.5 overflow-x-auto whitespace-nowrap">
+                <button 
+                  @click="selectSubCategory('all')"
+                  :style="{
+                    backgroundColor: activeSubCategoryId === 'all' ? '#ff8f00' : '#f5a623',
+                    border: '2px solid transparent'
+                  }"
+                  class="category-btn-sub px-3 py-1.5 rounded-lg text-[11px] font-extrabold text-white transition-all shadow-sm font-sans"
+                >
+                  Tất cả
+                </button>
+                <button 
+                  v-for="sub in activeSubcategoriesList"
+                  :key="sub.id"
+                  @click="selectSubCategory(sub.id)"
+                  :style="{
+                    backgroundColor: activeSubCategoryId === sub.id ? '#ff8f00' : '#f5a623',
+                    border: '2px solid transparent'
+                  }"
+                  class="category-btn-sub px-3 py-1.5 rounded-lg text-[11px] font-extrabold text-white transition-all shadow-sm font-sans"
+                >
+                  {{ sub.name }}
+                </button>
+              </div>
+
+              <!-- Main Categories -->
+              <div class="p-3 category-container-main flex gap-2 overflow-x-auto whitespace-nowrap">
+                <button 
+                  v-for="cat in menuHierarchy"
+                  :key="cat.id"
+                  @click="selectCategory(cat.id)"
+                  :style="{
+                    backgroundColor: activeCategoryId === cat.id ? '#c62828' : '#b56576',
+                  }"
+                  class="category-btn-main px-4 py-2.5 rounded-xl text-xs font-bold text-white transition-all flex items-center gap-1.5 uppercase shadow-sm shrink-0 font-sans"
+                >
+                  <span>
+                    <span v-if="cat.id === 'buffet'">🏆</span>
+                    <span v-else-if="cat.id === 'set_lunch'">🍱</span>
+                    <span v-else-if="cat.id === 'set_tiec_chieu_dai'">🎉</span>
+                    <span v-else-if="cat.id === 'set_tiec_chieu_dai_jp'">🗾</span>
+                    <span v-else-if="cat.id === 'set_vietravel'">✈️</span>
+                    <span v-else-if="cat.id === 'thuc_an'">🥩</span>
+                    <span v-else-if="cat.id === 'thuc_uong'">🥤</span>
+                    <span v-else-if="cat.id === 'thuc_uong_co_con'">🍺</span>
+                    <span v-else>🍽️</span>
+                  </span>
+                  <span>{{ cat.name }}</span>
+                </button>
+              </div>
+            </div>
           </div>
 
-          <!-- Bottom Navigation Area -->
-          <div class="bg-[#2d2d2d] border-t border-[#1e1e1e] flex flex-col shrink-0 select-none">
-            <!-- Level 2 - Sub Categories: Directly above Main Categories -->
-            <div class="p-3 border-b border-[#1e1e1e] category-container-sub">
-              <button 
-                @click="selectSubCategory('all')"
-                :style="{
-                  backgroundColor: '#f5a623',
-                  border: activeSubCategoryId === 'all' ? '2px solid white' : '2px solid transparent'
-                }"
-                class="category-btn-sub px-4 py-2 rounded-xl text-xs font-bold text-white transition-all active:scale-95 shadow-sm flex items-center justify-center"
-              >{{ t('reception_order.tat_ca') }}</button>
-              
-              <button 
-                v-for="sub in activeSubcategoriesList"
-                :key="sub.id"
-                @click="selectSubCategory(sub.id)"
-                :style="{
-                  backgroundColor: '#f5a623',
-                  border: activeSubCategoryId === sub.id ? '2px solid white' : '2px solid transparent'
-                }"
-                class="category-btn-sub px-4 py-2 rounded-xl text-xs font-bold text-white transition-all active:scale-95 shadow-sm flex items-center justify-center"
-              >
-                {{ sub.name }}
-              </button>
-            </div>
+          <!-- TAB C: INVOICE / BILL (Phiếu) -->
+          <div v-if="activeMainTab === 'invoice'" class="flex-1 overflow-y-auto p-6 ordering-screen-scrollbar text-xs">
+            <div class="max-w-xl mx-auto bg-[#2d2d2d] rounded-2xl p-6 border border-[#4a4a4a] space-y-6 shadow-lg">
+              <div class="text-center border-b border-[#3a3a3a] pb-4">
+                <h3 class="text-lg font-black text-white tracking-wide uppercase">Hóa đơn thanh toán</h3>
+                <p class="text-[10px] text-gray-500 font-bold uppercase tracking-wider mt-1">Bàn: {{ selectedTableCode || '[Chưa chọn]' }} — Số: CN3126070200014</p>
+              </div>
 
-            <!-- Level 1 - Main Categories: Bottom Row -->
-            <div class="p-3 category-container-main">
-              <button 
-                v-for="cat in menuHierarchy"
-                :key="cat.id"
-                @click="selectCategory(cat.id)"
-                :style="{
-                  backgroundColor: '#b56576',
-                  border: activeCategoryId === cat.id ? '2px solid #c62828' : '2px solid transparent'
-                }"
-                class="category-btn-main px-5 py-3.5 rounded-xl text-xs font-bold text-white transition-all flex items-center justify-center gap-2 uppercase tracking-wide active:scale-95 shadow-sm"
-              >
-                <span>
-                  <span v-if="cat.id === 'buffet'">🏆</span>
-                  <span v-else-if="cat.id === 'set_lunch'">🍱</span>
-                  <span v-else-if="cat.id === 'set_tiec_chieu_dai'">🎉</span>
-                  <span v-else-if="cat.id === 'set_tiec_chieu_dai_jp'">🗾</span>
-                  <span v-else-if="cat.id === 'set_vietravel'">✈️</span>
-                  <span v-else-if="cat.id === 'thuc_an'">🥩</span>
-                  <span v-else-if="cat.id === 'thuc_uong'">🥤</span>
-                  <span v-else-if="cat.id === 'thuc_uong_co_con'">🍺</span>
-                  <span v-else>🍽️</span>
-                </span>
-                <span>{{ cat.name }}</span>
-              </button>
+              <div class="grid grid-cols-2 gap-4 text-xs font-bold">
+                <div class="space-y-1">
+                  <span class="text-gray-400 block">Ngày lập:</span>
+                  <span class="text-white">{{ activeOrder.openedTime || '02/07/2026 14:09' }}</span>
+                </div>
+                <div class="space-y-1">
+                  <span class="text-gray-400 block">Nhân viên phục vụ:</span>
+                  <span class="text-white">{{ profile?.full_name || 'mo' }}</span>
+                </div>
+              </div>
+
+              <!-- Cart summary block inside invoice -->
+              <div class="border border-[#3a3a3a] rounded-xl overflow-hidden bg-[#232323]">
+                <div class="bg-gray-800/40 p-3 font-bold border-b border-[#3a3a3a] flex justify-between">
+                  <span>Chi tiết món ăn</span>
+                  <span class="text-gray-400">{{ activeOrder.items ? activeOrder.items.length : 0 }} món</span>
+                </div>
+                <div class="p-3 divide-y divide-[#3a3a3a]/40 max-h-48 overflow-y-auto ordering-screen-scrollbar">
+                  <div v-for="item in activeOrder.items" :key="item.id" class="py-2 flex justify-between items-center text-xs">
+                    <div>
+                      <div class="font-bold text-gray-205 text-gray-200">{{ item.name }}</div>
+                      <div class="text-[10px] text-gray-505 text-gray-500">x{{ item.quantity }} {{ item.unit }}</div>
+                    </div>
+                    <div class="font-mono text-gray-300">{{ formatVND(calculateNetPrice(item)) }}</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Total calculation and actions -->
+              <div class="space-y-3 pt-3 border-t border-[#3a3a3a]">
+                <div class="flex justify-between items-center font-bold">
+                  <span class="text-gray-400">Tiền hàng:</span>
+                  <span class="font-mono text-gray-200">{{ formatVND(summary.subtotal) }}</span>
+                </div>
+                <div class="flex justify-between items-center font-bold">
+                  <span class="text-gray-400">Giảm giá:</span>
+                  <span class="font-mono text-red-400">{{ formatVND(summary.discount) }}</span>
+                </div>
+                <div class="flex justify-between items-center font-bold">
+                  <span class="text-gray-400">VAT (8%):</span>
+                  <span class="font-mono text-gray-300">{{ formatVND(summary.vat) }}</span>
+                </div>
+                <div class="flex justify-between items-center font-bold text-sm text-white pt-2 border-t border-[#3a3a3a]">
+                  <span>Tổng thanh toán:</span>
+                  <span class="text-xl font-mono text-[#ff8f00]">{{ formatVND(summary.grandTotal) }}</span>
+                </div>
+              </div>
+
+              <!-- Button actions -->
+              <div class="grid grid-cols-2 gap-4 pt-4">
+                <button 
+                  @click="printDraftBill"
+                  :disabled="!selectedTableCode"
+                  class="py-3 bg-[#4a4a4a] hover:bg-[#5a5a5a] text-white text-xs font-bold rounded-xl transition-all shadow-md active:scale-95 font-sans"
+                >
+                  🖨️ In hóa đơn tạm
+                </button>
+                <button 
+                  @click="checkoutTable"
+                  :disabled="!selectedTableCode || !activeOrder.items || activeOrder.items.length === 0"
+                  class="py-3 bg-[#c62828] hover:bg-[#b71c1c] text-white text-xs font-bold rounded-xl shadow-md transition-all active:scale-95 font-sans"
+                >
+                  💸 Thanh toán & In Bill
+                </button>
+              </div>
             </div>
           </div>
 
@@ -1228,12 +1275,88 @@ import { useAuth } from '@/composables/useAuth'
 import { useTable } from '@/composables/useTable'
 import { useMenu } from '@/composables/useMenu'
 import Swal from 'sweetalert2'
+import { 
+  Utensils, 
+  Grid, 
+  Store, 
+  Clock, 
+  Calendar, 
+  CreditCard, 
+  Briefcase, 
+  BadgePlus, 
+  BadgeMinus, 
+  Receipt, 
+  BarChart3, 
+  LogOut, 
+  CheckCircle, 
+  XCircle, 
+  Eye 
+} from 'lucide-vue-next'
 
 const router = useRouter();
 const restaurantStore = useRestaurantStore();
 const { selectedTableCode } = storeToRefs(restaurantStore);
 const { listTables } = useTable()
 const { getItems } = useMenu()
+const { profile } = useAuth();
+
+const activeMainTab = ref<'table_map' | 'menu' | 'invoice'>(selectedTableCode.value ? 'menu' : 'table_map');
+const selectedArea = ref('Tất cả');
+
+const currentClock = ref(new Date());
+let clockInterval: any;
+
+const formattedTime = computed(() => {
+  return currentClock.value.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })
+});
+
+const formattedDate = computed(() => {
+  return currentClock.value.toLocaleDateString('vi-VN')
+});
+
+const filteredTables = computed(() => {
+  const list: any[] = [];
+  restaurantStore.areas.forEach(area => {
+    if (selectedArea.value === 'Tất cả' || area.name === selectedArea.value) {
+      area.tables.forEach(table => {
+        list.push({
+          ...table,
+          areaName: area.name
+        });
+      });
+    }
+  });
+  return list;
+});
+
+function getTableStatusClass(table: any): string {
+  if (table.status === 'Serving') {
+    return 'bg-emerald-950/40 border-emerald-800 text-emerald-300 hover:bg-emerald-900/30'
+  } else if (table.status === 'Arrived') {
+    return 'bg-green-950/40 border-green-800 text-green-300 hover:bg-green-900/30'
+  } else if (table.status === 'Reserved') {
+    return 'bg-red-950/40 border-red-900/50 text-red-400 hover:bg-red-900/30'
+  } else if (table.status === 'pending_payment') {
+    return 'bg-amber-950/40 border-amber-900/50 text-amber-400 hover:bg-amber-900/30'
+  } else {
+    return 'bg-gray-800/40 border-gray-700 text-gray-400 hover:bg-gray-700/30'
+  }
+}
+
+function selectTable(code: string) {
+  selectedTableCode.value = code;
+  activeMainTab.value = 'menu';
+}
+
+function calculateNetPrice(item: any): number {
+  const inPackage = isItemInPackage(item, activeSettings.value.package);
+  const price = inPackage ? 0 : item.price;
+  const isLunch = item.name.toLowerCase().includes('lunch');
+  const discount = isLunch ? price * 0.5 : 0;
+  const base = price - discount;
+  const vat = base * 0.08;
+  return Math.round(base + vat) * item.quantity;
+}
 
 function getMenuItemFromCartItem(item: any): MenuItem {
   for (const cat of menuData.categories) {
@@ -1991,6 +2114,9 @@ function getEnrichedItem(item: { id: string; name: string; category_id: string; 
 const summary = computed(() => {
   const guestCount = activeOrder.value.guestCount || 2;
   const ticketSubtotal = guestCount * selectedPackagePrice.value;
+  // Take HEAD: matches the DB `process_checkout` math (5% service + 10% VAT).
+  // origin/main's variant dropped service_charge entirely (was a quality-bar
+  // regression) so the cashier preview disagreed with the bill.
   const pkg = activeSettings.value.package;
 
   const items = activeOrder.value.items || [];
@@ -2005,8 +2131,13 @@ const summary = computed(() => {
   const serviceCharge = Math.round(subtotal * 0.05); // 5% Service Charge
   const vat = Math.round((subtotal + serviceCharge) * 0.1); // 10% VAT
   const grandTotal = subtotal + serviceCharge + vat;
+  // `discount` is exposed (currently 0) so the cashier-side preview matches
+  // the template layout from origin/main. The real discount path is wired
+  // through `process_checkout` (voucher + manual) — see Phase A in the
+  // quality-bar plan.
+  const discount = 0;
 
-  return { subtotal, serviceCharge, vat, grandTotal };
+  return { subtotal, serviceCharge, vat, grandTotal, discount };
 });
 
 // Parsed Japanese and Vietnamese Names extractor helper
@@ -2873,6 +3004,9 @@ function handleKeyDown(e: KeyboardEvent) {
 onMounted(() => {
   startSessionTimer();
   window.addEventListener('keydown', handleKeyDown);
+  clockInterval = setInterval(() => {
+    currentClock.value = new Date();
+  }, 1000);
 });
 
 onUnmounted(() => {
@@ -2881,6 +3015,9 @@ onUnmounted(() => {
   clearToastTimers()
   clearGridLoadingTimer()
   clearTimerWarningTimer()
+  if (typeof clockInterval !== 'undefined' && clockInterval != null) {
+    clearInterval(clockInterval)
+  }
 });
 </script>
 

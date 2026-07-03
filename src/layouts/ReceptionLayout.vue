@@ -12,90 +12,109 @@
         <div
           class="text-[11px] font-extrabold text-gray-500 uppercase tracking-wider mb-2"
         >{{ $t('layout.activity', 'Hoạt động') }}</div>
+        
         <RouterLink
           to="/reception/dashboard"
           class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-sm font-semibold text-gray-600 hover:bg-gray-100"
           active-class="bg-red-50 text-red-600 hover:bg-red-50"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <rect width="7" height="9" x="3" y="3" rx="1" />
-            <rect width="7" height="5" x="14" y="3" rx="1" />
-            <rect width="7" height="9" x="14" y="12" rx="1" />
-            <rect width="7" height="5" x="3" y="16" rx="1" />
-          </svg>{{ $t('layout.dashboard', 'Bảng điều khiển') }}</RouterLink>
-        <RouterLink
-          to="/reception/floors"
-          class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-sm font-semibold text-gray-600 hover:bg-gray-100"
-          active-class="bg-red-50 text-red-600 hover:bg-red-50"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
-            <line x1="9" x2="9" y1="3" y2="21" />
-            <line x1="15" x2="15" y1="3" y2="21" />
-            <line x1="3" x2="21" y1="9" y2="9" />
-            <line x1="3" x2="21" y1="15" y2="15" />
-          </svg>{{ $t('layout.floor_plan', 'Sơ đồ bàn') }}</RouterLink>
+          <LayoutDashboard class="w-[18px] h-[18px]" />
+          {{ $t('layout.dashboard', 'Bảng điều khiển') }}
+        </RouterLink>
+
+        <!-- Nhóm Bán hàng -->
+        <div class="text-[11px] font-extrabold text-gray-500 uppercase tracking-wider mb-2 mt-4">
+          Bán hàng
+        </div>
         <RouterLink
           to="/reception/order"
           class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-sm font-semibold text-gray-600 hover:bg-gray-100"
           active-class="bg-red-50 text-red-600 hover:bg-red-50"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <circle cx="8" cy="21" r="1" />
-            <circle cx="19" cy="21" r="1" />
-            <path
-              d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"
-            />
-          </svg>{{ $t('layout.order', 'Chọn món') }}</RouterLink>
+          <Utensils class="w-[18px] h-[18px]" />
+          Chọn món
+        </RouterLink>
+        <RouterLink
+          to="/reception/floors"
+          class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-sm font-semibold text-gray-600 hover:bg-gray-100"
+          active-class="bg-red-50 text-red-600 hover:bg-red-50"
+        >
+          <Grid class="w-[18px] h-[18px]" />
+          Sơ đồ bàn
+        </RouterLink>
+        <RouterLink
+          to="/reception/order"
+          class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-sm font-semibold text-gray-600 hover:bg-gray-100"
+          active-class="bg-red-50 text-red-600 hover:bg-red-50"
+        >
+          <Store class="w-[18px] h-[18px]" />
+          Nhà hàng
+        </RouterLink>
+
+        <!-- Nhóm Nghiệp vụ khác -->
+        <div class="text-[11px] font-extrabold text-gray-500 uppercase tracking-wider mb-2 mt-4">
+          Nghiệp vụ khác
+        </div>
+        <button
+          @click="handleQuickAction('Thu khác', '/transactions/income')"
+          class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-sm font-semibold text-gray-600 hover:bg-gray-100 text-left"
+        >
+          <BadgePlus class="w-[18px] h-[18px]" />
+          Thu khác
+        </button>
+        <button
+          @click="handleQuickAction('Chi khác', '/transactions/expense')"
+          class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-sm font-semibold text-gray-600 hover:bg-gray-100 text-left"
+        >
+          <BadgeMinus class="w-[18px] h-[18px]" />
+          Chi khác
+        </button>
+        <button
+          @click="handleQuickAction('Cấu hình', '/settings')"
+          class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-sm font-semibold text-gray-600 hover:bg-gray-100 text-left"
+        >
+          <SettingsIcon class="w-[18px] h-[18px]" />
+          Cấu hình
+        </button>
+
+        <!-- Nhóm Quản trị -->
+        <div class="text-[11px] font-extrabold text-gray-500 uppercase tracking-wider mb-2 mt-4">
+          Quản trị
+        </div>
+        <button
+          @click="handleQuickAction('Phiếu', '/admin/vouchers')"
+          class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-sm font-semibold text-gray-600 hover:bg-gray-100 text-left"
+        >
+          <Receipt class="w-[18px] h-[18px]" />
+          Phiếu
+        </button>
+        <button
+          @click="handleQuickAction('Báo cáo', '/admin/reports')"
+          class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-sm font-semibold text-gray-600 hover:bg-gray-100 text-left"
+        >
+          <BarChart3 class="w-[18px] h-[18px]" />
+          Báo cáo
+        </button>
+
+        <!-- Ca làm việc -->
+        <div class="text-[11px] font-extrabold text-gray-500 uppercase tracking-wider mb-2 mt-4">
+          Ca làm việc
+        </div>
         <RouterLink
           to="/reception/close-shift"
           class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-sm font-semibold text-gray-600 hover:bg-gray-100"
           active-class="bg-red-50 text-red-600 hover:bg-red-50"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-            <polyline points="22 4 12 14.01 9 11.01" />
-          </svg>{{ $t('layout.close_shift', 'Tổng Kết Ca') }}</RouterLink>
+          <Clock class="w-[18px] h-[18px]" />
+          Tổng Kết Ca
+        </RouterLink>
+        <button
+          @click="handleQuickAction('Ra ca', '/shift/end')"
+          class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-sm font-semibold text-gray-600 hover:bg-gray-100 text-left"
+        >
+          <LogOut class="w-[18px] h-[18px]" />
+          Ra ca
+        </button>
       </nav>
       <div class="p-4 border-t relative">
         <!-- Backdrop to close dropdown on click outside -->
@@ -195,6 +214,20 @@ import { RouterView, RouterLink, useRouter, useRoute } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'
 import { useUserSticker } from '@/composables/useUserSticker'
 import TextLogo from '@/components/TextLogo.vue'
+import Swal from 'sweetalert2'
+import { 
+  Utensils, 
+  BadgePlus, 
+  BadgeMinus, 
+  Settings as SettingsIcon, 
+  Receipt, 
+  BarChart3, 
+  LogOut,
+  LayoutDashboard,
+  Grid,
+  Clock,
+  Store
+} from 'lucide-vue-next'
 
 const router = useRouter()
 const route = useRoute()
@@ -202,6 +235,52 @@ const { t } = useI18n()
 const { signOut, profile, role } = useAuth()
 const { stickerUrl } = useUserSticker()
 const isDropdownOpen = ref(false)
+
+function handleQuickAction(name: string, path: string) {
+  if (name === 'Ra ca') {
+    Swal.fire({
+      title: 'Xác nhận ra ca?',
+      text: 'Bạn có chắc chắn muốn kết thúc ca làm việc hiện tại không?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Đồng ý',
+      cancelButtonText: 'Hủy',
+      confirmButtonColor: '#8E24AA',
+      cancelButtonColor: '#aaa'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        router.push('/reception/close-shift')
+      }
+    })
+    return
+  }
+
+  // Check auth roles for admin voucher
+  if (path.startsWith('/admin') && role.value !== 'superadmin') {
+    Swal.fire({
+      title: 'Không có quyền truy cập',
+      text: 'Chức năng này thuộc phân hệ Quản trị (chỉ dành cho Admin/Superadmin).',
+      icon: 'error',
+      confirmButtonText: 'Đóng',
+      confirmButtonColor: '#E8772E'
+    })
+    return
+  }
+
+  // Placeholder paths
+  if (path === '/transactions/income' || path === '/transactions/expense' || path === '/settings' || path === '/admin/reports' || path === '/restaurant-pos') {
+    Swal.fire({
+      title: 'Chức năng đang phát triển',
+      text: `Phân hệ ${name} đang được phát triển. Vui lòng thử lại sau.`,
+      icon: 'info',
+      confirmButtonText: 'Đóng',
+      confirmButtonColor: '#E8772E'
+    })
+    return
+  }
+
+  router.push(path)
+}
 
 const isFullscreen = computed(() => route.meta.fullscreen === true);
 

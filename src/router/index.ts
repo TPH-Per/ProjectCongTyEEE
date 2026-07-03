@@ -31,6 +31,8 @@ import AdminMenusView from "@/views/admin/AdminMenusView.vue";
 import AdminFloorsView from "@/views/admin/AdminFloorsView.vue";
 import AdminKPIView from "@/views/admin/AdminKPIView.vue";
 import AdminAuditView from "@/views/admin/AdminAuditView.vue";
+import AdminVoucherView from "@/views/admin/AdminVoucherView.vue";
+
 
 // ─── Staff/Hall Views ─────────────────────────────────────────────────────────
 import StaffFloorPlanView from "@/views/staff/StaffFloorPlanView.vue";
@@ -122,6 +124,8 @@ const routes: RouteRecordRaw[] = [
       { path: "floors", name: "admin-floors", component: AdminFloorsView },
       { path: "kpi", name: "admin-kpi", component: AdminKPIView },
       { path: "audit", name: "admin-audit", component: AdminAuditView },
+      { path: "vouchers", name: "admin-vouchers", component: AdminVoucherView },
+
     ],
   },
 

@@ -389,3 +389,70 @@ changelog bullets did not cover.
 ### Build verification
 
 - `npm run build` → 1693 modules transformed, ~6 s build, no type errors.
+
+## 10. 2026-07-03 — Pull `origin/main` customer + cashier UI
+
+`origin/main` shipped a redesigned customer surface (no QR, direct
+table assignment, dedicated `/customer/*` no-auth layout) and a
+revamped cashier open-shift banner. Pulled that in, kept the quality-bar
+math/logic from local.
+
+### Conflict regions resolved
+
+- `src/views/reception/ReceptionDashboardView.vue` — 3 conflict blocks.
+  Took `main`'s UI structure (open-shift banner, lucide icon set,
+  RouterLink pattern) but kept HEAD's composable imports (`useShift`,
+  `useServiceRequest`). Repointed the "Mở ca" RouterLink from
+  `main`'s `/reception/close-shift` (wrong target) to
+  `/reception/dashboard` as a known-safe placeholder.
+- `src/views/reception/ReceptionOrderView.vue` — 2 conflict blocks.
+  Took HEAD's `summary` math (5 % service + 10 % VAT — matches DB
+  `process_checkout`) so the cashier preview agrees with the bill.
+  `main`'s variant dropped `serviceCharge` entirely; that would have
+  re-introduced the preview-vs-DB drift that the quality-bar pass
+  closed in §9. Also added `discount: 0` to the return shape so
+  `main`'s `summary.discount` template references compile. Combined
+  both sides' `onUnmounted` cleanup blocks (HEAD's timer cleanup +
+  `main`'s `clearInterval(clockInterval)`).
+
+### Post-merge logic fixes
+
+| File | Change | Why |
+| --- | --- | --- |
+| `src/composables/useUnsavedGuard.ts` | **Recreated** from `stash@{0}` (was deleted by the merge). 163 lines verbatim from the previous round. | Four views still import it: `AdminFloorsView`, `AdminMenusView`, `KitchenInventoryView`, `ManagerVoucherView`. Without this file the build fails on missing-module errors. |
+| `src/views/reception/ReceptionDashboardView.vue` | Added a local `fetchActiveShift()` that re-issues `supabase.rpc('hall_get_active_shift', ...)` and assigns to `activeShift`. | `openShiftDialog()` calls `await fetchActiveShift()` to refresh the active-shift pill; `main` never declared this function. |
+| `src/composables/useReport.ts` | `guardManager()` now compares against `'superadmin'` instead of the legacy `'admin'` enum value. | `UserRole` no longer has `'admin'` — `useAuth.normaliseRole()` maps it to `'superadmin'` on read. |
+
+### Deliberately dropped from HEAD
+
+| Item | What was dropped | Why | Forward plan |
+| --- | --- | --- | --- |
+| `TimePicker15` `minTime` + interval-refresh guard | My past-time guard | `main` ships its own `TimePicker15`; diverging forces future re-merges | SQL `CHECK (reservation_time >= now())` + form pre-validate (out of scope this round) |
+| `useCheckout.CheckoutPreview` snake_case shape | Local `CheckoutTotals` shape | `main` ships a flat camelCase variant | Unify both shapes in a follow-up refactor |
+
+### Files in this merge
+
+```
+new        docs/member_status/Ishii/02_07_2026.md
+new        src/components/customer/CartBar.vue
+new        src/composables/useUnsavedGuard.ts         (restored from stash)
+modified   src/composables/useReport.ts               (role comparison fix)
+modified   src/layouts/CustomerLayout.vue
+modified   src/layouts/ReceptionLayout.vue
+modified   src/router/index.ts                        (added CustomerLayout + /customer/* routes)
+modified   src/views/customer/CustomerCart.vue
+modified   src/views/customer/CustomerMenu.vue
+modified   src/views/manager/ManagerDashboardView.vue
+modified   src/views/reception/ReceptionDashboardView.vue
+modified   src/views/reception/ReceptionOrderView.vue
+```
+
+### Build verification (this round)
+
+- `npx vue-tsc --noEmit` → exit 0
+- `npm run build` → 1753 modules transformed, 4.86 s build, no type errors, ~2.4 MB main bundle (warning only)
+- 8-route HTTP smoke (`/`, `/customer`, `/customer/menu`, `/customer/cart`, `/reception/dashboard`, `/reception/order`, `/tablet/idle`, `/manager/dashboard`) → all 200
+- No new Vite HMR errors in dev log
+
+Full decision log + outstanding items: see
+`MAIN_MERGE_REPORT_20260703.md` (sibling file).

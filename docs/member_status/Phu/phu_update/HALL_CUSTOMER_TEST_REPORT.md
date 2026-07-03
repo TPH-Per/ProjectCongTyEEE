@@ -223,3 +223,76 @@ Verified by vue-tsc + `npm run build` clean.
 | P2 error UX | Submit an order to a table that's been cancelled server-side | `Swal.fire('Gửi bếp thất bại', 'Table is no longer seated', …)` — full Postgres message. No more generic toast. |
 | Docs | `vue-tsc --noEmit` exit 0 | Pass |
 | Docs | `npm run build` exit 0 | Pass (1.8 MB main bundle; warning only — code-splitting is out of scope this round) |
+
+## 9. 2026-07-03 — Post-merge verification (origin/main UI pull)
+
+Pulled `origin/main` (commit `fccc9ee…`) which restructured the
+customer and cashier UI. Two files conflicted; both resolved. The
+checks below verify that the merged tree still builds and that the
+critical runtime paths are intact.
+
+### Build gate
+
+| Check | Command | Expected | Actual |
+| --- | --- | --- | --- |
+| Type-check | `npx vue-tsc --noEmit` | exit 0 | exit 0 |
+| Production build | `npm run build` | exit 0 | exit 0 — 1753 modules, 4.86 s |
+| Bundle size warning | rollup output | ≤ 500 kB per chunk | 2.4 MB main bundle (warning only — already filed under future-TODO #10) |
+| Vite plugin timing warning | rolldown | n/a | `vite:vue 80 % / vite:css 18 %` — informational only |
+
+### Conflict resolution correctness
+
+| Region | Decision | Verified by |
+| --- | --- | --- |
+| `ReceptionDashboardView` line 64-93 (open-shift banner) | Took `main`'s UI structure, repointed RouterLink to `/reception/dashboard` placeholder | `vue-tsc` clean; `openShiftDialog()` body intact |
+| `ReceptionDashboardView` line 557-593 (icons + composables) | Took `main`'s lucide set + HEAD's `useShift`/`useServiceRequest` | All imports resolve |
+| `ReceptionOrderView` line 2115-2140 (summary computed) | Kept HEAD's math (5 % service + 10 % VAT); added `discount: 0` to return | Template `summary.discount` / `summary.subtotal` / `summary.grandTotal` all reference valid keys |
+| `ReceptionOrderView` line 3037-3043 (`onUnmounted`) | Combined HEAD's timer cleanup + `main`'s `clearInterval(clockInterval)` | All three timer families cleared; no leak across route changes |
+
+### HTTP smoke (dev server)
+
+| Route | Expected | Actual |
+| --- | --- | --- |
+| `/` | 200 | 200 |
+| `/customer` | 200 (no-auth) | 200 |
+| `/customer/menu` | 200 (no-auth) | 200 |
+| `/customer/cart` | 200 (no-auth) | 200 |
+| `/reception/dashboard` | 200 (auth) | 200 |
+| `/reception/order` | 200 (auth) | 200 |
+| `/tablet/idle` | 200 | 200 |
+| `/manager/dashboard` | 200 (auth) | 200 |
+
+### Module transpile (Vite dev)
+
+| Module | Status |
+| --- | --- |
+| `src/views/reception/ReceptionOrderView.vue` | Compiles, no parse errors |
+| `src/views/reception/ReceptionDashboardView.vue` | Compiles, no parse errors |
+| `src/composables/useUnsavedGuard.ts` (restored) | Compiles, no parse errors |
+| `src/composables/useReport.ts` | Compiles, role comparison valid |
+
+### Hand-test deferred
+
+I deliberately did NOT run the deep E2E (Playwright) for this round
+because:
+
+1. The Supabase backend is local-only and not running in this session.
+2. The user requested a UI pull + quality-bar reconciliation — the
+   acceptable merge gate per the agreed plan is `vue-tsc` clean +
+   `npm run build` clean + route HTTP 200.
+
+Once the stack is up again, the Playwright specs at
+`tests/e2e/hall/` cover the full customer + cashier flow and should be
+re-run end-to-end. No regressions expected: the changes were
+additive (file restores, local helpers) and constraint-respecting
+(HEAD's checkout math was preserved).
+
+### Outstanding items from this merge (NOT blockers)
+
+| Item | Why deferred | Where filed |
+| --- | --- | --- |
+| Open-shift RouterLink repoint (§3.1 of merge report) | Needs design call: button vs new route | `MAIN_MERGE_REPORT_20260703.md` §6 |
+| `TimePicker15` past-time guard (§3.2) | Upstream truth diverges; SQL CHECK is the real fix | `FUTURE_TODO_OUT_OF_SCOPE.md` |
+| `/customer/*` guest-binding composable | Out of original scope | `HALL_CUSTOMER_UPDATED_PLAN.md` §5 |
+| `useCheckout` shape mismatch (snake vs camel) | Needs unified contract | `MAIN_MERGE_REPORT_20260703.md` §6 |
+| Bundle code-splitting | 2.4 MB main bundle triggers warning | `FUTURE_TODO_OUT_OF_SCOPE.md` #10 |

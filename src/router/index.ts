@@ -18,6 +18,7 @@ import SuperadminLayout from "@/layouts/SuperadminLayout.vue";
 import PurchasingLayout from "@/layouts/PurchasingLayout.vue";
 import AccountingLayout from "@/layouts/AccountingLayout.vue";
 import CRMLayout from "@/layouts/CRMLayout.vue";
+import CustomerLayout from "@/layouts/CustomerLayout.vue";
 
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 import LoginView from "@/views/LoginView.vue";
@@ -72,6 +73,15 @@ import TabletIdleView from "@/views/tablet/TabletIdleView.vue";
 import TabletLanguageView from "@/views/tablet/TabletLanguageView.vue";
 import TabletOrderView from "@/views/tablet/TabletOrderView.vue";
 import TabletCheckoutView from "@/views/tablet/TabletCheckoutView.vue";
+
+// ─── Customer Views ──────────────────────────────────────────────────────────────
+import CustomerHome from "@/views/customer/CustomerHome.vue";
+import CustomerMenu from "@/views/customer/CustomerMenu.vue";
+import CustomerCart from "@/views/customer/CustomerCart.vue";
+import OrderHistory from "@/views/customer/OrderHistory.vue";
+import ServiceRequest from "@/views/customer/ServiceRequest.vue";
+import SessionEnd from "@/views/customer/SessionEnd.vue";
+import Feedback from "@/views/customer/Feedback.vue";
 
 // ─── Superadmin Views ─────────────────────────────────────────────────────────
 import SuperadminDashboardView from "@/views/superadmin/SuperadminDashboardView.vue";
@@ -357,8 +367,45 @@ const routes: RouteRecordRaw[] = [
   },
   {
     path: "/customer",
-    redirect: "/tablet/idle",
-    meta: { requiresAuth: true },
+    component: CustomerLayout,
+    meta: { requiresAuth: false, requiresBranch: false },
+    children: [
+      {
+        path: "",
+        name: "CustomerHome",
+        component: CustomerHome,
+      },
+      {
+        path: "menu",
+        name: "CustomerMenu",
+        component: CustomerMenu,
+      },
+      {
+        path: "cart",
+        name: "CustomerCart",
+        component: CustomerCart,
+      },
+      {
+        path: "orders",
+        name: "OrderHistory",
+        component: OrderHistory,
+      },
+      {
+        path: "service",
+        name: "ServiceRequest",
+        component: ServiceRequest,
+      },
+      {
+        path: "feedback",
+        name: "Feedback",
+        component: Feedback,
+      },
+      {
+        path: "session-end",
+        name: "SessionEnd",
+        component: SessionEnd,
+      },
+    ],
   },
 ];
 

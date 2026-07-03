@@ -91,6 +91,17 @@
                 <circle cx="12" cy="7" r="4"></circle>
               </svg>
             </button>
+
+            <!-- 4. Exit Table button -->
+            <button @click="handleExitTable"
+                    class="w-9 h-9 rounded-lg flex items-center justify-center border border-rose-950 bg-rose-950/30 text-rose-400 hover:bg-rose-600 hover:text-white transition-all active:scale-90"
+                    title="Thoát bàn">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                <polyline points="16 17 21 12 16 7"></polyline>
+                <line x1="21" y1="12" x2="9" y2="12"></line>
+              </svg>
+            </button>
           </div>
 
           <!-- Language flags selector -->
@@ -145,13 +156,14 @@
 <script setup lang="ts">
 import { computed, onMounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import Swal from 'sweetalert2';
 import { useCustomerStore } from '@/stores/customerStore';
 import { useCustomerSession } from '@/composables/useCustomerSession';
 
 const store = useCustomerStore();
 const router = useRouter();
 const route = useRoute();
-const { restoreSessionFromLocalStorage } = useCustomerSession();
+const { restoreSessionFromLocalStorage, clearSession } = useCustomerSession();
 
 const session = computed(() => store.session);
 const cartItemCount = computed(() => store.cartItemCount);
@@ -186,6 +198,30 @@ function goToView(routeName: string) {
 function setLanguage(lang: 'vi' | 'en' | 'ja') {
   store.currentLanguage = lang;
   store.addNotification(`Đã chuyển sang ngôn ngữ: ${lang === 'vi' ? 'Tiếng Việt' : lang === 'en' ? 'English' : '日本語'}`, 'info');
+}
+
+async function handleExitTable() {
+  const result = await Swal.fire({
+    title: 'Xác nhận thoát bàn?',
+    text: 'Bạn có chắc chắn muốn thoát phiên làm việc của bàn này không?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#E8772E',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Đồng ý',
+    cancelButtonText: 'Hủy'
+  });
+
+  if (result.isConfirmed) {
+    clearSession();
+    Swal.fire({
+      title: 'Đã thoát bàn!',
+      text: 'Đã giải phóng phiên làm việc thành công.',
+      icon: 'success',
+      timer: 1500,
+      showConfirmButton: false
+    });
+  }
 }
 </script>
 

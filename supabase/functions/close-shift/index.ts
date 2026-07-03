@@ -51,6 +51,29 @@ serve(async (req) => {
       throw new AuthError('Reception chỉ được đóng ca do chính mình mở', 403)
     }
 
+    // 1.5 Guard: refuse to close the shift while there are unsettled orders.
+    // An "unsettled" order is one whose status is not Paid/Cancelled (so it's
+    // still Pending/Preparing/Served). The user must resolve them first or
+    // explicitly mark them as voided (manager override).
+    const { count: unsettledCount, error: countErr } = await admin
+      .from('orders')
+      .select('id', { count: 'exact', head: true })
+      .eq('branch_id', shift.branch_id)
+      .not('status', 'in', '(Paid,Cancelled)')
+
+    if (countErr) throw countErr
+    if ((unsettledCount ?? 0) > 0) {
+      return new Response(
+        JSON.stringify({
+          ok: false,
+          error: 'unsettled_orders',
+          message: `Còn ${unsettledCount} order chưa thanh toán/hủy — phải xử lý trước khi đóng ca.`,
+          count: unsettledCount,
+        }),
+        { status: 409, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      )
+    }
+
     // 2. Tính expected_cash (cash payments trong ca)
     const { data: cashPayments } = await admin
       .from('payments')

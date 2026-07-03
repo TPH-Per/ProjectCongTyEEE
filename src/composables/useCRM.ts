@@ -174,6 +174,29 @@ export function useCRM() {
     return data
   }
 
+  /**
+   * Generic survey-status setter. Used by the "undo last change" affordance —
+   * reverts to a prior status after a mistaken clicked action. Only the 4
+   * intermediate workflow statuses are accepted (`completed` is not reversible
+   * through this RPC — once submitted, the survey is final).
+   */
+  async function setSurveyStatus(
+    table: Pick<CrmServingTable, 'table_id' | 'order_id' | 'table_assignment_id'>,
+    status: 'assigned' | 'in_progress' | 'skipped' | 'customer_refused',
+    note?: string,
+  ) {
+    const { data, error: err } = await supabase.rpc('crm_set_table_survey_status', {
+      p_branch_id: activeBranchId.value ?? throwBranchGuard(),
+      p_table_id: table.table_id,
+      p_order_id: table.order_id,
+      p_table_assignment_id: table.table_assignment_id,
+      p_status: status,
+      p_note: note || null,
+    })
+    if (err) throw err
+    return data
+  }
+
   return {
     loading,
     error,
@@ -184,5 +207,6 @@ export function useCRM() {
     markSurveyInProgress,
     skipTableSurvey,
     refuseTableSurvey,
+    setSurveyStatus,
   }
 }

@@ -21,7 +21,7 @@ export function useReport() {
   const error = ref<string | null>(null)
 
   function guardManager() {
-    if (role.value !== 'manager' && role.value !== 'superadmin') {
+    if (role.value !== 'manager' && role.value !== 'admin') {
       throw new Error('Forbidden: manager role required for reports')
     }
   }
@@ -51,18 +51,21 @@ export function useReport() {
     loading.value = true
     error.value = null
     const today = new Date().toISOString().slice(0, 10)
+    // Rebuilt invoices (schema_hardening_v2) use status in (VALID, UPDATED) and
+    // created_at (no issued_at). The legacy invoices table also has these columns
+    // but the rebuilt path is the one created by process_checkout.
     const { data: invoices, error: err } = await supabase
       .from('invoices')
-      .select('total, order_id')
+      .select('grand_total, order_id')
       .eq('branch_id', (activeBranchId.value ?? throwBranchGuard()))
-      .eq('status', 'paid')
-      .gte('issued_at', `${today}T00:00:00Z`)
+      .in('status', ['VALID', 'UPDATED'])
+      .gte('created_at', `${today}T00:00:00Z`)
     loading.value = false
     if (err) {
       error.value = err.message
       throw err
     }
-    const revenue = (invoices ?? []).reduce((acc, r) => acc + Number(r.total), 0)
+    const revenue = (invoices ?? []).reduce((acc, r) => acc + Number(r.grand_total), 0)
     const orders = new Set((invoices ?? []).map((r) => r.order_id)).size
     return { revenue, orders, covers: orders * 2 } // placeholder covers estimate
   }

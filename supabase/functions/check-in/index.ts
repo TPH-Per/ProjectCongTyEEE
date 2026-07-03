@@ -171,21 +171,40 @@ serve(async (req) => {
     }
 
     // 4. Update tables.status = occupied and metadata (filter by branch)
-    const tableMetadata = { 
-      ...packageMeta, 
-      flow_mode: body.flowMode, 
-      party_size: body.partySize, 
-      demographics_capture: body.partySize, 
-      reservation_id: finalResvId, 
-      assigned_by: user.id, 
-      assigned_at: new Date().toISOString() 
+    const tableMetadata = {
+      ...packageMeta,
+      flow_mode: body.flowMode,
+      party_size: body.partySize,
+      demographics_capture: body.partySize,
+      reservation_id: finalResvId,
+      assigned_by: user.id,
+      assigned_at: new Date().toISOString()
     }
-    
+
     await admin
       .from('tables')
       .update({ status: 'occupied', metadata: tableMetadata })
       .in('id', body.tableIds)
       .eq('branch_id', branchId)
+
+    // 5. Write `table_assignments` rows so the seating shows up in the same
+    //    discoverable path as seated reservations. CRM survey, KDS tablet
+    //    limit, and dashboard all query this table; without it walk-in
+    //    guests effectively "don't exist" once seated.
+    //    Unique constraint is (reservation_id, table_id) — for walk-ins we
+    //    just created the reservation in step 1.5 above, so this is safe to
+    //    upsert idempotently.
+    const assignmentRows = body.tableIds.map((tableId) => ({
+      branch_id: branchId,
+      reservation_id: finalResvId,
+      table_id: tableId,
+      assigned_by: user.id,
+      metadata: tableMetadata,
+    }))
+    const { error: assignErr } = await admin
+      .from('table_assignments')
+      .upsert(assignmentRows, { onConflict: 'reservation_id,table_id', ignoreDuplicates: true })
+    if (assignErr) throw assignErr
 
     // 6. Nếu có reservation → update status = Dining (filter by branch)
     if (body.reservationId) {

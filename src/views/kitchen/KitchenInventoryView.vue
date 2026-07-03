@@ -413,7 +413,7 @@
 
           <!-- Form actions -->
           <div class="flex justify-end gap-3 pt-4 border-t border-border">
-            <button class="bg-muted hover:bg-muted text-xs font-bold px-5 py-2.5 rounded-xl text-foreground transition" @click="resetReceiveForm">
+            <button class="bg-muted hover:bg-muted text-xs font-bold px-5 py-2.5 rounded-xl text-foreground transition" @click="cancelReceive">
               Xóa Form
             </button>
             <button class="bg-[#FF9800] hover:bg-[#F57C00] text-xs font-bold px-5 py-2.5 rounded-xl text-foreground transition" @click="saveReceiveDraft">
@@ -992,6 +992,7 @@ import { useKitchenStore } from '@/stores/kitchen';
 import Swal from 'sweetalert2';
 import { useInventory } from '@/composables/useInventory';
 import { useI18n } from 'vue-i18n';
+import { useUnsavedGuard } from '@/composables/useUnsavedGuard';
 
 const router = useRouter();
 const kitchenStore = useKitchenStore();
@@ -1276,6 +1277,20 @@ const submitReceive = async () => {
     Swal.fire({ title: 'Lỗi', text: err.message || 'Lỗi hệ thống', icon: 'error', background: '#2D2D2D', color: '#FFF' });
   }
 };
+
+// Baseline snapshot for the goods-receipt form. Snapshot is fresh at the
+// moment the user enters the receive page (so empty/in-progress drafts are
+// always considered dirty, prompting before discard).
+const receiveFormBaseline = ref<typeof receiveForm.value>({ ...receiveForm.value })
+const { confirmIfDirty: confirmReceiveDirty } = useUnsavedGuard(
+  receiveForm,
+  receiveFormBaseline,
+)
+async function cancelReceive() {
+  if (await confirmReceiveDirty()) {
+    resetReceiveForm()
+  }
+}
 
 // ─── SUB-PAGE: XUẤT KHO (ISSUE TO KITCHEN) ────────────────────────────────
 const pendingRequisitions = computed(() => {

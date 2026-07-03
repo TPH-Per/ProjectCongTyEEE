@@ -201,7 +201,7 @@
           </div>
         </div>
 
-        <!-- Right Column: Bill Summary -->
+        <!-- Right Column: Bill Summary — driven by hall_get_checkout_totals RPC -->
         <div class="bg-white border rounded-2xl p-0 shadow-sm flex flex-col overflow-hidden h-fit">
           <div class="p-6 border-b bg-gray-50">
             <h3 class="text-lg font-bold text-gray-900">{{ t('reception.checkout.invoice_summary', 'Invoice Summary') }}</h3>
@@ -229,52 +229,41 @@
             </div>
 
             <div class="space-y-3 pt-4 border-t" v-if="orderItems.length > 0">
-              <!-- Subtotal: Xd -->
               <div class="flex justify-between items-center">
                 <span class="text-gray-500">{{ t('checkout.subtotal', 'Subtotal') }}</span>
                 <span class="font-semibold text-gray-900">{{ Number(subTotal).toLocaleString('vi-VN') }}đ</span>
               </div>
-              
-              <!-- Tier Discount (-Y%): -Xd -->
               <div class="flex justify-between items-center text-green-600" v-if="tierDiscount > 0">
                 <span>{{ t('checkout.discount_tier', 'Tier Discount') }} ({{ customerInfo?.tier?.discount_percent }}%)</span>
                 <span>-{{ Number(tierDiscount).toLocaleString('vi-VN') }}đ</span>
               </div>
-              
-              <!-- Voucher: -Xd -->
               <div class="flex justify-between items-center text-green-600" v-if="voucherDiscount > 0">
                 <span>{{ t('checkout.discount_voucher', 'Voucher') }}</span>
                 <span>-{{ Number(voucherDiscount).toLocaleString('vi-VN') }}đ</span>
               </div>
-
-              <!-- Points: -Xd -->
               <div class="flex justify-between items-center text-green-600" v-if="pointsDiscount > 0">
                 <span>{{ t('checkout.discount_points', 'Points') }}</span>
                 <span>-{{ Number(pointsDiscount).toLocaleString('vi-VN') }}đ</span>
               </div>
 
-              <!-- Net: Xd -->
               <div class="flex justify-between items-center font-bold text-gray-900 mt-2 border-t pt-2">
                 <span>Net</span>
-                <span>{{ Number(net).toLocaleString('vi-VN') }}đ</span>
+                <span>{{ Number(netBeforeTax).toLocaleString('vi-VN') }}đ</span>
               </div>
 
-              <!-- Service Charge (5%): +Xd -->
               <div class="flex justify-between items-center text-gray-500">
                 <span>{{ t('checkout.service_charge', 'Service Charge') }} ({{ serviceChargePct }}%)</span>
                 <span>+{{ Number(serviceCharge).toLocaleString('vi-VN') }}đ</span>
               </div>
 
-              <!-- VAT (10%): +Xd -->
               <div class="flex justify-between items-center text-gray-500">
-                <span>{{ t('checkout.vat', 'VAT') }} ({{ vatPct }}%)</span>
-                <span>+{{ Number(vat).toLocaleString('vi-VN') }}đ</span>
+                <span>{{ t('checkout.vat', 'VAT') }} ({{ Math.round(vatRate * 100) }}%)</span>
+                <span>+{{ Number(vatAmount).toLocaleString('vi-VN') }}đ</span>
               </div>
             </div>
           </div>
 
           <div class="p-6 bg-yellow-50 border-t">
-            <!-- Grand Total: Xd (bold, gold color) -->
             <div class="flex justify-between items-end mb-6">
               <span class="text-gray-700 font-bold uppercase text-sm tracking-wider">{{ t('checkout.grand_total', 'Grand Total') }}</span>
               <span class="text-4xl font-black text-yellow-600">{{ Number(grandTotal).toLocaleString('vi-VN') }}đ</span>
@@ -306,7 +295,7 @@
 import Swal from 'sweetalert2'
 import { useLanguageStore } from '@/stores/useLanguageStore'
 import { useRoute, useRouter, RouterLink } from 'vue-router'
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useAuth } from '@/composables/useAuth'
 import { useCustomer } from '@/composables/useCustomer'
 import { useCheckout } from '@/composables/useCheckout'
@@ -321,9 +310,9 @@ const route = useRoute()
 const router = useRouter()
 const { branchId, profile } = useAuth()
 const { searchByPhone, getCustomerProfile } = useCustomer()
-const { executeCheckout, printReceipt, loading: checkoutLoading } = useCheckout()
-const { fetchRules, rules } = useMembership()
+const { executeCheckout, printReceipt, loading: checkoutLoading, previewCheckout } = useCheckout()
 const { validateVoucherAtCheckout } = useVoucher()
+const { fetchRules, rules } = useMembership()
 
 const tableId = computed(() => route.params.id as string)
 
@@ -333,6 +322,22 @@ const tableInfo = ref<TableT | null>(null)
 const orderInfo = ref<OrderRow | null>(null)
 const orderItems = ref<OrderItem[]>([])
 
+// Totals come from the RPC (single source of truth) — NOT from local JS math.
+// This is the full bill breakdown the DB will compute on process_checkout.
+const totals = ref({
+  subtotal: 0,
+  tier_discount: 0,
+  voucher_discount: 0,
+  points_discount: 0,
+  total_discount: 0,
+  net_before_tax: 0,
+  service_charge_percent: 5,
+  service_charge_amount: 0,
+  vat_rate: 0.08,
+  vat_amount: 0,
+  grand_total: 0,
+})
+
 const customerPhone = ref('')
 const customerInfo = ref<any>(null)
 const customerSearched = ref(false)
@@ -340,7 +345,10 @@ const customerLoading = ref(false)
 
 const voucherCode = ref('')
 const voucherApplied = ref(false)
-const voucherDiscount = ref(0)
+// Local mirror of the validated voucher discount before the RPC refreshes
+// `totals`. Kept as a separate name (no longer `voucherDiscount` because that
+// is the read-only computed driven by `totals.value.voucher_discount`).
+const _voucherDiscountLocal = ref(0)
 const voucherError = ref<string | null>(null)
 const validatingVoucher = ref(false)
 
@@ -358,37 +366,26 @@ const paymentMethods = computed<{ value: typeof paymentMethod.value; label: stri
   { value: 'VNPAY', label: t('checkout.payment_method_vnpay', 'VNPay'), icon: '📱' },
 ])
 
-const subTotal = computed(() =>
-  orderItems.value.reduce((acc, item) => acc + Number(item.unit_price) * Number(item.quantity), 0),
-)
-
-const tierDiscount = computed(() => {
-  if (!customerInfo.value?.tier) return 0
-  return Math.floor(subTotal.value * ((customerInfo.value.tier.discount_percent || 0) / 100))
-})
+// Local pass-throughs — these read from the RPC response, not local JS math.
+// This is the "frontend totals match DB" fix from the audit.
+const subTotal = computed(() => totals.value.subtotal)
+const tierDiscount = computed(() => totals.value.tier_discount)
+const voucherDiscount = computed(() => totals.value.voucher_discount)
+const pointsDiscount = computed(() => totals.value.points_discount)
+const netBeforeTax = computed(() => totals.value.net_before_tax)
+const serviceChargePct = computed(() => totals.value.service_charge_percent)
+const serviceCharge = computed(() => totals.value.service_charge_amount)
+const vatRate = computed(() => totals.value.vat_rate)
+const vatAmount = computed(() => totals.value.vat_amount)
+const grandTotal = computed(() => totals.value.grand_total)
 
 const maxRedeemablePoints = computed(() => {
   if (!customerInfo.value || !rules.value) return 0
-  const total = Math.max(0, subTotal.value - tierDiscount.value - voucherDiscount.value)
+  const total = Math.max(0, subTotal.value - tierDiscount.value - _voucherDiscountLocal.value)
   const maxDiscountValue = total * 0.5
   const maxPointsByValue = Math.floor(maxDiscountValue / (rules.value.vnd_per_point || 1000))
   return Math.min(customerInfo.value.current_points || 0, maxPointsByValue)
 })
-
-const pointsDiscount = computed(() => {
-  if (!pointsToRedeem.value || !rules.value) return 0
-  return pointsToRedeem.value * (rules.value.vnd_per_point || 1000)
-})
-
-const net = computed(() => Math.max(0, subTotal.value - tierDiscount.value - voucherDiscount.value - pointsDiscount.value))
-
-const serviceChargePct = ref(5)
-const serviceCharge = computed(() => Math.round(net.value * (serviceChargePct.value / 100)))
-
-const vatPct = ref(10)
-const vat = computed(() => Math.round((net.value + serviceCharge.value) * (vatPct.value / 100)))
-
-const grandTotal = computed(() => Math.round(net.value + serviceCharge.value + vat.value))
 
 const quickAmounts = computed<number[]>(() => {
   const total = Math.max(grandTotal.value, 50000)
@@ -401,7 +398,7 @@ const quickAmounts = computed<number[]>(() => {
 
 const guestCount = computed(() => {
   const o = orderInfo.value as unknown as { guests?: number } | null
-  if (o?.guests) return o.guests
+  if (o?.guests) return o.guests as number
   return tableInfo.value?.capacity ?? '—'
 })
 
@@ -453,13 +450,15 @@ async function findCustomer() {
   } finally {
     customerLoading.value = false
   }
+  await refreshTotals()
 }
 
 async function applyVoucher() {
   if (!voucherCode.value.trim()) {
     voucherApplied.value = false
-    voucherDiscount.value = 0
+    _voucherDiscountLocal.value = 0
     voucherError.value = null
+    await refreshTotals()
     return
   }
   validatingVoucher.value = true
@@ -472,19 +471,41 @@ async function applyVoucher() {
     )
     if (res.valid) {
       voucherApplied.value = true
-      voucherDiscount.value = res.discount_amount || 0
+      _voucherDiscountLocal.value = res.discount_amount || 0
       voucherError.value = null
     } else {
       voucherApplied.value = false
-      voucherDiscount.value = 0
+      _voucherDiscountLocal.value = 0
       voucherError.value = res.error || 'Invalid voucher'
     }
   } catch (err: any) {
     voucherApplied.value = false
-    voucherDiscount.value = 0
+    _voucherDiscountLocal.value = 0
     voucherError.value = err.message || String(err)
   } finally {
     validatingVoucher.value = false
+  }
+  await refreshTotals()
+}
+
+// Re-fetch totals from RPC whenever any input that affects pricing changes.
+// The RPC enforces the same logic as process_checkout — single source of truth.
+async function refreshTotals() {
+  if (!branchId.value || !tableId.value) return
+  try {
+    const preview = await previewCheckout({
+      branchId: branchId.value,
+      tableId: tableId.value,
+      orderId: orderInfo.value?.id,
+      voucherCode: voucherApplied.value ? voucherCode.value.trim().toUpperCase() : undefined,
+      pointsToRedeem: pointsToRedeem.value || 0,
+      customerId: customerInfo.value?.id,
+    })
+    if (preview.ok && preview.totals) {
+      totals.value = { ...totals.value, ...preview.totals }
+    }
+  } catch {
+    // Silent — totals stay at last good value
   }
 }
 
@@ -497,7 +518,7 @@ async function loadOrder() {
   error.value = null
   try {
     await fetchRules()
-    
+
     const { data, error: rpcErr } = await supabase.rpc('hall_get_checkout_summary', {
       p_branch_id: branchId.value,
       p_table_id: tableId.value,
@@ -508,6 +529,7 @@ async function loadOrder() {
     tableInfo.value = (data?.table as TableT) ?? null
     orderInfo.value = (data?.order as OrderRow) ?? null
     orderItems.value = (data?.items as OrderItem[]) ?? []
+    await refreshTotals()
   } catch (err) {
     error.value = err instanceof Error ? err.message : String(err)
   } finally {
@@ -515,13 +537,18 @@ async function loadOrder() {
   }
 }
 
+// Re-fetch totals when points change
+watch(pointsToRedeem, () => {
+  refreshTotals()
+})
+
 async function handleCheckout() {
   if (!orderInfo.value) return
   if (!canCheckout.value) {
     error.value = t('reception.checkout.payment_condition_not_met', 'Conditions not met')
     return
   }
-  
+
   try {
     const result = await executeCheckout({
       orderId: orderInfo.value.id,
@@ -529,43 +556,39 @@ async function handleCheckout() {
       paymentRef: paymentMethod.value !== 'CASH' && paymentReference.value ? paymentReference.value : undefined,
       voucherCode: voucherApplied.value ? voucherCode.value.trim().toUpperCase() : undefined,
       pointsToRedeem: pointsToRedeem.value || 0,
-      serviceChargePct: serviceChargePct.value,
-      vatPct: vatPct.value,
       branchId: branchId.value as string,
-      cashierId: profile.value?.id || '00000000-0000-0000-0000-000000000000'
+      cashierId: profile.value?.id || '00000000-0000-0000-0000-000000000000',
     })
 
-    const isTierUpgraded = (result as any).tier_upgraded
-    const pointsEarned = (result as any).points_earned || 0
+    // Use the actual grand_total from the DB — never local JS math.
+    const finalGrand = Number(result.grand_total ?? 0)
 
     await Swal.fire({
       icon: 'success',
       title: t('checkout.success', 'Payment Successful!'),
       html:
         `Invoice <b>${result.invoice_number}</b><br/>` +
-        `Grand Total: <b style="color: #ca8a04">${Number(result.grand_total).toLocaleString('vi-VN')}đ</b><br/>` +
-        (pointsEarned > 0 ? `Points Earned: <b style="color: green">+${pointsEarned}</b><br/>` : '') +
-        (isTierUpgraded ? `<br/><b style="color: green">🎉 ${t('crm.tier_upgraded', 'Tier Upgraded!')}</b>` : '')
+        `Grand Total: <b style="color: #ca8a04">${finalGrand.toLocaleString('vi-VN')}đ</b><br/>` +
+        (result.voucher_discount
+          ? `Voucher discount: -${Number(result.voucher_discount).toLocaleString('vi-VN')}đ<br/>`
+          : '') +
+        (result.service_charge_amount
+          ? `Service charge: +${Number(result.service_charge_amount).toLocaleString('vi-VN')}đ<br/>`
+          : '') +
+        (result.vat_amount
+          ? `VAT: +${Number(result.vat_amount).toLocaleString('vi-VN')}đ<br/>`
+          : ''),
     })
-    
-    // Print Receipt
-    printReceipt(result)
 
+    printReceipt(result)
     router.push('/reception/dashboard')
   } catch (err: any) {
     const msg = err.message || String(err)
-    
-    // Handle specific errors based on user instructions
-    if (msg.includes('P0010')) {
-      // voucher expired mid-flow
+    if (msg.includes('VOUCHER_INVALID') || msg.includes('P0010')) {
       voucherApplied.value = false
-      voucherDiscount.value = 0
+      _voucherDiscountLocal.value = 0
       voucherCode.value = ''
-      Swal.fire('Voucher Error', 'Voucher expired or used mid-flow. Recalculating...', 'warning')
-    } else if (msg.includes('P0022') || msg.includes('INSUFFICIENT_POINTS')) {
-      // points insufficient
-      pointsToRedeem.value = 0
-      Swal.fire('Points Error', 'Insufficient points for redemption. Points reset to 0.', 'warning')
+      Swal.fire('Voucher Error', 'Voucher expired or invalid. Please re-apply.', 'warning')
     } else {
       error.value = msg
       Swal.fire('Error', t('reception.checkout.payment_failed', 'Payment failed: ') + msg, 'error')

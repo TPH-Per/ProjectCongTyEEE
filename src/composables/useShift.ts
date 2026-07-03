@@ -4,8 +4,28 @@ import { callEdgeFunction } from '@/utils/edge'
 
 // NOTE: payload keys MUST match the Edge Function contract (camelCase):
 // `supabase/functions/close-shift/index.ts` takes `{ shiftId, closingCash, notes }`
-// and `supabase/functions/export-shift-csv/index.ts` reads `?shiftId=<uuid>` from
-// the URL (returns raw CSV text, not JSON).
+// `supabase/functions/open-shift/index.ts` takes `{ branchId, openingCash, notes }`
+// `supabase/functions/export-shift-csv/index.ts` reads `?shiftId=<uuid>` from the
+// URL (returns raw CSV text, not JSON).
+export interface OpenShiftPayload {
+  branchId: string
+  openingCash: number
+  notes?: Record<string, unknown>
+}
+
+export interface ShiftOpenResponse {
+  ok: boolean
+  idempotent?: boolean
+  shift: {
+    id: string
+    branch_id: string
+    user_id: string
+    status: 'open' | 'closed'
+    opened_at: string
+    opening_cash: string | number
+  }
+}
+
 export interface CloseShiftPayload {
   shiftId: string
   closingCash: number
@@ -19,6 +39,7 @@ export interface CloseShiftResponse {
   expectedCash?: number
   closingCash?: number
   cashDifference?: number
+  error?: string
 }
 
 export interface ExportShiftCsvResponse {
@@ -29,6 +50,22 @@ export interface ExportShiftCsvResponse {
 export function useShift() {
   const loading = ref(false)
   const error = ref<string | null>(null)
+
+  async function openShift(payload: OpenShiftPayload): Promise<ShiftOpenResponse> {
+    loading.value = true
+    error.value = null
+    try {
+      return await callEdgeFunction<OpenShiftPayload, ShiftOpenResponse>(
+        'open-shift',
+        payload,
+      )
+    } catch (e) {
+      error.value = e instanceof Error ? e.message : String(e)
+      throw e
+    } finally {
+      loading.value = false
+    }
+  }
 
   async function closeShift(
     payload: CloseShiftPayload,
@@ -49,10 +86,6 @@ export function useShift() {
   }
 
   async function exportCsv(shiftId: string): Promise<string> {
-    // The Edge Function returns the CSV body directly (text/csv), not JSON.
-    // `supabase.functions.invoke` would try to JSON-parse it and fail, so we
-    // call the raw REST endpoint via fetch with the user's access token. The
-    // Edge Function's CORS layer allows `GET` (see _shared/cors.ts).
     const { data: sessionData } = await supabase.auth.getSession()
     const token = sessionData.session?.access_token
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
@@ -83,5 +116,5 @@ export function useShift() {
     }
   }
 
-  return { loading, error, closeShift, exportCsv }
+  return { loading, error, openShift, closeShift, exportCsv }
 }

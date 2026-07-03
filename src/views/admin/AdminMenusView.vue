@@ -454,7 +454,7 @@
           <h3 class="font-bold text-lg text-gray-900">
             {{ editingPackage.id ? $t('admin_menus.edit_package_modal') : $t('admin_menus.add_package_modal') }}
           </h3>
-          <button @click="showPackageModal = false" class="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
+          <button @click="closePackageModal" class="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
         </div>
         <form @submit.prevent="savePackage" class="p-6 space-y-4">
           <div>
@@ -505,7 +505,7 @@
           </div>
 
           <div class="pt-4 flex justify-end gap-2 border-t border-gray-100">
-            <button type="button" @click="showPackageModal = false"
+            <button type="button" @click="closePackageModal"
               class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">{{ $t('admin_menus.cancel') }}</button>
             <button type="submit"
               :disabled="saving"
@@ -527,7 +527,7 @@
           <h3 class="font-bold text-lg text-gray-900">
             {{ editingMenuItem.id ? $t('admin_menus.edit_item_modal') : $t('admin_menus.add_item_modal') }}
           </h3>
-          <button @click="showMenuItemModal = false" class="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
+          <button @click="closeMenuItemModal" class="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
         </div>
         <form @submit.prevent="saveMenuItem" class="p-6 space-y-4">
           <div>
@@ -594,7 +594,7 @@
           </div>
 
           <div class="pt-4 flex justify-end gap-2 border-t border-gray-100">
-            <button type="button" @click="showMenuItemModal = false"
+            <button type="button" @click="closeMenuItemModal"
               class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">{{ $t('admin_menus.cancel') }}</button>
             <button type="submit"
               :disabled="saving"
@@ -613,6 +613,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/composables/useAuth'
+import { useUnsavedGuard } from '@/composables/useUnsavedGuard'
 import type {
   Package, MenuItem, PackageType, MenuCategory, MenuSub,
 } from '@/types/database'
@@ -639,6 +640,28 @@ const showPackageModal = ref(false)
 const showMenuItemModal = ref(false)
 const editingPackage = ref<Partial<Package>>({})
 const editingMenuItem = ref<Partial<MenuItem>>({})
+
+// Baselines for unsaved-change guard — refreshed each time a modal opens.
+const packageBaseline = ref<Partial<Package>>({})
+const menuItemBaseline = ref<Partial<MenuItem>>({})
+function snapshotPackageBaseline() { packageBaseline.value = { ...editingPackage.value } }
+function snapshotMenuItemBaseline() { menuItemBaseline.value = { ...editingMenuItem.value } }
+
+const { confirmIfDirty: confirmPackageDirty } = useUnsavedGuard(
+  editingPackage,
+  packageBaseline,
+)
+const { confirmIfDirty: confirmMenuItemDirty } = useUnsavedGuard(
+  editingMenuItem,
+  menuItemBaseline,
+)
+
+async function closePackageModal() {
+  if (await confirmPackageDirty()) showPackageModal.value = false
+}
+async function closeMenuItemModal() {
+  if (await confirmMenuItemDirty()) showMenuItemModal.value = false
+}
 
 // ── Helpers ───────────────────────────────────────────────────────────────
 function formatVnd(n: number | null | undefined): string {
@@ -852,6 +875,7 @@ function editPackage(pkg?: Package) {
     }
   }
   showPackageModal.value = true
+  snapshotPackageBaseline()
 }
 
 async function savePackage() {
@@ -880,7 +904,9 @@ async function savePackage() {
       }])
       if (error) throw error
     }
+    // Save succeeded — close directly (no prompt).
     showPackageModal.value = false
+    snapshotPackageBaseline()
     await fetchMenus()
   } catch (e: any) {
     console.error('[AdminMenusView] savePackage failed:', e)
@@ -913,6 +939,7 @@ function editMenuItem(item?: MenuItem, defaultCategoryId?: string, defaultSubcat
     }
   }
   showMenuItemModal.value = true
+  snapshotMenuItemBaseline()
 }
 
 async function saveMenuItem() {
@@ -943,7 +970,9 @@ async function saveMenuItem() {
       }])
       if (error) throw error
     }
+    // Save succeeded — close directly (no prompt).
     showMenuItemModal.value = false
+    snapshotMenuItemBaseline()
     await fetchMenus()
   } catch (e: any) {
     console.error('[AdminMenusView] saveMenuItem failed:', e)

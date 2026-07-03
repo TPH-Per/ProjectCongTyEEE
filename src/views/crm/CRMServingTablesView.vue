@@ -74,13 +74,24 @@
                   </span>
                 </td>
                 <td class="px-4 py-3 text-right">
-                  <button
-                    type="button"
-                    class="rounded-lg bg-gray-900 px-3 py-2 text-xs font-bold text-white hover:bg-black"
-                    @click="selectTable(table)"
-                  >
-                    {{ actionLabel(table.crm_status) }}
-                  </button>
+                  <div class="flex items-center justify-end gap-2">
+                    <button
+                      v-if="canUndo(table)"
+                      type="button"
+                      class="rounded-lg border border-amber-300 bg-amber-50 px-2.5 py-1 text-[10px] font-bold text-amber-700 hover:bg-amber-100"
+                      :title="`Hoàn tác về ${lastChangeFor(table)?.from}`"
+                      @click="undoLast(table)"
+                    >
+                      ↺ Hoàn tác
+                    </button>
+                    <button
+                      type="button"
+                      class="rounded-lg bg-gray-900 px-3 py-2 text-xs font-bold text-white hover:bg-black"
+                      @click="selectTable(table)"
+                    >
+                      {{ actionLabel(table.crm_status) }}
+                    </button>
+                  </div>
                 </td>
               </tr>
               <tr v-if="filteredTables.length === 0">
@@ -97,6 +108,32 @@
         <div v-if="!selectedTable" class="py-16 text-center text-sm text-gray-400">
           Select a serving table to start CRM survey.
         </div>
+
+        <form v-else-if="isReadOnlySurvey(selectedTable)" class="space-y-4" @submit.prevent>
+          <div class="flex items-start justify-between gap-3 border-b pb-4">
+            <div>
+              <h2 class="text-lg font-black text-gray-900">{{ selectedTable.table_code }}</h2>
+              <p class="text-xs text-gray-500">
+                Order {{ shortId(selectedTable.order_id) }} · Submitted
+                {{ selectedTable.crm_submitted_at ? formatTime(selectedTable.crm_submitted_at) : '' }}
+              </p>
+            </div>
+            <span class="rounded-lg px-2.5 py-1 text-xs font-black bg-green-100 text-green-700">
+              View-only (submitted)
+            </span>
+          </div>
+          <p class="rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-xs text-gray-500">
+            Survey đã gửi — chỉ xem. Để chỉnh sửa sau khi gửi, liên hệ quản lý.
+          </p>
+          <dl class="grid gap-2 text-sm">
+            <div v-if="selectedTable.customer_name" class="flex justify-between border-b border-gray-100 py-2">
+              <dt class="text-gray-500">Customer</dt><dd class="font-semibold text-gray-800">{{ selectedTable.customer_name }}</dd>
+            </div>
+            <div v-if="selectedTable.customer_phone" class="flex justify-between border-b border-gray-100 py-2">
+              <dt class="text-gray-500">Phone</dt><dd class="font-mono text-gray-800">{{ selectedTable.customer_phone }}</dd>
+            </div>
+          </dl>
+        </form>
 
         <form v-else class="space-y-4" @submit.prevent="submitSurvey">
           <div class="flex items-start justify-between gap-3 border-b pb-4">
@@ -203,8 +240,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useCRM, type CrmServingTable, type CrmSurveyStatus } from '@/composables/useCRM'
+import { useRealtime } from '@/composables/useRealtime'
 
 const {
   loading,
@@ -214,12 +252,74 @@ const {
   markSurveyInProgress,
   skipTableSurvey,
   refuseTableSurvey,
+  setSurveyStatus,
 } = useCRM()
 
 const tables = ref<CrmServingTable[]>([])
 const selectedTable = ref<CrmServingTable | null>(null)
 const activeFilter = ref<'all' | CrmSurveyStatus>('all')
 const tagText = ref('')
+
+// Recent status changes per table — kept for 10 s so the UI can offer an
+// "undo last action" affordance. Cleared after either TTL or undo.
+interface StatusChange {
+  orderId: string
+  from: CrmSurveyStatus
+  to: CrmSurveyStatus
+  changedAt: number
+}
+const recentChanges = ref<StatusChange[]>([])
+const RECENT_TTL_MS = 10_000
+
+function recordChange(orderId: string, from: CrmSurveyStatus, to: CrmSurveyStatus) {
+  if (from === to) return
+  recentChanges.value = [
+    ...recentChanges.value.filter((c) => c.orderId !== orderId),
+    { orderId, from, to, changedAt: Date.now() },
+  ]
+  // Garbage-collect expired entries so the map doesn't grow unbounded.
+  setTimeout(() => {
+    recentChanges.value = recentChanges.value.filter(
+      (c) => Date.now() - c.changedAt < RECENT_TTL_MS,
+    )
+  }, RECENT_TTL_MS + 1000)
+}
+
+function lastChangeFor(table: CrmServingTable): StatusChange | undefined {
+  return recentChanges.value.find((c) => c.orderId === table.order_id)
+}
+function canUndo(table: CrmServingTable): boolean {
+  const c = lastChangeFor(table)
+  // Don't surface an undo option when reverting would require un-doing a
+  // submit (`completed` is not reversible through `setSurveyStatus`).
+  if (!c) return false
+  if (c.to === 'completed') return false
+  return Date.now() - c.changedAt < RECENT_TTL_MS
+}
+
+async function undoLast(table: CrmServingTable) {
+  const c = lastChangeFor(table)
+  if (!c) return
+  // `setSurveyStatus` only accepts the 4 reversible workflow statuses.
+  // `not_started` is the implicit "no row" state — there is no row to
+  // update to that status, so the undo button is hidden in `canUndo` and we
+  // additionally guard here as a safety net.
+  const reversible = ['assigned', 'in_progress', 'skipped', 'customer_refused'] as const
+  if (!(reversible as readonly string[]).includes(c.from)) return
+  try {
+    await setSurveyStatus(table, c.from as (typeof reversible)[number])
+    // Drop the entry immediately so the UI doesn't show "undo" again.
+    recentChanges.value = recentChanges.value.filter((x) => x.orderId !== table.order_id)
+    await refresh()
+  } catch (e: any) {
+    error.value = e?.message ?? String(e)
+  }
+}
+
+function isReadOnlySurvey(table: CrmServingTable | null): boolean {
+  if (!table) return false
+  return table.crm_status === 'completed'
+}
 
 const form = ref({
   sourceCode: '',
@@ -352,8 +452,11 @@ async function selectTable(table: CrmServingTable) {
   selectedTable.value = table
   resetForm()
   if (table.crm_status === 'not_started') {
+    const before = table.crm_status
     await markSurveyInProgress(table)
     await refresh()
+    const after = tables.value.find((t) => t.order_id === table.order_id)
+    if (after) recordChange(table.order_id, before, after.crm_status)
   }
 }
 
@@ -366,6 +469,7 @@ function parsedTags(): string[] {
 
 async function submitSurvey() {
   if (!selectedTable.value) return
+  const before = selectedTable.value.crm_status
   await submitTableSurvey({
     tableId: selectedTable.value.table_id,
     orderId: selectedTable.value.order_id,
@@ -382,19 +486,45 @@ async function submitSurvey() {
     note: form.value.note.trim(),
   })
   await refresh()
+  const after = tables.value.find((t) => t.order_id === selectedTable.value?.order_id)
+  if (after) recordChange(selectedTable.value.order_id, before, after.crm_status)
 }
 
 async function markRefused() {
   if (!selectedTable.value) return
+  const before = selectedTable.value.crm_status
   await refuseTableSurvey(selectedTable.value, form.value.note.trim())
   await refresh()
+  const after = tables.value.find((t) => t.order_id === selectedTable.value?.order_id)
+  if (after) recordChange(selectedTable.value.order_id, before, after.crm_status)
 }
 
 async function skipSurvey() {
   if (!selectedTable.value) return
+  const before = selectedTable.value.crm_status
   await skipTableSurvey(selectedTable.value, form.value.note.trim())
   await refresh()
+  const after = tables.value.find((t) => t.order_id === selectedTable.value?.order_id)
+  if (after) recordChange(selectedTable.value.order_id, before, after.crm_status)
 }
 
-onMounted(refresh)
+// Realtime: any new survey or order change auto-refreshes the list.
+const realtime = useRealtime()
+let refreshWatcherA: (() => void) | null = null
+let refreshWatcherB: (() => void) | null = null
+
+onMounted(async () => {
+  await refresh()
+  refreshWatcherA = realtime.watchTable('crm_surveys', '*', () => {
+    refresh().catch(() => {})
+  })
+  refreshWatcherB = realtime.watchTable('orders', '*', () => {
+    refresh().catch(() => {})
+  })
+})
+
+onBeforeUnmount(() => {
+  refreshWatcherA?.()
+  refreshWatcherB?.()
+})
 </script>

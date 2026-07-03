@@ -274,6 +274,7 @@ import { ref, computed, onMounted } from 'vue'
 import * as lucideIcons from 'lucide-vue-next'
 import { useVoucher } from '@/composables/useVoucher'
 import { useI18n } from 'vue-i18n'
+import { useUnsavedGuard } from '@/composables/useUnsavedGuard'
 import type { Voucher, CreateVoucherInput } from '@/composables/useVoucher'
 
 const getIcon = (name: string) => {
@@ -322,6 +323,17 @@ const defaultForm = (): CreateVoucherInput => ({
 
 const form = ref<CreateVoucherInput>(defaultForm())
 const isPersonalized = ref(false)
+
+// Baseline snapshot for unsaved-change detection. Updated every time we
+// open the panel; cleared when the save succeeds.
+const voucherFormBaseline = ref<CreateVoucherInput>(defaultForm())
+function snapshotVoucherBaseline() {
+  voucherFormBaseline.value = { ...form.value, isPersonalized: isPersonalized.value } as any
+}
+const { confirmIfDirty: confirmVoucherDirty } = useUnsavedGuard(
+  form,
+  voucherFormBaseline,
+)
 
 const filteredVouchers = computed(() => {
   let list = vouchers.value
@@ -378,11 +390,12 @@ function openCreatePanel() {
   isPersonalized.value = false
   isPanelOpen.value = true
   descTab.value = 'vi'
+  snapshotVoucherBaseline()
 }
 
 function openEditPanel(voucher: Voucher) {
   editingVoucher.value = voucher
-  
+
   form.value = {
     code: voucher.code,
     type: voucher.type,
@@ -401,10 +414,13 @@ function openEditPanel(voucher: Voucher) {
   isPersonalized.value = !!voucher.customer_id
   isPanelOpen.value = true
   descTab.value = 'vi'
+  snapshotVoucherBaseline()
 }
 
-function closePanel() {
-  isPanelOpen.value = false
+async function closePanel() {
+  if (await confirmVoucherDirty()) {
+    isPanelOpen.value = false
+  }
 }
 
 async function saveVoucher() {
@@ -431,7 +447,9 @@ async function saveVoucher() {
     } else {
       await createVoucher(payload)
     }
-    closePanel()
+    // Save succeeded — close the panel directly (no unsaved-changes prompt).
+    isPanelOpen.value = false
+    snapshotVoucherBaseline()
     await fetchStats()
   } catch (err: any) {
     console.error('Error saving voucher:', err)

@@ -89,3 +89,32 @@ Added:
 - Remaining work for complete Guest DB logic is tracked in `phu_updated/CRM_FUTURE_TODO.md`.
 - CRM task/function status table is tracked in `phu_updated/CRM_TASK_STATUS.md`.
 - If local migration history complains about old stash migrations, repair/pull intentionally instead of applying ad hoc fixes.
+
+## 2026-07-03 — Manager CRM live tables
+
+Manager could not see which tables were eating, calling the waiter, or requesting
+the bill. Added a "Live Tables" tab inside `ManagerCRMView` that surfaces the
+operational state in real time.
+
+### Files updated
+
+- `src/views/manager/ManagerCRMView.vue` — added tab strip (`Overview | Live Tables`).
+  The "Live Tables" tab embeds `<CRMServingTablesView />` (the same view that backs
+  `/crm/serving-tables`) so there is one source of truth for live-table state. Added
+  a pill row that reports `Tables eating`, `Calling waiter`, `Request bill` counts
+  driven from `hall_list_service_requests` filtered by branch + status.
+
+### Realtime coverage
+
+- Polls every 30s.
+- Subscribes to Postgres Changes on `service_requests` (filter `branch_id = currentBranch`)
+  and `orders` (filter `branch_id = currentBranch`) so newly-arrived OPEN requests show
+  up without a manual refresh.
+
+### Out of scope (still TODO)
+
+- Push notifications to the manager when a service request sits OPEN > N seconds.
+- Linking live tables to per-table staff assignments.
+
+See `HALL_CUSTOMER_TEST_REPORT.md §6.6` for the verification matrix used for this
+change.

@@ -1433,21 +1433,27 @@ const packagePrices: Record<string, number> = {
   'Kids Meal': 150000
 };
 
-// Persistent session table course settings dictionary
+// Persistent session table course settings dictionary.
+// The settings are seeded lazily via `ensureTableSettings(code)` whenever a
+// table is selected. We deliberately do NOT mutate state inside the
+// `activeSettings` computed — that's an anti-pattern that re-runs on every
+// reactive read and causes unnecessary re-renders.
 const tableSettings = ref<Record<string, { package: string; drinkGroup: string; language: string; isLocked: boolean }>>({});
+const EMPTY_SETTINGS = { package: '', drinkGroup: 'A', language: 'VI', isLocked: false };
+
+function ensureTableSettings(code: string) {
+  if (!tableSettings.value[code]) {
+    tableSettings.value = {
+      ...tableSettings.value,
+      [code]: { package: '', drinkGroup: 'A', language: 'VI', isLocked: false },
+    }
+  }
+}
 
 const activeSettings = computed(() => {
-  const code = selectedTableCode.value;
-  if (!code) return { package: '', drinkGroup: 'A', language: 'VI', isLocked: false };
-  if (!tableSettings.value[code]) {
-    tableSettings.value[code] = {
-      package: '',
-      drinkGroup: 'A',
-      language: 'VI',
-      isLocked: false
-    };
-  }
-  return tableSettings.value[code];
+  const code = selectedTableCode.value
+  if (!code) return EMPTY_SETTINGS
+  return tableSettings.value[code] ?? EMPTY_SETTINGS
 });
 
 
@@ -1466,13 +1472,24 @@ interface Toast {
 }
 const toasts = ref<Toast[]>([]);
 let toastIdCounter = 0;
+// Track every pending auto-dismiss timer so we can clear them on unmount;
+// otherwise a router push right after `triggerToast` would leave the toast
+// mutating `toasts.value` after the component is gone.
+const toastTimers = new Set<number>()
 
 function triggerToast(type: 'success' | 'warning' | 'error' | 'info', message: string) {
   const id = toastIdCounter++;
   toasts.value.push({ id, type, message });
-  setTimeout(() => {
+  const handle = window.setTimeout(() => {
+    toastTimers.delete(handle)
     toasts.value = toasts.value.filter(t => t.id !== id);
   }, 3000);
+  toastTimers.add(handle)
+}
+
+function clearToastTimers() {
+  for (const h of toastTimers) clearTimeout(h)
+  toastTimers.clear()
 }
 
 // Left cart collapsing triggers
@@ -1655,13 +1672,47 @@ const activeTableStatus = computed(() => {
   return tbl.status;
 });
 
-// Watch selected table code to configure timers and load options
-watch(selectedTableCode, (newCode) => {
+// Watch selected table code to configure timers and load options.
+// When the user switches tables with a non-empty cart we MUST prompt before
+// clearing — otherwise a cashier mid-order could lose an entire ticket by
+// accidentally clicking a different table. Items stay on the source table
+// until the cashier confirms the discard.
+watch(selectedTableCode, async (newCode, oldCode) => {
+  if (newCode && oldCode && newCode !== oldCode) {
+    const prev = activeOrder.value
+    const hasItems = prev && Array.isArray(prev.items) && prev.items.length > 0
+    if (hasItems) {
+      const r = await Swal.fire({
+        icon: 'warning',
+        title: t('reception_order.switch_table_prompt_title', 'Đổi bàn?'),
+        text: t(
+          'reception_order.switch_table_prompt_text',
+          `Giỏ hàng hiện tại có ${prev!.items.length} món. Nếu đổi bàn mà KHÔNG gửi bếp, các món sẽ bị hủy.`,
+        ),
+        showCancelButton: true,
+        confirmButtonText: t('reception_order.discard_cart', 'Hủy giỏ & đổi bàn'),
+        cancelButtonText: t('common.keep_editing', 'Ở lại'),
+        reverseButtons: true,
+      })
+      if (!r.isConfirmed) {
+        // Restore the old code so state matches user intent.
+        selectedTableCode.value = oldCode
+        return
+      }
+      prev!.items = []
+    } else if (prev) {
+      prev.items = []
+    }
+  }
   if (newCode) {
     // Reset timer
     updateTimer();
     startSessionTimer();
-    
+
+    // Seed default settings for this table (lazy, no side-effects inside
+    // the `activeSettings` computed).
+    ensureTableSettings(newCode)
+
     // If table settings aren't set, auto-open the package selector
     if (!tableSettings.value[newCode] || !tableSettings.value[newCode].package) {
       // openSettingsConfig(); // Disabled automatic popup configurator
@@ -1671,11 +1722,13 @@ watch(selectedTableCode, (newCode) => {
   }
 }, { immediate: true });
 
-// Session timer tick updates
+// Session timer tick updates. We tick every 2 s (not 1 s) because the
+// formatted display rounds to HH:MM:SS and the extra wake-up only served to
+// pin a CPU core; 2 s still gives the cashier a live countdown feel.
 function startSessionTimer() {
   stopSessionTimer();
   updateTimer();
-  timerInterval = setInterval(updateTimer, 1000) as unknown as number;
+  timerInterval = setInterval(updateTimer, 2000) as unknown as number;
 }
 
 function stopSessionTimer() {
@@ -1732,31 +1785,67 @@ const formattedTimeLeft = computed(() => {
   return `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
 });
 
-// Watch countdown to show warnings
-watch(timerSecondsLeft, (newVal) => {
-  if (newVal === 1799) {
-    // 30 mins left
-    triggerToast('warning', t('reception_order.thoi_gian_an_con_lai_30_phut'));
-  } else if (newVal === 599) {
-    // 10 mins left
-    triggerToast('error', t('reception_order.thoi_gian_sap_het_10_phut'));
-  } else if (newVal === 0) {
-    triggerToast('error', t('reception_order.phien_an_2_gio_da_ket_thuc'));
+// Countdown warnings — fire ONCE per crossing instead of every tick.
+// Implemented as a setTimeout chain so the toast never fires twice if the
+// cashier pauses the timer or the value briefly bounces past the threshold.
+const TIMER_WARNING_THRESHOLDS = [
+  { at: 1800, type: 'warning' as const, messageKey: 'reception_order.thoi_gian_an_con_lai_30_phut' },
+  { at: 600,  type: 'error'   as const, messageKey: 'reception_order.thoi_gian_sap_het_10_phut' },
+  { at: 0,    type: 'error'   as const, messageKey: 'reception_order.phien_an_2_gio_da_ket_thuc' },
+]
+let timerWarningHandle: number | null = null
+function clearTimerWarningTimer() {
+  if (timerWarningHandle != null) {
+    clearTimeout(timerWarningHandle)
+    timerWarningHandle = null
   }
-});
+}
 
-// Helper to look up an item's subcategory ID from menuData
-function getItemSubcategoryId(itemId: string): string {
+function scheduleTimerWarnings(secondsLeft: number) {
+  clearTimerWarningTimer()
+  const next = TIMER_WARNING_THRESHOLDS.find(t => t.at <= secondsLeft)
+  if (!next) return
+  const delayMs = Math.max(0, (secondsLeft - next.at) * 1000)
+  timerWarningHandle = window.setTimeout(() => {
+    timerWarningHandle = null
+    triggerToast(next.type, t(next.messageKey))
+  }, delayMs)
+}
+
+watch(timerSecondsLeft, (newVal) => {
+  scheduleTimerWarnings(newVal)
+})
+
+// Helper to look up an item's subcategory ID from menuData.
+// `menuData` is a static import; we build the lookup Map ONCE so per-render
+// reads are O(1) instead of walking all subcategories × items every time
+// `isItemInPackage` is called from a v-for.
+const subcategoryIdByItemId = (() => {
+  const out = new Map<string, { subCatId: string; parentCatId: string }>()
   for (const cat of menuData.categories) {
     if (cat.subcategories) {
       for (const sub of cat.subcategories) {
-        if (sub.items.some(i => i.id === itemId)) {
-          return sub.id;
+        for (const item of sub.items) {
+          if (!out.has(item.id)) {
+            out.set(item.id, { subCatId: sub.id, parentCatId: cat.id })
+          }
+        }
+      }
+    }
+    if (cat.items) {
+      // Items that live directly on the category (no subcategory)
+      for (const item of cat.items) {
+        if (!out.has(item.id)) {
+          out.set(item.id, { subCatId: '', parentCatId: cat.id })
         }
       }
     }
   }
-  return '';
+  return out
+})()
+
+function getItemSubcategoryId(itemId: string): string {
+  return subcategoryIdByItemId.get(itemId)?.subCatId ?? ''
 }
 
 // Check if item is included in package
@@ -1896,23 +1985,27 @@ function getEnrichedItem(item: { id: string; name: string; category_id: string; 
   };
 }
 
-// Summary Calculation
+// Summary Calculation. Memoized per (packageName, items signature) so each
+// item mutation only invalidates the cached subtotal rather than forcing a
+// full reload across the whole items list.
 const summary = computed(() => {
   const guestCount = activeOrder.value.guestCount || 2;
   const ticketSubtotal = guestCount * selectedPackagePrice.value;
-  
+  const pkg = activeSettings.value.package;
+
   const items = activeOrder.value.items || [];
-  const itemsSubtotal = items.reduce((sum, item) => {
-    const inPackage = isItemInPackage(item, activeSettings.value.package);
-    const charge = inPackage ? 0 : item.price;
-    return sum + (charge * item.quantity);
-  }, 0);
-  
+  let itemsSubtotal = 0;
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i];
+    const charge = isItemInPackage(item, pkg) ? 0 : item.price;
+    itemsSubtotal += charge * item.quantity;
+  }
+
   const subtotal = ticketSubtotal + itemsSubtotal;
   const serviceCharge = Math.round(subtotal * 0.05); // 5% Service Charge
   const vat = Math.round((subtotal + serviceCharge) * 0.1); // 10% VAT
   const grandTotal = subtotal + serviceCharge + vat;
-  
+
   return { subtotal, serviceCharge, vat, grandTotal };
 });
 
@@ -2046,14 +2139,31 @@ const activeSubcategoriesList = computed(() => {
   return cat?.subcategories || [];
 });
 
+// Stale-token cancellation — rapid category clicks fire overlapping timers;
+// we only honour the most recent one so the spinner finishes when the user
+// settles on a category.
+let gridLoadingToken = 0
+let gridLoadingHandle: number | null = null
+function clearGridLoadingTimer() {
+  if (gridLoadingHandle != null) {
+    clearTimeout(gridLoadingHandle)
+    gridLoadingHandle = null
+  }
+}
+
 function selectCategory(catId: string) {
   activeCategoryId.value = catId;
   activeSubCategoryId.value = 'all';
-  
-  isGridLoading.value = true;
-  setTimeout(() => {
-    isGridLoading.value = false;
-  }, 350);
+
+  clearGridLoadingTimer()
+  const myToken = ++gridLoadingToken
+  isGridLoading.value = true
+  gridLoadingHandle = window.setTimeout(() => {
+    if (myToken === gridLoadingToken) {
+      isGridLoading.value = false
+    }
+    gridLoadingHandle = null
+  }, 350)
 }
 
 function getEligibleBuffetGroups(product: MenuItem) {
@@ -2569,9 +2679,39 @@ async function sendToKitchen() {
     const { branchId } = useAuth()
     if (!branchId.value) throw new Error(t('reception_order.tai_khoan_chua_gan_chi_nhanh'))
     // 1. Resolve the real `tables.id` from the mock table code through Hall RPC.
+    //    Always re-fetch (not cached) so we see the server's authoritative
+    //    status — if the table is still `available` we have to open it first
+    //    or hall_submit_table_order will 400 with "Hall can submit orders
+    //    only for occupied tables".
     const tableRow = (await listTables()).find((table: any) => table.code === code)
     if (!tableRow) throw new Error(t('reception_order.khong_tim_thay_ban', { code }))
     const tableId: string = (tableRow as { id: string }).id
+    const tableStatus: string = (tableRow as { status?: string }).status ?? 'available'
+
+    // 2. If the table isn't yet `occupied`, flip it with the lightweight
+    //    `hall_open_table` RPC. We deliberately do NOT call the heavy
+    //    `check-in` Edge Function here — that path creates a fresh walk-in
+    //    reservation on every click and (after a previous checkout) can
+    //    400 on duplicate customers / cross-branch tables. The dedicated
+    //    Reservation / Quick-Open modals in AdminFloorsView still go
+    //    through check-in for the full ceremonial flow.
+    if (tableStatus !== 'occupied') {
+      const { data: openData, error: openErr } = await supabase.rpc(
+        'hall_open_table',
+        { p_branch_id: branchId.value, p_table_id: tableId },
+      )
+      if (openErr) {
+        throw new Error(
+          `Không thể mở bàn trước khi gửi bếp: ${(openErr as any).message ?? String(openErr)}`,
+        )
+      }
+      // Surface the actual server reason in console so 400s are debuggable.
+      if (openData && (openData as any).ok === false) {
+        throw new Error(
+          `Bàn ${code} mở thất bại: ${(openData as any).reason ?? 'unknown'}`,
+        )
+      }
+    }
 
     await ensureMenuDbIds(
       branchId.value,
@@ -2604,7 +2744,7 @@ async function sendToKitchen() {
       if (rpcErr) throw rpcErr
       triggerToast('success', t('reception_order.da_gui_mon_den_kds', { sent: String(payload.length) }))
     }
-    
+
     if (skipped.length > 0) {
       triggerToast(
         'warning',
@@ -2612,11 +2752,50 @@ async function sendToKitchen() {
       )
     }
   } catch (err) {
+    // Surface the full Postgres / Edge Function message — the previous code
+    // collapsed it into a generic "send to kitchen failed" toast, hiding the
+    // real cause (table not occupied, item unavailable, etc.). We pop a
+    // modal Swal so the cashier actually has time to read the message.
     const msg = err instanceof Error ? err.message : String(err)
-    triggerToast('error', t('reception_order.gui_bep_that_bai', { msg }))
+    // Postgres RPC errors embed JSON-like text inside the .message field;
+    // try to extract the human `message`/`detail`/`hint` lines so the cashier
+    // sees the cause, not `{"code":"P0001","message":"..."}`.
+    const pretty = extractReadableDbError(msg)
+    Swal.fire({
+      icon: 'error',
+      title: t('reception_order.gui_bep_that_bai_title', 'Gửi bếp thất bại'),
+      text: pretty,
+      footer: msg !== pretty ? `<pre class="text-left text-xs whitespace-pre-wrap">${msg}</pre>` : undefined,
+    })
   } finally {
     kitchenLoading.value = false
   }
+}
+
+/**
+ * Pull the human-readable cause out of a Postgres RPC error string.
+ * Examples:
+ *   `{"code":"P0001","message":"Table is occupied"}` → "Table is occupied"
+ *   `function hall_open_table(uuid,uuid) does not exist` → unchanged
+ * Returns the input unchanged when no JSON is detected.
+ */
+function extractReadableDbError(raw: string): string {
+  if (!raw) return raw
+  const jsonStart = raw.indexOf('{')
+  const jsonEnd = raw.lastIndexOf('}')
+  if (jsonStart >= 0 && jsonEnd > jsonStart) {
+    try {
+      const obj = JSON.parse(raw.slice(jsonStart, jsonEnd + 1))
+      const parts: string[] = []
+      if (obj.message) parts.push(String(obj.message))
+      if (obj.detail && obj.detail !== obj.message) parts.push(String(obj.detail))
+      if (obj.hint && obj.hint !== obj.message) parts.push(`Hint: ${obj.hint}`)
+      if (parts.length) return parts.join('\n')
+    } catch {
+      // not valid JSON — fall through to returning the raw string
+    }
+  }
+  return raw
 }
 
 function saveOrder() {
@@ -2699,6 +2878,9 @@ onMounted(() => {
 onUnmounted(() => {
   stopSessionTimer();
   window.removeEventListener('keydown', handleKeyDown);
+  clearToastTimers()
+  clearGridLoadingTimer()
+  clearTimerWarningTimer()
 });
 </script>
 

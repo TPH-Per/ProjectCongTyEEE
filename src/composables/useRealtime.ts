@@ -12,7 +12,12 @@ interface ChangePayload<T> {
   old: T
 }
 
+// Module-level dedup state. Channels and their reference counts are kept in
+// separate maps so we never mutate RealtimeChannel objects (which the
+// @supabase client expects to be opaque) and so the counts survive across
+// multiple `useRealtime()` composable instances.
 const channels = new Map<string, RealtimeChannel>()
+const channelRefs = new Map<string, number>()
 
 function buildPgFilter(
   branchId: string | undefined,
@@ -32,7 +37,11 @@ function buildPgFilter(
  * Realtime subscriptions helper.
  *
  * `watchTable` deduplicates channels by name so multiple components subscribing
- * to the same `(table, event, filter)` triple share one websocket.
+ * to the same `(table, event, filter)` triple share one websocket. Each call
+ * bumps the channel's reference count; the underlying channel is only torn
+ * down when the LAST subscriber unmounts. This avoids the silent-disconnect
+ * bug where a single component unmounting would close the channel for
+ * everyone else.
  */
 export function useRealtime() {
   const { branchId } = useAuth()
@@ -68,22 +77,23 @@ export function useRealtime() {
           else if (s === 'CHANNEL_ERROR') status.value = 'error'
         })
       channels.set(channelName, ch)
+      channelRefs.set(channelName, 0)
     }
 
-    let refCount = 1
-    const refCounts = (channels.get(channelName) as unknown as { _ref?: number })._ref ?? 1
+    channelRefs.set(channelName, (channelRefs.get(channelName) ?? 0) + 1)
 
     function cleanup() {
-      refCount -= 1
+      const refs = (channelRefs.get(channelName) ?? 0) - 1
+      channelRefs.set(channelName, Math.max(0, refs))
       const existing = channels.get(channelName)
       if (!existing) return
-      if (refCount <= 0) {
+      if (refs <= 0) {
         supabase.removeChannel(existing)
         channels.delete(channelName)
+        channelRefs.delete(channelName)
         activeCleanups.delete(cleanup)
       }
     }
-    void refCounts
     activeCleanups.add(cleanup)
     return cleanup
   }

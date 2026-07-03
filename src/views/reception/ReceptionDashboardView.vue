@@ -42,7 +42,33 @@
             {{ t('reception.dashboard.opening_cash') }} {{ Number(activeShift.opening_cash || 0).toLocaleString('vi-VN') }}đ
           </div>
         </div>
-        <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+        <div class="flex items-center gap-3">
+          <RouterLink
+            to="/reception/close-shift"
+            class="text-xs font-bold text-green-700 hover:text-green-900 underline"
+          >
+            {{ t('reception.dashboard.close_shift_link', 'Đóng ca') }}
+          </RouterLink>
+          <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+        </div>
+      </div>
+
+      <!-- No active shift: prompt the receptionist to open one before doing orders/checkout -->
+      <div v-else-if="!loading && hasLoadedOnce" class="mb-6 rounded-xl border-2 border-amber-300 bg-amber-50 p-4 flex items-center justify-between">
+        <div>
+          <div class="text-xs font-bold text-amber-700 uppercase tracking-wide">{{ t('reception.dashboard.no_active_shift', 'Chưa mở ca') }}</div>
+          <div class="text-sm text-amber-800 mt-1">
+            {{ t('reception.dashboard.open_shift_hint', 'Mở ca trước khi nhận order hoặc thanh toán — không có ca mở thì payments sẽ không được tính vào báo cáo ca.') }}
+          </div>
+        </div>
+        <button
+          type="button"
+          @click="openShiftDialog"
+          :disabled="shiftOpening"
+          class="bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold px-4 py-2 rounded-xl transition-colors disabled:opacity-50"
+        >
+          {{ shiftOpening ? '...' : t('reception.dashboard.open_shift_btn', 'Mở ca') }}
+        </button>
       </div>
 
       <!-- Alerts Section: checkout requests from tables / tablets -->
@@ -156,6 +182,7 @@ import { useLanguageStore } from '@/stores/useLanguageStore'
 const langStore = useLanguageStore()
   const t = langStore.t
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import Swal from 'sweetalert2'
 import { RouterLink } from 'vue-router'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/composables/useAuth'
@@ -165,6 +192,7 @@ import { useReservation } from '@/composables/useReservation'
 import { useNotification } from '@/composables/useNotification'
 import { useRealtime } from '@/composables/useRealtime'
 import { useServiceRequest, type ServiceRequest } from '@/composables/useServiceRequest'
+import { useShift } from '@/composables/useShift'
 import type { TableT, Shift, Notification } from '@/types/database'
 
 const { branchId } = useAuth()
@@ -174,6 +202,41 @@ const { listByDate } = useReservation()
 const { listForRole } = useNotification()
 const { fetchOpenRequests } = useServiceRequest()
 const { watchTable } = useRealtime()
+const { openShift } = useShift()
+const shiftOpening = ref(false)
+
+async function openShiftDialog() {
+  if (!activeBranch.value) return
+  const { value: openingCash } = await Swal.fire({
+    icon: 'question',
+    title: t('reception.dashboard.open_shift_dialog_title', 'Mở ca làm việc'),
+    html: t('reception.dashboard.open_shift_dialog_text', 'Nhập số tiền đầu ca trong két (VND).'),
+    input: 'number',
+    inputAttributes: { min: '0', step: '1000', 'aria-label': 'opening cash' },
+    inputValue: 0,
+    showCancelButton: true,
+    confirmButtonText: t('reception.dashboard.open_shift_confirm', 'Mở ca'),
+    cancelButtonText: t('reception.dashboard.open_shift_cancel', 'Hủy'),
+  })
+  if (openingCash === undefined || openingCash === null) return
+  shiftOpening.value = true
+  try {
+    const res = await openShift({ branchId: activeBranch.value, openingCash: Number(openingCash) })
+    await fetchActiveShift()
+    await Swal.fire({
+      icon: 'success',
+      title: res.idempotent
+        ? t('reception.dashboard.shift_already_open', 'Ca đã mở từ trước')
+        : t('reception.dashboard.shift_opened', 'Đã mở ca'),
+      timer: 1500,
+      showConfirmButton: false,
+    })
+  } catch (e: any) {
+    Swal.fire('Error', e.message || String(e), 'error')
+  } finally {
+    shiftOpening.value = false
+  }
+}
 
 const loading = ref(false)
 const hasLoadedOnce = ref(false)

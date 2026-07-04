@@ -193,7 +193,7 @@
             </button>
 
             <button 
-              @click="handleQuickAction('Báo cáo', '/admin/reports')"
+              @click="handleQuickAction('Báo cáo', '/reception/reports')"
               class="flex flex-col items-center justify-center p-4 rounded-xl border border-orange-100 bg-orange-50/20 hover:bg-orange-50/50 hover:scale-[1.05] active:scale-[0.98] transition-all text-center gap-2"
             >
               <div class="w-10 h-10 rounded-full bg-[#FFB74D] text-white flex items-center justify-center shadow-md">
@@ -517,6 +517,237 @@
 
     </div>
 
+    <!-- Custom Modal other-income -->
+    <Transition name="fade">
+      <div v-if="showOtherIncomeModal" class="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-[9999] p-4">
+        <div class="other-income-modal w-full max-w-[600px] bg-white rounded-2xl overflow-hidden shadow-2xl border border-gray-100 text-[#333333]">
+          <!-- Header -->
+          <div class="modal-header bg-[#1a5276] text-white p-4 flex items-center justify-between">
+            <h2 class="text-base font-black uppercase tracking-wide">Thu khác</h2>
+            <button @click="showOtherIncomeModal = false" class="text-white/80 hover:text-white transition-colors" type="button">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Creator Info -->
+          <div class="creator-info bg-[#f5f5f5] p-4 border-b border-gray-200">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-bold text-gray-500 uppercase min-w-[80px]">Người tạo:</span>
+                <span class="text-xs font-bold text-gray-800">{{ creator }}</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-bold text-gray-500 uppercase min-w-[80px]">Ngày lập:</span>
+                <input v-model="createdDate" type="text" class="bg-white border border-gray-300 rounded px-2.5 py-1 text-xs font-mono font-bold w-full max-w-[160px] focus:outline-none focus:border-[#E8772E]" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Form Content -->
+          <form @submit.prevent="handleSave" class="form-content p-5 max-h-[420px] overflow-y-auto space-y-4">
+            <!-- Đối tượng -->
+            <div class="form-row required flex flex-col gap-1">
+              <label class="text-xs font-bold text-gray-600">Đối tượng <span class="text-red-500">*</span></label>
+              <div class="input-with-button flex items-center gap-1.5">
+                <input 
+                  v-model="form.object" 
+                  type="text" 
+                  class="form-input flex-1 px-3 py-2 border border-gray-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-[#E8772E]/10" 
+                  placeholder="Nhập tên đối tượng..."
+                  required
+                />
+                <button type="button" @click="triggerSelectObject" class="btn-browse px-3 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-300 text-xs font-bold text-gray-700 rounded-lg active:scale-95 transition-all">...</button>
+              </div>
+            </div>
+
+            <!-- Loại thu & Khoản thu (Grid) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- Loại thu -->
+              <div class="form-row required flex flex-col gap-1">
+                <label class="text-xs font-bold text-gray-600">Loại thu <span class="text-red-500">*</span></label>
+                <select v-model="form.incomeType" class="form-select w-full px-3 py-2 border border-gray-300 rounded-lg text-xs focus:outline-none" required>
+                  <option value="other">Thu Khác</option>
+                  <option value="deposit">Tiền đặt cọc</option>
+                  <option value="refund">Hoàn tiền</option>
+                </select>
+              </div>
+
+              <!-- Khoản thu -->
+              <div class="form-row required flex flex-col gap-1">
+                <label class="text-xs font-bold text-gray-600">Khoản thu <span class="text-red-500">*</span></label>
+                <select v-model="form.incomeItem" class="form-select w-full px-3 py-2 border border-gray-300 rounded-lg text-xs focus:outline-none" required>
+                  <option value="withdraw">Rút tiền dư</option>
+                  <option value="adjustment">Điều chỉnh</option>
+                  <option value="other">Khác</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Tiền thu (Highlight hồng nhạt) -->
+            <div class="form-row required highlight bg-[#FFF0F0] border border-red-200/50 p-3.5 rounded-xl flex flex-col gap-1">
+              <label class="text-xs font-bold text-red-700">Tiền thu <span class="text-red-500">*</span></label>
+              <div class="input-with-button flex items-center gap-1.5">
+                <input 
+                  :value="formattedAmount"
+                  @input="handleAmountInput"
+                  type="text" 
+                  class="form-input flex-1 px-3 py-2 border border-red-300 rounded-lg text-xs font-mono font-bold text-right text-red-600 focus:outline-none focus:ring-2 focus:ring-red-100" 
+                  placeholder="0"
+                  required
+                />
+                <button type="button" class="btn-browse px-3 py-2 bg-red-100 hover:bg-red-200 border border-red-300 text-xs font-bold text-red-700 rounded-lg active:scale-95 transition-all">...</button>
+              </div>
+            </div>
+
+            <!-- Lý do -->
+            <div class="form-row flex flex-col gap-1">
+              <label class="text-xs font-bold text-gray-600">Lý do</label>
+              <div class="input-with-button flex items-center gap-1.5">
+                <input 
+                  v-model="form.reason" 
+                  type="text" 
+                  class="form-input flex-1 px-3 py-2 border border-gray-300 rounded-lg text-xs focus:outline-none" 
+                  placeholder="Nhập lý do thu tiền..."
+                />
+                <button type="button" class="btn-browse px-3 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-300 text-xs font-bold text-gray-700 rounded-lg active:scale-95 transition-all">...</button>
+              </div>
+            </div>
+
+            <!-- Số chứng từ & Mã đặt chỗ (Grid) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- Số chứng từ -->
+              <div class="form-row flex flex-col gap-1">
+                <label class="text-xs font-bold text-gray-600">Số chứng từ</label>
+                <input 
+                  v-model="form.voucherNumber" 
+                  type="text" 
+                  class="form-input w-full px-3 py-2 border border-gray-300 rounded-lg text-xs focus:outline-none" 
+                  placeholder="Hệ thống tự động phát sinh"
+                />
+              </div>
+
+              <!-- Mã đặt chỗ -->
+              <div class="form-row flex flex-col gap-1">
+                <label class="text-xs font-bold text-gray-600">Mã đặt chỗ</label>
+                <input 
+                  v-model="form.bookingCode" 
+                  type="text" 
+                  class="form-input w-full px-3 py-2 border border-gray-300 rounded-lg text-xs focus:outline-none" 
+                  placeholder="Nhập mã đặt chỗ (nếu có)"
+                />
+              </div>
+            </div>
+
+            <!-- Tiền mặt -->
+            <div class="form-row checkbox-row flex items-center gap-2 pt-2 select-none">
+              <input 
+                v-model="form.isCash" 
+                type="checkbox" 
+                id="isCash" 
+                class="w-4.5 h-4.5 accent-[#E8772E] cursor-pointer"
+              />
+              <label for="isCash" class="text-xs font-bold text-gray-700 cursor-pointer">Tiền mặt</label>
+            </div>
+          </form>
+
+          <!-- Footer Actions -->
+          <div class="modal-footer p-4 border-t border-gray-200 bg-gray-50 flex items-center justify-end gap-3">
+            <button 
+              type="button" 
+              class="btn btn-save-print px-4 py-2 bg-[#4CAF50] hover:bg-[#43A047] text-white text-xs font-extrabold rounded-lg shadow transition-all active:scale-95 flex items-center gap-1.5"
+              @click="handleSaveAndPrint"
+            >
+              🖨️ Lưu và in
+            </button>
+            <button 
+              type="button" 
+              class="btn btn-save px-4 py-2 bg-[#FF9800] hover:bg-[#F57C00] text-white text-xs font-extrabold rounded-lg shadow transition-all active:scale-95"
+              @click="handleSave"
+            >
+              💾 Lưu
+            </button>
+            <button 
+              type="button" 
+              class="btn btn-cancel px-4 py-2 bg-[#F44336] hover:bg-[#E53935] text-white text-xs font-extrabold rounded-lg shadow transition-all active:scale-95"
+              @click="showOtherIncomeModal = false"
+            >
+              ✕ Bỏ qua
+            </button>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
+    <!-- Custom Modal settings -->
+    <Transition name="fade">
+      <div v-if="showSettingsModal" class="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-[9999] p-4">
+        <div class="settings-modal w-full max-w-[500px] bg-white rounded-2xl overflow-hidden shadow-2xl border border-gray-100 text-[#333333]">
+          <!-- Header -->
+          <div class="modal-header bg-[#1a5276] text-white p-4 flex items-center justify-between">
+            <h2 class="text-base font-black uppercase tracking-wide">Cấu hình</h2>
+            <button @click="showSettingsModal = false" class="text-white/80 hover:text-white transition-colors" type="button">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Form Content -->
+          <div class="modal-content p-5 space-y-4">
+            <!-- Username -->
+            <div class="form-row flex flex-col gap-1">
+              <label class="text-xs font-bold text-gray-600">Tên đăng nhập</label>
+              <div class="input-group flex items-center gap-1.5">
+                <input 
+                  v-model="settingsUsername" 
+                  type="text" 
+                  class="form-input flex-1 px-3 py-2 border border-gray-300 rounded-lg text-xs focus:outline-none"
+                  placeholder="Nhập tên đăng nhập"
+                />
+                <button type="button" class="btn-browse px-3 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-300 text-xs font-bold text-gray-700 rounded-lg active:scale-95 transition-all">...</button>
+              </div>
+            </div>
+
+            <!-- Password -->
+            <div class="form-row flex flex-col gap-1">
+              <label class="text-xs font-bold text-gray-600">Mật khẩu</label>
+              <div class="input-group flex items-center gap-1.5">
+                <input 
+                  v-model="settingsPassword" 
+                  type="password" 
+                  class="form-input flex-1 px-3 py-2 border border-gray-300 rounded-lg text-xs focus:outline-none"
+                  placeholder="Nhập mật khẩu"
+                />
+                <button type="button" class="btn-browse px-3 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-300 text-xs font-bold text-gray-700 rounded-lg active:scale-95 transition-all">...</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="modal-footer p-4 border-t border-gray-200 bg-gray-50 flex items-center justify-end gap-3">
+            <button 
+              type="button" 
+              class="btn btn-confirm px-6 py-2 bg-[#4DB6AC] hover:bg-[#40a095] text-white text-xs font-extrabold rounded-lg shadow transition-all active:scale-95" 
+              @click="handleSaveSettings"
+            >
+              Xác nhận
+            </button>
+            <button 
+              type="button" 
+              class="btn btn-skip px-6 py-2 bg-[#E57373] hover:bg-[#d9534f] text-white text-xs font-extrabold rounded-lg shadow transition-all active:scale-95" 
+              @click="showSettingsModal = false"
+            >
+              Bỏ qua
+            </button>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
   </div>
 </template>
 
@@ -569,6 +800,101 @@ const { activeBranchId } = useBranch()
 const { updateStatus } = useReservation()
 const { listForRole, markRead } = useNotification()
 const { watchTable } = useRealtime()
+
+const showOtherIncomeModal = ref(false)
+const showSettingsModal = ref(false)
+const settingsUsername = ref('mo')
+const settingsPassword = ref('')
+
+const handleSaveSettings = () => {
+  Swal.fire({
+    title: 'Thành công',
+    text: `Đã cập nhật cấu hình cho tài khoản ${settingsUsername.value}!`,
+    icon: 'success',
+    confirmButtonText: 'Đóng',
+    confirmButtonColor: '#4DB6AC'
+  })
+  showSettingsModal.value = false
+}
+const creator = ref('Dương Thị Mộng')
+const createdDate = ref('02/07/2026 15:08:41')
+
+const form = ref({
+  object: '',
+  incomeType: 'other',
+  incomeItem: 'withdraw',
+  amount: 0,
+  reason: '',
+  voucherNumber: '',
+  bookingCode: '',
+  isCash: true,
+})
+
+const formattedAmount = computed(() => {
+  if (!form.value.amount) return ''
+  return Number(form.value.amount).toLocaleString('vi-VN')
+})
+
+const handleAmountInput = (e: Event) => {
+  const target = e.target as HTMLInputElement
+  const rawValue = target.value.replace(/[^0-9]/g, '')
+  form.value.amount = rawValue ? parseInt(rawValue, 10) : 0
+}
+
+const triggerSelectObject = () => {
+  form.value.object = 'Khách vãng lai'
+  triggerToast('info', 'Đã tự động chọn Đối tượng: Khách vãng lai')
+}
+
+const triggerToast = (type: 'success' | 'error' | 'info' | 'warning', text: string) => {
+  Swal.fire({
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true,
+    icon: type,
+    title: text
+  })
+}
+
+const handleSaveAndPrint = () => {
+  if (!form.value.object) {
+    triggerToast('error', 'Vui lòng nhập Đối tượng!')
+    return
+  }
+  if (!form.value.amount) {
+    triggerToast('error', 'Vui lòng nhập Số tiền thu!')
+    return
+  }
+  Swal.fire({
+    title: 'Thành công',
+    text: `Đã lưu và in phiếu thu cho ${form.value.object} với số tiền ${Number(form.value.amount).toLocaleString('vi-VN')}đ!`,
+    icon: 'success',
+    confirmButtonText: 'Đóng',
+    confirmButtonColor: '#4CAF50'
+  })
+  showOtherIncomeModal.value = false
+}
+
+const handleSave = () => {
+  if (!form.value.object) {
+    triggerToast('error', 'Vui lòng nhập Đối tượng!')
+    return
+  }
+  if (!form.value.amount) {
+    triggerToast('error', 'Vui lòng nhập Số tiền thu!')
+    return
+  }
+  Swal.fire({
+    title: 'Thành công',
+    text: `Đã lưu thành công phiếu thu của ${form.value.object}!`,
+    icon: 'success',
+    confirmButtonText: 'Đóng',
+    confirmButtonColor: '#FF9800'
+  })
+  showOtherIncomeModal.value = false
+}
 
 const loading = ref(false)
 const loadingDetails = ref(false)
@@ -1034,8 +1360,20 @@ function handleQuickAction(name: string, path: string) {
     return
   }
 
+  // Other income popup modal trigger
+  if (path === '/transactions/income') {
+    showOtherIncomeModal.value = true;
+    return;
+  }
+
+  // Settings popup modal trigger
+  if (path === '/settings') {
+    showSettingsModal.value = true;
+    return;
+  }
+
   // Placeholder paths
-  if (path === '/transactions/income' || path === '/transactions/expense' || path === '/settings' || path === '/admin/reports') {
+  if (path === '/transactions/expense' || path === '/admin/reports') {
     Swal.fire({
       title: 'Chức năng đang phát triển',
       text: `Phân hệ ${name} đang được tích hợp thêm. Vui lòng thử lại sau.`,
@@ -1245,5 +1583,33 @@ function formatTimeOnly(date: Date): string {
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;  
   overflow: hidden;
+}
+
+/* ===== SETTINGS MODAL ===== */
+.settings-modal {
+  width: 100%;
+  max-width: 500px;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.btn-confirm {
+  background: #4DB6AC;
+  color: white;
+}
+
+.btn-confirm:hover {
+  background: #40a095;
+}
+
+.btn-skip {
+  background: #E57373;
+  color: white;
+}
+
+.btn-skip:hover {
+  background: #d9534f;
 }
 </style>

@@ -19,6 +19,7 @@ import PurchasingLayout from "@/layouts/PurchasingLayout.vue";
 import AccountingLayout from "@/layouts/AccountingLayout.vue";
 import CRMLayout from "@/layouts/CRMLayout.vue";
 import CustomerLayout from "@/layouts/CustomerLayout.vue";
+import ReportsView from "@/views/reception/ReportsView.vue";
 
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 import LoginView from "@/views/LoginView.vue";
@@ -32,7 +33,6 @@ import AdminFloorsView from "@/views/admin/AdminFloorsView.vue";
 import AdminKPIView from "@/views/admin/AdminKPIView.vue";
 import AdminAuditView from "@/views/admin/AdminAuditView.vue";
 import AdminVoucherView from "@/views/admin/AdminVoucherView.vue";
-
 
 // ─── Staff/Hall Views ─────────────────────────────────────────────────────────
 import StaffFloorPlanView from "@/views/staff/StaffFloorPlanView.vue";
@@ -126,7 +126,6 @@ const routes: RouteRecordRaw[] = [
       { path: "kpi", name: "admin-kpi", component: AdminKPIView },
       { path: "audit", name: "admin-audit", component: AdminAuditView },
       { path: "vouchers", name: "admin-vouchers", component: AdminVoucherView },
-
     ],
   },
 
@@ -220,8 +219,6 @@ const routes: RouteRecordRaw[] = [
     ],
   },
 
-
-
   // ═══════════════════════════════════════════════════════════════
   // SUPERADMIN PORTAL (Desktop — Role: Enterprise Admin)
   // ═══════════════════════════════════════════════════════════════
@@ -282,6 +279,7 @@ const routes: RouteRecordRaw[] = [
       },
     ],
   },
+
   {
     path: "/reception",
     component: ReceptionLayout,
@@ -311,6 +309,16 @@ const routes: RouteRecordRaw[] = [
         name: "reception-order",
         component: ReceptionOrderView,
         meta: { fullscreen: true },
+      },
+      {
+        path: "reports",
+        name: "reception-reports",
+        component: ReportsView,
+        meta: {
+          requiresAuth: true,
+          title: "Báo cáo",
+          fullscreen: true,
+        },
       },
     ],
   },
@@ -415,20 +423,20 @@ const router = createRouter({
 });
 
 const ROUTE_ROLES: Record<string, string[]> = {
-  superadmin: ['superadmin'],
-  admin: ['superadmin'],
-  manager: ['superadmin', 'manager'],
-  reception: ['superadmin', 'manager', 'reception'],
-  staff: ['superadmin', 'manager', 'staff'],
-  hall: ['superadmin', 'manager', 'reception', 'staff'],
-  kitchen: ['superadmin', 'manager', 'kitchen'],
-  purchasing: ['superadmin', 'procurement_manager', 'procurement_staff'],
-  accounting: ['superadmin', 'accountant'],
-  crm: ['superadmin', 'manager', 'crm_manager'],
-  marketing: ['superadmin', 'manager', 'marketing'],
-  bod: ['superadmin', 'bod'],
-  tablet: ['superadmin', 'manager', 'reception', 'staff', 'customer'],
-}
+  superadmin: ["superadmin"],
+  admin: ["superadmin"],
+  manager: ["superadmin", "manager"],
+  reception: ["superadmin", "manager", "reception"],
+  staff: ["superadmin", "manager", "staff"],
+  hall: ["superadmin", "manager", "reception", "staff"],
+  kitchen: ["superadmin", "manager", "kitchen"],
+  purchasing: ["superadmin", "procurement_manager", "procurement_staff"],
+  accounting: ["superadmin", "accountant"],
+  crm: ["superadmin", "manager", "crm_manager"],
+  marketing: ["superadmin", "manager", "marketing"],
+  bod: ["superadmin", "bod"],
+  tablet: ["superadmin", "manager", "reception", "staff", "customer"],
+};
 
 router.beforeEach(async (to) => {
   const { isAuthenticated, loading, role, isAdmin } = useAuth();
@@ -478,14 +486,14 @@ router.beforeEach(async (to) => {
     }
   }
 
-  const prefix = String(to.path.split('/')[1] ?? '')
-  const allowed = ROUTE_ROLES[prefix]
-  
+  const prefix = String(to.path.split("/")[1] ?? "");
+  const allowed = ROUTE_ROLES[prefix];
+
   // Normalize checking
   const currentRole = role.value;
 
   if (allowed && currentRole && !allowed.includes(currentRole)) {
-    return getFallbackRouteForRole(currentRole)
+    return getFallbackRouteForRole(currentRole);
   }
 
   console.log("[DEBUG ROUTER] Navigation allowed to:", to.path);

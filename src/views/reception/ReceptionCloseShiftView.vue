@@ -1,430 +1,794 @@
 <template>
-  <div class="space-y-6">
+  <div class="end-shift-screen">
     <!-- Header -->
-    <div class="flex items-start justify-between">
-      <div>
-        <h1 class="text-2xl font-black text-[hsl(var(--foreground))] tracking-tight">{{ t('reception.close_shift.title') }}</h1>
-        <p class="text-sm text-[hsl(var(--muted-foreground))] mt-1">{{ t('reception.close_shift.subtitle') }}</p>
+    <div class="shift-header">
+      <div class="header-left">
+        <h1>Ra ca - {{ shiftName }} - {{ cashierName }} - {{ restaurantName }}</h1>
       </div>
-      <div class="flex gap-2">
-        <button
-          @click="handleExportCSV"
-          :disabled="loading || !activeShift"
-          class="kawaii-btn-ghost px-4 py-2 text-sm font-bold flex items-center gap-2 disabled:opacity-50"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
-          {{ t('reception.close_shift.export_csv') }}
-        </button>
-        <button
-          @click="handleCloseShift"
-          :disabled="loading || !activeShift"
-          class="kawaii-btn-primary px-5 py-2 text-sm font-bold flex items-center gap-2 disabled:opacity-50"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-          {{ loading ? t('reception.close_shift.closing_shift') : t('reception.close_shift.confirm_close_shift') }}
+      <div class="header-center">
+        <div>Giờ vào: {{ formatTime(shift.startTime) }}</div>
+        <div>Giờ ra: {{ formatTime(shift.endTime) }}</div>
+      </div>
+      <div class="header-right">
+        <div class="user-info bg-[#FFB74D] text-[#333] px-3 py-1 rounded-lg font-bold text-xs">
+          <span>{{ user.username }}</span>
+        </div>
+        <button class="btn-back ml-2" @click="goBack">
+           Quay về
         </button>
       </div>
     </div>
 
-    <!-- Active shift notice — required to know which shiftId to close. -->
-    <div
-      v-if="activeShift"
-      class="kawaii-card p-4 flex items-center justify-between"
-    >
-      <div>
-        <div class="text-xs font-bold text-green-700 uppercase tracking-wide">{{ t('reception.close_shift.active_shift') }}</div>
-        <div class="text-sm text-[hsl(var(--foreground))] mt-1">
-          {{ t('reception.close_shift.opened_at') }} {{ new Date(activeShift.opened_at).toLocaleString('vi-VN') }}
-          — {{ t('reception.close_shift.opening_cash') }} {{ Number(activeShift.opening_cash || 0).toLocaleString('vi-VN') }}đ
-        </div>
-      </div>
-      <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-    </div>
-    <div
-      v-else
-      class="kawaii-card p-4 text-sm text-yellow-800 bg-yellow-50 border-yellow-200"
-    >{{ t('reception.close_shift.no_active_shift') }}</div>
-
-    <!-- Error banner -->
-    <div
-      v-if="error"
-      class="kawaii-card p-4 text-sm text-red-700 bg-red-50 border-red-200"
-    >{{ error }}</div>
-
-    <!-- Revenue by Type — computed from `payments`, not `orders` -->
-    <div class="kawaii-card p-6">
-      <h3 class="font-bold text-base text-[hsl(var(--foreground))] mb-5">{{ t('reception.close_shift.revenue_by_type') }}</h3>
-      <div v-if="loading" class="text-sm text-gray-500 py-6 text-center">{{ t('reception.close_shift.loading') }}</div>
-      <div v-else class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <div class="rounded-2xl border-2 border-red-200 bg-red-50 p-4 text-center">
-          <div class="text-2xl mb-2">🍖</div>
-          <div class="text-xs font-bold text-red-400 uppercase tracking-wide mb-1">{{ t('reception.close_shift.dinner') }}</div>
-          <div class="text-2xl font-black text-red-700">{{ stats.dinner.revenue.toLocaleString('vi-VN') }}</div>
-          <div class="text-xs text-red-400 mt-1">{{ stats.dinner.count }} {{ t('reception.close_shift.bill_count') }}</div>
-        </div>
-        <div class="rounded-2xl border-2 border-orange-200 bg-orange-50 p-4 text-center">
-          <div class="text-2xl mb-2">🍱</div>
-          <div class="text-xs font-bold text-orange-400 uppercase tracking-wide mb-1">{{ t('reception.close_shift.lunch') }}</div>
-          <div class="text-2xl font-black text-orange-700">{{ stats.lunch.revenue.toLocaleString('vi-VN') }}</div>
-          <div class="text-xs text-orange-400 mt-1">{{ stats.lunch.count }} {{ t('reception.close_shift.bill_count') }}</div>
-        </div>
-        <div class="rounded-2xl border-2 border-purple-200 bg-purple-50 p-4 text-center">
-          <div class="text-2xl mb-2">🍶</div>
-          <div class="text-xs font-bold text-purple-400 uppercase tracking-wide mb-1">{{ t('reception.close_shift.wine') }}</div>
-          <div class="text-2xl font-black text-purple-700">{{ stats.wine.revenue.toLocaleString('vi-VN') }}</div>
-          <div class="text-xs text-purple-400 mt-1">{{ stats.wine.count }} {{ t('reception.close_shift.bill_count') }}</div>
-        </div>
-        <div class="rounded-2xl border-2 border-blue-200 bg-blue-50 p-4 text-center">
-          <div class="text-2xl mb-2">🛵</div>
-          <div class="text-xs font-bold text-blue-400 uppercase tracking-wide mb-1">{{ t('reception.close_shift.delivery') }}</div>
-          <div class="text-2xl font-black text-blue-700">{{ stats.delivery.revenue.toLocaleString('vi-VN') }}</div>
-          <div class="text-xs text-blue-400 mt-1">{{ stats.delivery.count }} {{ t('reception.close_shift.order_count') }}</div>
-        </div>
-      </div>
-
-      <div class="bg-[hsl(var(--muted))] rounded-xl p-4 flex items-center justify-between">
-        <div class="font-black text-lg text-[hsl(var(--foreground))]">{{ t('reception.close_shift.total_daily_revenue') }}</div>
-        <div class="text-3xl font-black text-[hsl(var(--primary))]">{{ totalRevenue.toLocaleString('vi-VN') }}đ</div>
-      </div>
+    <!-- Active shift notice -->
+    <div v-if="!activeShift && !loading" class="p-4 bg-yellow-50 border border-yellow-200 text-yellow-800 text-sm text-center font-bold">
+      Không có ca làm việc hoạt động nào được tìm thấy trên hệ thống.
     </div>
 
-    <!-- Cash reconciliation summary — derived from payments (server-side). -->
-    <div v-if="cashSummary" class="kawaii-card p-6">
-      <h3 class="font-bold text-base text-[hsl(var(--foreground))] mb-4">{{ t('reception.close_shift.cash_reconciliation') }}</h3>
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-        <div class="rounded-xl border p-3">
-          <div class="text-[10px] uppercase tracking-wide text-gray-500 font-bold">{{ t('reception.close_shift.initial_cash') }}</div>
-          <div class="font-black text-base mt-1">{{ cashSummary.opening.toLocaleString('vi-VN') }}đ</div>
+    <!-- Main Content -->
+    <div class="main-content flex-1 grid grid-cols-1 md:grid-cols-3 gap-5 p-5 overflow-y-auto">
+      <!-- Left: Cash Input -->
+      <div class="cash-section border border-gray-200 shadow-sm flex flex-col">
+        <div class="section-title">TIỀN MẶT</div>
+        
+        <!-- Currency Type Tabs -->
+        <div class="currency-tabs">
+          <button
+            v-for="currency in currencies"
+            :key="currency.code"
+            class="currency-tab"
+            :class="{ active: selectedCurrency === currency.code }"
+            @click="selectCurrency(currency.code)"
+            type="button"
+          >
+            <span>{{ currency.code }}</span>
+            <span class="currency-count">{{ currency.count }}</span>
+          </button>
         </div>
-        <div class="rounded-xl border p-3">
-          <div class="text-[10px] uppercase tracking-wide text-gray-500 font-bold">{{ t('reception.close_shift.cash_revenue') }}</div>
-          <div class="font-black text-base mt-1">{{ cashSummary.cashRevenue.toLocaleString('vi-VN') }}đ</div>
+
+        <!-- Cash Denominations -->
+        <div class="denominations-list flex-1 overflow-y-auto pr-1">
+          <div class="denomination-header">
+            <span>Loại tiền</span>
+            <span>Số lượng</span>
+          </div>
+          <div
+            v-for="denom in denominations"
+            :key="denom.value"
+            class="denomination-row"
+            :class="{ focused: activeField === denom.value }"
+            @click="activeField = denom.value"
+          >
+            <span class="denom-label">{{ formatMoney(denom.value) }}</span>
+            <input
+              v-model.number="denom.quantity"
+              type="number"
+              min="0"
+              class="denom-input"
+              @focus="activeField = denom.value"
+              @input="calculateTotal"
+            />
+          </div>
+          <div 
+            class="denomination-row other"
+            :class="{ focused: activeField === 'other' }"
+            @click="activeField = 'other'"
+          >
+            <span class="denom-label">Tiền khác</span>
+            <input
+              v-model.number="otherAmount"
+              type="number"
+              min="0"
+              class="denom-input other-input"
+              @focus="activeField = 'other'"
+            />
+          </div>
         </div>
-        <div class="rounded-xl border p-3">
-          <div class="text-[10px] uppercase tracking-wide text-gray-500 font-bold">{{ t('reception.close_shift.expected_cash') }}</div>
-          <div class="font-black text-base mt-1 text-blue-700">{{ cashSummary.expected.toLocaleString('vi-VN') }}đ</div>
+      </div>
+
+      <!-- Center: Total -->
+      <div class="total-section border border-gray-200 shadow-sm flex flex-col">
+        <div class="section-title">TỔNG TIỀN</div>
+        <div class="total-display flex-1 flex flex-col justify-center items-center gap-4 bg-gray-50/50 rounded-xl p-6">
+          <span class="text-sm font-bold text-gray-500 uppercase tracking-wide">Tổng tiền mặt kiểm đếm</span>
+          <div class="total-amount-wrapper">
+            <span class="total-amount">{{ formatMoney(totalAmount) }}</span>
+            <span class="text-xs font-bold text-gray-400 ml-1">VNĐ</span>
+          </div>
+          
+          <!-- Reconciliation detail comparison -->
+          <div class="w-full mt-6 space-y-2 border-t pt-4 text-xs font-semibold text-gray-600">
+            <div class="flex justify-between">
+              <span>Đầu ca:</span>
+              <span class="font-mono">{{ formatMoney(cashSummary?.opening ?? 0) }}đ</span>
+            </div>
+            <div class="flex justify-between">
+              <span>Doanh thu dự tính (tiền mặt):</span>
+              <span class="font-mono">{{ formatMoney(cashSummary?.cashRevenue ?? 0) }}đ</span>
+            </div>
+            <div class="flex justify-between border-t pt-2 text-blue-700">
+              <span>Lý thuyết hệ thống:</span>
+              <span class="font-mono font-bold">{{ formatMoney(cashSummary?.expected ?? 0) }}đ</span>
+            </div>
+            <div class="flex justify-between border-t pt-2" :class="cashDiff >= 0 ? 'text-green-600' : 'text-red-650'">
+              <span>Chênh lệch:</span>
+              <span class="font-mono font-bold">{{ cashDiff >= 0 ? '+' : '' }}{{ formatMoney(cashDiff) }}đ</span>
+            </div>
+          </div>
         </div>
-        <div class="rounded-xl border p-3">
-          <div class="text-[10px] uppercase tracking-wide text-gray-500 font-bold">{{ t('reception.close_shift.non_cash_revenue') }}</div>
-          <div class="font-black text-base mt-1">{{ cashSummary.nonCashRevenue.toLocaleString('vi-VN') }}đ</div>
+      </div>
+
+      <!-- Right: Keypad & Notes -->
+      <div class="keypad-section border border-gray-200 shadow-sm flex flex-col">
+        <div class="user-info-display flex items-center justify-between pb-3 border-b mb-3">
+          <div class="flex items-center gap-2">
+            <div class="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse"></div>
+            <span class="text-xs font-bold text-gray-700">Đang hoạt động: {{ user.username }}</span>
+          </div>
+          <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Bảng nhập số</span>
+        </div>
+        
+        <div class="notes-field">
+          <label>Ghi chú ra ca</label>
+          <div class="input-with-btn">
+            <input 
+              v-model="notes" 
+              type="text" 
+              class="notes-input" 
+              placeholder="Nhập ghi chú bàn giao ca..."
+              @focus="activeField = 'notes'"
+            />
+            <button type="button" class="btn-more" @click="notes = 'Đã bàn giao đầy đủ tiền mặt và bàn giao ca.'">...</button>
+          </div>
+        </div>
+
+        <!-- Numeric Keypad -->
+        <div class="keypad flex-1 grid grid-cols-4 gap-1.5 select-none">
+          <button
+            v-for="key in keypadKeys"
+            :key="key.label"
+            :class="['key-btn', key.type]"
+            @click="handleKeypad(key)"
+            type="button"
+          >
+            {{ key.label }}
+          </button>
         </div>
       </div>
     </div>
 
-    <!-- Session Summary Table — show payments, not orders -->
-    <div class="kawaii-card overflow-hidden">
-      <div class="kawaii-card-header">
-        <span class="font-bold text-sm">{{ t('reception.close_shift.payment_history') }}</span>
-        <span class="kawaii-pill bg-[hsl(var(--primary))]/10 text-[hsl(var(--primary))]">{{ payments.length }} {{ t('reception.close_shift.turn_count') }}</span>
+    <!-- Bottom Action -->
+    <div class="bottom-action border-t bg-gray-50 flex items-center justify-between px-6 py-4">
+      <div class="text-xs font-bold text-gray-500">
+        * Hãy chắc chắn kiểm đếm chính xác số lượng tiền mặt trước khi bấm Ra ca.
       </div>
-      <div class="overflow-x-auto">
-        <table class="w-full text-sm">
-          <thead>
-            <tr class="border-b border-[hsl(var(--border))]">
-              <th class="text-left py-2 px-4 font-bold text-gray-500 text-[11px] uppercase">{{ t('reception.close_shift.time') }}</th>
-              <th class="text-left py-2 px-4 font-bold text-gray-500 text-[11px] uppercase">{{ t('reception.close_shift.payment_method') }}</th>
-              <th class="text-left py-2 px-4 font-bold text-gray-500 text-[11px] uppercase">{{ t('reception.close_shift.revenue_category') }}</th>
-              <th class="text-right py-2 px-4 font-bold text-gray-500 text-[11px] uppercase">{{ t('reception.close_shift.amount') }}</th>
-              <th class="text-right py-2 px-4 font-bold text-gray-500 text-[11px] uppercase">{{ t('reception.close_shift.received_from_guest') }}</th>
-              <th class="text-right py-2 px-4 font-bold text-gray-500 text-[11px] uppercase">{{ t('reception.close_shift.change') }}</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-[hsl(var(--border))]">
-            <tr v-for="p in payments" :key="p.id" class="hover:bg-[hsl(var(--muted))]/50">
-              <td class="py-2.5 px-4 text-gray-600 text-xs">{{ formatTime(p.paid_at) }}</td>
-              <td class="py-2.5 px-4">
-                <span class="kawaii-pill bg-gray-100">{{ methodLabel(p.method) }}</span>
-              </td>
-              <td class="py-2.5 px-4 text-gray-600 text-xs">{{ revenueLabel(p.revenue_type) }}</td>
-              <td class="py-2.5 px-4 text-right font-bold text-[hsl(var(--foreground))]">{{ Number(p.amount || 0).toLocaleString('vi-VN') }}đ</td>
-              <td class="py-2.5 px-4 text-right text-gray-600 text-xs">{{ p.received_amount != null ? Number(p.received_amount).toLocaleString('vi-VN') + 'đ' : '—' }}</td>
-              <td class="py-2.5 px-4 text-right text-gray-600 text-xs">{{ p.change_amount != null ? Number(p.change_amount).toLocaleString('vi-VN') + 'đ' : '—' }}</td>
-            </tr>
-            <tr v-if="payments.length === 0">
-              <td colspan="6" class="py-4 text-center text-gray-500">{{ t('reception.close_shift.no_data') }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <button class="btn-end-shift shadow-md active:scale-95 transition-all" @click="endShift" :disabled="loading">
+         Ra ca
+      </button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import Swal from 'sweetalert2';
-import { useLanguageStore } from '@/stores/useLanguageStore'
-import { ref, onMounted, computed } from 'vue'
-import { supabase } from '@/lib/supabase'
-import { useAuth } from '@/composables/useAuth'
-import { useShift } from '@/composables/useShift'
-import type { Shift } from '@/types/database'
+import { useLanguageStore } from '@/stores/useLanguageStore';
+import { useAuth } from '@/composables/useAuth';
+import { useShift } from '@/composables/useShift';
+import { supabase } from '@/lib/supabase';
+import type { Shift } from '@/types/database';
 
-const langStore = useLanguageStore()
-  const t = langStore.t
-const { branchId } = useAuth()
-const { closeShift, exportCsv, loading: shiftLoading, error: shiftError } = useShift()
+const router = useRouter();
+const langStore = useLanguageStore();
+const t = langStore.t;
+const { branchId, profile } = useAuth();
+const { closeShift, loading: shiftLoading, error: shiftError } = useShift();
 
-const loading = ref(false)
-const error = ref<string | null>(null)
+const loading = ref(false);
+const activeShift = ref<Shift | null>(null);
 
-// Resolve branch scope: prefer the signed-in user's branch, fall back to the
-// DEFAULT_BRANCH_ID only if the JWT/DB hasn't given us one (e.g. mock login).
-const activeBranchId = computed<string>(() => branchId.value ?? '')
+const shiftName = ref('Ca 1');
+const cashierName = ref('Thu Ngân');
+const restaurantName = ref('NGƯU CÁT');
+const user = ref({ username: 'mo' });
+const notes = ref('');
+const selectedCurrency = ref('VND');
+const otherAmount = ref(0);
 
-// `shifts` (one row) + `payments` (per-transaction rows). We do NOT aggregate
-// from `orders` — `orders.total` doesn't break down by payment method, and
-// revenue_type is only on `payments`. Source of truth = payments table.
-const payments = ref<PaymentRow[]>([])
-const activeShift = ref<Shift | null>(null)
+const activeField = ref<number | 'other' | 'notes' | null>(null);
 
-interface PaymentRow {
-  id: string
-  method: 'cash' | 'card' | 'transfer' | 'voucher' | 'other'
-  revenue_type: 'lunch' | 'dinner' | 'wine' | 'delivery' | 'other' | null
-  amount: number
-  received_amount: number | null
-  change_amount: number | null
-  paid_at: string
+const shift = ref({
+  startTime: '02/07/2026 10:22:03',
+  endTime: '02/07/2026 15:09:40',
+});
+
+const currencies = ref([
+  { code: 'VND', count: 1 },
+  { code: 'EUR', count: 0 },
+  { code: 'TKHACH', count: 0 },
+  { code: 'USD', count: 0 },
+]);
+
+const denominations = ref([
+  { value: 500, quantity: 0 },
+  { value: 1000, quantity: 0 },
+  { value: 2000, quantity: 0 },
+  { value: 5000, quantity: 0 },
+  { value: 10000, quantity: 0 },
+  { value: 20000, quantity: 0 },
+  { value: 50000, quantity: 0 },
+  { value: 100000, quantity: 0 },
+  { value: 200000, quantity: 0 },
+  { value: 500000, quantity: 0 },
+]);
+
+interface KeypadKey {
+  label: string;
+  value: number | string;
+  type: 'denom' | 'number' | 'action';
 }
 
-interface RevenueStat { revenue: number; count: number }
-const stats = ref({
-  dinner: { revenue: 0, count: 0 } as RevenueStat,
-  lunch: { revenue: 0, count: 0 } as RevenueStat,
-  wine: { revenue: 0, count: 0 } as RevenueStat,
-  delivery: { revenue: 0, count: 0 } as RevenueStat,
-})
+const keypadKeys = ref<KeypadKey[]>([
+  { label: '500', value: 500, type: 'denom' },
+  { label: '1.000', value: 1000, type: 'denom' },
+  { label: '2.000', value: 2000, type: 'denom' },
+  { label: '5.000', value: 5000, type: 'denom' },
+  { label: '1', value: 1, type: 'number' },
+  { label: '2', value: 2, type: 'number' },
+  { label: '3', value: 3, type: 'number' },
+  { label: '10.000', value: 10000, type: 'denom' },
+  { label: '4', value: 4, type: 'number' },
+  { label: '5', value: 5, type: 'number' },
+  { label: '6', value: 6, type: 'number' },
+  { label: '20.000', value: 20000, type: 'denom' },
+  { label: '7', value: 7, type: 'number' },
+  { label: '8', value: 8, type: 'number' },
+  { label: '9', value: 9, type: 'number' },
+  { label: '50.000', value: 50000, type: 'denom' },
+  { label: '0', value: 0, type: 'number' },
+  { label: '00', value: '00', type: 'number' },
+  { label: '000', value: '000', type: 'number' },
+  { label: '100.000', value: 100000, type: 'denom' },
+  { label: '0,1', value: '0.1', type: 'number' },
+  { label: '0,2', value: '0.2', type: 'number' },
+  { label: '0,5', value: '0.5', type: 'number' },
+  { label: '200.000', value: 200000, type: 'denom' },
+  { label: '.', value: '.', type: 'number' },
+  { label: 'Del', value: 'del', type: 'action' },
+  { label: 'OK', value: 'ok', type: 'action' },
+  { label: '500.000', value: 500000, type: 'denom' },
+]);
 
-const totalRevenue = computed(() =>
-  stats.value.dinner.revenue +
-  stats.value.lunch.revenue +
-  stats.value.wine.revenue +
-  stats.value.delivery.revenue,
-)
+const payments = ref<any[]>([]);
+
+const totalAmount = computed(() => {
+  const denomTotal = denominations.value.reduce((sum, d) => {
+    return sum + (d.value * (d.quantity || 0));
+  }, 0);
+  return denomTotal + (otherAmount.value || 0);
+});
 
 const cashSummary = computed(() => {
-  if (!activeShift.value) return null
-  const opening = Number(activeShift.value.opening_cash || 0)
-  let cashRevenue = 0
-  let nonCashRevenue = 0
+  if (!activeShift.value) return { opening: 0, cashRevenue: 0, nonCashRevenue: 0, expected: 0 };
+  const opening = Number(activeShift.value.opening_cash || 0);
+  let cashRevenue = 0;
+  let nonCashRevenue = 0;
   for (const p of payments.value) {
-    if (p.method === 'cash') cashRevenue += Number(p.amount)
-    else nonCashRevenue += Number(p.amount)
+    if (p.method === 'cash') cashRevenue += Number(p.amount);
+    else nonCashRevenue += Number(p.amount);
   }
   return {
     opening,
     cashRevenue,
     nonCashRevenue,
     expected: opening + cashRevenue,
-  }
-})
+  };
+});
 
-function resetStats() {
-  stats.value = {
-    dinner: { revenue: 0, count: 0 },
-    lunch: { revenue: 0, count: 0 },
-    wine: { revenue: 0, count: 0 },
-    delivery: { revenue: 0, count: 0 },
-  }
-}
+const cashDiff = computed(() => {
+  const expected = cashSummary.value?.expected ?? 0;
+  return totalAmount.value - expected;
+});
 
-function formatTime(iso?: string | null): string {
-  if (!iso) return ''
-  const d = new Date(iso)
-  return Number.isNaN(d.getTime()) ? '' : d.toLocaleTimeString('vi-VN')
-}
+const selectCurrency = (code: string) => {
+  selectedCurrency.value = code;
+};
 
-function methodLabel(method: PaymentRow['method']): string {
-  switch (method) {
-    case 'cash': return t('reception.close_shift.cash_label')
-    case 'card': return t('reception.close_shift.card_label')
-    case 'transfer': return t('reception.close_shift.transfer_label')
-    case 'voucher': return t('reception.close_shift.voucher_label')
-    case 'other': return t('reception.close_shift.other_label')
-    default: return method
+const handleKeypad = (key: KeypadKey) => {
+  if (key.type === 'denom') {
+    // Increment quantity for denom preset value
+    const denom = denominations.value.find(d => d.value === Number(key.value));
+    if (denom) {
+      denom.quantity = (denom.quantity || 0) + 1;
+      calculateTotal();
+    }
+    return;
   }
-}
 
-function revenueLabel(rt: PaymentRow['revenue_type']): string {
-  switch (rt) {
-    case 'dinner': return t('reception.close_shift.dinner_label')
-    case 'lunch': return t('reception.close_shift.lunch_label')
-    case 'wine': return t('reception.close_shift.wine_label')
-    case 'delivery': return t('reception.close_shift.delivery_label')
-    case 'other': return t('reception.close_shift.other_label')
-    default: return '—'
+  // Handle number/action keypad input on focused field
+  if (activeField.value === 'notes') {
+    if (key.value === 'del') {
+      notes.value = notes.value.slice(0, -1);
+    } else if (key.value === 'ok') {
+      activeField.value = null;
+    } else {
+      notes.value = notes.value + String(key.value);
+    }
+    return;
   }
-}
 
-async function fetchPaymentsForShift() {
-  if (!activeBranchId.value || !activeShift.value) {
-    payments.value = []
-    resetStats()
-    return
+  if (activeField.value === 'other') {
+    if (key.value === 'del') {
+      const str = String(otherAmount.value);
+      otherAmount.value = str.length > 1 ? parseInt(str.slice(0, -1), 10) : 0;
+    } else if (key.value === 'ok') {
+      activeField.value = null;
+    } else {
+      const currentStr = otherAmount.value === 0 ? '' : String(otherAmount.value);
+      otherAmount.value = parseInt(currentStr + String(key.value), 10) || 0;
+    }
+    return;
   }
-  resetStats()
-  // Pull all payments belonging to this shift. We rely on `shift_id` (the
-  // exact column the Edge Function `close-shift` uses for `expectedCash`),
-  // NOT a `created_at` filter — a shift can span past midnight, and a date
-  // filter would either miss or over-count.
-  const { data, error: err } = await supabase
-    .from('payments')
-    .select('id, method, revenue_type, amount, received_amount, change_amount, paid_at, shift_id, branch_id')
-    .eq('branch_id', activeBranchId.value)
-    .eq('shift_id', activeShift.value.id)
-    .order('paid_at', { ascending: false })
 
-  if (err) {
-    error.value = err.message
-    payments.value = []
-    return
-  }
-  payments.value = (data ?? []) as unknown as PaymentRow[]
-
-  // Aggregate by revenue_type. Unknown values fall into "dinner" so the
-  // dashboard totals stay consistent with the rest of the app.
-  for (const p of payments.value) {
-    const rt = (p.revenue_type ?? 'dinner') as keyof typeof stats.value
-    const bucket = (stats.value as Record<string, RevenueStat>)[rt] ?? stats.value.dinner
-    bucket.revenue += Number(p.amount || 0)
-    bucket.count += 1
-  }
-}
-
-async function fetchActiveShift() {
-  if (!activeBranchId.value) {
-    activeShift.value = null
-    return
-  }
-  // The Edge Function `close-shift` and `export-shift-csv` REQUIRE a real
-  // shiftId. Auto-fetch the open shift for this branch so the receptionist
-  // doesn't have to type one in.
-  const { data, error: err } = await supabase
-    .from('shifts')
-    .select('*')
-    .eq('branch_id', activeBranchId.value)
-    .eq('status', 'open')
-    .order('opened_at', { ascending: false })
-    .limit(1)
-    .maybeSingle()
-  if (err) {
-    error.value = err.message
-    activeShift.value = null
-    return
-  }
-  activeShift.value = (data as Shift) ?? null
-}
-
-async function refreshAll() {
-  loading.value = true
-  error.value = null
-  try {
-    await fetchActiveShift()
-    await fetchPaymentsForShift()
-  } finally {
-    loading.value = false
-  }
-}
-
-onMounted(refreshAll)
-
-async function handleCloseShift() {
-  if (!activeShift.value) {
-    Swal.fire(t('reception.close_shift.notification'), t('reception.close_shift.no_active_shift_alert'), 'info')
-    return
-  }
-  // Display the system-computed `expected` (opening + cash) and ask the
-  // receptionist ONLY for the actual counted cash. We never ask for
-  // "expected" — that's the system's job to compute and verify against.
-  const summary = cashSummary.value
-  const expected = summary?.expected ?? 0
-  const { value: formValues } = await Swal.fire({
-    title: t('reception.close_shift.close_shift_title'),
-    html:
-      `<div class="text-left text-sm space-y-2 mb-3">` +
-        `<div class="flex justify-between"><span>${t('reception.close_shift.initial_cash')}</span><b>${(summary?.opening ?? 0).toLocaleString('vi-VN')}đ</b></div>` +
-        `<div class="flex justify-between"><span>${t('reception.close_shift.expected_cash_sys')}</span><b>${expected.toLocaleString('vi-VN')}đ</b></div>` +
-      `</div>` +
-      `<input id="closing-cash" type="number" min="0" step="1000" class="swal2-input" placeholder="${t('reception.close_shift.actual_cash_placeholder')}">` +
-      `<textarea id="handover-notes" class="swal2-textarea" placeholder="${t('reception.close_shift.handover_notes')}"></textarea>`,
-    focusConfirm: false,
-    showCancelButton: true,
-    confirmButtonText: t('reception.close_shift.confirm_close_btn'),
-    cancelButtonText: t('reception.close_shift.cancel_btn'),
-    preConfirm: () => {
-      const cash = (document.getElementById('closing-cash') as HTMLInputElement).value
-      const notes = (document.getElementById('handover-notes') as HTMLTextAreaElement).value
-      if (cash === '' || Number.isNaN(Number(cash)) || Number(cash) < 0) {
-        Swal.showValidationMessage(t('reception.close_shift.enter_actual_cash_warning'))
-        return false
+  if (typeof activeField.value === 'number') {
+    const denom = denominations.value.find(d => d.value === activeField.value);
+    if (denom) {
+      if (key.value === 'del') {
+        const str = String(denom.quantity);
+        denom.quantity = str.length > 1 ? parseInt(str.slice(0, -1), 10) : 0;
+      } else if (key.value === 'ok') {
+        // move to next denomination
+        const idx = denominations.value.indexOf(denom);
+        if (idx < denominations.value.length - 1) {
+          activeField.value = denominations.value[idx + 1].value;
+        } else {
+          activeField.value = 'other';
+        }
+      } else {
+        const currentStr = denom.quantity === 0 ? '' : String(denom.quantity);
+        denom.quantity = parseInt(currentStr + String(key.value), 10) || 0;
       }
-      return { closingCash: Number(cash), notes }
-    },
-  })
-  if (!formValues) return
-
-  loading.value = true
-  error.value = null
-  try {
-    // `useShift.closeShift` posts camelCase payload to match the Edge Function
-    // contract exactly: { shiftId, closingCash, notes? }.
-    const result = await closeShift({
-      shiftId: activeShift.value.id,
-      closingCash: formValues.closingCash,
-      notes: formValues.notes || undefined,
-    })
-    const diff = result?.cashDifference ?? 0
-    Swal.fire({
-      icon: 'success',
-      title: t('reception.close_shift.close_shift_success'),
-      html:
-        `${t('reception.close_shift.cash_diff')} <b>${diff.toLocaleString('vi-VN')}đ</b><br/>` +
-        (result?.expectedCash != null
-          ? `${t('reception.close_shift.expected_label')} <b>${result.expectedCash.toLocaleString('vi-VN')}đ</b><br/>`
-          : '') +
-        `${t('reception.close_shift.actual_label')} <b>${formValues.closingCash.toLocaleString('vi-VN')}đ</b>`,
-    })
-    activeShift.value = null
-    await refreshAll()
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err)
-    error.value = message
-    Swal.fire(t('reception.close_shift.error_title'), t('reception.close_shift.close_shift_error') + message, 'error')
-  } finally {
-    loading.value = false
-    void shiftLoading.value
-    void shiftError.value
+      calculateTotal();
+    }
   }
-}
+};
 
-async function handleExportCSV() {
+const calculateTotal = () => {
+  // Computed property handles auto recalculation
+};
+
+const refreshAll = async () => {
+  loading.value = true;
+  try {
+    // Get cashier name
+    if (profile.value) {
+      cashierName.value = profile.value.full_name || 'Thu Ngân';
+      user.value.username = profile.value.email?.split('@')[0] || 'mo';
+    }
+
+    // Get active shift
+    const bid = branchId.value ?? '';
+    const { data: shiftData } = await supabase
+      .from('shifts')
+      .select('*')
+      .eq('branch_id', bid)
+      .eq('status', 'open')
+      .order('opened_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (shiftData) {
+      activeShift.value = shiftData;
+      shift.value.startTime = new Date(shiftData.opened_at).toLocaleString('vi-VN');
+      shift.value.endTime = new Date().toLocaleString('vi-VN');
+      
+      // Fetch shift payments
+      const { data: payData } = await supabase
+        .from('payments')
+        .select('*')
+        .eq('branch_id', bid)
+        .eq('shift_id', shiftData.id);
+      
+      payments.value = payData || [];
+    }
+  } catch (e) {
+    console.error('Failed to load close shift data:', e);
+  } finally {
+    loading.value = false;
+  }
+};
+
+onMounted(refreshAll);
+
+const endShift = async () => {
   if (!activeShift.value) {
-    Swal.fire(t('reception.close_shift.notification'), t('reception.close_shift.no_shift_export_alert'), 'info')
-    return
+    Swal.fire('Thông báo', 'Không có ca làm việc hoạt động nào!', 'info');
+    return;
   }
-  loading.value = true
-  error.value = null
-  try {
-    // `useShift.exportCsv` returns raw CSV text (the Edge Function responds
-    // with `text/csv` — supabase.functions.invoke can't JSON-parse it, so the
-    // composable uses fetch directly).
-    const csv = await exportCsv(activeShift.value.id)
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `shift-${activeShift.value.id}.csv`
-    document.body.appendChild(a)
-    a.click()
-    a.remove()
-    URL.revokeObjectURL(url)
-    Swal.fire(t('reception.close_shift.success_title'), t('reception.close_shift.csv_downloaded'), 'success')
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err)
-    error.value = message
-    Swal.fire(t('reception.close_shift.error_title'), t('reception.close_shift.export_csv_error') + message, 'error')
-  } finally {
-    loading.value = false
-  }
-}
+  
+  const expected = cashSummary.value?.expected ?? 0;
+  const actual = totalAmount.value;
+  const diff = actual - expected;
+
+  Swal.fire({
+    title: 'Xác nhận ra ca?',
+    html: `
+      <div class="text-left text-sm space-y-1 mb-2 text-gray-700">
+        <div class="flex justify-between"><span>Tiền mặt ban đầu:</span><b>${(cashSummary.value?.opening ?? 0).toLocaleString('vi-VN')}đ</b></div>
+        <div class="flex justify-between"><span>Doanh thu dự tính:</span><b>${(cashSummary.value?.cashRevenue ?? 0).toLocaleString('vi-VN')}đ</b></div>
+        <div class="flex justify-between"><span>Lý thuyết hệ thống:</span><b>${expected.toLocaleString('vi-VN')}đ</b></div>
+        <div class="flex justify-between text-orange-600 border-t pt-1 mt-1 font-bold"><span>Thực tế kiểm đếm:</span><b>${actual.toLocaleString('vi-VN')}đ</b></div>
+        <div class="flex justify-between ${diff >= 0 ? 'text-green-600' : 'text-red-600'} font-bold"><span>Chênh lệch:</span><b>${diff >= 0 ? '+' : ''}${diff.toLocaleString('vi-VN')}đ</b></div>
+      </div>
+    `,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Xác nhận Ra ca',
+    cancelButtonText: 'Hủy',
+    confirmButtonColor: '#4CAF50',
+    cancelButtonColor: '#E57373'
+  }).then(async (resultConfirm) => {
+    if (resultConfirm.isConfirmed) {
+      loading.value = true;
+      try {
+        await closeShift({
+          shiftId: activeShift.value!.id,
+          closingCash: actual,
+          notes: notes.value || undefined,
+        });
+        Swal.fire({
+          icon: 'success',
+          title: 'Ra ca thành công',
+          html: `
+            Chênh lệch: <b>${diff >= 0 ? '+' : ''}${diff.toLocaleString('vi-VN')}đ</b><br/>
+            Thực tế: <b>${actual.toLocaleString('vi-VN')}đ</b>
+          `,
+          confirmButtonColor: '#4CAF50'
+        });
+        activeShift.value = null;
+        router.push('/reception/dashboard');
+      } catch (err: any) {
+        Swal.fire('Lỗi ra ca', err.message || String(err), 'error');
+      } finally {
+        loading.value = false;
+      }
+    }
+  });
+};
+
+const goBack = () => {
+  router.push('/reception/dashboard');
+};
+
+const formatMoney = (val: number) => {
+  return val?.toLocaleString('vi-VN') || '0';
+};
+
+const formatTime = (timeStr: string) => {
+  return timeStr;
+};
 </script>
+
+<style scoped>
+.end-shift-screen {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #f5f5f5;
+  color: #333;
+}
+
+.shift-header {
+  background: #1a5276;
+  color: white;
+  padding: 12px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header-left h1 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.header-center {
+  text-align: center;
+  font-size: 12px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.btn-back {
+  padding: 8px 16px;
+  background: #E57373;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s;
+}
+
+.btn-back:hover {
+  background: #d9534f;
+  transform: translateY(-1px);
+}
+
+.main-content {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1.2fr 1fr;
+  gap: 20px;
+  padding: 20px;
+  min-height: 0;
+}
+
+.cash-section, .total-section, .keypad-section {
+  background: white;
+  border-radius: 8px;
+  padding: 16px;
+  overflow: hidden;
+}
+
+.section-title {
+  background: #1a5276;
+  color: white;
+  padding: 10px;
+  text-align: center;
+  font-weight: 750;
+  font-size: 13px;
+  border-radius: 4px;
+  margin-bottom: 12px;
+  letter-spacing: 0.05em;
+}
+
+.currency-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.currency-tab {
+  flex: 1;
+  padding: 8px;
+  background: #5D5D5D;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 11px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s;
+}
+
+.currency-tab.active {
+  background: #FFB74D;
+  color: #333;
+}
+
+.currency-count {
+  background: rgba(0,0,0,0.3);
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: 10px;
+}
+
+.denominations-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.denomination-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  font-weight: 700;
+  color: #888;
+  margin-bottom: 4px;
+  padding: 0 4px;
+}
+
+.denomination-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 10px;
+  background: #f8f9fa;
+  border: 2px solid transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.denomination-row:hover {
+  background: #f0f2f5;
+}
+
+.denomination-row.focused {
+  border-color: #FFB74D;
+  background: #fffdf9;
+}
+
+.denomination-row.other {
+  background: #FFE5E5;
+}
+
+.denomination-row.other.focused {
+  border-color: #E57373;
+}
+
+.denom-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #333;
+}
+
+.denom-input {
+  width: 90px;
+  padding: 5px 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 13px;
+  font-family: monospace;
+  font-weight: 700;
+  text-align: right;
+  background: white;
+}
+
+.denom-input:focus {
+  outline: none;
+}
+
+.other-input {
+  border-color: #E57373;
+}
+
+.total-amount-wrapper {
+  display: flex;
+  align-items: baseline;
+}
+
+.total-amount {
+  font-size: 26px;
+  font-weight: 900;
+  color: #E57373;
+  font-family: monospace;
+  letter-spacing: -0.5px;
+}
+
+.user-info-display {
+  font-size: 12px;
+  color: #666;
+}
+
+.notes-field {
+  margin-bottom: 12px;
+}
+
+.notes-field label {
+  display: block;
+  font-size: 11px;
+  color: #666;
+  margin-bottom: 4px;
+  font-weight: 700;
+}
+
+.input-with-btn {
+  display: flex;
+  gap: 4px;
+}
+
+.notes-input {
+  flex: 1;
+  padding: 8px 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 12px;
+  background: white;
+}
+
+.notes-input:focus {
+  outline: none;
+  border-color: #FFB74D;
+}
+
+.btn-more {
+  width: 32px;
+  background: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.btn-more:hover {
+  background: #e0e0e0;
+}
+
+.keypad {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+}
+
+.key-btn {
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.key-btn.denom {
+  background: #FFB74D;
+  color: #333;
+}
+
+.key-btn.number {
+  background: #1a1a1a;
+  color: white;
+}
+
+.key-btn.action {
+  background: #FFB74D;
+  color: #333;
+}
+
+.keypad button:nth-child(26) { /* Del button */
+  background: #E57373;
+  color: white;
+}
+
+.keypad button:nth-child(27) { /* OK button */
+  background: #4DB6AC;
+  color: white;
+}
+
+.key-btn:hover {
+  opacity: 0.9;
+  transform: scale(0.97);
+}
+
+.btn-end-shift {
+  padding: 12px 32px;
+  background: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.btn-end-shift:hover {
+  background: #43A047;
+}
+
+.btn-end-shift:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+</style>

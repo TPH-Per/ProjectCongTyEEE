@@ -12,8 +12,9 @@ import type { UserRole } from '@/types/database'
  */
 export function getHomeRouteForRole(role: UserRole | string | null | undefined): RouteLocationRaw {
   switch (role) {
+    case 'superadmin':
     case 'admin':
-      return { name: 'admin-dashboard' }
+      return { name: 'superadmin-dashboard' }
     case 'manager':
       return { name: 'manager-dashboard' }
     case 'reception':
@@ -25,6 +26,8 @@ export function getHomeRouteForRole(role: UserRole | string | null | undefined):
     case 'kitchen':
       return { name: 'kitchen-kds' }
     case 'procurement':
+    case 'procurement_manager':
+    case 'procurement_staff':
     case 'purchasing':
       return { name: 'purchasing-receipts' }
     case 'accounting':

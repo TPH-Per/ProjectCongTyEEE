@@ -8,23 +8,19 @@
       <div class="header-left">
         <div class="logo-icon">📊</div>
         <div>
-          <h1 class="page-title">Danh sách phiếu</h1>
-          <p class="page-subtitle">Quản lý và thống kê chi tiết phiếu doanh thu</p>
+          <h1 class="page-title">{{ t('reception.receipt_list') }}</h1>
+          <p class="page-subtitle">{{ t('reception.manage_revenue') }}</p>
         </div>
       </div>
       <div class="header-actions">
         <button class="btn btn-refresh" @click="refreshData">
-          <span>🔄</span> Làm mới
-        </button>
+          <span>🔄</span>{{ t('reception.refresh') }}</button>
         <button class="btn btn-bill-list" @click="viewBillList">
-          <span>📄</span> Danh sách hóa đơn
-        </button>
+          <span>📄</span>{{ t('reception.invoice_list') }}</button>
         <button class="btn btn-lock" @click="tempExit">
-          <span>🔒</span> Tạm thoát
-        </button>
+          <span>🔒</span>{{ t('reception.temp_exit') }}</button>
         <button class="btn btn-back" @click="goBack">
-          <span>⬅️</span> Quay về
-        </button>
+          <span>⬅️</span>{{ t('reception.go_back') }}</button>
       </div>
     </div>
 
@@ -32,23 +28,23 @@
     <div class="filters-section flex-shrink-0">
       <div class="filter-row">
         <div class="filter-group search-group">
-          <label class="filter-label">TÌM KIẾM</label>
+          <label class="filter-label">{{ t('reception.search_upper') }}</label>
           <input 
             v-model="searchQuery"
             type="text" 
-            placeholder="Tìm theo số phiếu, bàn, khu..."
+            :placeholder="t('reception.search_by_receipt')"
             class="search-input"
           />
         </div>
         <div class="filter-group">
-          <label class="filter-label">TỪ NGÀY</label>
+          <label class="filter-label">{{ t('reception.from_date') }}</label>
           <div class="datetime-row">
             <input v-model="filters.fromDate" type="date" class="date-input" />
             <input v-model="filters.fromTime" type="time" class="time-input" />
           </div>
         </div>
         <div class="filter-group">
-          <label class="filter-label">ĐẾN NGÀY</label>
+          <label class="filter-label">{{ t('reception.to_date') }}</label>
           <div class="datetime-row">
             <input v-model="filters.toDate" type="date" class="date-input" />
             <input v-model="filters.toTime" type="time" class="time-input" />
@@ -77,10 +73,10 @@
             <button 
               class="filter-dropdown-btn"
               @click="showFilterDropdown = !showFilterDropdown"
-              :style="{ backgroundColor: currentStatusFilterColor }"
+              :style="{ backgroundColor: currentFilter.color }"
             >
               <span>🔍</span>
-              <span>{{ currentFilterLabel }}</span>
+              <span>{{ currentFilter.label }}</span>
             </button>
             <Transition name="fade">
               <div v-if="showFilterDropdown" class="filter-dropdown-menu">
@@ -88,9 +84,9 @@
                   v-for="status in statusFilters"
                   :key="status.value"
                   class="filter-dropdown-item"
-                  :class="{ active: selectedStatus === status.value }"
+                  :class="{ active: selectedFilter === status.value }"
                   :style="{ backgroundColor: status.color, color: status.textColor }"
-                  @click="applyStatusFilter(status.value)"
+                  @click="applyFilter(status)"
                 >
                   {{ status.label }}
                 </button>
@@ -98,11 +94,9 @@
             </Transition>
           </div>
           <button class="btn btn-export" @click="exportData">
-            <span>📥</span> Xuất dữ liệu
-          </button>
+            <span>📥</span>{{ t('reception.export_data') }}</button>
           <button class="btn btn-print" @click="printReport">
-            <span>🖨️</span> In danh sách
-          </button>
+            <span>🖨️</span>{{ t('reception.print_list') }}</button>
         </div>
       </div>
 
@@ -113,18 +107,18 @@
             <tr>
               <th class="col-checkbox"><input type="checkbox" v-model="selectAll" /></th>
               <th class="col-stt">STT</th>
-              <th class="col-so-phieu">SỐ PHIẾU</th>
-              <th class="col-so-hd">SỐ HÓA ĐƠN</th>
-              <th class="col-day-hd">DÃY HD</th>
-              <th class="col-mst">MST KHÁCH HÀNG</th>
-              <th class="col-trang-thai">TRẠNG THÁI HÓA ĐƠN</th>
+              <th class="col-so-phieu">{{ t('reception.receipt_no_upper') }}</th>
+              <th class="col-so-hd">{{ t('reception.invoice_no') }}</th>
+              <th class="col-day-hd">{{ t('reception.invoice_series') }}</th>
+              <th class="col-mst">{{ t('reception.customer_tax_code') }}</th>
+              <th class="col-trang-thai">{{ t('reception.invoice_status') }}</th>
               <th class="col-khu">KHU</th>
-              <th class="col-ban">BÀN</th>
-              <th class="col-tong-tien">TỔNG TIỀN</th>
-              <th class="col-da-tra">ĐÃ TRẢ</th>
-              <th class="col-con-lai">CÒN LẠI</th>
-              <th class="col-tien-hang">TIỀN HÀNG</th>
-              <th class="col-giam">GIẢM</th>
+              <th class="col-ban">{{ t('reception.table_upper') }}</th>
+              <th class="col-tong-tien">{{ t('reception.total_amount_upper') }}</th>
+              <th class="col-da-tra">{{ t('reception.paid_upper') }}</th>
+              <th class="col-con-lai">{{ t('reception.remaining_upper') }}</th>
+              <th class="col-tien-hang">{{ t('reception.goods_amount_upper') }}</th>
+              <th class="col-giam">{{ t('reception.discount_upper') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -162,9 +156,7 @@
               <td class="col-giam text-red text-right">{{ formatVND(row.giam) }}</td>
             </tr>
             <tr v-if="filteredData.length === 0">
-              <td colspan="14" class="p-8 text-center text-gray-400">
-                Không tìm thấy phiếu nào phù hợp với bộ lọc
-              </td>
+              <td colspan="14" class="p-8 text-center text-gray-400">{{ t('reception.no_receipts_match') }}</td>
             </tr>
           </tbody>
         </table>
@@ -184,19 +176,19 @@
       <!-- 3.4 SUMMARY FOOTER: flex-shrink-0 -->
       <div class="summary-footer flex-shrink-0">
         <div class="summary-item">
-          <span class="label">Tổng tiền:</span>
+          <span class="label">{{ t('reception.total_money') }}</span>
           <span class="value">{{ formatVND(summary.tongTien) }}</span>
         </div>
         <div class="summary-item">
-          <span class="label">Đã trả:</span>
+          <span class="label">{{ t('reception.paid_amount') }}</span>
           <span class="value text-green">{{ formatVND(summary.daTra) }}</span>
         </div>
         <div class="summary-item">
-          <span class="label">Còn lại:</span>
+          <span class="label">{{ t('reception.remaining_amount') }}</span>
           <span class="value text-red">{{ formatVND(summary.conLai) }}</span>
         </div>
         <div class="summary-item">
-          <span class="label">Tiền hàng:</span>
+          <span class="label">{{ t('reception.goods_amount') }}</span>
           <span class="value">{{ formatVND(summary.tienHang) }}</span>
         </div>
       </div>
@@ -220,25 +212,25 @@
             <table class="items-table">
               <thead>
                 <tr>
-                  <th>Số Order</th>
-                  <th>Mã hàng</th>
-                  <th>Tên hàng</th>
-                  <th>Tên khác</th>
+                  <th>{{ t('reception.order_no') }}</th>
+                  <th>{{ t('reception.item_code') }}</th>
+                  <th>{{ t('reception.item_name') }}</th>
+                  <th>{{ t('reception.other_name') }}</th>
                   <th class="text-right">SL</th>
-                  <th>ĐVT</th>
-                  <th class="text-right">Đơn giá</th>
-                  <th class="text-right">Giảm CT</th>
-                  <th class="text-right">Giảm phiếu</th>
-                  <th class="text-right text-red">Giảm</th>
+                  <th>{{ t('reception.uom') }}</th>
+                  <th class="text-right">{{ t('reception.unit_price') }}</th>
+                  <th class="text-right">{{ t('reception.discount_detail') }}</th>
+                  <th class="text-right">{{ t('reception.receipt_discount') }}</th>
+                  <th class="text-right text-red">{{ t('reception.discount_short') }}</th>
                   <th class="text-center">% VAT</th>
-                  <th class="text-right">Thuế</th>
-                  <th class="text-right">Tổng</th>
-                  <th>Lí do trả</th>
+                  <th class="text-right">{{ t('reception.tax') }}</th>
+                  <th class="text-right">{{ t('reception.total_short') }}</th>
+                  <th>{{ t('reception.return_reason') }}</th>
                 </tr>
               </thead>
               <tbody>
                 <tr v-if="sampleItems.length === 0">
-                  <td colspan="14" class="p-4 text-center text-gray-400">Không có bản ghi nào để hiển thị</td>
+                  <td colspan="14" class="p-4 text-center text-gray-400">{{ t('reception.no_records_to_display') }}</td>
                 </tr>
                 <tr v-for="item in sampleItems" :key="item.id">
                   <td>{{ item.soOrder }}</td>
@@ -259,7 +251,7 @@
               </tbody>
               <tfoot>
                 <tr class="totals-row">
-                  <td colspan="4" class="text-right font-bold">Tổng cộng:</td>
+                  <td colspan="4" class="text-right font-bold">{{ t('reception.grand_total_colon') }}</td>
                   <td class="text-right font-bold text-green">{{ totalSL }}</td>
                   <td colspan="5"></td>
                   <td class="text-center font-bold">{{ totalVAT }}%</td>
@@ -290,7 +282,7 @@
       >
         <!-- Menu Header -->
         <div class="menu-header">
-          <span class="menu-title">Thao tác</span>
+          <span class="menu-title">{{ t('reception.action') }}</span>
           <span class="menu-subtitle">
             {{ invoicesData.find(r => r.id === selectedRowId)?.soPhieu || '' }}
           </span>
@@ -329,6 +321,10 @@
 </template>
 
 <script setup lang="ts">
+import { useLanguageStore } from '@/stores/useLanguageStore';
+const languageStore = useLanguageStore();
+const { t } = languageStore;
+
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import Swal from 'sweetalert2'

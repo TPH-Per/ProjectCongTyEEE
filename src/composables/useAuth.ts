@@ -102,6 +102,7 @@ function normaliseRole(raw: unknown): UserRole | undefined {
     'staff',
     'kitchen',
     'customer',
+    'procurement',
     'procurement_manager',
     'procurement_staff',
     'accountant',

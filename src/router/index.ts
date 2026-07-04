@@ -430,7 +430,7 @@ const ROUTE_ROLES: Record<string, string[]> = {
   staff: ["superadmin", "manager", "staff"],
   hall: ["superadmin", "manager", "reception", "staff"],
   kitchen: ["superadmin", "manager", "kitchen"],
-  purchasing: ["superadmin", "procurement_manager", "procurement_staff"],
+  purchasing: ["superadmin", "procurement", "procurement_manager", "procurement_staff"],
   accounting: ["superadmin", "accountant"],
   crm: ["superadmin", "manager", "crm_manager"],
   marketing: ["superadmin", "manager", "marketing"],

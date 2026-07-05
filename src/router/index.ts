@@ -424,18 +424,18 @@ const router = createRouter({
 
 const ROUTE_ROLES: Record<string, string[]> = {
   superadmin: ["superadmin"],
-  admin: ["superadmin"],
-  manager: ["superadmin", "manager"],
-  reception: ["superadmin", "manager", "reception"],
-  staff: ["superadmin", "manager", "staff"],
-  hall: ["superadmin", "manager", "reception", "staff"],
-  kitchen: ["superadmin", "manager", "kitchen"],
-  purchasing: ["superadmin", "procurement", "procurement_manager", "procurement_staff"],
-  accounting: ["superadmin", "accountant"],
-  crm: ["superadmin", "manager", "crm_manager"],
-  marketing: ["superadmin", "manager", "marketing"],
-  bod: ["superadmin", "bod"],
-  tablet: ["superadmin", "manager", "reception", "staff", "customer"],
+  admin: ["superadmin", "admin"],
+  manager: ["superadmin", "admin", "manager"],
+  reception: ["superadmin", "admin", "manager", "reception"],
+  staff: ["superadmin", "admin", "manager", "staff"],
+  hall: ["superadmin", "admin", "manager", "reception", "staff"],
+  kitchen: ["superadmin", "admin", "manager", "kitchen"],
+  purchasing: ["superadmin", "admin", "procurement", "procurement_manager", "procurement_staff", "purchasing"],
+  accounting: ["superadmin", "admin", "accountant", "accounting"],
+  crm: ["superadmin", "admin", "manager", "crm_manager", "crm"],
+  marketing: ["superadmin", "admin", "manager", "marketing"],
+  bod: ["superadmin", "admin", "bod"],
+  tablet: ["superadmin", "admin", "manager", "reception", "staff", "customer"],
 };
 
 router.beforeEach(async (to) => {

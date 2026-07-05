@@ -54,7 +54,7 @@
     </aside>
 
     <main class="flex-1 flex flex-col overflow-hidden">
-      <header class="h-16 border-b border-[hsl(var(--border))] bg-white flex items-center justify-between px-6 shrink-0">
+      <header class="h-16 border-b border-[hsl(var(--border))] bg-white flex items-center justify-between px-6 shrink-0 z-40">
         <div class="flex items-center gap-3">
            <button @click="isMobileMenuOpen = true" class="lg:hidden p-2 -ml-2 rounded-xl hover:bg-[hsl(var(--muted))]">
             <MenuIcon class="w-5 h-5" />

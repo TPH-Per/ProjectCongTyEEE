@@ -16,7 +16,7 @@
     <div class="bg-white rounded-2xl border border-gray-200 p-4 shadow-sm flex items-center gap-4">
       <div class="flex-1 relative">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-        <input type="text" :placeholder="$t('admin_accounts.search_placeholder')" class="w-full bg-gray-50 border border-gray-200 rounded-xl pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:border-gray-400 font-medium" />
+        <input type="text" :placeholder="i18n.t('admin_accounts.search_placeholder')" class="w-full bg-gray-50 border border-gray-200 rounded-xl pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:border-gray-400 font-medium" />
       </div>
       <select class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-gray-400 font-medium">
         <option value="all">{{ t('admin_accounts.all_roles') }}</option>
@@ -180,6 +180,9 @@
 </template>
 
 <script setup lang="ts">
+import { useI18nStore } from '@/stores/i18n'
+
+const i18n = useI18nStore()
 import Swal from 'sweetalert2';
 import { useI18n } from 'vue-i18n'
 import { ref, onMounted } from 'vue'
@@ -355,4 +358,5 @@ async function resetPassword() {
   }
 }
 </script>
+
 

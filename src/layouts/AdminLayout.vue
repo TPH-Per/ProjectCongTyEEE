@@ -10,44 +10,50 @@
       </div>
 
       <nav class="flex-1 px-3 space-y-1 py-4 overflow-y-auto">
-        <div class="text-[10px] font-extrabold text-[hsl(var(--muted-foreground))] uppercase tracking-wider px-3 mb-1">{{ $t('layout.system') }}</div>
+        <div class="text-[10px] font-extrabold text-[hsl(var(--muted-foreground))] uppercase tracking-wider px-3 mb-1">{{ i18n.t('layout.system') }}</div>
 
         <RouterLink to="/admin/dashboard" class="flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all text-sm font-semibold border border-transparent"
           :class="$route.path === '/admin/dashboard' ? 'bg-gray-100 text-gray-900 font-extrabold border-gray-200' : 'text-gray-600 hover:bg-gray-50'">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
-          <span>{{ $t('layout.system_overview') }}</span>
+          <span>{{ i18n.t('layout.system_overview') }}</span>
         </RouterLink>
 
         <RouterLink to="/admin/accounts" class="flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all text-sm font-semibold border border-transparent"
           :class="$route.path === '/admin/accounts' ? 'bg-gray-100 text-gray-900 font-extrabold border-gray-200' : 'text-gray-600 hover:bg-gray-50'">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-          <span>{{ $t('layout.account_management') }}</span>
+          <span>{{ i18n.t('layout.account_management') }}</span>
         </RouterLink>
 
-        <div class="text-[10px] font-extrabold text-[hsl(var(--muted-foreground))] uppercase tracking-wider px-3 mb-1 mt-5">{{ $t('layout.data_configuration') }}</div>
+        <div class="text-[10px] font-extrabold text-[hsl(var(--muted-foreground))] uppercase tracking-wider px-3 mb-1 mt-5">{{ i18n.t('layout.data_configuration') }}</div>
 
         <RouterLink to="/admin/menus" class="flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all text-sm font-semibold border border-transparent"
           :class="$route.path === '/admin/menus' ? 'bg-gray-100 text-gray-900 font-extrabold border-gray-200' : 'text-gray-600 hover:bg-gray-50'">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>
-          <span>{{ $t('layout.menu_management') }}</span>
+          <span>{{ i18n.t('layout.menu_management') }}</span>
         </RouterLink>
 
         <RouterLink to="/admin/floors" class="flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all text-sm font-semibold border border-transparent"
           :class="$route.path === '/admin/floors' ? 'bg-gray-100 text-gray-900 font-extrabold border-gray-200' : 'text-gray-600 hover:bg-gray-50'">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><line x1="3" x2="21" y1="9" y2="9"/><line x1="9" x2="9" y1="21" y2="9"/></svg>
-          <span>{{ $t('layout.floor_plan') }}</span>
+          <span>{{ i18n.t('layout.floor_plan') }}</span>
         </RouterLink>
 
         <RouterLink to="/admin/kpi" class="flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all text-sm font-semibold border border-transparent"
           :class="$route.path === '/admin/kpi' ? 'bg-gray-100 text-gray-900 font-extrabold border-gray-200' : 'text-gray-600 hover:bg-gray-50'">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/></svg>
-          <span>{{ $t('layout.kpi_kgi_configuration') }}</span>
+          <span>{{ i18n.t('layout.kpi_kgi_configuration') }}</span>
+        </RouterLink>
+
+        <RouterLink to="/admin/vouchers" class="flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all text-sm font-semibold border border-transparent"
+          :class="$route.path === '/admin/vouchers' ? 'bg-gray-100 text-gray-900 font-extrabold border-gray-200' : 'text-gray-600 hover:bg-gray-50'">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2"/><path d="M13 17v2"/><path d="M13 11v2"/></svg>
+          <span>{{ i18n.t('layout.voucher_management') }}</span>
         </RouterLink>
         
         <RouterLink to="/admin/audit" class="flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all text-sm font-semibold border border-transparent"
           :class="$route.path === '/admin/audit' ? 'bg-gray-100 text-gray-900 font-extrabold border-gray-200' : 'text-gray-600 hover:bg-gray-50'">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M7 7h.01"/><path d="M7 12h.01"/><path d="M7 17h.01"/><path d="M11 7h6"/><path d="M11 12h6"/><path d="M11 17h6"/></svg>
-          <span>{{ $t('layout.system_audit_log') }}</span>
+          <span>{{ i18n.t('layout.system_audit_log') }}</span>
         </RouterLink>
       </nav>
 
@@ -59,7 +65,7 @@
         <div v-if="isDropdownOpen" class="absolute bottom-full left-3 right-3 mb-2 bg-white border border-[hsl(var(--border))] rounded-2xl shadow-lg py-1.5 z-50">
           <button @click="handleSignOut" class="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50 transition-colors">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
-            <span>{{ $t('layout.logout') }}</span>
+            <span>{{ i18n.t('layout.logout') }}</span>
           </button>
         </div>
 
@@ -67,7 +73,7 @@
         <div @click="isDropdownOpen = !isDropdownOpen" class="flex items-center gap-2.5 px-3 py-2 rounded-2xl bg-gray-900 cursor-pointer select-none">
           <img :src="stickerUrl" alt="Avatar" class="w-10 h-10 object-contain drop-shadow-sm bg-white/10 rounded-full" />
           <div class="flex-1 min-w-0">
-            <div class="text-xs font-extrabold text-white truncate">{{ profile?.full_name || $t('layout.manager', 'Quản lý') }}</div>
+            <div class="text-xs font-extrabold text-white truncate">{{ profile?.full_name || i18n.t('layout.manager') }}</div>
             <div class="text-[10px] text-gray-400 font-semibold">{{ roleLabel }}</div>
           </div>
         </div>
@@ -75,10 +81,10 @@
     </aside>
 
     <main class="flex-1 flex flex-col overflow-hidden">
-      <header class="h-16 border-b border-[hsl(var(--border))] bg-white flex items-center justify-between px-6 shrink-0">
+      <header class="h-16 border-b border-[hsl(var(--border))] bg-white flex items-center justify-between px-6 shrink-0 z-40">
         <div class="flex items-center gap-3">
           <button @click="isMobileMenuOpen = true" class="lg:hidden mr-3 p-2 rounded-lg hover:bg-gray-100"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-          <h2 class="text-lg font-bold text-gray-800">{{ $t('layout.system_administration') }}</h2>
+          <h2 class="text-lg font-bold text-gray-800">{{ i18n.t('layout.system_administration') }}</h2>
         </div>
         <!-- Logos in Header -->
         <div class="flex items-center gap-4 ml-auto mr-4">
@@ -109,8 +115,10 @@ import { ref, computed } from 'vue'
 import { RouterView, RouterLink, useRoute, useRouter } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'
 import { useUserSticker } from '@/composables/useUserSticker'
+import { useI18nStore } from '@/stores/i18n'
 import TextLogo from '@/components/TextLogo.vue'
 
+const i18n = useI18nStore()
 const $route = useRoute()
 const $router = useRouter()
 const { signOut, profile, role } = useAuth()

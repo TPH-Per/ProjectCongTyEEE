@@ -5,7 +5,7 @@
     <!-- Active Session Layout -->
     <template v-if="session">
       <!-- Header Bar (60px Height) -->
-      <header class="h-[60px] bg-[#1a110a] border-b border-[#2d1e12] flex items-center justify-between px-6 shrink-0 z-30 shadow-md">
+      <header class="h-[60px] bg-[#1a110a] border-b border-[#2d1e12] flex items-center justify-between px-6 shrink-0 z-30 shadow-md z-40">
         
         <!-- Logo Branding -->
         <div class="flex items-center gap-3 cursor-pointer shrink-0" @click="goToView('CustomerMenu')">

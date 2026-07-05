@@ -21,7 +21,7 @@
     </aside>
 
     <main class="flex-1 flex flex-col overflow-hidden">
-      <header class="h-16 border-b border-[hsl(var(--border))] bg-white flex items-center justify-between px-6 shrink-0">
+      <header class="h-16 border-b border-[hsl(var(--border))] bg-white flex items-center justify-between px-6 shrink-0 z-40">
         <div class="font-bold">CRM Module</div>
       </header>
       <section class="flex-1 overflow-auto p-6">

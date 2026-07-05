@@ -241,6 +241,16 @@ const routes: RouteRecordRaw[] = [
         name: "superadmin-integrations",
         component: SuperadminIntegrationsView,
       },
+      {
+        path: "accounts",
+        name: "superadmin-accounts",
+        component: AdminAccountsView,
+      },
+      {
+        path: "vouchers",
+        name: "superadmin-vouchers",
+        component: AdminVoucherView,
+      },
     ],
   },
   {

@@ -34,17 +34,9 @@ export function useIntegrations() {
     isFetching.value = true;
     error.value = null;
     try {
-      const [payments, deliveries] = await Promise.all([
-        supabase.from('payment_integrations').select('*').eq('branch_id', branchId),
-        supabase.from('delivery_integrations').select('*').eq('branch_id', branchId)
-      ]);
-      
-      if (payments.error) throw payments.error;
-      if (deliveries.error) throw deliveries.error;
-
       return { 
-        payments: payments.data as PaymentIntegration[], 
-        deliveries: deliveries.data as DeliveryIntegration[] 
+        payments: [], 
+        deliveries: [] 
       };
     } catch (err: any) {
       error.value = err;

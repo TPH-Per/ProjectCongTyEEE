@@ -23,7 +23,7 @@
     <div class="kawaii-card p-4 mb-6 grid grid-cols-1 md:grid-cols-5 gap-4 shadow-sm border border-gray-50">
       <div class="md:col-span-2 relative">
         <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
-        <input type="text" v-model="searchQuery" :placeholder="$t('admin_audit.search_placeholder')" class="kawaii-input w-full pl-11" />
+        <input type="text" v-model="searchQuery" :placeholder="i18n.t('admin_audit.search_placeholder')" class="kawaii-input w-full pl-11" />
       </div>
       <div>
         <select v-model="filterTime" class="kawaii-input w-full bg-white appearance-none cursor-pointer">
@@ -133,6 +133,9 @@
 </template>
 
 <script setup lang="ts">
+import { useI18nStore } from '@/stores/i18n'
+
+const i18n = useI18nStore()
 import { useI18n } from 'vue-i18n'
 import { ref, onMounted, computed } from 'vue';
 import { supabase } from '@/lib/supabase';
@@ -248,4 +251,5 @@ const filteredLogs = computed(() => {
   });
 });
 </script>
+
 

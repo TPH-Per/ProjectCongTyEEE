@@ -98,7 +98,7 @@ void t
 
 <template>
   <div class="login-shell relative">
-    <div class="absolute top-6 right-6">
+    <div class="absolute top-6 right-6 z-50">
       <LanguageSwitcher />
     </div>
     <div class="login-card relative">

@@ -34,7 +34,7 @@
     </aside>
 
     <main class="flex-1 flex flex-col overflow-hidden">
-      <header class="h-16 border-b border-[hsl(var(--border))] bg-white flex items-center justify-between px-6 shrink-0 lg:justify-end">
+      <header class="h-16 border-b border-[hsl(var(--border))] bg-white flex items-center justify-between px-6 shrink-0 lg:justify-end z-40">
         <button class="lg:hidden p-2 -ml-2 rounded-xl hover:bg-[hsl(var(--muted))]" @click="isMobileMenuOpen = true">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
         </button>

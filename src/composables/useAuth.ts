@@ -369,9 +369,9 @@ export function useAuth() {
   })
 
   const isAuthenticated = computed<boolean>(() => !!session.value && !!profile.value)
-  const isAdmin = computed<boolean>(() => role.value === 'superadmin')
+  const isAdmin = computed<boolean>(() => role.value === 'superadmin' || role.value === 'admin')
   const isManager = computed<boolean>(
-    () => role.value === 'superadmin' || role.value === 'manager',
+    () => role.value === 'superadmin' || role.value === 'admin' || role.value === 'manager',
   )
 
   return {

@@ -467,6 +467,9 @@ router.beforeEach(async (to) => {
       "[DEBUG ROUTER] Bypass match for public customer route:",
       to.path,
     );
+    if (isAuthenticated.value && to.name === "login" && role.value) {
+      return getFallbackRouteForRole(role.value);
+    }
     return;
   }
 

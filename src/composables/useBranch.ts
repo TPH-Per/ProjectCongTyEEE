@@ -77,13 +77,7 @@ export function useBranch() {
   async function listBranches(): Promise<Branch[]> {
     const { data, error } = await supabase
       .from('branches')
-      .select(`
-        *,
-        manager:manager_id (
-          id,
-          raw_user_meta_data
-        )
-      `)
+      .select(`*`)
       .order('created_at', { ascending: false })
     if (error) throw error
     return (data ?? []) as Branch[]

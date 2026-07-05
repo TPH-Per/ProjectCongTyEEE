@@ -5,7 +5,7 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 // =============================================================================
 
 // ─── Enums ──────────────────────────────────────────────────────────────────
-export type UserRole = 'superadmin' | 'manager' | 'reception' | 'staff' | 'customer' | 'procurement' | 'procurement_manager' | 'procurement_staff' | 'accountant' | 'crm_manager' | 'marketing' | 'kitchen' | 'bod' | 'tablet'
+export type UserRole = 'superadmin' | 'admin' | 'manager' | 'reception' | 'staff' | 'customer' | 'procurement' | 'procurement_manager' | 'procurement_staff' | 'accountant' | 'crm_manager' | 'marketing' | 'kitchen' | 'bod' | 'tablet'
 export type TableStatus = 'available' | 'reserved' | 'occupied' | 'maintenance' | 'needs_cleaning'
 export type ReservationStatus = 'Pending' | 'Arrived' | 'Dining' | 'Completed' | 'Cancelled'
 export type OrderStatus = 'Pending' | 'Preparing' | 'Served' | 'Paid' | 'Cancelled'

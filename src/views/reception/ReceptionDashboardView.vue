@@ -183,7 +183,7 @@
 
             <!-- Nhóm Quản trị -->
             <button 
-              @click="handleQuickAction('Phiếu', '/admin/vouchers')"
+              @click="handleQuickAction('Phiếu', '/reception/reports')"
               class="flex flex-col items-center justify-center p-4 rounded-xl border border-yellow-100 bg-yellow-50/30 hover:bg-yellow-50/70 hover:scale-[1.05] active:scale-[0.98] transition-all text-center gap-2"
             >
               <div class="w-10 h-10 rounded-full bg-[#FF9800] text-white flex items-center justify-center shadow-md">
@@ -193,7 +193,7 @@
             </button>
 
             <button 
-              @click="handleQuickAction('Báo cáo', '/reception/reports')"
+              @click="handleQuickAction('Báo cáo', '/reception/revenue-overview')"
               class="flex flex-col items-center justify-center p-4 rounded-xl border border-orange-100 bg-orange-50/20 hover:bg-orange-50/50 hover:scale-[1.05] active:scale-[0.98] transition-all text-center gap-2"
             >
               <div class="w-10 h-10 rounded-full bg-[#FFB74D] text-white flex items-center justify-center shadow-md">

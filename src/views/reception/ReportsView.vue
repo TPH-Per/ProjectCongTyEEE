@@ -2,6 +2,14 @@
 <template>
   <!-- CONTAINER CHÍNH: h-screen + overflow-hidden -->
   <div class="reports-page">
+    <!-- Hamburger Menu Button -->
+    <HamburgerMenu 
+      :is-active="showSidebar"
+      @toggle="showSidebar = !showSidebar"
+    />
+
+    <!-- Sidebar Navigation -->
+    <SidebarNavigation v-model="showSidebar" />
     
     <!-- 1. HEADER: flex-shrink-0 (KHÔNG SCROLL) -->
     <div class="reports-header flex-shrink-0">
@@ -73,30 +81,56 @@
           </button>
         </div>
         <div class="tabs-right">
+          <!-- Column Picker -->
+          <div class="column-picker-wrapper" ref="columnPickerRef">
+            <button class="btn btn-column-picker" @click="showColumnPicker = !showColumnPicker">
+              <span>⚙️</span> Cột hiển thị
+            </button>
+            <div v-if="showColumnPicker" class="column-picker-dropdown">
+              <div class="picker-section">
+                <h4>Hiển thị nhanh</h4>
+                <button @click="applyPreset('basic')" class="preset-btn">Cơ bản</button>
+                <button @click="applyPreset('full')" class="preset-btn">Đầy đủ</button>
+                <button @click="applyPreset('minimal')" class="preset-btn">Tối thiểu</button>
+              </div>
+              <div class="picker-section">
+                <h4>Nhóm cột</h4>
+                <label v-for="group in columnGroups" :key="group.id" class="checkbox-label">
+                  <input type="checkbox" v-model="group.visible" @change="saveColumnSettings" />
+                  <span>{{ group.label }}</span>
+                  <span class="column-count">({{ group.columns.length }} cột)</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!--  FILTER DROPDOWN -->
           <div class="filter-dropdown-wrapper" ref="filterDropdownRef">
             <button 
               class="filter-dropdown-btn"
-              @click="showFilterDropdown = !showFilterDropdown"
-              :style="{ backgroundColor: currentStatusFilterColor }"
+              @click="toggleFilterDropdown"
+              :style="{ backgroundColor: currentFilter.color, color: currentFilter.textColor }"
             >
-              <span>🔍</span>
-              <span>{{ currentFilterLabel }}</span>
+              <span class="filter-icon">🔍</span>
+              <span class="filter-label">{{ currentFilter.label }}</span>
             </button>
+            
             <Transition name="fade">
               <div v-if="showFilterDropdown" class="filter-dropdown-menu">
                 <button
-                  v-for="status in statusFilters"
-                  :key="status.value"
+                  v-for="filter in statusFilters"
+                  :key="filter.value"
                   class="filter-dropdown-item"
-                  :class="{ active: selectedStatus === status.value }"
-                  :style="{ backgroundColor: status.color, color: status.textColor }"
-                  @click="applyStatusFilter(status.value)"
+                  :class="{ active: selectedFilter === filter.value }"
+                  :style="{ backgroundColor: filter.color, color: filter.textColor }"
+                  @click="applyFilter(filter)"
                 >
-                  {{ status.label }}
+                  {{ filter.label }}
                 </button>
               </div>
             </Transition>
           </div>
+
           <button class="btn btn-export" @click="exportData">
             <span>📥</span> Xuất dữ liệu
           </button>
@@ -111,58 +145,145 @@
         <table class="data-table">
           <thead>
             <tr>
-              <th class="col-checkbox"><input type="checkbox" v-model="selectAll" /></th>
-              <th class="col-stt">STT</th>
-              <th class="col-so-phieu">SỐ PHIẾU</th>
-              <th class="col-so-hd">SỐ HÓA ĐƠN</th>
-              <th class="col-day-hd">DÃY HD</th>
-              <th class="col-mst">MST KHÁCH HÀNG</th>
-              <th class="col-trang-thai">TRẠNG THÁI HÓA ĐƠN</th>
-              <th class="col-khu">KHU</th>
-              <th class="col-ban">BÀN</th>
-              <th class="col-tong-tien">TỔNG TIỀN</th>
-              <th class="col-da-tra">ĐÃ TRẢ</th>
-              <th class="col-con-lai">CÒN LẠI</th>
-              <th class="col-tien-hang">TIỀN HÀNG</th>
-              <th class="col-giam">GIẢM</th>
+              <!-- Sticky Columns (Luôn hiển thị) -->
+              <th class="sticky-col col-checkbox" style="left: 0; z-index: 20;"><input type="checkbox" v-model="selectAll" /></th>
+              <th class="sticky-col col-stt" style="left: 30px; z-index: 20;">STT</th>
+              <th class="sticky-col col-so-phieu" style="left: 70px; z-index: 20;">SỐ PHIẾU</th>
+              <th class="sticky-col col-so-hd" style="left: 210px; z-index: 20;">SỐ HÓA ĐƠN</th>
+              <th class="sticky-col col-ban" style="left: 310px; z-index: 20;">BÀN</th>
+              <th class="sticky-col col-tong-tien" style="left: 370px; z-index: 20;">TỔNG TIỀN</th>
+              <th class="sticky-col col-da-tra" style="left: 480px; z-index: 20;">ĐÃ TRẢ</th>
+              <th class="sticky-col col-con-lai" style="left: 590px; z-index: 20;">CÒN LẠI</th>
+
+              <!-- Collapsible Groups -->
+              <template v-if="columnGroups.find(g => g.id === 'financial')?.visible">
+                <th class="col-tien-hang">TIỀN HÀNG</th>
+                <th class="col-giam">GIẢM</th>
+                <th class="col-thue">THUẾ</th>
+                <th class="col-phi-phuc-vu">PHÍ PHỤC VỤ</th>
+                <th class="col-giam-percent">% GIẢM</th>
+                <th class="col-vat-percent">% VAT</th>
+                <th class="col-phuc-vu-percent">% PHỤC VỤ</th>
+                <th class="col-tien-coc">TIỀN CỌC</th>
+              </template>
+
+              <template v-if="columnGroups.find(g => g.id === 'customer')?.visible">
+                <th class="col-mst">MST KHÁCH HÀNG</th>
+                <th class="col-khach-hang">KHÁCH HÀNG</th>
+                <th class="col-sl-khach">SL KHÁCH</th>
+              </template>
+
+              <template v-if="columnGroups.find(g => g.id === 'staff')?.visible">
+                <th class="col-thu-ngan">THU NGÂN</th>
+                <th class="col-nguoi-tao">NGƯỜI TẠO</th>
+                <th class="col-phuc-vu">PHỤC VỤ</th>
+                <th class="col-quan-ly">QUẢN LÝ</th>
+              </template>
+
+              <template v-if="columnGroups.find(g => g.id === 'time')?.visible">
+                <th class="col-tg-tao">TG TẠO</th>
+                <th class="col-tg-dong">TG ĐÓNG</th>
+                <th class="col-tg-in-cuoi">TG. IN CUỐI</th>
+              </template>
+
+              <template v-if="columnGroups.find(g => g.id === 'system')?.visible">
+                <th class="col-day-hd">DÃY HĐ</th>
+                <th class="col-may-tao">MÁY TẠO</th>
+                <th class="col-so-lan-in">SỐ LẦN IN</th>
+                <th class="col-so-lan-tam-tinh">SỐ LẦN TẠM TÍNH</th>
+                <th class="col-nguoi-in-cuoi">NGƯỜI IN CUỐI</th>
+              </template>
+
+              <template v-if="columnGroups.find(g => g.id === 'notes')?.visible">
+                <th class="col-ghi-chu">GHI CHÚ</th>
+                <th class="col-ly-do-giam">LÝ DO GIẢM</th>
+              </template>
+
+              <template v-if="columnGroups.find(g => g.id === 'status')?.visible">
+                <th class="col-trang-thai">TRẠNG THÁI HÓA ĐƠN</th>
+                <th class="col-khu">KHU</th>
+                <th class="col-nhan-vien-goi">NHÂN VIÊN GỌI LẠI</th>
+              </template>
             </tr>
           </thead>
           <tbody>
             <tr 
-              v-for="(row, index) in filteredData" 
+              v-for="(row, index) in paginatedData" 
               :key="row.id"
               :class="[
-                getRowClass(row), 
+                getRowClass(row),
                 { 'row-selected': selectedRowId === row.id }
               ]"
               @click="handleRowClick(row, $event)"
             >
-              <td class="col-checkbox" @click.stop>
-                <input 
-                  type="checkbox" 
-                  v-model="row.selected"
-                />
-              </td>
-              <td class="col-stt">{{ (currentPage - 1) * itemsPerPage + index + 1 }}</td>
-              <td class="col-so-phieu font-bold">{{ row.soPhieu }}</td>
-              <td class="col-so-hd">{{ row.soHoaDon || '-' }}</td>
-              <td class="col-day-hd">{{ row.dayHD || '-' }}</td>
-              <td class="col-mst">{{ row.mstKhachHang || '-' }}</td>
-              <td class="col-trang-thai">
-                <span :class="getStatusBadgeClass(row)">{{ row.trangThai }}</span>
-              </td>
-              <td class="col-khu">{{ row.khu }}</td>
-              <td class="col-ban">{{ row.ban }}</td>
-              <td class="col-tong-tien font-bold text-right">{{ formatVND(row.tongTien) }}</td>
-              <td class="col-da-tra text-right">{{ formatVND(row.daTra) }}</td>
-              <td class="col-con-lai text-right" :class="{ 'text-red font-bold': row.conLai > 0 }">
-                {{ formatVND(row.conLai) }}
-              </td>
-              <td class="col-tien-hang text-right">{{ formatVND(row.tienHang) }}</td>
-              <td class="col-giam text-red text-right">{{ formatVND(row.giam) }}</td>
+              <!-- Sticky Columns -->
+              <td class="sticky-col col-checkbox" style="left: 0; z-index: 10;" @click.stop><input type="checkbox" v-model="row.selected" /></td>
+              <td class="sticky-col col-stt" style="left: 30px; z-index: 10;">{{ (currentPage - 1) * itemsPerPage + index + 1 }}</td>
+              <td class="sticky-col col-so-phieu font-bold" style="left: 70px; z-index: 10;">{{ row.soPhieu }}</td>
+              <td class="sticky-col col-so-hd" style="left: 210px; z-index: 10;">{{ row.soHoaDon || '-' }}</td>
+              <td class="sticky-col col-ban" style="left: 310px; z-index: 10;">{{ row.ban }}</td>
+              <td class="sticky-col col-tong-tien font-bold text-right" style="left: 370px; z-index: 10;">{{ formatVND(row.tongTien) }}</td>
+              <td class="sticky-col col-da-tra text-right" style="left: 480px; z-index: 10;">{{ formatVND(row.daTra) }}</td>
+              <td class="sticky-col col-con-lai text-right" :class="{ 'text-red font-bold': row.conLai > 0 }" style="left: 590px; z-index: 10;">{{ formatVND(row.conLai) }}</td>
+
+              <!-- Financial Group -->
+              <template v-if="columnGroups.find(g => g.id === 'financial')?.visible">
+                <td class="col-tien-hang text-right">{{ formatVND(row.tienHang) }}</td>
+                <td class="col-giam text-red text-right">{{ formatVND(row.giam) }}</td>
+                <td class="col-thue text-right">{{ formatVND(row.thue || 0) }}</td>
+                <td class="col-phi-phuc-vu text-right">{{ formatVND(row.phiPhucVu || 0) }}</td>
+                <td class="col-giam-percent text-center">{{ row.giamPercent || 0 }}%</td>
+                <td class="col-vat-percent text-center">{{ row.vatPercent || 0 }}%</td>
+                <td class="col-phuc-vu-percent text-center">{{ row.phucVuPercent || 0 }}%</td>
+                <td class="col-tien-coc text-right">{{ formatVND(row.tienCoc || 0) }}</td>
+              </template>
+
+              <!-- Customer Group -->
+              <template v-if="columnGroups.find(g => g.id === 'customer')?.visible">
+                <td class="col-mst">{{ row.mstKhachHang || '-' }}</td>
+                <td class="col-khach-hang">{{ row.khachHang || '-' }}</td>
+                <td class="col-sl-khach text-center">{{ row.slKhach || 0 }}</td>
+              </template>
+
+              <!-- Staff Group -->
+              <template v-if="columnGroups.find(g => g.id === 'staff')?.visible">
+                <td class="col-thu-ngan">{{ row.thuNgan || '-' }}</td>
+                <td class="col-nguoi-tao">{{ row.nguoiTao || '-' }}</td>
+                <td class="col-phuc-vu">{{ row.phucVu || '-' }}</td>
+                <td class="col-quan-ly">{{ row.quanLy || '-' }}</td>
+              </template>
+
+              <!-- Time Group -->
+              <template v-if="columnGroups.find(g => g.id === 'time')?.visible">
+                <td class="col-tg-tao">{{ row.tgTao || '-' }}</td>
+                <td class="col-tg-dong">{{ row.tgDong || '-' }}</td>
+                <td class="col-tg-in-cuoi">{{ row.tgInCuoi || '-' }}</td>
+              </template>
+
+              <!-- System Group -->
+              <template v-if="columnGroups.find(g => g.id === 'system')?.visible">
+                <td class="col-day-hd">{{ row.dayHD || '-' }}</td>
+                <td class="col-may-tao">{{ row.mayTao || '-' }}</td>
+                <td class="col-so-lan-in text-center">{{ row.soLanIn || 0 }}</td>
+                <td class="col-so-lan-tam-tinh text-center">{{ row.soLanTamTinh || 0 }}</td>
+                <td class="col-nguoi-in-cuoi">{{ row.nguoiInCuoi || '-' }}</td>
+              </template>
+
+              <!-- Notes Group -->
+              <template v-if="columnGroups.find(g => g.id === 'notes')?.visible">
+                <td class="col-ghi-chu text-gray-600">{{ row.ghiChu || '-' }}</td>
+                <td class="col-ly-do-giam text-gray-600">{{ row.lyDoGiam || '-' }}</td>
+              </template>
+
+              <!-- Status Group -->
+              <template v-if="columnGroups.find(g => g.id === 'status')?.visible">
+                <td class="col-trang-thai"><span :class="getStatusBadgeClass(row)">{{ row.trangThai }}</span></td>
+                <td class="col-khu">{{ row.khu }}</td>
+                <td class="col-nhan-vien-goi">{{ row.nhanVienGoiLai || '-' }}</td>
+              </template>
             </tr>
             <tr v-if="filteredData.length === 0">
-              <td colspan="14" class="p-8 text-center text-gray-400">
+              <td colspan="36" class="p-8 text-center text-gray-400">
                 Không tìm thấy phiếu nào phù hợp với bộ lọc
               </td>
             </tr>
@@ -332,10 +453,13 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import Swal from 'sweetalert2'
+import HamburgerMenu from '@/components/reception/HamburgerMenu.vue'
+import SidebarNavigation from '@/components/reception/SidebarNavigation.vue'
 
 const router = useRouter()
 
 // State
+const showSidebar = ref(false)
 const searchQuery = ref('')
 const activeTab = ref('restaurant')
 const activeSubTab = ref('items')
@@ -344,6 +468,34 @@ const itemsPerPage = ref(20)
 const showFilterDropdown = ref(false)
 const selectedFilter = ref('all')
 const selectedRow = ref<any>(null)
+const showColumnPicker = ref(false)
+const columnPickerRef = ref<HTMLElement | null>(null)
+
+// Column Groups Configuration
+const columnGroups = ref([
+  { id: 'financial', label: 'Tài chính', visible: true, columns: ['tienHang', 'giam', 'thue', 'phiPhucVu', 'giamPercent', 'vatPercent', 'phucVuPercent', 'tienCoc'] },
+  { id: 'customer', label: 'Khách hàng', visible: true, columns: ['mstKhachHang', 'khachHang', 'slKhach'] },
+  { id: 'staff', label: 'Nhân sự', visible: true, columns: ['thuNgan', 'nguoiTao', 'phucVu', 'quanLy'] },
+  { id: 'time', label: 'Thời gian', visible: true, columns: ['tgTao', 'tgDong', 'tgInCuoi'] },
+  { id: 'system', label: 'Hệ thống', visible: false, columns: ['dayHD', 'mayTao', 'soLanIn', 'soLanTamTinh', 'nguoiInCuoi'] },
+  { id: 'notes', label: 'Ghi chú', visible: false, columns: ['ghiChu', 'lyDoGiam'] },
+  { id: 'status', label: 'Trạng thái', visible: true, columns: ['trangThai', 'khu', 'nhanVienGoiLai'] }
+])
+
+function applyPreset(preset: string) {
+  if (preset === 'basic') {
+    columnGroups.value.forEach(g => g.visible = ['financial', 'customer', 'staff'].includes(g.id))
+  } else if (preset === 'full') {
+    columnGroups.value.forEach(g => g.visible = true)
+  } else if (preset === 'minimal') {
+    columnGroups.value.forEach(g => g.visible = false)
+  }
+  saveColumnSettings()
+}
+
+function saveColumnSettings() {
+  localStorage.setItem('reportsColumnSettings', JSON.stringify(columnGroups.value.map(g => ({ id: g.id, visible: g.visible }))))
+}
 
 const filters = ref({
   fromDate: '2026-07-02',
@@ -383,9 +535,8 @@ const subTabs = [
   { id: 'history', label: 'Lịch sử thao tác hóa đơn' }
 ]
 
-// Status Filters
-// Status Filters
-const statusFilters = ref([
+// ===== FILTER DROPDOWN STATE =====
+const statusFilters = [
   { value: 'all', label: 'Tất cả', color: '#1a5276', textColor: 'white' },
   { value: 'paid', label: 'Đã thanh toán', color: '#5D3A7A', textColor: 'white' },
   { value: 'recall', label: 'Gọi lại', color: '#FF9800', textColor: 'white' },
@@ -395,10 +546,10 @@ const statusFilters = ref([
   { value: 'ordering', label: 'Đang order', color: '#4CAF50', textColor: 'white' },
   { value: 'hold', label: 'Phiếu giữ', color: '#FFB74D', textColor: 'white' },
   { value: 'no_invoice', label: 'Chưa xuất HĐ', color: '#78909C', textColor: 'white' }
-])
+]
 
 const currentFilter = computed(() => 
-  statusFilters.value.find(f => f.value === selectedFilter.value) || statusFilters.value[0]
+  statusFilters.find(f => f.value === selectedFilter.value) || statusFilters[0]
 )
 
 const toggleFilterDropdown = () => {
@@ -408,10 +559,11 @@ const toggleFilterDropdown = () => {
 const applyFilter = (filter: any) => {
   selectedFilter.value = filter.value
   showFilterDropdown.value = false
-  currentPage.value = 1
+  currentPage.value = 1 // Reset về trang 1
 }
 
 // Mock data
+// Mock data với đầy đủ 35 trường
 const invoicesData = ref([
   {
     id: 1,
@@ -429,6 +581,28 @@ const invoicesData = ref([
     conLai: 0,
     tienHang: 863000,
     giam: 228000,
+    thue: 53600,
+    phiPhucVu: 0,
+    giamPercent: 20,
+    vatPercent: 8,
+    phucVuPercent: 0,
+    tienCoc: 0,
+    thuNgan: 'Dương Thị Mộng Mơ',
+    khachHang: 'Nguyễn Văn A',
+    nguoiTao: 'Dương Thị Mộng Mơ',
+    soLanIn: 3,
+    tgTao: '02/07/2026 11:21:17',
+    tgDong: '02/07/2026 12:40:20',
+    mayTao: 'POS-01',
+    ghiChu: '',
+    slKhach: 1,
+    phucVu: 'Dương Thị Mộng Mơ',
+    quanLy: 'Trần Thu Ngân',
+    lyDoGiam: 'Khách thân thiết',
+    nhanVienGoiLai: '',
+    soLanTamTinh: 2,
+    nguoiInCuoi: 'Dương Thị Mộng Mơ',
+    tgInCuoi: '02/07/2026 12:40:20',
     status: 'paid',
     selected: false
   },
@@ -448,7 +622,29 @@ const invoicesData = ref([
     conLai: 0,
     tienHang: 1250000,
     giam: 0,
-    status: 'unpaid',
+    thue: 100000,
+    phiPhucVu: 0,
+    giamPercent: 0,
+    vatPercent: 8,
+    phucVuPercent: 0,
+    tienCoc: 0,
+    thuNgan: 'Phan Quỳnh Như',
+    khachHang: 'Trần Thị B',
+    nguoiTao: 'Phan Quỳnh Như',
+    soLanIn: 1,
+    tgTao: '02/07/2026 11:29:19',
+    tgDong: '02/07/2026 12:23:31',
+    mayTao: 'POS-02',
+    ghiChu: '',
+    slKhach: 2,
+    phucVu: 'Phan Quỳnh Như',
+    quanLy: 'Trần Thu Ngân',
+    lyDoGiam: '',
+    nhanVienGoiLai: '',
+    soLanTamTinh: 1,
+    nguoiInCuoi: 'Phan Quỳnh Như',
+    tgInCuoi: '02/07/2026 12:23:31',
+    status: 'paid',
     selected: false
   },
   {
@@ -467,7 +663,29 @@ const invoicesData = ref([
     conLai: 450000,
     tienHang: 450000,
     giam: 0,
-    status: 'debt',
+    thue: 36000,
+    phiPhucVu: 0,
+    giamPercent: 0,
+    vatPercent: 8,
+    phucVuPercent: 0,
+    tienCoc: 0,
+    thuNgan: 'Dương Thị Mộng Mơ',
+    khachHang: 'Lê Văn C',
+    nguoiTao: 'Dương Thị Mộng Mơ',
+    soLanIn: 1,
+    tgTao: '02/07/2026 11:34:44',
+    tgDong: '02/07/2026 13:12:21',
+    mayTao: 'POS-01',
+    ghiChu: 'Nợ cuối tháng',
+    slKhach: 4,
+    phucVu: 'Dương Thị Mộng Mơ',
+    quanLy: 'Trần Thu Ngân',
+    lyDoGiam: '',
+    nhanVienGoiLai: '',
+    soLanTamTinh: 3,
+    nguoiInCuoi: 'Dương Thị Mộng Mơ',
+    tgInCuoi: '02/07/2026 13:12:21',
+    status: 'no_invoice',
     selected: false
   },
   {
@@ -486,6 +704,28 @@ const invoicesData = ref([
     conLai: 0,
     tienHang: 150000,
     giam: 0,
+    thue: 12000,
+    phiPhucVu: 0,
+    giamPercent: 0,
+    vatPercent: 8,
+    phucVuPercent: 0,
+    tienCoc: 0,
+    thuNgan: 'Phan Quỳnh Như',
+    khachHang: 'Khách lẻ',
+    nguoiTao: 'Phan Quỳnh Như',
+    soLanIn: 1,
+    tgTao: '02/07/2026 11:45:00',
+    tgDong: '02/07/2026 11:46:12',
+    mayTao: 'POS-02',
+    ghiChu: '',
+    slKhach: 1,
+    phucVu: 'Phan Quỳnh Như',
+    quanLy: 'Trần Thu Ngân',
+    lyDoGiam: '',
+    nhanVienGoiLai: '',
+    soLanTamTinh: 1,
+    nguoiInCuoi: 'Phan Quỳnh Như',
+    tgInCuoi: '02/07/2026 11:46:12',
     status: 'paid',
     selected: false
   },
@@ -505,7 +745,29 @@ const invoicesData = ref([
     conLai: 5000000,
     tienHang: 15000000,
     giam: 0,
-    status: 'debt',
+    thue: 1200000,
+    phiPhucVu: 0,
+    giamPercent: 0,
+    vatPercent: 8,
+    phucVuPercent: 0,
+    tienCoc: 2000000,
+    thuNgan: 'Dương Thị Mộng Mơ',
+    khachHang: 'Công ty phân phối A',
+    nguoiTao: 'Dương Thị Mộng Mơ',
+    soLanIn: 2,
+    tgTao: '02/07/2026 11:50:00',
+    tgDong: '02/07/2026 12:10:00',
+    mayTao: 'POS-01',
+    ghiChu: 'Giao hàng đợt 1',
+    slKhach: 1,
+    phucVu: 'Dương Thị Mộng Mơ',
+    quanLy: 'Trần Thu Ngân',
+    lyDoGiam: '',
+    nhanVienGoiLai: '',
+    soLanTamTinh: 1,
+    nguoiInCuoi: 'Dương Thị Mộng Mơ',
+    tgInCuoi: '02/07/2026 12:10:00',
+    status: 'shortage',
     selected: false
   },
   {
@@ -524,12 +786,274 @@ const invoicesData = ref([
     conLai: 0,
     tienHang: 350000,
     giam: 30000,
-    status: 'unpaid',
+    thue: 25600,
+    phiPhucVu: 0,
+    giamPercent: 8.57,
+    vatPercent: 8,
+    phucVuPercent: 0,
+    tienCoc: 0,
+    thuNgan: 'Phan Quỳnh Như',
+    khachHang: 'Tài xế Grab',
+    nguoiTao: 'Phan Quỳnh Như',
+    soLanIn: 1,
+    tgTao: '02/07/2026 11:55:00',
+    tgDong: '02/07/2026 12:05:00',
+    mayTao: 'POS-02',
+    ghiChu: '',
+    slKhach: 1,
+    phucVu: 'Phan Quỳnh Như',
+    quanLy: 'Trần Thu Ngân',
+    lyDoGiam: 'Mã giảm giá Grab',
+    nhanVienGoiLai: '',
+    soLanTamTinh: 1,
+    nguoiInCuoi: 'Phan Quỳnh Như',
+    tgInCuoi: '02/07/2026 12:05:00',
+    status: 'no_invoice',
+    selected: false
+  },
+  {
+    id: 7,
+    type: 'restaurant',
+    date: '2026-07-02',
+    soPhieu: 'CN3126070200004',
+    soHoaDon: '',
+    dayHD: '',
+    mstKhachHang: '',
+    trangThai: 'Đã hủy',
+    khu: 'Khu A',
+    ban: 'A04',
+    tongTien: 0,
+    daTra: 0,
+    conLai: 0,
+    tienHang: 400000,
+    giam: 0,
+    thue: 0,
+    phiPhucVu: 0,
+    giamPercent: 0,
+    vatPercent: 0,
+    phucVuPercent: 0,
+    tienCoc: 0,
+    thuNgan: 'Dương Thị Mộng Mơ',
+    khachHang: 'Khách vãng lai',
+    nguoiTao: 'Dương Thị Mộng Mơ',
+    soLanIn: 1,
+    tgTao: '02/07/2026 12:00:10',
+    tgDong: '02/07/2026 12:05:15',
+    mayTao: 'POS-01',
+    ghiChu: 'Khách đổi ý',
+    slKhach: 2,
+    phucVu: 'Dương Thị Mộng Mơ',
+    quanLy: 'Trần Thu Ngân',
+    lyDoGiam: '',
+    nhanVienGoiLai: '',
+    soLanTamTinh: 1,
+    nguoiInCuoi: 'Dương Thị Mộng Mơ',
+    tgInCuoi: '02/07/2026 12:05:15',
+    status: 'cancelled',
+    selected: false
+  },
+  {
+    id: 8,
+    type: 'restaurant',
+    date: '2026-07-02',
+    soPhieu: 'CN3126070200005',
+    soHoaDon: '',
+    dayHD: '',
+    mstKhachHang: '',
+    trangThai: 'Đang gọi lại',
+    khu: 'Khu B',
+    ban: 'B03',
+    tongTien: 300000,
+    daTra: 300000,
+    conLai: 0,
+    tienHang: 300000,
+    giam: 0,
+    thue: 24000,
+    phiPhucVu: 0,
+    giamPercent: 0,
+    vatPercent: 8,
+    phucVuPercent: 0,
+    tienCoc: 0,
+    thuNgan: 'Phan Quỳnh Như',
+    khachHang: 'Nguyễn Văn B',
+    nguoiTao: 'Phan Quỳnh Như',
+    soLanIn: 2,
+    tgTao: '02/07/2026 12:10:00',
+    tgDong: '02/07/2026 12:45:00',
+    mayTao: 'POS-02',
+    ghiChu: 'Gọi lại kiểm tra',
+    slKhach: 2,
+    phucVu: 'Phan Quỳnh Như',
+    quanLy: 'Trần Thu Ngân',
+    lyDoGiam: '',
+    nhanVienGoiLai: 'Phan Quỳnh Như',
+    soLanTamTinh: 1,
+    nguoiInCuoi: 'Phan Quỳnh Như',
+    tgInCuoi: '02/07/2026 12:45:00',
+    status: 'recall',
+    selected: false
+  },
+  {
+    id: 9,
+    type: 'restaurant',
+    date: '2026-07-02',
+    soPhieu: 'CN3126070200006',
+    soHoaDon: '',
+    dayHD: '',
+    mstKhachHang: '',
+    trangThai: 'Phiếu tặng',
+    khu: 'Khu A',
+    ban: 'A06',
+    tongTien: 0,
+    daTra: 0,
+    conLai: 0,
+    tienHang: 500000,
+    giam: 500000,
+    thue: 0,
+    phiPhucVu: 0,
+    giamPercent: 100,
+    vatPercent: 0,
+    phucVuPercent: 0,
+    tienCoc: 0,
+    thuNgan: 'Dương Thị Mộng Mơ',
+    khachHang: 'Đối tác chiến lược',
+    nguoiTao: 'Dương Thị Mộng Mơ',
+    soLanIn: 1,
+    tgTao: '02/07/2026 12:15:00',
+    tgDong: '02/07/2026 12:50:00',
+    mayTao: 'POS-01',
+    ghiChu: 'Phiếu tặng Marketing',
+    slKhach: 3,
+    phucVu: 'Dương Thị Mộng Mơ',
+    quanLy: 'Trần Thu Ngân',
+    lyDoGiam: 'Tặng Voucher 100%',
+    nhanVienGoiLai: '',
+    soLanTamTinh: 1,
+    nguoiInCuoi: 'Dương Thị Mộng Mơ',
+    tgInCuoi: '02/07/2026 12:50:00',
+    status: 'gift',
+    selected: false
+  },
+  {
+    id: 10,
+    type: 'restaurant',
+    date: '2026-07-02',
+    soPhieu: 'CN3126070200007',
+    soHoaDon: '',
+    dayHD: '',
+    mstKhachHang: '',
+    trangThai: 'Phiếu giữ',
+    khu: 'Khu B',
+    ban: 'B04',
+    tongTien: 750000,
+    daTra: 0,
+    conLai: 750000,
+    tienHang: 750000,
+    giam: 0,
+    thue: 60000,
+    phiPhucVu: 0,
+    giamPercent: 0,
+    vatPercent: 8,
+    phucVuPercent: 0,
+    tienCoc: 200000,
+    thuNgan: 'Phan Quỳnh Như',
+    khachHang: 'Khách đoàn',
+    nguoiTao: 'Phan Quỳnh Như',
+    soLanIn: 2,
+    tgTao: '02/07/2026 12:20:00',
+    tgDong: '02/07/2026 13:00:00',
+    mayTao: 'POS-02',
+    ghiChu: 'Giữ bill làm đối chiếu',
+    slKhach: 5,
+    phucVu: 'Phan Quỳnh Như',
+    quanLy: 'Trần Thu Ngân',
+    lyDoGiam: '',
+    nhanVienGoiLai: '',
+    soLanTamTinh: 2,
+    nguoiInCuoi: 'Phan Quỳnh Như',
+    tgInCuoi: '02/07/2026 13:00:00',
+    status: 'hold',
+    selected: false
+  },
+  {
+    id: 11,
+    type: 'restaurant',
+    date: '2026-07-02',
+    soPhieu: 'CN3126070200008',
+    soHoaDon: '',
+    dayHD: '',
+    mstKhachHang: '',
+    trangThai: 'Đang order',
+    khu: 'Khu A',
+    ban: 'A08',
+    tongTien: 120000,
+    daTra: 0,
+    conLai: 120000,
+    tienHang: 120000,
+    giam: 0,
+    thue: 9600,
+    phiPhucVu: 0,
+    giamPercent: 0,
+    vatPercent: 8,
+    phucVuPercent: 0,
+    tienCoc: 0,
+    thuNgan: 'Dương Thị Mộng Mơ',
+    khachHang: 'Khách lẻ',
+    nguoiTao: 'Dương Thị Mộng Mơ',
+    soLanIn: 1,
+    tgTao: '02/07/2026 12:30:00',
+    tgDong: '',
+    mayTao: 'POS-01',
+    ghiChu: 'Đang dùng món',
+    slKhach: 1,
+    phucVu: 'Dương Thị Mộng Mơ',
+    quanLy: 'Trần Thu Ngân',
+    lyDoGiam: '',
+    nhanVienGoiLai: '',
+    soLanTamTinh: 0,
+    nguoiInCuoi: '',
+    tgInCuoi: '',
+    status: 'ordering',
     selected: false
   }
 ])
 
-const sampleItems = ref<any[]>([])
+const sampleItems = ref<any[]>([
+  {
+    id: 1,
+    soOrder: 'ORD-001',
+    maHang: 'BUFFET_399',
+    tenHang: 'Buffet Lẩu 399k',
+    tenKhac: 'Buffet Hotpot 399k',
+    sl: 2,
+    dvt: 'Suất',
+    donGia: 399000,
+    giamCT: 100000,
+    giamPhieu: 28000,
+    giam: 128000,
+    vat: 8,
+    thue: 53600,
+    tong: 687360,
+    liDoTra: ''
+  },
+  {
+    id: 2,
+    soOrder: 'ORD-001',
+    maHang: 'COCA',
+    tenHang: 'Coca Cola',
+    tenKhac: 'Coke',
+    sl: 3,
+    dvt: 'Lon',
+    donGia: 20000,
+    giamCT: 0,
+    giamPhieu: 0,
+    giam: 0,
+    vat: 8,
+    thue: 4800,
+    tong: 64800,
+    liDoTra: ''
+  }
+])
 
 const selectAll = computed({
   get() {
@@ -564,10 +1088,15 @@ const filteredData = computed(() => {
   return data
 })
 
+const paginatedData = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value
+  return filteredData.value.slice(start, start + itemsPerPage.value)
+})
+
 const totalPages = computed(() => Math.ceil(filteredData.value.length / itemsPerPage.value))
 
 const summary = computed(() => {
-  return filteredData.value.reduce((acc, row) => ({
+  return paginatedData.value.reduce((acc, row) => ({
     tongTien: acc.tongTien + row.tongTien,
     daTra: acc.daTra + row.daTra,
     conLai: acc.conLai + row.conLai,
@@ -586,8 +1115,9 @@ function formatVND(amount: number): string {
 }
 
 function getRowClass(row: any): string {
-  if (row.status === 'debt') return 'row-danger'
+  if (row.status === 'cancelled' || row.status === 'no_invoice') return 'row-danger'
   if (row.status === 'paid') return 'row-paid'
+  if (row.status === 'hold' || row.status === 'shortage') return 'row-warning'
   return ''
 }
 
@@ -1008,10 +1538,13 @@ function exportData() {
 // Click away dropdown listener
 const filterDropdownRef = ref<HTMLElement | null>(null)
 const handleOutsideClick = (e: MouseEvent) => {
-  if (filterDropdownRef.value && !filterDropdownRef.value.contains(e.target as Node)) {
+  const target = e.target as HTMLElement
+  if (filterDropdownRef.value && !filterDropdownRef.value.contains(target)) {
     showFilterDropdown.value = false
   }
-  const target = e.target as HTMLElement
+  if (columnPickerRef.value && !columnPickerRef.value.contains(target)) {
+    showColumnPicker.value = false
+  }
   if (
     showFloatingMenu.value &&
     !target.closest('.floating-action-menu') &&
@@ -1026,6 +1559,16 @@ onMounted(() => {
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') closeFloatingMenu()
   })
+
+  // Load saved column settings
+  const saved = localStorage.getItem('reportsColumnSettings')
+  if (saved) {
+    const parsed = JSON.parse(saved)
+    parsed.forEach((item: any) => {
+      const group = columnGroups.value.find(g => g.id === item.id)
+      if (group) group.visible = item.visible
+    })
+  }
   
   // Pre-select first item
   if (filteredData.value.length > 0) {
@@ -1048,12 +1591,13 @@ onUnmounted(() => {
   flex-direction: column;
   background: #f5f5f5;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  position: relative;
 }
 
 /* 1. HEADER - Cố định */
 .reports-header {
   background: white;
-  padding: 16px 24px;
+  padding: 16px 24px 16px 76px; /* Added left padding to prevent overlapping hamburger */
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -1367,6 +1911,22 @@ onUnmounted(() => {
   background: #fee2e2 !important;
 }
 
+.row-warning {
+  background: #fef3c7 !important;
+}
+
+/* Animation */
+.fade-enter-active,
+.fade-leave-active {
+  transition: all 0.2s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
 .font-bold { font-weight: 700; }
 .text-red { color: #ef4444; }
 .text-green { color: #10b981; }
@@ -1409,20 +1969,42 @@ onUnmounted(() => {
   font-weight: 600;
 }
 
-.col-checkbox { width: 40px; text-align: center; }
-.col-stt { width: 50px; }
-.col-so-phieu { width: 160px; }
-.col-so-hd { width: 100px; }
-.col-day-hd { width: 70px; }
-.col-mst { width: 120px; }
-.col-trang-thai { width: 220px; }
-.col-khu { width: 80px; }
-.col-ban { width: 70px; }
-.col-tong-tien { width: 110px; text-align: right; }
-.col-da-tra { width: 110px; text-align: right; }
-.col-con-lai { width: 110px; text-align: right; }
-.col-tien-hang { width: 110px; text-align: right; }
-.col-giam { width: 90px; text-align: right; }
+.col-checkbox { width: 30px; min-width: 30px; text-align: center; }
+.col-stt { width: 40px; min-width: 40px; }
+.col-so-phieu { width: 140px; min-width: 140px; }
+.col-so-hd { width: 100px; min-width: 100px; }
+.col-day-hd { width: 60px; min-width: 60px; }
+.col-mst { width: 120px; min-width: 120px; }
+.col-trang-thai { width: 200px; min-width: 200px; }
+.col-khu { width: 80px; min-width: 80px; }
+.col-ban { width: 60px; min-width: 60px; }
+.col-tong-tien { width: 110px; min-width: 110px; text-align: right; }
+.col-da-tra { width: 110px; min-width: 110px; text-align: right; }
+.col-con-lai { width: 110px; min-width: 110px; text-align: right; }
+.col-tien-hang { width: 110px; min-width: 110px; text-align: right; }
+.col-giam { width: 90px; min-width: 90px; text-align: right; }
+.col-thue { width: 90px; min-width: 90px; text-align: right; }
+.col-phi-phuc-vu { width: 110px; min-width: 110px; text-align: right; }
+.col-giam-percent { width: 70px; min-width: 70px; text-align: center; }
+.col-vat-percent { width: 70px; min-width: 70px; text-align: center; }
+.col-phuc-vu-percent { width: 90px; min-width: 90px; text-align: center; }
+.col-tien-coc { width: 100px; min-width: 100px; text-align: right; }
+.col-thu-ngan { width: 120px; min-width: 120px; }
+.col-khach-hang { width: 130px; min-width: 130px; }
+.col-nguoi-tao { width: 130px; min-width: 130px; }
+.col-so-lan-in { width: 80px; min-width: 80px; text-align: center; }
+.col-tg-tao { width: 140px; min-width: 140px; }
+.col-tg-dong { width: 140px; min-width: 140px; }
+.col-may-tao { width: 80px; min-width: 80px; }
+.col-ghi-chu { width: 150px; min-width: 150px; }
+.col-sl-khach { width: 70px; min-width: 70px; text-align: center; }
+.col-phuc-vu { width: 130px; min-width: 130px; }
+.col-quan-ly { width: 130px; min-width: 130px; }
+.col-ly-do-giam { width: 150px; min-width: 150px; }
+.col-nhan-vien-goi { width: 130px; min-width: 130px; }
+.col-so-lan-tam-tinh { width: 110px; min-width: 110px; text-align: center; }
+.col-nguoi-in-cuoi { width: 130px; min-width: 130px; }
+.col-tg-in-cuoi { width: 140px; min-width: 140px; }
 
 /* 3.3 PAGINATION - Cố định */
 .pagination-footer {
@@ -1848,5 +2430,149 @@ onUnmounted(() => {
   .reports-header, .filters-section, .tabs-row, .pagination-footer, .btn, .floating-action-menu, .floating-menu-overlay {
     display: none !important;
   }
+}
+
+/* Hamburger button positioning */
+.reports-page .hamburger-btn {
+  position: absolute;
+  top: 24px;
+  left: 20px;
+  z-index: 997;
+}
+
+/* ===== STICKY COLUMNS ===== */
+.sticky-col {
+  position: sticky;
+  background: white;
+  box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+  z-index: 10;
+}
+
+.sticky-col::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: rgba(0,0,0,0.08);
+}
+
+thead th.sticky-col {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+  z-index: 20 !important;
+}
+
+tbody tr.row-paid .sticky-col {
+  background: #f3e8ff !important;
+}
+
+tbody tr.row-danger .sticky-col {
+  background: #fee2e2 !important;
+}
+
+tbody tr.row-warning .sticky-col {
+  background: #fef3c7 !important;
+}
+
+tbody tr:hover .sticky-col {
+  background: #fff3cd !important;
+}
+
+/* ===== COLUMN PICKER DROPDOWN ===== */
+.column-picker-wrapper {
+  position: relative;
+}
+
+.btn-column-picker {
+  padding: 8px 14px;
+  background: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+
+.btn-column-picker:hover {
+  background: #5a6268;
+}
+
+.column-picker-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  z-index: 100;
+  min-width: 250px;
+  padding: 12px;
+  border: 1px solid #e0e0e0;
+  text-align: left;
+}
+
+.picker-section {
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.picker-section:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.picker-section h4 {
+  font-size: 11px;
+  font-weight: 700;
+  color: #666;
+  margin: 0 0 8px 0;
+  text-transform: uppercase;
+}
+
+.preset-btn {
+  display: inline-block;
+  padding: 4px 10px;
+  margin: 2px;
+  background: #f3f4f6;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 11px;
+  cursor: pointer;
+  font-weight: 600;
+  color: #374151;
+}
+
+.preset-btn:hover {
+  background: #e5e7eb;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  font-size: 12px;
+  cursor: pointer;
+  color: #4b5563;
+}
+
+.checkbox-label input {
+  margin: 0;
+  cursor: pointer;
+}
+
+.column-count {
+  color: #9ca3af;
+  font-size: 10px;
+  margin-left: auto;
 }
 </style>

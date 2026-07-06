@@ -20,6 +20,10 @@ import AccountingLayout from "@/layouts/AccountingLayout.vue";
 import CRMLayout from "@/layouts/CRMLayout.vue";
 import CustomerLayout from "@/layouts/CustomerLayout.vue";
 import ReportsView from "@/views/reception/ReportsView.vue";
+import RevenueOverviewView from "@/views/reception/RevenueOverviewView.vue";
+import ShiftHandoverView from "@/views/reception/ShiftHandoverView.vue";
+import InventoryView from "@/views/reception/InventoryView.vue";
+import ProcessItemsView from "@/views/reception/ProcessItemsView.vue";
 
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 import LoginView from "@/views/LoginView.vue";
@@ -317,6 +321,46 @@ const routes: RouteRecordRaw[] = [
         meta: {
           requiresAuth: true,
           title: "Báo cáo",
+          fullscreen: true,
+        },
+      },
+      {
+        path: "revenue-overview",
+        name: "reception-revenue-overview",
+        component: RevenueOverviewView,
+        meta: {
+          requiresAuth: true,
+          title: "DT Tổng thể",
+          fullscreen: true,
+        },
+      },
+      {
+        path: "shift-handover",
+        name: "reception-shift-handover",
+        component: ShiftHandoverView,
+        meta: {
+          requiresAuth: true,
+          title: "Giao ca",
+          fullscreen: true,
+        },
+      },
+      {
+        path: "inventory",
+        name: "reception-inventory",
+        component: InventoryView,
+        meta: {
+          requiresAuth: true,
+          title: "Tồn kho tức thời",
+          fullscreen: true,
+        },
+      },
+      {
+        path: "process-items",
+        name: "reception-process-items",
+        component: ProcessItemsView,
+        meta: {
+          requiresAuth: true,
+          title: "Xử lý món",
           fullscreen: true,
         },
       },

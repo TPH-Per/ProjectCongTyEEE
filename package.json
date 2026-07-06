@@ -12,6 +12,7 @@
     "@supabase/ssr": "^0.12.0",
     "@supabase/supabase-js": "^2.108.2",
     "@vue/compiler-sfc": "^3.5.39",
+    "chart.js": "^4.5.1",
     "clsx": "^2.1.0",
     "date-fns": "^3.6.0",
     "lucide-vue-next": "^0.363.0",

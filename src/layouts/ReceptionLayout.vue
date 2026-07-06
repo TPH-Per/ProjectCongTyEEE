@@ -81,15 +81,16 @@
         <div class="text-[11px] font-extrabold text-gray-500 uppercase tracking-wider mb-2 mt-4">
           Quản trị
         </div>
-        <button
-          @click="handleQuickAction('Phiếu', '/admin/vouchers')"
-          class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-sm font-semibold text-gray-600 hover:bg-gray-100 text-left"
+        <RouterLink
+          to="/reception/reports"
+          class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-sm font-semibold text-gray-600 hover:bg-gray-100"
+          active-class="bg-orange-50 text-[#E8772E] hover:bg-orange-50"
         >
           <Receipt class="w-[18px] h-[18px]" />
           Phiếu
-        </button>
+        </RouterLink>
         <RouterLink
-          to="/reception/reports"
+          to="/reception/revenue-overview"
           class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-sm font-semibold text-gray-600 hover:bg-gray-100"
           active-class="bg-orange-50 text-[#E8772E] hover:bg-orange-50"
         >
@@ -453,7 +454,7 @@ import {
   BadgeMinus, 
   Settings as SettingsIcon, 
   Receipt, 
-  BarChart3, 
+  BarChart3,
   LogOut,
   LayoutDashboard,
   Grid,

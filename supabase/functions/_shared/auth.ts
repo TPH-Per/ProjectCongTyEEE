@@ -22,8 +22,7 @@
 
 import { createClient, type SupabaseClient, type User } from 'https://esm.sh/@supabase/supabase-js@2'
 
-export type AppRole = 'superadmin' | 'manager' | 'reception' | 'staff' | 'kitchen'
-
+export type AppRole = 'superadmin' | 'admin' | 'manager' | 'reception' | 'staff' | 'kitchen' | 'customer' | 'procurement' | 'procurement_manager' | 'procurement_staff' | 'accountant' | 'accounting' | 'accounting_manager' | 'crm_manager' | 'crm' | 'marketing' | 'bod' | 'tablet'
 export interface AppProfile {
   id: string
   email: string
@@ -210,11 +209,12 @@ export async function requireAppUser(
   }
 
   // 4. Resource-branch match. Admins bypass (they supervise across branches).
-  if (
-    options.resourceBranchId !== undefined &&
-    options.resourceBranchId !== null &&
-    profile.role !== 'superadmin'
-  ) {
+    if (
+      options.resourceBranchId !== undefined &&
+      options.resourceBranchId !== null &&
+      profile.role !== 'superadmin' &&
+      profile.role !== 'admin'
+    ) {
     if (!profile.branch_id) {
       throw new AuthError('Tài khoản chưa gán chi nhánh', 403)
     }

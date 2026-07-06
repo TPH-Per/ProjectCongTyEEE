@@ -32,7 +32,9 @@ export function getHomeRouteForRole(role: UserRole | string | null | undefined):
     case 'purchasing':
       return { name: 'purchasing-receipts' }
     case 'accounting':
+    case 'accounting_manager':
       return { name: 'accounting-invoices' }
+    case 'crm_manager':
     case 'crm':
       return { name: 'crm-serving-tables' }
     case 'customer':

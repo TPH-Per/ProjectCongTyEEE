@@ -80,7 +80,7 @@ function readClaimsFromSession(s: Session | null): {
   branchId: string | undefined
 } {
   const claims = s?.user?.app_metadata ?? {}
-  const role = claims.role as UserRole | undefined
+  const role = normaliseRole(claims.role)
   const branchId = claims.branch_id as string | undefined
   return { role, branchId }
 }
@@ -95,6 +95,9 @@ function normaliseRole(raw: unknown): UserRole | undefined {
   if (r === 'superadmin' || r === 'admin') {
     return 'superadmin'
   }
+  if (r === 'accountant') {
+    return 'accounting'
+  }
   const validRoles: UserRole[] = [
     'superadmin',
     'manager',
@@ -105,8 +108,10 @@ function normaliseRole(raw: unknown): UserRole | undefined {
     'procurement',
     'procurement_manager',
     'procurement_staff',
-    'accountant',
+    'accounting',
+    'accounting_manager',
     'crm_manager',
+    'crm',
     'marketing',
     'bod',
     'tablet'
@@ -126,7 +131,10 @@ function performMockLogin(email: string) {
   else if (cleanEmail.startsWith('manager')) detectedRole = 'manager'
   else if (cleanEmail.startsWith('reception')) detectedRole = 'reception'
   else if (cleanEmail.startsWith('procurement_manager')) detectedRole = 'procurement_manager'
-  else if (cleanEmail.startsWith('accountant')) detectedRole = 'accountant'
+  else if (cleanEmail.startsWith('accounting_manager')) detectedRole = 'accounting_manager'
+  else if (cleanEmail.startsWith('accounting')) detectedRole = 'accounting'
+  else if (cleanEmail.startsWith('crm_manager')) detectedRole = 'crm_manager'
+  else if (cleanEmail.startsWith('crm')) detectedRole = 'crm'
   else if (cleanEmail.startsWith('customer')) detectedRole = 'customer'
   else if (cleanEmail.startsWith('staff')) detectedRole = 'staff'
 
@@ -369,7 +377,13 @@ export function useAuth() {
   })
 
   const isAuthenticated = computed<boolean>(() => !!session.value && !!profile.value)
-  const isAdmin = computed<boolean>(() => role.value === 'superadmin' || role.value === 'admin')
+  const isAdmin = computed<boolean>(() => 
+    role.value === 'superadmin' || 
+    role.value === 'admin' || 
+    role.value === 'accounting_manager' || 
+    role.value === 'manager' ||
+    role.value === 'procurement_manager'
+  )
   const isManager = computed<boolean>(
     () => role.value === 'superadmin' || role.value === 'admin' || role.value === 'manager',
   )

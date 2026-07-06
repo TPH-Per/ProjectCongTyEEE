@@ -28,8 +28,10 @@
         <option value="customer">Customer</option>
         <option value="procurement_manager">Procurement Manager</option>
         <option value="procurement_staff">Procurement Staff</option>
-        <option value="accountant">Accountant</option>
+        <option value="accounting">Accounting (Kế toán chi nhánh)</option>
+        <option value="accounting_manager">Accounting Manager (Kế toán trưởng)</option>
         <option value="crm_manager">CRM Manager</option>
+        <option value="crm">CRM Branch</option>
         <option value="marketing">Marketing</option>
         <option value="bod">BOD</option>
         <option value="tablet">Tablet</option>
@@ -65,7 +67,7 @@
                   'bg-blue-100 text-blue-700 border-blue-200': user.role === 'manager',
                   'bg-purple-100 text-purple-700 border-purple-200': user.role === 'reception',
                   'bg-emerald-100 text-emerald-700 border-emerald-200': user.role.startsWith('procurement'),
-                  'bg-red-100 text-red-700 border-red-200': user.role === 'accountant',
+                  'bg-red-100 text-red-700 border-red-200': user.role === 'accounting' || user.role === 'accounting_manager',
                   'bg-orange-100 text-orange-700 border-orange-200': user.role === 'staff'
                 }">
                 {{ user.role }}
@@ -122,8 +124,10 @@
               <option value="customer">Customer</option>
               <option value="procurement_manager">Procurement Manager</option>
               <option value="procurement_staff">Procurement Staff</option>
-              <option value="accountant">Accountant</option>
+              <option value="accounting">Accounting (Kế toán chi nhánh)</option>
+              <option value="accounting_manager">Accounting Manager (Kế toán trưởng)</option>
               <option value="crm_manager">CRM Manager</option>
+              <option value="crm">CRM Branch</option>
               <option value="marketing">Marketing</option>
               <option value="bod">BOD</option>
               <option value="tablet">Tablet</option>

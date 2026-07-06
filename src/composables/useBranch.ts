@@ -22,8 +22,11 @@ export function useBranch() {
     typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEY) : null,
   )
 
-  const activeBranchId = computed<string | undefined>(() => {
-    if (isAdmin.value && selectedBranchId.value) return selectedBranchId.value
+  const activeBranchId = computed<string | undefined | null>(() => {
+    if (isAdmin.value) {
+      if (selectedBranchId.value === 'all') return null
+      if (selectedBranchId.value) return selectedBranchId.value
+    }
     return defaultBranchId.value
   })
 

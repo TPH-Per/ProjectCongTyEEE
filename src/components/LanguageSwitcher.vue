@@ -33,8 +33,10 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useI18nStore, LANGUAGE_META } from '@/stores/i18n'
 import type { AppLocale } from '@/locales'
+import { useLanguageStore } from '@/stores/useLanguageStore'
 
 const i18nStore = useI18nStore()
+const legacyLangStore = useLanguageStore()
 const isOpen = ref(false)
 
 const currentLocale = computed(() => i18nStore.locale)
@@ -51,6 +53,8 @@ function getNativeLabel(code: AppLocale) {
 
 function selectLocale(code: AppLocale) {
   i18nStore.setLocale(code)
+  legacyLangStore.lang = code
+  localStorage.setItem('app_lang', code) // Keep legacy storage sync
   isOpen.value = false
 }
 

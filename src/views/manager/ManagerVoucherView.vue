@@ -119,7 +119,7 @@
         <div class="flex-1 overflow-y-auto p-6 space-y-5">
           <div>
             <label class="block text-sm font-medium text-[hsl(var(--foreground))] mb-1.5">{{ i18n.t('vouchers.form.code') }} *</label>
-            <input v-model="form.code" type="text" class="kawaii-input py-2.5 uppercase font-mono tracking-wider" placeholder="SUMMER2026" />
+            <input v-model="form.code" type="text" class="kawaii-input py-2.5 uppercase font-mono tracking-wider" :placeholder="i18n.t('vouchers.form.codePlaceholder')" />
           </div>
 
           <div class="grid grid-cols-2 gap-4">
@@ -201,14 +201,14 @@
           <div class="pt-2 border-t border-[hsl(var(--border))]">
             <label class="block text-sm font-medium text-[hsl(var(--foreground))] mb-2">{{ i18n.t('vouchers.form.description') }}</label>
             <div class="flex gap-1 mb-3 bg-[hsl(var(--muted))] p-1 rounded-md border border-[hsl(var(--border))] w-max">
-              <button @click="descTab = 'vi'" :class="['text-xs font-bold px-3 py-1.5 rounded transition-colors', descTab === 'vi' ? 'bg-white text-[hsl(var(--foreground))] shadow-sm' : 'text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]']">Tiếng Việt</button>
-              <button @click="descTab = 'en'" :class="['text-xs font-bold px-3 py-1.5 rounded transition-colors', descTab === 'en' ? 'bg-white text-[hsl(var(--foreground))] shadow-sm' : 'text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]']">English</button>
-              <button @click="descTab = 'ja'" :class="['text-xs font-bold px-3 py-1.5 rounded transition-colors', descTab === 'ja' ? 'bg-white text-[hsl(var(--foreground))] shadow-sm' : 'text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]']">日本語</button>
+              <button @click="descTab = 'vi'" :class="['text-xs font-bold px-3 py-1.5 rounded transition-colors', descTab === 'vi' ? 'bg-white text-[hsl(var(--foreground))] shadow-sm' : 'text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]']">{{ i18n.t('common.lang.vi') }}</button>
+              <button @click="descTab = 'en'" :class="['text-xs font-bold px-3 py-1.5 rounded transition-colors', descTab === 'en' ? 'bg-white text-[hsl(var(--foreground))] shadow-sm' : 'text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]']">{{ i18n.t('common.lang.en') }}</button>
+              <button @click="descTab = 'ja'" :class="['text-xs font-bold px-3 py-1.5 rounded transition-colors', descTab === 'ja' ? 'bg-white text-[hsl(var(--foreground))] shadow-sm' : 'text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]']">{{ i18n.t('common.lang.ja') }}</button>
             </div>
             
-            <textarea v-if="descTab === 'vi'" v-model="form.description_vi" rows="3" class="kawaii-input py-3" placeholder="Mô tả bằng tiếng Việt"></textarea>
-            <textarea v-if="descTab === 'en'" v-model="form.description_en" rows="3" class="kawaii-input py-3" placeholder="English description"></textarea>
-            <textarea v-if="descTab === 'ja'" v-model="form.description_ja" rows="3" class="kawaii-input py-3" placeholder="日本語の説明"></textarea>
+            <textarea v-if="descTab === 'vi'" v-model="form.description_vi" rows="3" class="kawaii-input py-3" :placeholder="i18n.t('vouchers.form.descPlaceholderVi')"></textarea>
+            <textarea v-if="descTab === 'en'" v-model="form.description_en" rows="3" class="kawaii-input py-3" :placeholder="i18n.t('vouchers.form.descPlaceholderEn')"></textarea>
+            <textarea v-if="descTab === 'ja'" v-model="form.description_ja" rows="3" class="kawaii-input py-3" :placeholder="i18n.t('vouchers.form.descPlaceholderJa')"></textarea>
           </div>
         </div>
         

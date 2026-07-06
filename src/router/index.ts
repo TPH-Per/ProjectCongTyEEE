@@ -65,8 +65,12 @@ import DailyReceiptView from "@/views/purchasing/DailyReceiptView.vue";
 import InventoryAuditView from "@/views/purchasing/InventoryAuditView.vue";
 
 // ─── Accounting Views ──────────────────────────────────────────────────────────
+import AccountingDashboardView from "@/views/accounting/AccountingDashboardView.vue";
 import InvoiceManagerView from "@/views/accounting/InvoiceManagerView.vue";
 import TaxExportView from "@/views/accounting/TaxExportView.vue";
+import CashFlowView from "@/views/accounting/CashFlowView.vue";
+import APPayablesView from "@/views/accounting/APPayablesView.vue";
+import PLReportView from "@/views/accounting/PLReportView.vue";
 
 // ─── Tablet Views ───────────────────────────────────────────────────────────────
 import TabletIdleView from "@/views/tablet/TabletIdleView.vue";
@@ -182,12 +186,13 @@ const routes: RouteRecordRaw[] = [
     path: "/accounting",
     component: AccountingLayout,
     children: [
-      {
-        path: "invoices",
-        name: "accounting-invoices",
-        component: InvoiceManagerView,
-      },
-      { path: "tax", name: "accounting-tax", component: TaxExportView },
+      { path: "", redirect: "/accounting/dashboard" },
+      { path: "dashboard", name: "accounting-dashboard", component: AccountingDashboardView },
+      { path: "cashflow",  name: "accounting-cashflow",  component: CashFlowView },
+      { path: "ap",        name: "accounting-ap",        component: APPayablesView },
+      { path: "pl-report", name: "accounting-pl-report", component: PLReportView },
+      { path: "invoices",  name: "accounting-invoices",  component: InvoiceManagerView },
+      { path: "tax",       name: "accounting-tax",       component: TaxExportView },
     ],
   },
 
@@ -441,7 +446,7 @@ const ROUTE_ROLES: Record<string, string[]> = {
   hall: ["superadmin", "admin", "manager", "reception", "staff"],
   kitchen: ["superadmin", "admin", "manager", "kitchen"],
   purchasing: ["superadmin", "admin", "procurement", "procurement_manager", "procurement_staff", "purchasing"],
-  accounting: ["superadmin", "admin", "accountant", "accounting"],
+  accounting: ["superadmin", "admin", "accounting", "accounting_manager", "manager"],
   crm: ["superadmin", "admin", "manager", "crm_manager", "crm"],
   marketing: ["superadmin", "admin", "manager", "marketing"],
   bod: ["superadmin", "admin", "bod"],
@@ -478,7 +483,11 @@ router.beforeEach(async (to) => {
       to.path,
     );
     if (isAuthenticated.value && to.name === "login" && role.value) {
-      return getFallbackRouteForRole(role.value);
+      const fallback = getFallbackRouteForRole(role.value);
+      if (typeof fallback === 'object' && fallback !== null && 'name' in fallback && fallback.name === 'login') {
+        return; // Prevent infinite loop if role has no home mapped
+      }
+      return fallback;
     }
     return;
   }

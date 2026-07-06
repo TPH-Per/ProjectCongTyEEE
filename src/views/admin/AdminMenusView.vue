@@ -38,24 +38,24 @@
         <div>
           <h1 class="text-2xl font-black text-gray-900 tracking-tight flex items-center gap-2">
             <span class="text-2xl">🍱</span>
-            {{ $t('admin_menus.title') }}
+            {{ i18n.t('admin_menus.title') }}
           </h1>
-          <p class="text-xs text-gray-500 font-medium mt-1">{{ $t('admin_menus.subtitle') }}</p>
+          <p class="text-xs text-gray-500 font-medium mt-1">{{ i18n.t('admin_menus.subtitle') }}</p>
         </div>
 
         <!-- Stats strip -->
         <div class="flex items-center gap-2 text-[10px] font-black uppercase tracking-wider">
           <div class="flex items-center gap-1.5 bg-emerald-50 text-emerald-700 px-2.5 py-1.5 rounded-xl border border-emerald-100/60">
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-            {{ activeItemCount }} / {{ menuItems.length }} {{ $t('admin_menus.items_selling') }}
+            {{ activeItemCount }} / {{ menuItems.length }} {{ i18n.t('admin_menus.items_selling') }}
           </div>
           <div class="flex items-center gap-1.5 bg-amber-50 text-amber-700 px-2.5 py-1.5 rounded-xl border border-amber-100/60">
             <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-            {{ activePackageCount }} / {{ packages.length }} {{ $t('admin_menus.packages_selling') }}
+            {{ activePackageCount }} / {{ packages.length }} {{ i18n.t('admin_menus.packages_selling') }}
           </div>
           <div class="flex items-center gap-1.5 bg-sky-50 text-sky-700 px-2.5 py-1.5 rounded-xl border border-sky-100/60">
             <span class="w-1.5 h-1.5 rounded-full bg-sky-500"></span>
-            {{ categories.length }} {{ $t('admin_menus.categories') }}
+            {{ categories.length }} {{ i18n.t('admin_menus.categories') }}
           </div>
         </div>
       </div>
@@ -67,7 +67,7 @@
           <input
             v-model="searchQuery"
             type="text"
-            :placeholder="$t('admin_menus.search_placeholder')"
+            :placeholder="i18n.t('admin_menus.search_placeholder')"
             class="w-full pl-9 pr-3 py-2 text-sm rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-rose-200 focus:border-rose-400 placeholder:text-gray-400"
           />
         </div>
@@ -76,12 +76,12 @@
             @click="editMenuItem()"
             class="inline-flex items-center gap-1.5 px-4 py-2 bg-white border border-gray-200 hover:bg-gray-50 text-gray-800 rounded-xl text-sm font-bold shadow-sm transition-colors"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>{{ $t('admin_menus.add_item') }}</button>
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>{{ i18n.t('admin_menus.add_item') }}</button>
           <button
             @click="editPackage()"
             class="inline-flex items-center gap-1.5 px-4 py-2 bg-gray-900 hover:bg-black text-white rounded-xl text-sm font-bold shadow-md transition-colors"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12c0 1.1.9 2 2 2h14v-4"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>{{ $t('admin_menus.add_package') }}</button>
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12c0 1.1.9 2 2 2h14v-4"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>{{ i18n.t('admin_menus.add_package') }}</button>
         </div>
       </div>
     </header>
@@ -110,19 +110,19 @@
         <div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
           <header class="px-4 py-3 border-b border-gray-100 bg-gray-50/60 flex items-center justify-between">
             <h3 class="text-xs font-black text-gray-800 uppercase tracking-wider flex items-center gap-1.5">
-              <span class="w-1.5 h-3 bg-rose-500 rounded-full"></span>{{ $t('admin_menus.package_menu') }}</h3>
+              <span class="w-1.5 h-3 bg-rose-500 rounded-full"></span>{{ i18n.t('admin_menus.package_menu') }}</h3>
             <span class="text-[10px] text-gray-400 font-bold">
-              {{ packages.length }} {{ $t('admin_menus.packages_count') }}
+              {{ packages.length }} {{ i18n.t('admin_menus.packages_count') }}
             </span>
           </header>
 
           <div v-if="filteredPackages.length === 0" class="px-4 py-10 text-center text-xs text-gray-400 font-medium">
             <div class="text-3xl mb-2 opacity-40">📦</div>
-            <p>{{ $t('admin_menus.no_packages') }}</p>
+            <p>{{ i18n.t('admin_menus.no_packages') }}</p>
             <button
               @click="editPackage()"
               class="mt-3 text-rose-600 hover:text-rose-700 text-xs font-bold underline"
-            >{{ $t('admin_menus.create_first_package') }}</button>
+            >{{ i18n.t('admin_menus.create_first_package') }}</button>
           </div>
 
           <div v-else class="p-3 space-y-2 max-h-[calc(100vh-280px)] overflow-y-auto">
@@ -149,13 +149,13 @@
                       {{ typeLabel(pkg.type) }}
                     </span>
                     <span v-if="pkg.item_limit != null" class="text-[9px] font-semibold text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
-                      ≤ {{ pkg.item_limit }} {{ $t('admin_menus.items') }}
+                      ≤ {{ pkg.item_limit }} {{ i18n.t('admin_menus.items') }}
                     </span>
                     <span v-if="pkg.duration_minutes != null" class="text-[9px] font-semibold text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
-                      {{ pkg.duration_minutes }}{{ $t('admin_menus.minutes') }}
+                      {{ pkg.duration_minutes }}{{ i18n.t('admin_menus.minutes') }}
                     </span>
                     <span class="text-[9px] font-semibold text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100/60">
-                      {{ itemCountByPackage.get(pkg.id) ?? 0 }} {{ $t('admin_menus.items_in_package') }}
+                      {{ itemCountByPackage.get(pkg.id) ?? 0 }} {{ i18n.t('admin_menus.items_in_package') }}
                     </span>
                   </div>
                 </div>
@@ -168,8 +168,8 @@
                   <button
                     @click="editPackage(pkg)"
                     class="text-[10px] font-bold text-blue-600 hover:text-blue-800 px-2 py-1 rounded hover:bg-blue-50"
-                    :title="$t('admin_menus.edit_package')"
-                  >{{ $t('admin_menus.edit') }}</button>
+                    :title="i18n.t('admin_menus.edit_package')"
+                  >{{ i18n.t('admin_menus.edit') }}</button>
                 </div>
               </div>
             </article>
@@ -178,7 +178,7 @@
 
         <!-- Category legend -->
         <div class="bg-white border border-gray-200 rounded-2xl shadow-sm p-4">
-          <h4 class="text-[10px] font-black text-gray-800 uppercase tracking-wider mb-2">{{ $t('admin_menus.category_legend') }}</h4>
+          <h4 class="text-[10px] font-black text-gray-800 uppercase tracking-wider mb-2">{{ i18n.t('admin_menus.category_legend') }}</h4>
           <div class="grid grid-cols-2 gap-1.5">
             <div
               v-for="cat in categories"
@@ -204,9 +204,9 @@
         <div class="bg-white border border-gray-200 rounded-2xl shadow-sm p-3">
           <div class="flex items-center justify-between mb-2">
             <h3 class="text-xs font-black text-gray-800 uppercase tracking-wider flex items-center gap-1.5">
-              <span class="w-1.5 h-3 bg-emerald-500 rounded-full"></span>{{ $t('admin_menus.items_title') }}</h3>
+              <span class="w-1.5 h-3 bg-emerald-500 rounded-full"></span>{{ i18n.t('admin_menus.items_title') }}</h3>
             <span class="text-[10px] text-gray-400 font-bold">
-              {{ filteredMenuItems.length }} / {{ menuItems.length }} {{ $t('admin_menus.items_count') }}
+              {{ filteredMenuItems.length }} / {{ menuItems.length }} {{ i18n.t('admin_menus.items_count') }}
             </span>
           </div>
 
@@ -219,7 +219,7 @@
                   ? 'bg-gray-900 text-white border-gray-900'
                   : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
               ]"
-            >{{ $t('admin_menus.all') }}</button>
+            >{{ i18n.t('admin_menus.all') }}</button>
             <button
               v-for="cat in categories"
               :key="cat.id"
@@ -256,7 +256,7 @@
                     ? 'bg-rose-100 text-rose-700'
                     : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
                 ]"
-              >{{ $t('admin_menus.every_subcategory') }}</button>
+              >{{ i18n.t('admin_menus.every_subcategory') }}</button>
               <button
                 v-for="sub in subcategoriesForSelectedCategory"
                 :key="sub.id"
@@ -299,7 +299,7 @@
             <button
               @click="editMenuItem(undefined, cat.id)"
               class="text-[10px] font-bold text-blue-600 hover:text-blue-800 hover:bg-blue-50 px-2 py-1 rounded transition-colors"
-            >{{ $t('admin_menus.add_item') }}</button>
+            >{{ i18n.t('admin_menus.add_item') }}</button>
           </header>
 
           <!-- Items directly under category (no subcategory) -->
@@ -310,11 +310,11 @@
             <table class="w-full text-left text-sm">
               <thead class="bg-gray-50/40 text-[10px] font-black uppercase tracking-wider text-gray-500 border-b border-gray-100">
                 <tr>
-                  <th class="px-4 py-2 w-16">{{ $t('admin_menus.turn_on') }}</th>
-                  <th class="px-4 py-2">{{ $t('admin_menus.item_name') }}</th>
-                  <th class="px-4 py-2 w-24">{{ $t('admin_menus.unit') }}</th>
-                  <th class="px-4 py-2 text-right w-28">{{ $t('admin_menus.price') }}</th>
-                  <th class="px-4 py-2 text-right w-16">{{ $t('admin_menus.edit') }}</th>
+                  <th class="px-4 py-2 w-16">{{ i18n.t('admin_menus.turn_on') }}</th>
+                  <th class="px-4 py-2">{{ i18n.t('admin_menus.item_name') }}</th>
+                  <th class="px-4 py-2 w-24">{{ i18n.t('admin_menus.unit') }}</th>
+                  <th class="px-4 py-2 text-right w-28">{{ i18n.t('admin_menus.price') }}</th>
+                  <th class="px-4 py-2 text-right w-16">{{ i18n.t('admin_menus.edit') }}</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-gray-100">
@@ -352,7 +352,7 @@
                     <button
                       @click="editMenuItem(item)"
                       class="text-blue-600 hover:text-blue-800 p-1"
-                      :title="$t('admin_menus.edit_item')"
+                      :title="i18n.t('admin_menus.edit_item')"
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
                     </button>
@@ -375,7 +375,7 @@
               <button
                 @click="editMenuItem(undefined, cat.id, sub.id)"
                 class="text-[10px] font-bold text-blue-600 hover:text-blue-800 hover:bg-blue-50 px-2 py-0.5 rounded transition-colors"
-              >{{ $t('admin_menus.add') }}</button>
+              >{{ i18n.t('admin_menus.add') }}</button>
             </header>
 
             <div v-if="(itemsBySubcategoryId.get(sub.id) ?? []).length > 0" class="overflow-x-auto">
@@ -412,7 +412,7 @@
                       <button
                         @click="editMenuItem(item)"
                         class="text-blue-600 hover:text-blue-800 p-1"
-                        :title="$t('admin_menus.edit_item')"
+                        :title="i18n.t('admin_menus.edit_item')"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
                       </button>
@@ -422,14 +422,14 @@
               </table>
             </div>
 
-            <div v-else class="px-8 py-3 text-[11px] text-gray-400 italic">{{ $t('admin_menus.no_items_in_subcategory') }}</div>
+            <div v-else class="px-8 py-3 text-[11px] text-gray-400 italic">{{ i18n.t('admin_menus.no_items_in_subcategory') }}</div>
           </div>
 
           <!-- Category empty -->
           <div
             v-if="(itemsByCategoryId.get(cat.id) ?? []).length === 0"
             class="px-4 py-6 text-center text-xs text-gray-400 font-medium"
-          >{{ $t('admin_menus.no_items_in_category') }}</div>
+          >{{ i18n.t('admin_menus.no_items_in_category') }}</div>
         </div>
 
         <!-- Empty state -->
@@ -438,8 +438,8 @@
           class="bg-white border border-dashed border-gray-200 rounded-2xl p-10 text-center text-sm text-gray-400 font-medium"
         >
           <div class="text-4xl mb-2 opacity-40">🍽️</div>
-          <p v-if="searchQuery">{{ $t('admin_menus.no_items_match') }} "{{ searchQuery }}".</p>
-          <p v-else>{{ $t('admin_menus.no_categories') }}</p>
+          <p v-if="searchQuery">{{ i18n.t('admin_menus.no_items_match') }} "{{ searchQuery }}".</p>
+          <p v-else>{{ i18n.t('admin_menus.no_categories') }}</p>
         </div>
       </section>
     </div>
@@ -452,30 +452,30 @@
       <div class="bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-xl">
         <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
           <h3 class="font-bold text-lg text-gray-900">
-            {{ editingPackage.id ? $t('admin_menus.edit_package_modal') : $t('admin_menus.add_package_modal') }}
+            {{ editingPackage.id ? i18n.t('admin_menus.edit_package_modal') : i18n.t('admin_menus.add_package_modal') }}
           </h3>
           <button @click="showPackageModal = false" class="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
         </div>
         <form @submit.prevent="savePackage" class="p-6 space-y-4">
           <div>
-            <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">{{ $t('admin_menus.package_name') }}</label>
+            <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">{{ i18n.t('admin_menus.package_name') }}</label>
             <input v-model="editingPackage.name" required type="text" placeholder="VD: Set Biz 1200K"
               class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-200 focus:border-rose-400" />
           </div>
 
           <div class="grid grid-cols-2 gap-3">
             <div>
-              <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">{{ $t('admin_menus.package_type') }}</label>
+              <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">{{ i18n.t('admin_menus.package_type') }}</label>
               <select v-model="editingPackage.type" required
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-200 focus:border-rose-400">
                 <option value="buffet">Buffet</option>
                 <option value="set">Set Menu</option>
                 <option value="drink">Drink</option>
-                <option value="other">{{ $t('admin_menus.other') }}</option>
+                <option value="other">{{ i18n.t('admin_menus.other') }}</option>
               </select>
             </div>
             <div>
-              <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">{{ $t('admin_menus.price_vnd') }}</label>
+              <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">{{ i18n.t('admin_menus.price_vnd') }}</label>
               <input v-model.number="editingPackage.price" required type="number" min="0"
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-200 focus:border-rose-400" />
             </div>
@@ -483,16 +483,16 @@
 
           <div class="grid grid-cols-2 gap-3">
             <div>
-              <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">{{ $t('admin_menus.item_limit') }}</label>
+              <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">{{ i18n.t('admin_menus.item_limit') }}</label>
               <input v-model.number="editingPackage.item_limit" type="number" min="1" placeholder="VD: 20"
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-200 focus:border-rose-400" />
-              <p class="text-[10px] text-gray-400 mt-1">{{ $t('admin_menus.leave_empty_if_no_limit') }}</p>
+              <p class="text-[10px] text-gray-400 mt-1">{{ i18n.t('admin_menus.leave_empty_if_no_limit') }}</p>
             </div>
             <div>
-              <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">{{ $t('admin_menus.duration_minutes') }}</label>
+              <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">{{ i18n.t('admin_menus.duration_minutes') }}</label>
               <input v-model.number="editingPackage.duration_minutes" type="number" min="1" placeholder="VD: 120"
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-200 focus:border-rose-400" />
-              <p class="text-[10px] text-gray-400 mt-1">{{ $t('admin_menus.apply_for_buffet') }}</p>
+              <p class="text-[10px] text-gray-400 mt-1">{{ i18n.t('admin_menus.apply_for_buffet') }}</p>
             </div>
           </div>
 
@@ -501,16 +501,16 @@
               :model-value="!!editingPackage.is_active"
               @update:model-value="(v: boolean) => editingPackage.is_active = v"
             />
-            <span class="text-sm font-medium text-gray-700">{{ $t('admin_menus.is_active') }}</span>
+            <span class="text-sm font-medium text-gray-700">{{ i18n.t('admin_menus.is_active') }}</span>
           </div>
 
           <div class="pt-4 flex justify-end gap-2 border-t border-gray-100">
             <button type="button" @click="showPackageModal = false"
-              class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">{{ $t('admin_menus.cancel') }}</button>
+              class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">{{ i18n.t('admin_menus.cancel') }}</button>
             <button type="submit"
               :disabled="saving"
               class="px-4 py-2 text-sm font-bold text-white bg-gray-900 rounded-lg hover:bg-black disabled:opacity-50">
-              {{ saving ? $t('admin_menus.saving') : $t('admin_menus.save') }}
+              {{ saving ? i18n.t('admin_menus.saving') : i18n.t('admin_menus.save') }}
             </button>
           </div>
         </form>
@@ -525,30 +525,30 @@
       <div class="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-xl">
         <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50 sticky top-0 z-10">
           <h3 class="font-bold text-lg text-gray-900">
-            {{ editingMenuItem.id ? $t('admin_menus.edit_item_modal') : $t('admin_menus.add_item_modal') }}
+            {{ editingMenuItem.id ? i18n.t('admin_menus.edit_item_modal') : i18n.t('admin_menus.add_item_modal') }}
           </h3>
           <button @click="showMenuItemModal = false" class="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
         </div>
         <form @submit.prevent="saveMenuItem" class="p-6 space-y-4">
           <div>
-            <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">{{ $t('admin_menus.item_name') }}</label>
+            <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">{{ i18n.t('admin_menus.item_name') }}</label>
             <input v-model="editingMenuItem.name" required type="text" placeholder="VD: Wagyu A5"
               class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-200 focus:border-rose-400" />
           </div>
 
           <div class="grid grid-cols-2 gap-3">
             <div>
-              <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">{{ $t('admin_menus.category') }}</label>
+              <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">{{ i18n.t('admin_menus.category') }}</label>
               <select v-model="editingMenuItem.category_id" required
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-200 focus:border-rose-400">
                 <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
               </select>
             </div>
             <div>
-              <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">{{ $t('admin_menus.subcategory') }}</label>
+              <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">{{ i18n.t('admin_menus.subcategory') }}</label>
               <select v-model="editingMenuItem.subcategory_id"
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-200 focus:border-rose-400">
-                <option :value="null">{{ $t('admin_menus.none') }}</option>
+                <option :value="null">{{ i18n.t('admin_menus.none') }}</option>
                 <option v-for="sub in subcategoriesForCategory(editingMenuItem.category_id)" :key="sub.id" :value="sub.id">
                   {{ sub.name }}
                 </option>
@@ -558,12 +558,12 @@
 
           <div class="grid grid-cols-3 gap-3">
             <div class="col-span-2">
-              <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">{{ $t('admin_menus.price_vnd') }}</label>
+              <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">{{ i18n.t('admin_menus.price_vnd') }}</label>
               <input v-model.number="editingMenuItem.price" required type="number" min="0"
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-200 focus:border-rose-400" />
             </div>
             <div>
-              <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">{{ $t('admin_menus.unit') }}</label>
+              <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">{{ i18n.t('admin_menus.unit') }}</label>
               <input v-model="editingMenuItem.unit" required type="text" list="unit-suggestions"
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-200 focus:border-rose-400" />
               <datalist id="unit-suggestions">
@@ -573,15 +573,15 @@
           </div>
 
           <div>
-            <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">{{ $t('admin_menus.price_display') }}</label>
+            <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">{{ i18n.t('admin_menus.price_display') }}</label>
             <input v-model="editingMenuItem.price_display" type="text" placeholder="VD: 1.380K"
               class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-200 focus:border-rose-400" />
-            <p class="text-[10px] text-gray-400 mt-1">{{ $t('admin_menus.optional_price_display') }}</p>
+            <p class="text-[10px] text-gray-400 mt-1">{{ i18n.t('admin_menus.optional_price_display') }}</p>
           </div>
 
           <div>
-            <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">{{ $t('admin_menus.description') }}</label>
-            <textarea v-model="editingMenuItem.description" rows="2" :placeholder="$t('admin_menus.short_description')"
+            <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">{{ i18n.t('admin_menus.description') }}</label>
+            <textarea v-model="editingMenuItem.description" rows="2" :placeholder="i18n.t('admin_menus.short_description')"
               class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-200 focus:border-rose-400"></textarea>
           </div>
 
@@ -590,16 +590,16 @@
               :model-value="!!editingMenuItem.is_available"
               @update:model-value="(v: boolean) => editingMenuItem.is_available = v"
             />
-            <span class="text-sm font-medium text-gray-700">{{ $t('admin_menus.is_selling') }}</span>
+            <span class="text-sm font-medium text-gray-700">{{ i18n.t('admin_menus.is_selling') }}</span>
           </div>
 
           <div class="pt-4 flex justify-end gap-2 border-t border-gray-100">
             <button type="button" @click="showMenuItemModal = false"
-              class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">{{ $t('admin_menus.cancel') }}</button>
+              class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">{{ i18n.t('admin_menus.cancel') }}</button>
             <button type="submit"
               :disabled="saving"
               class="px-4 py-2 text-sm font-bold text-white bg-gray-900 rounded-lg hover:bg-black disabled:opacity-50">
-              {{ saving ? $t('admin_menus.saving') : $t('admin_menus.save') }}
+              {{ saving ? i18n.t('admin_menus.saving') : i18n.t('admin_menus.save') }}
             </button>
           </div>
         </form>
@@ -609,8 +609,10 @@
 </template>
 
 <script setup lang="ts">
+import { useI18nStore } from '@/stores/i18n'
+
+const i18n = useI18nStore()
 import { ref, computed, onMounted } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/composables/useAuth'
 import type {
@@ -619,7 +621,6 @@ import type {
 import ToggleSwitch from '@/components/ToggleSwitch.vue'
 import Swal from 'sweetalert2'
 
-const { t } = useI18n()
 const { branchId } = useAuth()
 
 // ── State ─────────────────────────────────────────────────────────────────
@@ -823,7 +824,7 @@ async function fetchMenus() {
   } catch (err: any) {
     console.error('[AdminMenusView] fetch failed:', err)
     Swal.fire({
-      title: t('admin_menus.cannot_load_data'),
+      title: i18n.t('admin_menus.cannot_load_data'),
       text: err?.message ?? String(err),
       icon: 'error',
       confirmButtonColor: '#FF672E',
@@ -884,7 +885,7 @@ async function savePackage() {
     await fetchMenus()
   } catch (e: any) {
     console.error('[AdminMenusView] savePackage failed:', e)
-    Swal.fire(t('admin_menus.error'), t('admin_menus.cannot_save_package') + (e?.message ?? String(e)), 'error')
+    Swal.fire(i18n.t('admin_menus.error'), i18n.t('admin_menus.cannot_save_package') + (e?.message ?? String(e)), 'error')
   } finally {
     saving.value = false
   }
@@ -947,7 +948,7 @@ async function saveMenuItem() {
     await fetchMenus()
   } catch (e: any) {
     console.error('[AdminMenusView] saveMenuItem failed:', e)
-    Swal.fire(t('admin_menus.error'), t('admin_menus.cannot_save_item') + (e?.message ?? String(e)), 'error')
+    Swal.fire(i18n.t('admin_menus.error'), i18n.t('admin_menus.cannot_save_item') + (e?.message ?? String(e)), 'error')
   } finally {
     saving.value = false
   }
@@ -961,7 +962,7 @@ async function togglePackageActive(pkg: Package, newVal: boolean) {
   } catch (e) {
     console.error('[AdminMenusView] togglePackageActive failed:', e)
     pkg.is_active = !newVal
-    Swal.fire(t('admin_menus.error'), t('admin_menus.cannot_update_package_status'), 'error')
+    Swal.fire(i18n.t('admin_menus.error'), i18n.t('admin_menus.cannot_update_package_status'), 'error')
   }
 }
 
@@ -973,7 +974,7 @@ async function toggleMenuItemAvailable(item: MenuItem, newVal: boolean) {
   } catch (e) {
     console.error('[AdminMenusView] toggleMenuItemAvailable failed:', e)
     item.is_available = !newVal
-    Swal.fire(t('admin_menus.error'), t('admin_menus.cannot_update_item_status'), 'error')
+    Swal.fire(i18n.t('admin_menus.error'), i18n.t('admin_menus.cannot_update_item_status'), 'error')
   }
 }
 </script>

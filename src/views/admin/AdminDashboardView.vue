@@ -3,8 +3,8 @@
 
     <!-- Header -->
     <div>
-      <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">{{ t('auto_t_ng_quan_h__th_ng') }}</h1>
-      <p class="text-sm text-gray-500 mt-1">{{ t('auto_tr_ng_th_i_ho_t___ng_c_a_h__th') }}</p>
+      <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">{{ i18n.t('auto_t_ng_quan_h__th_ng') }}</h1>
+      <p class="text-sm text-gray-500 mt-1">{{ i18n.t('auto_tr_ng_th_i_ho_t___ng_c_a_h__th') }}</p>
     </div>
 
     <!-- Loading State -->
@@ -22,12 +22,12 @@
             <div class="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center shadow-inner">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
             </div>
-            <span class="text-sm font-semibold text-gray-500 uppercase tracking-wider">{{ t('auto_doanh_thu_t_ng') }}</span>
+            <span class="text-sm font-semibold text-gray-500 uppercase tracking-wider">{{ i18n.t('auto_doanh_thu_t_ng') }}</span>
           </div>
           <div class="text-3xl font-black text-gray-900">{{ formatCurrency(stats.totalRevenue) }}</div>
           <p class="text-xs text-green-600 font-medium mt-2 flex items-center gap-1">
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg>
-            {{ t('auto_t_h_a_n') }}
+            {{ i18n.t('auto_t_h_a_n') }}
           </p>
         </div>
 
@@ -37,12 +37,12 @@
             <div class="w-12 h-12 rounded-full bg-green-100 text-green-600 flex items-center justify-center shadow-inner">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
             </div>
-            <span class="text-sm font-semibold text-gray-500 uppercase tracking-wider">{{ t('auto_t_ng_chi') }}</span>
+            <span class="text-sm font-semibold text-gray-500 uppercase tracking-wider">{{ i18n.t('auto_t_ng_chi') }}</span>
           </div>
           <div class="text-3xl font-black text-gray-900">{{ formatCurrency(stats.totalPayments) }}</div>
           <p class="text-xs text-blue-600 font-medium mt-2 flex items-center gap-1">
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg>
-            {{ t('auto_ph_i_tr_ncc') }}
+            {{ i18n.t('auto_ph_i_tr_ncc') }}
           </p>
         </div>
 
@@ -52,11 +52,11 @@
             <div class="w-12 h-12 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center shadow-inner">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             </div>
-            <span class="text-sm font-semibold text-gray-500 uppercase tracking-wider">{{ t('auto_l_ng_nh_n_s_') }}</span>
+            <span class="text-sm font-semibold text-gray-500 uppercase tracking-wider">{{ i18n.t('auto_l_ng_nh_n_s_') }}</span>
           </div>
           <div class="text-3xl font-black text-gray-900">{{ formatCurrency(stats.totalStaffCosts) }}</div>
           <p class="text-xs text-gray-500 font-medium mt-2 flex items-center gap-1">
-            {{ t('auto_t_m_t_nh_theo_ca') }}
+            {{ i18n.t('auto_t_m_t_nh_theo_ca') }}
           </p>
         </div>
 
@@ -66,13 +66,13 @@
             <div class="w-12 h-12 rounded-full flex items-center justify-center shadow-inner" :class="stats.profit >= 0 ? 'bg-emerald-100 text-emerald-600' : 'bg-red-100 text-red-600'">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
             </div>
-            <span class="text-sm font-semibold text-gray-500 uppercase tracking-wider">{{ t('auto_l_i_nhu_n') }}</span>
+            <span class="text-sm font-semibold text-gray-500 uppercase tracking-wider">{{ i18n.t('auto_l_i_nhu_n') }}</span>
           </div>
           <div class="text-3xl font-black text-gray-900" :class="stats.profit >= 0 ? 'text-green-600' : 'text-red-600'">
             {{ formatCurrency(stats.profit) }}
           </div>
           <p class="text-xs font-medium mt-2 flex items-center gap-1" :class="stats.profit >= 0 ? 'text-green-600' : 'text-red-600'">
-            {{ t('auto_doanh_thu_chi_ph_') }}
+            {{ i18n.t('auto_doanh_thu_chi_ph_') }}
           </p>
         </div>
       </div>
@@ -80,8 +80,8 @@
       <!-- Recent Audit Logs -->
       <div class="bg-white border border-gray-200 rounded-3xl shadow-sm overflow-hidden mt-8">
         <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-          <h3 class="font-extrabold text-gray-900 text-lg">{{ t('auto_nh_t_k__ho_t___ng_m_i_nh_t') }}</h3>
-          <RouterLink to="/admin/audit" class="text-sm font-bold text-blue-600 hover:text-blue-800 transition-colors bg-blue-50 px-4 py-2 rounded-full">{{ t('auto_xem_t_t_c_') }}</RouterLink>
+          <h3 class="font-extrabold text-gray-900 text-lg">{{ i18n.t('auto_nh_t_k__ho_t___ng_m_i_nh_t') }}</h3>
+          <RouterLink to="/admin/audit" class="text-sm font-bold text-blue-600 hover:text-blue-800 transition-colors bg-blue-50 px-4 py-2 rounded-full">{{ i18n.t('auto_xem_t_t_c_') }}</RouterLink>
         </div>
         <div class="overflow-x-auto">
           <table class="w-full text-left text-sm">
@@ -125,12 +125,13 @@
 </template>
 
 <script setup lang="ts">
+import { useI18nStore } from '@/stores/i18n'
+
+const i18n = useI18nStore()
 import { ref, onMounted } from 'vue';
-import { useI18n } from 'vue-i18n';
 import { supabase } from '@/lib/supabase';
 import type { AuditEvent } from '@/types/database';
 
-const { t } = useI18n();
 
 const isLoading = ref(true);
 

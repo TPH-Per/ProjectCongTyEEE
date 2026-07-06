@@ -33,10 +33,12 @@ withDefaults(
     gradient?: boolean
     /** Force solid navy color (overrides `gradient`). */
     mono?: boolean
+    /** Force gold/luxurious color */
+    gold?: boolean
     /** Text alignment. */
     align?: 'left' | 'center' | 'right'
   }>(),
-  { size: 'md', tagline: false, gradient: false, mono: false, align: 'left' },
+  { size: 'md', tagline: false, gradient: false, mono: false, gold: false, align: 'left' },
 )
 </script>
 
@@ -49,6 +51,7 @@ withDefaults(
       class="text-logo__word"
       :class="[
         mono ? 'text-logo__word--mono'
+             : gold ? 'text-logo__word--gold'
              : gradient ? 'text-logo__word--gradient' : 'text-logo__word--solid',
       ]"
     >
@@ -125,6 +128,14 @@ withDefaults(
 }
 .text-logo__word--mono {
   color: #2C3E50;
+}
+.text-logo__word--gold {
+  background: linear-gradient(135deg, #FCD973 0%, #D4AF37 50%, #AA7C11 100%);
+  -webkit-background-clip: text;
+          background-clip: text;
+  -webkit-text-fill-color: transparent;
+          color: transparent;
+  text-shadow: 0 2px 10px rgba(212, 175, 55, 0.3);
 }
 
 /* ----------------------------------------------------------------------- *

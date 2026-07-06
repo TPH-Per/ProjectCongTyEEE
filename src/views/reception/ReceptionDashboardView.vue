@@ -16,15 +16,13 @@
       
       <div class="flex items-center gap-3">
         <div class="bg-gray-100 px-4 py-2 rounded-xl text-center border">
-          <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Chi nhánh</div>
+          <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{{ t('reception.branch') }}</div>
           <div class="text-sm font-extrabold text-[#3D2817]">{{ activeBranchName }}</div>
         </div>
         <div class="bg-green-50 px-4 py-2 rounded-xl text-center border border-green-200">
-          <div class="text-[10px] font-bold text-green-500 uppercase tracking-wider">Hệ thống</div>
+          <div class="text-[10px] font-bold text-green-500 uppercase tracking-wider">{{ t('reception.system') }}</div>
           <div class="text-sm font-extrabold text-green-700 flex items-center gap-1">
-            <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-            Kết nối
-          </div>
+            <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>{{ t('reception.connection') }}</div>
         </div>
       </div>
     </div>
@@ -32,7 +30,7 @@
     <!-- Error Banner -->
     <div v-if="error" class="mb-6 p-4 text-sm text-red-700 bg-red-50 border border-red-200 rounded-xl flex items-center justify-between">
       <span>{{ error }}</span>
-      <button @click="error = null" class="text-red-700 font-bold hover:underline">Đóng</button>
+      <button @click="error = null" class="text-red-700 font-bold hover:underline">{{ t('reception.close') }}</button>
     </div>
 
     <!-- Active Shift Alert -->
@@ -40,9 +38,8 @@
       <div class="flex items-center gap-3">
         <div class="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse"></div>
         <div>
-          <div class="text-xs font-bold text-green-700 uppercase tracking-wide">Ca làm việc đang mở</div>
-          <div class="text-sm text-green-800 mt-0.5">
-            Bắt đầu lúc: <b class="font-mono">{{ formatDateTime(activeShift.opened_at) }}</b> — 
+          <div class="text-xs font-bold text-green-700 uppercase tracking-wide">{{ t('reception.open_shift') }}</div>
+          <div class="text-sm text-green-800 mt-0.5">{{ t('reception.started_at') }}<b class="font-mono">{{ formatDateTime(activeShift.opened_at) }}</b> — 
             Số dư đầu ca: <b>{{ Number(activeShift.opening_cash || 0).toLocaleString('vi-VN') }}đ</b>
           </div>
         </div>
@@ -50,24 +47,20 @@
       <RouterLink
         to="/reception/close-shift"
         class="bg-green-600 hover:bg-green-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-colors shadow-sm"
-      >
-        Chi tiết ca
-      </RouterLink>
+      >{{ t('reception.shift_details') }}</RouterLink>
     </div>
     <div v-else class="mb-6 rounded-xl border-2 border-yellow-200 bg-yellow-50 p-4 flex items-center justify-between shadow-sm">
       <div class="flex items-center gap-3">
         <div class="w-2.5 h-2.5 rounded-full bg-yellow-500 animate-pulse"></div>
         <div>
-          <div class="text-xs font-bold text-yellow-700 uppercase tracking-wide">Chưa mở ca làm việc</div>
-          <div class="text-sm text-yellow-800 mt-0.5">Vui lòng mở ca làm việc để thực hiện thanh toán và theo dõi ca.</div>
+          <div class="text-xs font-bold text-yellow-700 uppercase tracking-wide">{{ t('reception.no_open_shift') }}</div>
+          <div class="text-sm text-yellow-800 mt-0.5">{{ t('reception.please_open_shift') }}</div>
         </div>
       </div>
       <RouterLink
         to="/reception/close-shift"
         class="bg-yellow-600 hover:bg-yellow-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-colors shadow-sm"
-      >
-        Mở ca
-      </RouterLink>
+      >{{ t('reception.open_shift_btn') }}</RouterLink>
     </div>
 
     <!-- Main Grid Layout -->
@@ -84,7 +77,7 @@
             class="bg-white border border-[#E8772E]/10 rounded-2xl p-5 shadow-sm hover:shadow-md hover:scale-[1.02] cursor-pointer transition-all duration-200 flex items-center justify-between"
           >
             <div>
-              <div class="text-xs font-bold text-gray-500 uppercase tracking-wide">Bàn đang dùng</div>
+              <div class="text-xs font-bold text-gray-500 uppercase tracking-wide">{{ t('reception.tables_in_use') }}</div>
               <div class="text-3xl font-black text-[#E8772E] mt-1">{{ diningTables.length }}</div>
               <div class="text-xs text-green-600 flex items-center gap-1 mt-1 font-bold">
                 <TrendingUp class="w-3.5 h-3.5" />
@@ -102,7 +95,7 @@
             class="bg-white border border-[#E8772E]/10 rounded-2xl p-5 shadow-sm hover:shadow-md hover:scale-[1.02] cursor-pointer transition-all duration-200 flex items-center justify-between"
           >
             <div>
-              <div class="text-xs font-bold text-gray-500 uppercase tracking-wide">Chờ thanh toán</div>
+              <div class="text-xs font-bold text-gray-500 uppercase tracking-wide">{{ t('reception.waiting_payment') }}</div>
               <div class="text-3xl font-black text-red-600 mt-1">{{ pendingPaymentsCount }}</div>
               <div class="text-xs text-red-500 mt-1 font-bold">
                 Tạm tính: {{ pendingPaymentsAmount.toLocaleString('vi-VN') }}đ
@@ -119,7 +112,7 @@
             class="bg-white border border-[#E8772E]/10 rounded-2xl p-5 shadow-sm hover:shadow-md hover:scale-[1.02] cursor-pointer transition-all duration-200 flex items-center justify-between"
           >
             <div>
-              <div class="text-xs font-bold text-gray-500 uppercase tracking-wide">Đặt bàn hôm nay</div>
+              <div class="text-xs font-bold text-gray-500 uppercase tracking-wide">{{ t('reception.reservations_today') }}</div>
               <div class="text-3xl font-black text-blue-600 mt-1">{{ reservations.length }}</div>
               <div class="text-xs text-blue-500 mt-1 font-bold">
                 Sắp tới: {{ upcomingBookingsCount }} đặt bàn
@@ -134,9 +127,7 @@
         <!-- Quick Action Buttons -->
         <div class="bg-white border border-[#E8772E]/10 rounded-2xl p-6 shadow-sm">
           <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4 flex items-center gap-2">
-            <Briefcase class="w-4 h-4 text-[#E8772E]" />
-            Chức năng nhanh
-          </h3>
+            <Briefcase class="w-4 h-4 text-[#E8772E]" />{{ t('reception.quick_actions') }}</h3>
           
           <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
             <!-- Nhóm Bán hàng -->
@@ -147,7 +138,7 @@
               <div class="w-10 h-10 rounded-full bg-[#E8772E] text-white flex items-center justify-center shadow-md">
                 <Utensils class="w-5 h-5" />
               </div>
-              <span class="text-xs font-bold text-[#E8772E]">Nhà hàng</span>
+              <span class="text-xs font-bold text-[#E8772E]">{{ t('reception.restaurant') }}</span>
             </button>
 
             <!-- Nhóm Nghiệp vụ khác -->
@@ -158,7 +149,7 @@
               <div class="w-10 h-10 rounded-full bg-[#4CAF50] text-white flex items-center justify-center shadow-md">
                 <BadgePlus class="w-5 h-5" />
               </div>
-              <span class="text-xs font-bold text-green-700">Thu khác</span>
+              <span class="text-xs font-bold text-green-700">{{ t('reception.other_income_short') }}</span>
             </button>
 
             <button 
@@ -168,7 +159,7 @@
               <div class="w-10 h-10 rounded-full bg-[#F44336] text-white flex items-center justify-center shadow-md">
                 <BadgeMinus class="w-5 h-5" />
               </div>
-              <span class="text-xs font-bold text-red-600">Chi khác</span>
+              <span class="text-xs font-bold text-red-600">{{ t('reception.other_expenses') }}</span>
             </button>
 
             <button 
@@ -178,7 +169,7 @@
               <div class="w-10 h-10 rounded-full bg-[#9C27B0] text-white flex items-center justify-center shadow-md">
                 <Settings class="w-5 h-5" />
               </div>
-              <span class="text-xs font-bold text-purple-700">Cấu hình</span>
+              <span class="text-xs font-bold text-purple-700">{{ t('reception.configuration') }}</span>
             </button>
 
             <!-- Nhóm Quản trị -->
@@ -189,7 +180,7 @@
               <div class="w-10 h-10 rounded-full bg-[#FF9800] text-white flex items-center justify-center shadow-md">
                 <Receipt class="w-5 h-5" />
               </div>
-              <span class="text-xs font-bold text-yellow-700">Phiếu</span>
+              <span class="text-xs font-bold text-yellow-700">{{ t('reception.receipt') }}</span>
             </button>
 
             <button 
@@ -199,7 +190,7 @@
               <div class="w-10 h-10 rounded-full bg-[#FFB74D] text-white flex items-center justify-center shadow-md">
                 <BarChart3 class="w-5 h-5" />
               </div>
-              <span class="text-xs font-bold text-orange-700">Báo cáo</span>
+              <span class="text-xs font-bold text-orange-700">{{ t('reception.reports') }}</span>
             </button>
 
             <!-- Ra ca -->
@@ -219,9 +210,7 @@
         <div class="bg-white border border-[#E8772E]/10 rounded-2xl p-6 shadow-sm">
           <div class="flex items-center justify-between border-b pb-3 mb-4">
             <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wider flex items-center gap-2">
-              <Clock class="w-4 h-4 text-[#8E24AA]" />
-              Tổng kết ca hiện tại
-            </h3>
+              <Clock class="w-4 h-4 text-[#8E24AA]" />{{ t('reception.current_shift_summary') }}</h3>
             <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-purple-100 text-purple-700 uppercase">
               {{ shiftTimeIndicator }}
             </span>
@@ -229,34 +218,30 @@
 
           <div class="grid grid-cols-2 md:grid-cols-4 gap-4" v-if="activeShift">
             <div class="p-3 bg-gray-50 rounded-xl border border-gray-100 text-center">
-              <div class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Thời gian bắt đầu</div>
+              <div class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">{{ t('reception.start_time') }}</div>
               <div class="text-sm font-extrabold text-[#3D2817] mt-1">{{ formatDateTime(activeShift.opened_at) }}</div>
             </div>
             <div class="p-3 bg-gray-50 rounded-xl border border-gray-100 text-center">
-              <div class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Số dư đầu ca</div>
+              <div class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">{{ t('reception.opening_balance') }}</div>
               <div class="text-sm font-mono font-black text-gray-700 mt-1">{{ Number(activeShift.opening_cash || 0).toLocaleString('vi-VN') }}đ</div>
             </div>
             <div class="p-3 bg-green-50 border border-green-200 rounded-xl text-center">
-              <div class="text-[10px] text-green-500 font-bold uppercase tracking-wider">Doanh thu hiện tại</div>
+              <div class="text-[10px] text-green-500 font-bold uppercase tracking-wider">{{ t('reception.current_revenue') }}</div>
               <div class="text-sm font-mono font-black text-green-700 mt-1">{{ shiftRevenue.toLocaleString('vi-VN') }}đ</div>
             </div>
             <div class="p-3 bg-blue-50 border border-blue-200 rounded-xl text-center">
-              <div class="text-[10px] text-blue-500 font-bold uppercase tracking-wider">Đơn hàng đã xử lý</div>
+              <div class="text-[10px] text-blue-500 font-bold uppercase tracking-wider">{{ t('reception.processed_orders') }}</div>
               <div class="text-sm font-black text-blue-700 mt-1">{{ shiftOrdersCount }} đơn</div>
             </div>
           </div>
-          <div v-else class="text-sm text-gray-400 text-center py-4">
-            Không có ca nào đang hoạt động.
-          </div>
+          <div v-else class="text-sm text-gray-400 text-center py-4">{{ t('reception.no_active_shifts') }}</div>
         </div>
 
         <!-- Active Tables List -->
         <div id="active-tables-section" class="bg-white border border-[#E8772E]/10 rounded-2xl shadow-sm overflow-hidden">
           <div class="bg-gray-50 px-6 py-4 border-b flex items-center justify-between">
             <h3 class="font-extrabold text-[#3D2817] text-base flex items-center gap-2">
-              <Utensils class="w-5 h-5 text-[#E8772E]" />
-              Danh sách bàn đang phục vụ
-            </h3>
+              <Utensils class="w-5 h-5 text-[#E8772E]" />{{ t('reception.serving_tables_list') }}</h3>
             <span class="bg-[#E8772E]/10 text-[#E8772E] px-2.5 py-1 rounded-full text-xs font-black">
               {{ diningTables.length }} bàn
             </span>
@@ -267,11 +252,11 @@
               <thead>
                 <tr class="bg-gray-50/50 border-b">
                   <th class="py-3 px-6 text-xs font-bold text-gray-500 uppercase">Bàn</th>
-                  <th class="py-3 px-6 text-xs font-bold text-gray-500 uppercase">Số khách</th>
-                  <th class="py-3 px-6 text-xs font-bold text-gray-500 uppercase">Thời gian ngồi</th>
-                  <th class="py-3 px-6 text-xs font-bold text-gray-500 uppercase">Món đã order</th>
+                  <th class="py-3 px-6 text-xs font-bold text-gray-500 uppercase">{{ t('reception.guests') }}</th>
+                  <th class="py-3 px-6 text-xs font-bold text-gray-500 uppercase">{{ t('reception.seated_time') }}</th>
+                  <th class="py-3 px-6 text-xs font-bold text-gray-500 uppercase">{{ t('reception.ordered_items') }}</th>
                   <th class="py-3 px-6 text-xs font-bold text-gray-500 uppercase text-right">Tổng tiền</th>
-                  <th class="py-3 px-6 text-xs font-bold text-gray-500 uppercase text-center">Hành động</th>
+                  <th class="py-3 px-6 text-xs font-bold text-gray-500 uppercase text-center">{{ t('reception.action_col') }}</th>
                 </tr>
               </thead>
               <tbody class="text-sm divide-y">
@@ -299,11 +284,11 @@
                     </span>
                   </td>
                   <td class="py-4 px-6 text-gray-600 font-semibold">
-                    <span v-if="loadingDetails" class="text-xs text-gray-400">Đang tải...</span>
+                    <span v-if="loadingDetails" class="text-xs text-gray-400">{{ t('reception.loading') }}</span>
                     <span v-else>{{ getTableItemsCount(table.id) }} món</span>
                   </td>
                   <td class="py-4 px-6 text-right font-black text-[#3D2817]">
-                    <span v-if="loadingDetails" class="text-xs text-gray-400">Đang tải...</span>
+                    <span v-if="loadingDetails" class="text-xs text-gray-400">{{ t('reception.loading') }}</span>
                     <span v-else>{{ getTableTotal(table.id).toLocaleString('vi-VN') }}đ</span>
                   </td>
                   <td class="py-4 px-6 text-center">
@@ -318,16 +303,12 @@
                       <RouterLink
                         :to="`/reception/checkout/${table.id}`"
                         class="px-3 py-1.5 rounded-lg bg-[#E8772E] hover:bg-[#d0621f] text-white text-xs font-bold transition-all flex items-center gap-1 shadow-md hover:shadow-lg"
-                      >
-                        Thanh toán
-                      </RouterLink>
+                      >{{ t('reception.payment') }}</RouterLink>
                     </div>
                   </td>
                 </tr>
                 <tr v-if="diningTables.length === 0">
-                  <td colspan="6" class="py-8 text-center text-gray-400">
-                    Không có bàn nào đang hoạt động.
-                  </td>
+                  <td colspan="6" class="py-8 text-center text-gray-400">{{ t('reception.no_active_tables') }}</td>
                 </tr>
               </tbody>
             </table>
@@ -338,9 +319,7 @@
         <div id="reservations-section" class="bg-white border border-[#E8772E]/10 rounded-2xl shadow-sm overflow-hidden">
           <div class="bg-gray-50 px-6 py-4 border-b flex items-center justify-between">
             <h3 class="font-extrabold text-[#3D2817] text-base flex items-center gap-2">
-              <Calendar class="w-5 h-5 text-blue-500" />
-              Đặt bàn hôm nay
-            </h3>
+              <Calendar class="w-5 h-5 text-blue-500" />{{ t('reception.reservations_today') }}</h3>
             <span class="bg-blue-100 text-blue-700 px-2.5 py-1 rounded-full text-xs font-black">
               {{ reservations.length }} đặt bàn
             </span>
@@ -350,12 +329,12 @@
             <table class="w-full text-left border-collapse">
               <thead>
                 <tr class="bg-gray-50/50 border-b">
-                  <th class="py-3 px-6 text-xs font-bold text-gray-500 uppercase">Mã đặt bàn</th>
-                  <th class="py-3 px-6 text-xs font-bold text-gray-500 uppercase">Khách hàng & SĐT</th>
-                  <th class="py-3 px-6 text-xs font-bold text-gray-500 uppercase">Giờ đặt</th>
-                  <th class="py-3 px-6 text-xs font-bold text-gray-500 uppercase">Số người</th>
-                  <th class="py-3 px-6 text-xs font-bold text-gray-500 uppercase">Trạng thái</th>
-                  <th class="py-3 px-6 text-xs font-bold text-gray-500 uppercase text-center">Hành động</th>
+                  <th class="py-3 px-6 text-xs font-bold text-gray-500 uppercase">{{ t('reception.reservation_code') }}</th>
+                  <th class="py-3 px-6 text-xs font-bold text-gray-500 uppercase">{{ t('reception.customer_phone') }}</th>
+                  <th class="py-3 px-6 text-xs font-bold text-gray-500 uppercase">{{ t('reception.reserved_time') }}</th>
+                  <th class="py-3 px-6 text-xs font-bold text-gray-500 uppercase">{{ t('reception.number_of_people') }}</th>
+                  <th class="py-3 px-6 text-xs font-bold text-gray-500 uppercase">{{ t('reception.status') }}</th>
+                  <th class="py-3 px-6 text-xs font-bold text-gray-500 uppercase text-center">{{ t('reception.action_col') }}</th>
                 </tr>
               </thead>
               <tbody class="text-sm divide-y">
@@ -391,26 +370,18 @@
                         @click="handleConfirmBooking(res)"
                         class="px-2.5 py-1.5 rounded-lg bg-green-50 hover:bg-green-100 text-green-700 text-xs font-bold transition-all flex items-center gap-1 border border-green-200"
                       >
-                        <CheckCircle class="w-3.5 h-3.5" />
-                        Xác nhận
-                      </button>
+                        <CheckCircle class="w-3.5 h-3.5" />{{ t('reception.confirm') }}</button>
                       <button
                         @click="handleCancelBooking(res)"
                         class="px-2.5 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-700 text-xs font-bold transition-all flex items-center gap-1 border border-red-200"
                       >
-                        <XCircle class="w-3.5 h-3.5" />
-                        Hủy
-                      </button>
+                        <XCircle class="w-3.5 h-3.5" />{{ t('reception.cancel') }}</button>
                     </div>
-                    <div class="text-xs text-gray-400 font-bold" v-else>
-                      Không có thao tác
-                    </div>
+                    <div class="text-xs text-gray-400 font-bold" v-else>{{ t('reception.no_action') }}</div>
                   </td>
                 </tr>
                 <tr v-if="reservations.length === 0">
-                  <td colspan="6" class="py-8 text-center text-gray-400">
-                    Không có lịch đặt bàn nào hôm nay.
-                  </td>
+                  <td colspan="6" class="py-8 text-center text-gray-400">{{ t('reception.no_reservations_today') }}</td>
                 </tr>
               </tbody>
             </table>
@@ -436,7 +407,7 @@
                   {{ unreadCount }}
                 </span>
               </div>
-              <span class="font-extrabold text-[#3D2817] text-sm">Thông báo</span>
+              <span class="font-extrabold text-[#3D2817] text-sm">{{ t('reception.notifications') }}</span>
             </div>
             <button 
               @click="toggleExpandNotifs"
@@ -477,9 +448,7 @@
                 <span 
                   v-if="notif.priority === 'high'"
                   class="bg-red-100 text-red-700 text-[8px] font-black uppercase px-1 rounded border border-red-200"
-                >
-                  Khẩn
-                </span>
+                >{{ t('reception.urgent') }}</span>
               </div>
 
               <!-- Message body -->
@@ -501,15 +470,11 @@
                   v-if="!notif.isRead"
                   @click.stop="handleMarkRead(notif.id)"
                   class="text-[9px] font-bold text-[#E8772E] hover:underline"
-                >
-                  Đã đọc
-                </button>
+                >{{ t('reception.read') }}</button>
               </div>
             </div>
 
-            <div v-if="visibleNotifications.length === 0" class="text-center text-gray-400 py-10 text-xs">
-              Không có thông báo nào.
-            </div>
+            <div v-if="visibleNotifications.length === 0" class="text-center text-gray-400 py-10 text-xs">{{ t('reception.no_notifications') }}</div>
           </div>
         </div>
 
@@ -523,7 +488,7 @@
         <div class="other-income-modal w-full max-w-[600px] bg-white rounded-2xl overflow-hidden shadow-2xl border border-gray-100 text-[#333333]">
           <!-- Header -->
           <div class="modal-header bg-[#1a5276] text-white p-4 flex items-center justify-between">
-            <h2 class="text-base font-black uppercase tracking-wide">Thu khác</h2>
+            <h2 class="text-base font-black uppercase tracking-wide">{{ t('reception.other_income_short') }}</h2>
             <button @click="showOtherIncomeModal = false" class="text-white/80 hover:text-white transition-colors" type="button">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -556,7 +521,7 @@
                   v-model="form.object" 
                   type="text" 
                   class="form-input flex-1 px-3 py-2 border border-gray-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-[#E8772E]/10" 
-                  placeholder="Nhập tên đối tượng..."
+                  :placeholder="t('reception.enter_target_name')"
                   required
                 />
                 <button type="button" @click="triggerSelectObject" class="btn-browse px-3 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-300 text-xs font-bold text-gray-700 rounded-lg active:scale-95 transition-all">...</button>
@@ -581,7 +546,7 @@
                 <select v-model="form.incomeItem" class="form-select w-full px-3 py-2 border border-gray-300 rounded-lg text-xs focus:outline-none" required>
                   <option value="withdraw">Rút tiền dư</option>
                   <option value="adjustment">Điều chỉnh</option>
-                  <option value="other">Khác</option>
+                  <option value="other">{{ t('reception.other') }}</option>
                 </select>
               </div>
             </div>
@@ -604,13 +569,13 @@
 
             <!-- Lý do -->
             <div class="form-row flex flex-col gap-1">
-              <label class="text-xs font-bold text-gray-600">Lý do</label>
+              <label class="text-xs font-bold text-gray-600">{{ t('reception.reason') }}</label>
               <div class="input-with-button flex items-center gap-1.5">
                 <input 
                   v-model="form.reason" 
                   type="text" 
                   class="form-input flex-1 px-3 py-2 border border-gray-300 rounded-lg text-xs focus:outline-none" 
-                  placeholder="Nhập lý do thu tiền..."
+                  :placeholder="t('reception.enter_reason')"
                 />
                 <button type="button" class="btn-browse px-3 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-300 text-xs font-bold text-gray-700 rounded-lg active:scale-95 transition-all">...</button>
               </div>
@@ -625,7 +590,7 @@
                   v-model="form.voucherNumber" 
                   type="text" 
                   class="form-input w-full px-3 py-2 border border-gray-300 rounded-lg text-xs focus:outline-none" 
-                  placeholder="Hệ thống tự động phát sinh"
+                  :placeholder="t('reception.auto_generated')"
                 />
               </div>
 
@@ -636,7 +601,7 @@
                   v-model="form.bookingCode" 
                   type="text" 
                   class="form-input w-full px-3 py-2 border border-gray-300 rounded-lg text-xs focus:outline-none" 
-                  placeholder="Nhập mã đặt chỗ (nếu có)"
+                  :placeholder="t('reception.enter_booking_code')"
                 />
               </div>
             </div>
@@ -649,7 +614,7 @@
                 id="isCash" 
                 class="w-4.5 h-4.5 accent-[#E8772E] cursor-pointer"
               />
-              <label for="isCash" class="text-xs font-bold text-gray-700 cursor-pointer">Tiền mặt</label>
+              <label for="isCash" class="text-xs font-bold text-gray-700 cursor-pointer">{{ t('reception.cash') }}</label>
             </div>
           </form>
 
@@ -659,23 +624,17 @@
               type="button" 
               class="btn btn-save-print px-4 py-2 bg-[#4CAF50] hover:bg-[#43A047] text-white text-xs font-extrabold rounded-lg shadow transition-all active:scale-95 flex items-center gap-1.5"
               @click="handleSaveAndPrint"
-            >
-              🖨️ Lưu và in
-            </button>
+            >{{ t('reception.save_and_print') }}</button>
             <button 
               type="button" 
               class="btn btn-save px-4 py-2 bg-[#FF9800] hover:bg-[#F57C00] text-white text-xs font-extrabold rounded-lg shadow transition-all active:scale-95"
               @click="handleSave"
-            >
-              💾 Lưu
-            </button>
+            >{{ t('reception.save') }}</button>
             <button 
               type="button" 
               class="btn btn-cancel px-4 py-2 bg-[#F44336] hover:bg-[#E53935] text-white text-xs font-extrabold rounded-lg shadow transition-all active:scale-95"
               @click="showOtherIncomeModal = false"
-            >
-              ✕ Bỏ qua
-            </button>
+            >{{ t('reception.skip') }}</button>
           </div>
         </div>
       </div>
@@ -687,7 +646,7 @@
         <div class="settings-modal w-full max-w-[500px] bg-white rounded-2xl overflow-hidden shadow-2xl border border-gray-100 text-[#333333]">
           <!-- Header -->
           <div class="modal-header bg-[#1a5276] text-white p-4 flex items-center justify-between">
-            <h2 class="text-base font-black uppercase tracking-wide">Cấu hình</h2>
+            <h2 class="text-base font-black uppercase tracking-wide">{{ t('reception.configuration') }}</h2>
             <button @click="showSettingsModal = false" class="text-white/80 hover:text-white transition-colors" type="button">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -700,13 +659,13 @@
           <div class="modal-content p-5 space-y-4">
             <!-- Username -->
             <div class="form-row flex flex-col gap-1">
-              <label class="text-xs font-bold text-gray-600">Tên đăng nhập</label>
+              <label class="text-xs font-bold text-gray-600">{{ t('reception.username') }}</label>
               <div class="input-group flex items-center gap-1.5">
                 <input 
                   v-model="settingsUsername" 
                   type="text" 
                   class="form-input flex-1 px-3 py-2 border border-gray-300 rounded-lg text-xs focus:outline-none"
-                  placeholder="Nhập tên đăng nhập"
+                  :placeholder="t('reception.enter_username')"
                 />
                 <button type="button" class="btn-browse px-3 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-300 text-xs font-bold text-gray-700 rounded-lg active:scale-95 transition-all">...</button>
               </div>
@@ -714,13 +673,13 @@
 
             <!-- Password -->
             <div class="form-row flex flex-col gap-1">
-              <label class="text-xs font-bold text-gray-600">Mật khẩu</label>
+              <label class="text-xs font-bold text-gray-600">{{ t('reception.password') }}</label>
               <div class="input-group flex items-center gap-1.5">
                 <input 
                   v-model="settingsPassword" 
                   type="password" 
                   class="form-input flex-1 px-3 py-2 border border-gray-300 rounded-lg text-xs focus:outline-none"
-                  placeholder="Nhập mật khẩu"
+                  :placeholder="t('reception.enter_password')"
                 />
                 <button type="button" class="btn-browse px-3 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-300 text-xs font-bold text-gray-700 rounded-lg active:scale-95 transition-all">...</button>
               </div>
@@ -733,16 +692,12 @@
               type="button" 
               class="btn btn-confirm px-6 py-2 bg-[#4DB6AC] hover:bg-[#40a095] text-white text-xs font-extrabold rounded-lg shadow transition-all active:scale-95" 
               @click="handleSaveSettings"
-            >
-              Xác nhận
-            </button>
+            >{{ t('reception.confirm') }}</button>
             <button 
               type="button" 
               class="btn btn-skip px-6 py-2 bg-[#E57373] hover:bg-[#d9534f] text-white text-xs font-extrabold rounded-lg shadow transition-all active:scale-95" 
               @click="showSettingsModal = false"
-            >
-              Bỏ qua
-            </button>
+            >{{ t('reception.ignore') }}</button>
           </div>
         </div>
       </div>

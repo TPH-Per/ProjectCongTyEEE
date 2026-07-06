@@ -16,7 +16,7 @@
     <div class="bg-white rounded-2xl border border-gray-200 p-4 shadow-sm flex items-center gap-4">
       <div class="flex-1 relative">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-        <input type="text" :placeholder="$t('admin_accounts.search_placeholder')" class="w-full bg-gray-50 border border-gray-200 rounded-xl pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:border-gray-400 font-medium" />
+        <input type="text" :placeholder="i18n.t('admin_accounts.search_placeholder')" class="w-full bg-gray-50 border border-gray-200 rounded-xl pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:border-gray-400 font-medium" />
       </div>
       <select class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-gray-400 font-medium">
         <option value="all">{{ t('admin_accounts.all_roles') }}</option>
@@ -28,8 +28,10 @@
         <option value="customer">Customer</option>
         <option value="procurement_manager">Procurement Manager</option>
         <option value="procurement_staff">Procurement Staff</option>
-        <option value="accountant">Accountant</option>
+        <option value="accounting">Accounting (Kế toán chi nhánh)</option>
+        <option value="accounting_manager">Accounting Manager (Kế toán trưởng)</option>
         <option value="crm_manager">CRM Manager</option>
+        <option value="crm">CRM Branch</option>
         <option value="marketing">Marketing</option>
         <option value="bod">BOD</option>
         <option value="tablet">Tablet</option>
@@ -65,7 +67,7 @@
                   'bg-blue-100 text-blue-700 border-blue-200': user.role === 'manager',
                   'bg-purple-100 text-purple-700 border-purple-200': user.role === 'reception',
                   'bg-emerald-100 text-emerald-700 border-emerald-200': user.role.startsWith('procurement'),
-                  'bg-red-100 text-red-700 border-red-200': user.role === 'accountant',
+                  'bg-red-100 text-red-700 border-red-200': user.role === 'accounting' || user.role === 'accounting_manager',
                   'bg-orange-100 text-orange-700 border-orange-200': user.role === 'staff'
                 }">
                 {{ user.role }}
@@ -122,8 +124,10 @@
               <option value="customer">Customer</option>
               <option value="procurement_manager">Procurement Manager</option>
               <option value="procurement_staff">Procurement Staff</option>
-              <option value="accountant">Accountant</option>
+              <option value="accounting">Accounting (Kế toán chi nhánh)</option>
+              <option value="accounting_manager">Accounting Manager (Kế toán trưởng)</option>
               <option value="crm_manager">CRM Manager</option>
+              <option value="crm">CRM Branch</option>
               <option value="marketing">Marketing</option>
               <option value="bod">BOD</option>
               <option value="tablet">Tablet</option>
@@ -180,6 +184,9 @@
 </template>
 
 <script setup lang="ts">
+import { useI18nStore } from '@/stores/i18n'
+
+const i18n = useI18nStore()
 import Swal from 'sweetalert2';
 import { useI18n } from 'vue-i18n'
 import { ref, onMounted } from 'vue'
@@ -355,4 +362,5 @@ async function resetPassword() {
   }
 }
 </script>
+
 

@@ -13,22 +13,18 @@
         <div class="user-info bg-[#FFB74D] text-[#333] px-3 py-1 rounded-lg font-bold text-xs">
           <span>{{ user.username }}</span>
         </div>
-        <button class="btn-back ml-2" @click="goBack">
-           Quay về
-        </button>
+        <button class="btn-back ml-2" @click="goBack">{{ t('reception.go_back') }}</button>
       </div>
     </div>
 
     <!-- Active shift notice -->
-    <div v-if="!activeShift && !loading" class="p-4 bg-yellow-50 border border-yellow-200 text-yellow-800 text-sm text-center font-bold">
-      Không có ca làm việc hoạt động nào được tìm thấy trên hệ thống.
-    </div>
+    <div v-if="!activeShift && !loading" class="p-4 bg-yellow-50 border border-yellow-200 text-yellow-800 text-sm text-center font-bold">{{ t('reception.no_active_shift') }}</div>
 
     <!-- Main Content -->
     <div class="main-content flex-1 grid grid-cols-1 md:grid-cols-3 gap-5 p-5 overflow-y-auto">
       <!-- Left: Cash Input -->
       <div class="cash-section border border-gray-200 shadow-sm flex flex-col">
-        <div class="section-title">TIỀN MẶT</div>
+        <div class="section-title">{{ t('reception.cash_upper') }}</div>
         
         <!-- Currency Type Tabs -->
         <div class="currency-tabs">
@@ -48,8 +44,8 @@
         <!-- Cash Denominations -->
         <div class="denominations-list flex-1 overflow-y-auto pr-1">
           <div class="denomination-header">
-            <span>Loại tiền</span>
-            <span>Số lượng</span>
+            <span>{{ t('reception.currency_type') }}</span>
+            <span>{{ t('reception.quantity') }}</span>
           </div>
           <div
             v-for="denom in denominations"
@@ -73,7 +69,7 @@
             :class="{ focused: activeField === 'other' }"
             @click="activeField = 'other'"
           >
-            <span class="denom-label">Tiền khác</span>
+            <span class="denom-label">{{ t('reception.other_money') }}</span>
             <input
               v-model.number="otherAmount"
               type="number"
@@ -87,30 +83,30 @@
 
       <!-- Center: Total -->
       <div class="total-section border border-gray-200 shadow-sm flex flex-col">
-        <div class="section-title">TỔNG TIỀN</div>
+        <div class="section-title">{{ t('reception.total_amount_upper') }}</div>
         <div class="total-display flex-1 flex flex-col justify-center items-center gap-4 bg-gray-50/50 rounded-xl p-6">
-          <span class="text-sm font-bold text-gray-500 uppercase tracking-wide">Tổng tiền mặt kiểm đếm</span>
+          <span class="text-sm font-bold text-gray-500 uppercase tracking-wide">{{ t('reception.total_counted_cash') }}</span>
           <div class="total-amount-wrapper">
             <span class="total-amount">{{ formatMoney(totalAmount) }}</span>
-            <span class="text-xs font-bold text-gray-400 ml-1">VNĐ</span>
+            <span class="text-xs font-bold text-gray-400 ml-1">{{ t('reception.vnd') }}</span>
           </div>
           
           <!-- Reconciliation detail comparison -->
           <div class="w-full mt-6 space-y-2 border-t pt-4 text-xs font-semibold text-gray-600">
             <div class="flex justify-between">
-              <span>Đầu ca:</span>
+              <span>{{ t('reception.opening_shift') }}</span>
               <span class="font-mono">{{ formatMoney(cashSummary?.opening ?? 0) }}đ</span>
             </div>
             <div class="flex justify-between">
-              <span>Doanh thu dự tính (tiền mặt):</span>
+              <span>{{ t('reception.est_cash_revenue') }}</span>
               <span class="font-mono">{{ formatMoney(cashSummary?.cashRevenue ?? 0) }}đ</span>
             </div>
             <div class="flex justify-between border-t pt-2 text-blue-700">
-              <span>Lý thuyết hệ thống:</span>
+              <span>{{ t('reception.system_theory') }}</span>
               <span class="font-mono font-bold">{{ formatMoney(cashSummary?.expected ?? 0) }}đ</span>
             </div>
             <div class="flex justify-between border-t pt-2" :class="cashDiff >= 0 ? 'text-green-600' : 'text-red-650'">
-              <span>Chênh lệch:</span>
+              <span>{{ t('reception.difference') }}</span>
               <span class="font-mono font-bold">{{ cashDiff >= 0 ? '+' : '' }}{{ formatMoney(cashDiff) }}đ</span>
             </div>
           </div>
@@ -124,17 +120,17 @@
             <div class="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse"></div>
             <span class="text-xs font-bold text-gray-700">Đang hoạt động: {{ user.username }}</span>
           </div>
-          <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Bảng nhập số</span>
+          <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{{ t('reception.numpad') }}</span>
         </div>
         
         <div class="notes-field">
-          <label>Ghi chú ra ca</label>
+          <label>{{ t('reception.shift_end_note') }}</label>
           <div class="input-with-btn">
             <input 
               v-model="notes" 
               type="text" 
               class="notes-input" 
-              placeholder="Nhập ghi chú bàn giao ca..."
+              :placeholder="t('reception.enter_shift_note')"
               @focus="activeField = 'notes'"
             />
             <button type="button" class="btn-more" @click="notes = 'Đã bàn giao đầy đủ tiền mặt và bàn giao ca.'">...</button>
@@ -158,9 +154,7 @@
 
     <!-- Bottom Action -->
     <div class="bottom-action border-t bg-gray-50 flex items-center justify-between px-6 py-4">
-      <div class="text-xs font-bold text-gray-500">
-        * Hãy chắc chắn kiểm đếm chính xác số lượng tiền mặt trước khi bấm Ra ca.
-      </div>
+      <div class="text-xs font-bold text-gray-500">{{ t('reception.ensure_exact_cash') }}</div>
       <button class="btn-end-shift shadow-md active:scale-95 transition-all" @click="endShift" :disabled="loading">
          Ra ca
       </button>
@@ -414,11 +408,11 @@ const endShift = async () => {
     title: 'Xác nhận ra ca?',
     html: `
       <div class="text-left text-sm space-y-1 mb-2 text-gray-700">
-        <div class="flex justify-between"><span>Tiền mặt ban đầu:</span><b>${(cashSummary.value?.opening ?? 0).toLocaleString('vi-VN')}đ</b></div>
-        <div class="flex justify-between"><span>Doanh thu dự tính:</span><b>${(cashSummary.value?.cashRevenue ?? 0).toLocaleString('vi-VN')}đ</b></div>
-        <div class="flex justify-between"><span>Lý thuyết hệ thống:</span><b>${expected.toLocaleString('vi-VN')}đ</b></div>
-        <div class="flex justify-between text-orange-600 border-t pt-1 mt-1 font-bold"><span>Thực tế kiểm đếm:</span><b>${actual.toLocaleString('vi-VN')}đ</b></div>
-        <div class="flex justify-between ${diff >= 0 ? 'text-green-600' : 'text-red-600'} font-bold"><span>Chênh lệch:</span><b>${diff >= 0 ? '+' : ''}${diff.toLocaleString('vi-VN')}đ</b></div>
+        <div class="flex justify-between"><span>{{ t('reception.initial_cash') }}</span><b>${(cashSummary.value?.opening ?? 0).toLocaleString('vi-VN')}đ</b></div>
+        <div class="flex justify-between"><span>{{ t('reception.est_revenue') }}</span><b>${(cashSummary.value?.cashRevenue ?? 0).toLocaleString('vi-VN')}đ</b></div>
+        <div class="flex justify-between"><span>{{ t('reception.system_theory') }}</span><b>${expected.toLocaleString('vi-VN')}đ</b></div>
+        <div class="flex justify-between text-orange-600 border-t pt-1 mt-1 font-bold"><span>{{ t('reception.actual_counted') }}</span><b>${actual.toLocaleString('vi-VN')}đ</b></div>
+        <div class="flex justify-between ${diff >= 0 ? 'text-green-600' : 'text-red-600'} font-bold"><span>{{ t('reception.difference') }}</span><b>${diff >= 0 ? '+' : ''}${diff.toLocaleString('vi-VN')}đ</b></div>
       </div>
     `,
     icon: 'warning',
@@ -440,8 +434,7 @@ const endShift = async () => {
           icon: 'success',
           title: 'Ra ca thành công',
           html: `
-            Chênh lệch: <b>${diff >= 0 ? '+' : ''}${diff.toLocaleString('vi-VN')}đ</b><br/>
-            Thực tế: <b>${actual.toLocaleString('vi-VN')}đ</b>
+            Chênh lệch: <b>${diff >= 0 ? '+' : ''}${diff.toLocaleString('vi-VN')}đ</b><br/>{{ t('reception.actual') }}<b>${actual.toLocaleString('vi-VN')}đ</b>
           `,
           confirmButtonColor: '#4CAF50'
         });

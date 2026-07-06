@@ -1,0 +1,1 @@
+const fs = require('fs'); let c = fs.readFileSync('src/locales/ja.ts', 'utf-8'); c = c.replace(/\\'エラー: \\'\\r?\\n\\r?\\n\\s*\\'vouchers.title\\'/g, '\\'エラー: \\',\\n\\n  \\'vouchers.title\\''); fs.writeFileSync('src/locales/ja.ts', c);

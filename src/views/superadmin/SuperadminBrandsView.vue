@@ -3,15 +3,15 @@
 
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
       <div>
-        <h2 class="text-2xl font-bold text-gray-800">{{ t('branch.title') }}</h2>
-        <p class="text-sm text-gray-500">{{ t('branch.title') }}</p>
+        <h2 class="text-2xl font-bold text-gray-800">{{ i18n.t('branch.title') }}</h2>
+        <p class="text-sm text-gray-500">{{ i18n.t('branch.title') }}</p>
       </div>
       <button 
         class="kawaii-btn-primary flex items-center shadow-lg shadow-rose-200"
         @click="openCreatePanel"
       >
         <PlusIcon class="w-5 h-5 mr-2" />
-        {{ t('branch.add') }}
+        {{ i18n.t('branch.add') }}
       </button>
     </div>
 
@@ -21,15 +21,16 @@
         <SearchIcon class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
         <input 
           type="text" 
-          :placeholder="t('common.search')" 
+          :placeholder="i18n.t('common.search')" 
           class="kawaii-input pl-10 w-full"
         />
       </div>
+
       <div class="flex gap-2 w-full md:w-auto">
-        <select class="kawaii-input w-full md:w-auto bg-gray-50">
-          <option>All</option>
-          <option>Active</option>
-          <option>Inactive</option>
+        <select class="kawaii-input w-auto cursor-pointer">
+          <option>{{ i18n.t('common.all') }}</option>
+          <option>{{ i18n.t('common.active') }}</option>
+          <option>{{ i18n.t('common.inactive') }}</option>
         </select>
         <button class="kawaii-btn-ghost flex items-center justify-center p-3">
           <FilterIcon class="w-5 h-5" />
@@ -47,12 +48,10 @@
           <div class="absolute top-3 right-3">
             <button 
               @click="handleToggleStatus(branch)"
-              :class="[
-                'px-2.5 py-1 text-xs font-semibold rounded-full shadow-sm cursor-pointer',
-                branch.is_active ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
-              ]"
             >
-              {{ branch.is_active ? 'Active' : t('branch.deactivate') }}
+              <span class="px-2 py-1 text-xs font-medium rounded-md" :class="branch.is_active ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-600'">
+                {{ branch.is_active ? i18n.t('common.active') : i18n.t('branch.deactivate') }}
+              </span>
             </button>
           </div>
         </div>
@@ -65,73 +64,73 @@
           </div>
           <p class="text-sm text-gray-500 mb-4 flex items-start">
             <MapPinIcon class="w-4 h-4 mr-1 mt-0.5 flex-shrink-0" />
-            {{ branch.address || t('common.no_data') }}
+            {{ branch.address || i18n.t('common.no_data') }}
           </p>
           
           <div class="mt-auto pt-4 border-t border-gray-100 grid grid-cols-2 gap-4">
             <div>
-              <p class="text-xs text-gray-400 mb-1">{{ t('branch.manager') }}</p>
+              <p class="text-xs text-gray-400 mb-1">{{ i18n.t('branch.manager') }}</p>
               <p class="text-sm font-medium text-gray-700 flex items-center">
-                <UserIcon class="w-4 h-4 mr-1" /> {{ branch.manager?.full_name || t('common.no_data') }}
+                <UserIcon class="w-4 h-4 mr-1" /> {{ branch.manager?.full_name || i18n.t('common.no_data') }}
               </p>
             </div>
             <div>
-              <p class="text-xs text-gray-400 mb-1">{{ t('branch.capacity') }}</p>
+              <p class="text-xs text-gray-400 mb-1">{{ i18n.t('branch.capacity') }}</p>
               <p class="text-sm font-medium text-gray-700">{{ branch.capacity }}</p>
             </div>
           </div>
         </div>
         <div class="px-5 py-3 bg-gray-50 border-t border-gray-100 flex justify-between">
-          <button class="text-sm font-medium text-[#FF7B89] hover:underline" @click="openEditPanel(branch)">{{ t('branch.edit') }}</button>
+          <button class="text-sm font-medium text-[#FF7B89] hover:underline" @click="openEditPanel(branch)">{{ i18n.t('branch.edit') }}</button>
         </div>
       </div>
       <div v-if="loading" class="col-span-full text-center py-8 text-gray-500">
-        {{ t('common.loading') }}
+        {{ i18n.t('common.loading') }}
       </div>
     </div>
 
     <!-- Slide Panel -->
     <div v-if="showPanel" class="fixed inset-0 z-50 overflow-hidden">
-      <div class="absolute inset-0 bg-black bg-opacity-50 transition-opacity" @click="closePanel"></div>
+      <div class="absolute inset-0 bg-black/30 backdrop-blur-sm transition-opacity" @click="closePanel"></div>
       <div class="absolute inset-y-0 right-0 max-w-md w-full bg-white shadow-xl flex flex-col transform transition-transform duration-250 ease-out">
-        <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-[#0C0B0A] text-[#F0EBE2]">
-          <h2 class="text-xl font-serif font-bold text-[#C9A85C]">
-            {{ editingBranch ? t('branch.edit') : t('branch.add') }}
+        <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-white">
+          <h2 class="text-xl font-bold text-gray-800">
+            {{ editingBranch ? i18n.t('branch.edit') : i18n.t('branch.add') }}
           </h2>
-          <button @click="closePanel" class="text-[#9B8E80] hover:text-white">
-            ✕
+          <button @click="closePanel" class="text-gray-400 hover:text-gray-600 transition-colors">
+            X
           </button>
         </div>
-        <div class="flex-1 overflow-y-auto p-6 bg-[#1A1815] text-[#F0EBE2]">
-          <form @submit.prevent="saveBranch" class="space-y-6">
+        <div class="flex-1 overflow-y-auto p-6 bg-gray-50/50">
+          <form @submit.prevent="saveBranch" class="space-y-5">
             <div>
-              <label class="block text-sm font-medium text-[#9B8E80] mb-1 font-serif">Name *</label>
-              <input v-model="form.name" type="text" required class="w-full bg-[#241F1A] border border-[#3A332A] text-[#F0EBE2] rounded px-3 py-2 focus:outline-none focus:border-[#C9A85C]" />
+              <label class="block text-sm font-semibold text-gray-700 mb-1">{{ i18n.t('branch.name') }} *</label>
+              <input v-model="form.name" type="text" required class="kawaii-input w-full" />
             </div>
             <div>
-              <label class="block text-sm font-medium text-[#9B8E80] mb-1 font-serif">Address *</label>
-              <input v-model="form.address" type="text" required class="w-full bg-[#241F1A] border border-[#3A332A] text-[#F0EBE2] rounded px-3 py-2 focus:outline-none focus:border-[#C9A85C]" />
+              <label class="block text-sm font-semibold text-gray-700 mb-1">{{ i18n.t('branch.address') }} *</label>
+              <input v-model="form.address" type="text" required class="kawaii-input w-full" />
             </div>
             <div>
-              <label class="block text-sm font-medium text-[#9B8E80] mb-1 font-serif">Phone *</label>
-              <input v-model="form.phone" type="text" required class="w-full bg-[#241F1A] border border-[#3A332A] text-[#F0EBE2] rounded px-3 py-2 focus:outline-none focus:border-[#C9A85C]" />
+              <label class="block text-sm font-semibold text-gray-700 mb-1">{{ i18n.t('branch.phone') }} *</label>
+              <input v-model="form.phone" type="text" required class="kawaii-input w-full" />
             </div>
             <div>
-              <label class="block text-sm font-medium text-[#9B8E80] mb-1 font-serif">{{ t('branch.capacity') }} *</label>
-              <input v-model.number="form.capacity" type="number" required class="w-full bg-[#241F1A] border border-[#3A332A] text-[#F0EBE2] rounded px-3 py-2 focus:outline-none focus:border-[#C9A85C]" />
+              <label class="block text-sm font-semibold text-gray-700 mb-1">{{ i18n.t('branch.capacity') }} *</label>
+              <input v-model.number="form.capacity" type="number" required class="kawaii-input w-full" />
             </div>
             <div>
-              <label class="block text-sm font-medium text-[#9B8E80] mb-1 font-serif">{{ t('branch.manager') }} (ID)</label>
-              <input v-model="form.manager_id" type="text" class="w-full bg-[#241F1A] border border-[#3A332A] text-[#F0EBE2] rounded px-3 py-2 focus:outline-none focus:border-[#C9A85C]" />
+              <label class="block text-sm font-semibold text-gray-700 mb-1">{{ i18n.t('branch.manager') }} (ID)</label>
+              <input v-model="form.manager_id" type="text" :placeholder="i18n.t('branch.manager_id_placeholder')" class="kawaii-input w-full" />
             </div>
           </form>
         </div>
-        <div class="px-6 py-4 border-t border-[#3A332A] bg-[#0C0B0A] flex justify-end gap-3">
-          <button @click="closePanel" type="button" class="px-4 py-2 text-sm font-medium text-[#9B8E80] hover:text-[#F0EBE2] border border-[#3A332A] rounded">
-            {{ t('common.cancel') }}
+        <div class="px-6 py-4 border-t border-gray-100 bg-white flex justify-end gap-3">
+          <button @click="closePanel" type="button" class="kawaii-btn-ghost">
+            {{ i18n.t('common.cancel') }}
           </button>
-          <button @click="saveBranch" :disabled="saving" class="px-4 py-2 text-sm font-medium bg-[#C9A85C] text-[#0C0B0A] rounded hover:bg-[#8A6E30] disabled:opacity-50">
-            {{ saving ? t('common.loading') : t('common.save') }}
+          <button @click="saveBranch" :disabled="saving" class="kawaii-btn-primary disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-rose-200">
+            {{ saving ? i18n.t('common.loading') : i18n.t('common.save') }}
           </button>
         </div>
       </div>
@@ -151,10 +150,9 @@ import {
   UserIcon
 } from 'lucide-vue-next'
 import { useBranch } from '@/composables/useBranch'
-import { useLanguageStore } from '@/stores/useLanguageStore'
+import { useI18nStore } from '@/stores/i18n'
 
-const langStore = useLanguageStore()
-const { t } = langStore
+const i18n = useI18nStore()
 
 const { listBranches, createBranch, updateBranch, toggleBranchStatus } = useBranch()
 const branches = ref<any[]>([])

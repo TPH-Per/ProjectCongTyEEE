@@ -2,8 +2,8 @@
   <div class="p-6 max-w-7xl mx-auto space-y-6">
     <div class="flex justify-between items-center mb-6">
       <div>
-        <h1 class="text-3xl font-bold text-gray-900">Tiếp nhận Phiếu giao hàng (Daily Receipt)</h1>
-        <p class="text-gray-500 mt-1">Scan phiếu giao từ nhà cung cấp và cập nhật số lượng tồn kho thực tế.</p>
+        <h1 class="text-3xl font-bold text-gray-900">{{ $t('purchasing.receipts.receiveReceiptTitle') }} (Daily Receipt)</h1>
+        <p class="text-gray-500 mt-1">{{ $t('purchasing.receipts.scanSubTitle') }}</p>
       </div>
     </div>
 
@@ -16,7 +16,7 @@
       
       <!-- CỘT TRÁI: UPLOAD & HIỂN THỊ ẢNH SCAN -->
       <div class="bg-white p-6 rounded-lg shadow border border-gray-200 flex flex-col h-full">
-        <h2 class="text-xl font-bold text-gray-800 mb-4">1. Ảnh Scan / Chụp Phiếu</h2>
+        <h2 class="text-xl font-bold text-gray-800 mb-4">1. {{ $t('purchasing.receipts.scanImageLabel') }}</h2>
         
         <div 
           class="border-2 border-dashed border-gray-300 rounded-lg p-6 flex-1 flex flex-col items-center justify-center bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer relative"
@@ -29,9 +29,9 @@
             </svg>
             <div class="mt-4 flex text-sm text-gray-600 justify-center">
               <span class="relative font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
-                Tải ảnh lên
+                {{ $t('purchasing.receipts.uploadImage') }}
               </span>
-              <p class="pl-1">hoặc kéo thả vào đây</p>
+              <p class="pl-1">{{ $t('purchasing.receipts.uploadSubText') }}</p>
             </div>
             <p class="text-xs text-gray-500 mt-2">PNG, JPG, PDF tối đa 10MB</p>
           </div>
@@ -56,19 +56,19 @@
 
       <!-- CỘT PHẢI: NHẬP TAY DỮ LIỆU & SUBMIT -->
       <div class="bg-white p-6 rounded-lg shadow border border-gray-200">
-        <h2 class="text-xl font-bold text-gray-800 mb-4">2. Nhập thông tin & Mã định danh</h2>
+        <h2 class="text-xl font-bold text-gray-800 mb-4">2. {{ $t('purchasing.receipts.receiptDetails') }}</h2>
         
         <form @submit.prevent="submitForm" class="space-y-4">
           <!-- Thông tin chung -->
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700">Mã Phiếu Giao</label>
-              <input v-model="form.receiptCode" type="text" placeholder="VD: GR-20260629-01" class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required />
+              <label class="block text-sm font-medium text-gray-700">{{ $t('purchasing.receipts.columns.receiptCode') }}</label>
+              <input v-model="form.receiptCode" type="text" :placeholder="$t('purchasing.receipts.receiptCodePlaceholder')" class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700">Nhà Cung Cấp</label>
+              <label class="block text-sm font-medium text-gray-700">{{ $t('purchasing.receipts.columns.supplier') }}</label>
               <select v-model="form.supplierId" class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
-                <option value="" disabled>Chọn Nhà cung cấp</option>
+                <option value="" disabled>{{ $t('purchasing.receipts.selectSupplier') }}</option>
                 <option v-for="sup in suppliers" :key="sup.id" :value="sup.id">
                   {{ sup.name }}
                 </option>
@@ -81,26 +81,42 @@
           <!-- Chi tiết nguyên vật liệu -->
           <div>
             <div class="flex justify-between items-center mb-2">
-              <label class="block text-sm font-medium text-gray-700">Chi tiết hàng hóa (Nhập tay)</label>
+              <label class="block text-sm font-medium text-gray-700">{{ $t('purchasing.receipts.receiptItems') }}</label>
               <button type="button" @click="addItem" class="text-sm text-blue-600 font-medium hover:text-blue-800">
-                + Thêm dòng
+                + {{ $t('purchasing.receipts.addRow') }}
               </button>
             </div>
             
             <div v-for="(item, index) in form.items" :key="index" class="flex gap-2 mb-3 items-start bg-gray-50 p-3 rounded border border-gray-100">
               <div class="flex-1">
-                <select v-model="item.item_id" class="block w-full px-3 py-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
-                  <option value="" disabled>Chọn nguyên vật liệu</option>
-                  <option v-for="inv in ingredients" :key="inv.id" :value="inv.id">
-                    {{ inv.name }} ({{ inv.unit }})
-                  </option>
-                </select>
+                <input 
+                  v-model="item.ingredient_name" 
+                  @change="handleIngredientChange(item)"
+                  list="ingredients-list" 
+                  :placeholder="$t('purchasing.receipts.selectIngredient')" 
+                  class="block w-full px-3 py-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" 
+                  required 
+                />
+                <datalist id="ingredients-list">
+                  <option v-for="inv in ingredients" :key="inv.id" :value="inv.name"></option>
+                </datalist>
+              </div>
+              <div class="w-24 relative">
+                <input 
+                  v-model="item.unit" 
+                  @focus="activeInput = `unit_${index}`"
+                  type="text" 
+                  :placeholder="$t('purchasing.receipts.columns.unit')" 
+                  class="block w-full px-3 py-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" 
+                  :class="{ 'ring-2 ring-blue-300 border-blue-400': activeInput === `unit_${index}` }"
+                  required 
+                />
               </div>
               <div class="w-24">
-                <input v-model="item.quantity" type="number" step="0.01" min="0.01" placeholder="Số lượng" class="block w-full px-3 py-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required />
+                <input v-model="item.quantity" type="number" step="0.01" min="0.01" :placeholder="$t('purchasing.receipts.columns.quantity')" class="block w-full px-3 py-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required />
               </div>
               <div class="w-32">
-                <input v-model="item.unit_price" type="number" step="1000" min="0" placeholder="Đơn giá" class="block w-full px-3 py-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required />
+                <input v-model="item.unit_price" type="number" step="1000" min="0" :placeholder="$t('purchasing.receipts.columns.totalValue')" class="block w-full px-3 py-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required />
               </div>
               <button type="button" @click="removeItem(index)" class="p-2 text-red-500 hover:bg-red-50 rounded" title="Xóa dòng">
                 ✕
@@ -108,13 +124,13 @@
             </div>
 
             <div v-if="form.items.length === 0" class="text-sm text-gray-500 italic text-center py-4">
-              Chưa có mặt hàng nào. Bấm "+ Thêm dòng" để bắt đầu.
+              {{ $t('purchasing.receipts.noItemsAdded') }}
             </div>
           </div>
 
           <!-- Total sum preview -->
           <div class="mt-4 p-4 bg-blue-50 rounded-lg flex justify-between items-center">
-            <span class="font-bold text-gray-700">Tổng Giá Trị Phiếu:</span>
+            <span class="font-bold text-gray-700">{{ $t('purchasing.receipts.totalReceiptValue') }}:</span>
             <span class="text-xl font-black text-blue-700">{{ formatCurrency(totalAmount) }}</span>
           </div>
 
@@ -124,8 +140,8 @@
               class="inline-flex justify-center rounded-md border border-transparent shadow-sm px-6 py-3 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
               :disabled="loading || form.items.length === 0"
             >
-              <span v-if="loading">Đang lưu...</span>
-              <span v-else>Lưu Phiếu & Cập Nhật Tồn Kho</span>
+              <span v-if="loading">{{ $t('common.loading') }}</span>
+              <span v-else>{{ $t('purchasing.receipts.saveAndSync') }}</span>
             </button>
           </div>
         </form>
@@ -139,9 +155,13 @@
 import { ref, computed, onMounted } from 'vue'
 import { usePurchasing } from '@/composables/usePurchasing'
 import { useBranch } from '@/composables/useBranch'
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 const { loading, error, ingredients, suppliers, fetchIngredients, fetchSuppliers, submitGoodsReceipt, uploadScanImage } = usePurchasing()
 const { activeBranchId } = useBranch()
+
+const activeInput = ref('')
 
 // -- File Upload State --
 const fileInput = ref<HTMLInputElement | null>(null)
@@ -171,11 +191,18 @@ const clearImage = () => {
 const form = ref({
   receiptCode: '',
   supplierId: '',
-  items: [] as Array<{ item_id: string; quantity: number | string; unit_price: number | string }>
+  items: [] as Array<{ ingredient_name: string; unit: string; quantity: number | string; unit_price: number | string }>
 })
 
 const addItem = () => {
-  form.value.items.push({ item_id: '', quantity: '', unit_price: '' })
+  form.value.items.push({ ingredient_name: '', unit: '', quantity: '', unit_price: '' })
+}
+
+const handleIngredientChange = (item: any) => {
+  const found = ingredients.value.find(ing => ing.name.toLowerCase() === (item.ingredient_name || '').toLowerCase())
+  if (found && found.unit) {
+    item.unit = found.unit
+  }
 }
 
 const removeItem = (index: number) => {
@@ -197,7 +224,7 @@ const formatCurrency = (val: number) => {
 // -- Submit Logic --
 const submitForm = async () => {
   if (!activeBranchId.value) {
-    alert("Vui lòng chọn chi nhánh trước khi làm việc.")
+    alert(t('purchasing.receipts.selectBranchAlert'))
     return
   }
 
@@ -210,11 +237,16 @@ const submitForm = async () => {
     }
 
     // 2. Format dữ liệu
-    const formattedItems = form.value.items.map(i => ({
-      item_id: i.item_id,
-      quantity: Number(i.quantity),
-      unit_price: Number(i.unit_price)
-    }))
+    const formattedItems = form.value.items.map(i => {
+      const found = ingredients.value.find(ing => ing.name.toLowerCase() === (i.ingredient_name || '').toLowerCase());
+      return {
+        ingredient_id: found ? found.id : null,
+        ingredient_name: found ? null : i.ingredient_name,
+        unit: i.unit || (found ? found.unit : 'unit'),
+        quantity: Number(i.quantity),
+        unit_price: Number(i.unit_price)
+      }
+    })
 
     // 3. Gọi RPC cập nhật (Gồm Phiếu nhập + Cập nhật cộng dồn Tồn Kho)
     await submitGoodsReceipt(
@@ -225,7 +257,7 @@ const submitForm = async () => {
       formattedItems
     )
 
-    alert("Nhập hàng thành công! Tồn kho đã được cập nhật.")
+    alert(t('purchasing.receipts.successMessage'))
     
     // Reset form
     form.value.receiptCode = ''
@@ -234,7 +266,7 @@ const submitForm = async () => {
     clearImage()
 
   } catch (err: any) {
-    alert('Lỗi: ' + err.message)
+    alert(t('purchasing.receipts.errorMessage') + err.message)
   }
 }
 

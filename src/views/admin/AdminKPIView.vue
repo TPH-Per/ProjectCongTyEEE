@@ -3,51 +3,51 @@
 
     <div class="mb-8">
       <h1 class="text-3xl font-bold text-gray-800 mb-2 flex items-center gap-2">
-        <span class="text-[#FF7B89]">🎯</span> {{ $t('admin_kpi.title') }}
+        <span class="text-[#FF7B89]">🎯</span> {{ i18n.t('admin_kpi.title') }}
       </h1>
-      <p class="text-gray-500">{{ $t('admin_kpi.subtitle') }}</p>
+      <p class="text-gray-500">{{ i18n.t('admin_kpi.subtitle') }}</p>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
       <!-- Cấu hình KPI Form -->
       <div class="kawaii-card lg:col-span-1 p-6">
         <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-          <span class="text-[#FF7B89]">⚙️</span> {{ $t('admin_kpi.setup_goals') }}
+          <span class="text-[#FF7B89]">⚙️</span> {{ i18n.t('admin_kpi.setup_goals') }}
         </h2>
         
         <form @submit.prevent="saveKPI" class="space-y-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('admin_kpi.month_year') }}</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ i18n.t('admin_kpi.month_year') }}</label>
             <input type="month" v-model="form.month" class="kawaii-input w-full" />
           </div>
           
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('admin_kpi.revenue_goal') }}</label>
-            <input type="number" v-model="form.revenue" :placeholder="$t('admin_kpi.placeholder_fix')" class="kawaii-input w-full" />
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ i18n.t('admin_kpi.revenue_goal') }}</label>
+            <input type="number" v-model="form.revenue" :placeholder="i18n.t('admin_kpi.placeholder_fix')" class="kawaii-input w-full" />
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('admin_kpi.guests_goal') }}</label>
-            <input type="number" v-model="form.guests" :placeholder="$t('admin_kpi.placeholder_fix')" class="kawaii-input w-full" />
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ i18n.t('admin_kpi.guests_goal') }}</label>
+            <input type="number" v-model="form.guests" :placeholder="i18n.t('admin_kpi.placeholder_fix')" class="kawaii-input w-full" />
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('admin_kpi.cogs_ratio_max') }}</label>
-            <input type="number" v-model="form.cogsRatio" :placeholder="$t('admin_kpi.placeholder_fix')" class="kawaii-input w-full" />
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ i18n.t('admin_kpi.cogs_ratio_max') }}</label>
+            <input type="number" v-model="form.cogsRatio" :placeholder="i18n.t('admin_kpi.placeholder_fix')" class="kawaii-input w-full" />
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('admin_kpi.fill_rate_goal') }}</label>
-            <input type="number" v-model="form.fillRate" :placeholder="$t('admin_kpi.placeholder_fix')" class="kawaii-input w-full" />
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ i18n.t('admin_kpi.fill_rate_goal') }}</label>
+            <input type="number" v-model="form.fillRate" :placeholder="i18n.t('admin_kpi.placeholder_fix')" class="kawaii-input w-full" />
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('admin_kpi.avg_check_goal') }}</label>
-            <input type="number" v-model="form.avgCheck" :placeholder="$t('admin_kpi.placeholder_fix')" class="kawaii-input w-full" />
+            <label class="block text-sm font-medium text-gray-700 mb-1">{{ i18n.t('admin_kpi.avg_check_goal') }}</label>
+            <input type="number" v-model="form.avgCheck" :placeholder="i18n.t('admin_kpi.placeholder_fix')" class="kawaii-input w-full" />
           </div>
 
           <button type="submit" :disabled="loading" class="kawaii-btn-primary w-full mt-4 flex justify-center items-center gap-2 py-3 rounded-xl font-bold">
-            <span></span> {{ loading ? $t('admin_kpi.saving') : $t('admin_kpi.save_setup') }}
+            <span></span> {{ loading ? i18n.t('admin_kpi.saving') : i18n.t('admin_kpi.save_setup') }}
           </button>
         </form>
       </div>
@@ -57,14 +57,14 @@
         <div class="kawaii-card p-6">
           <div class="flex justify-between items-center mb-6">
             <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
-              <span class="text-[#FF7B89]">📊</span> {{ $t('admin_kpi.current_vs_target') }}
+              <span class="text-[#FF7B89]">📊</span> {{ i18n.t('admin_kpi.current_vs_target') }}
             </h2>
           </div>
           
           <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             <!-- Revenue -->
             <div class="border rounded-2xl p-4 bg-orange-50/50 border-orange-100 hover:shadow-md transition-shadow">
-              <div class="text-sm text-gray-500 font-medium mb-1">{{ $t('admin_kpi.revenue') }}</div>
+              <div class="text-sm text-gray-500 font-medium mb-1">{{ i18n.t('admin_kpi.revenue') }}</div>
               <div class="text-2xl font-bold text-orange-600 mb-2">320M <span class="text-sm font-normal text-gray-400">/ {{ (form.revenue / 1000000) || 0 }}M</span></div>
               <div class="w-full bg-orange-200/50 rounded-full h-3">
                 <div class="kawaii-gradient h-3 rounded-full shadow-sm" :style="`width: ${Math.min(100, (320000000 / (form.revenue || 1)) * 100)}%`"></div>
@@ -73,7 +73,7 @@
 
             <!-- Guests -->
             <div class="border rounded-2xl p-4 bg-blue-50/50 border-blue-100 hover:shadow-md transition-shadow">
-              <div class="text-sm text-gray-500 font-medium mb-1">{{ $t('admin_kpi.guests') }}</div>
+              <div class="text-sm text-gray-500 font-medium mb-1">{{ i18n.t('admin_kpi.guests') }}</div>
               <div class="text-2xl font-bold text-blue-600 mb-2">850 <span class="text-sm font-normal text-gray-400">/ {{ form.guests || 0 }}</span></div>
               <div class="w-full bg-blue-200/50 rounded-full h-3">
                 <div class="bg-blue-400 h-3 rounded-full shadow-sm" :style="`width: ${Math.min(100, (850 / (form.guests || 1)) * 100)}%`"></div>
@@ -82,7 +82,7 @@
 
             <!-- COGS -->
             <div class="border rounded-2xl p-4 bg-green-50/50 border-green-100 hover:shadow-md transition-shadow">
-              <div class="text-sm text-gray-500 font-medium mb-1">{{ $t('admin_kpi.cogs_ratio') }}</div>
+              <div class="text-sm text-gray-500 font-medium mb-1">{{ i18n.t('admin_kpi.cogs_ratio') }}</div>
               <div class="text-2xl font-bold text-green-600 mb-2">28% <span class="text-sm font-normal text-gray-400">/ {{ form.cogsRatio || 0 }}%</span></div>
               <div class="w-full bg-green-200/50 rounded-full h-3">
                 <div class="bg-green-400 h-3 rounded-full shadow-sm" :style="`width: ${Math.min(100, (28 / (form.cogsRatio || 1)) * 100)}%`"></div>
@@ -91,7 +91,7 @@
 
             <!-- Fill Rate -->
             <div class="border rounded-2xl p-4 bg-purple-50/50 border-purple-100 hover:shadow-md transition-shadow">
-              <div class="text-sm text-gray-500 font-medium mb-1">{{ $t('admin_kpi.fill_rate') }}</div>
+              <div class="text-sm text-gray-500 font-medium mb-1">{{ i18n.t('admin_kpi.fill_rate') }}</div>
               <div class="text-2xl font-bold text-purple-600 mb-2">65% <span class="text-sm font-normal text-gray-400">/ {{ form.fillRate || 0 }}%</span></div>
               <div class="w-full bg-purple-200/50 rounded-full h-3">
                 <div class="bg-purple-400 h-3 rounded-full shadow-sm" :style="`width: ${Math.min(100, (65 / (form.fillRate || 1)) * 100)}%`"></div>
@@ -100,7 +100,7 @@
 
             <!-- Avg Check -->
             <div class="border rounded-2xl p-4 bg-pink-50/50 border-pink-100 hover:shadow-md transition-shadow">
-              <div class="text-sm text-gray-500 font-medium mb-1">{{ $t('admin_kpi.avg_check') }}</div>
+              <div class="text-sm text-gray-500 font-medium mb-1">{{ i18n.t('admin_kpi.avg_check') }}</div>
               <div class="text-2xl font-bold text-[#FF7B89] mb-2">380k <span class="text-sm font-normal text-gray-400">/ {{ (form.avgCheck / 1000) || 0 }}k</span></div>
               <div class="w-full bg-pink-200/50 rounded-full h-3">
                 <div class="bg-[#FF7B89] h-3 rounded-full shadow-sm" :style="`width: ${Math.min(100, (380000 / (form.avgCheck || 1)) * 100)}%`"></div>
@@ -111,25 +111,25 @@
 
         <div class="kawaii-card p-6">
           <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-            <span class="text-[#FF7B89]">📋</span> {{ $t('admin_kpi.config_history') }}
+            <span class="text-[#FF7B89]">📋</span> {{ i18n.t('admin_kpi.config_history') }}
           </h2>
           <div class="overflow-x-auto rounded-2xl border border-gray-100">
             <table class="w-full text-left border-collapse">
               <thead class="bg-gray-50/50">
                 <tr class="text-gray-500 border-b border-gray-100">
-                  <th class="py-3 px-4 font-medium text-sm">{{ $t('admin_kpi.month') }}</th>
-                  <th class="py-3 px-4 font-medium text-sm">{{ $t('admin_kpi.revenue') }}</th>
-                  <th class="py-3 px-4 font-medium text-sm">{{ $t('admin_kpi.guests') }}</th>
-                  <th class="py-3 px-4 font-medium text-sm">{{ $t('admin_kpi.cogs') }}</th>
-                  <th class="py-3 px-4 font-medium text-sm">{{ $t('admin_kpi.fill_rate_short') }}</th>
-                  <th class="py-3 px-4 font-medium text-sm">{{ $t('admin_kpi.avg_check_short') }}</th>
-                  <th class="py-3 px-4 font-medium text-sm">{{ $t('admin_kpi.actions') }}</th>
+                  <th class="py-3 px-4 font-medium text-sm">{{ i18n.t('admin_kpi.month') }}</th>
+                  <th class="py-3 px-4 font-medium text-sm">{{ i18n.t('admin_kpi.revenue') }}</th>
+                  <th class="py-3 px-4 font-medium text-sm">{{ i18n.t('admin_kpi.guests') }}</th>
+                  <th class="py-3 px-4 font-medium text-sm">{{ i18n.t('admin_kpi.cogs') }}</th>
+                  <th class="py-3 px-4 font-medium text-sm">{{ i18n.t('admin_kpi.fill_rate_short') }}</th>
+                  <th class="py-3 px-4 font-medium text-sm">{{ i18n.t('admin_kpi.avg_check_short') }}</th>
+                  <th class="py-3 px-4 font-medium text-sm">{{ i18n.t('admin_kpi.actions') }}</th>
                 </tr>
               </thead>
               <tbody>
                 <tr v-if="kpiHistory.length === 0" class="border-b border-gray-50">
                   <td colspan="7" class="py-6 px-4 text-center text-sm text-gray-500">
-                    {{ $t('admin_kpi.no_kpi_data') }}
+                    {{ i18n.t('admin_kpi.no_kpi_data') }}
                   </td>
                 </tr>
                 <tr v-for="kpi in kpiHistory" :key="kpi.month" class="border-b border-gray-50 hover:bg-pink-50/30 transition-colors">
@@ -155,6 +155,9 @@
 </template>
 
 <script setup lang="ts">
+import { useI18nStore } from '@/stores/i18n'
+
+const i18n = useI18nStore()
 import Swal from 'sweetalert2';
 import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
@@ -252,4 +255,5 @@ const editKPI = (kpi: any) => {
   }
 }
 </script>
+
 

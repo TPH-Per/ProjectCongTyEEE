@@ -9,37 +9,28 @@ export function usePurchasing() {
   const ingredients = ref<any[]>([])
   const currentStock = ref<any[]>([])
 
-  // 1. Submit Goods Receipt (RPC) - Loop through items and record transaction
+  // 1. Submit Goods Receipt (RPC) - use submit_goods_receipt
   const submitGoodsReceipt = async (
     branchId: string,
     receiptCode: string,
     supplierId: string,
     scanImageUrl: string,
-    items: Array<{ item_id: string; quantity: number; unit_price: number }>
+    items: Array<any>
   ) => {
     loading.value = true
     error.value = null
     
     try {
-      const notes = `Receipt: ${receiptCode}` + (scanImageUrl ? ` | URL: ${scanImageUrl}` : '')
-      
-      const promises = items.map(item => {
-        return supabase.rpc('record_inventory_transaction', {
-          p_ingredient_id: item.item_id,
-          p_transaction_type: 'PURCHASE',
-          p_quantity: item.quantity,
-          p_unit_cost: item.unit_price,
-          p_supplier_id: supplierId || null,
-          p_notes: notes
-        })
+      const { data, error: submitError } = await supabase.rpc('submit_goods_receipt', {
+        p_branch_id: branchId,
+        p_receipt_code: receiptCode,
+        p_supplier_id: supplierId,
+        p_purchase_order_id: null,
+        p_scan_image_url: scanImageUrl,
+        p_items: items
       })
 
-      const results = await Promise.all(promises)
-      
-      // Check for errors in any of the promises
-      for (const result of results) {
-        if (result.error) throw result.error
-      }
+      if (submitError) throw submitError
       
       return true
     } catch (err: any) {

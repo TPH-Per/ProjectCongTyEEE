@@ -19,6 +19,11 @@ import PurchasingLayout from "@/layouts/PurchasingLayout.vue";
 import AccountingLayout from "@/layouts/AccountingLayout.vue";
 import CRMLayout from "@/layouts/CRMLayout.vue";
 import CustomerLayout from "@/layouts/CustomerLayout.vue";
+import ReportsView from "@/views/reception/ReportsView.vue";
+import RevenueOverviewView from "@/views/reception/RevenueOverviewView.vue";
+import ShiftHandoverView from "@/views/reception/ShiftHandoverView.vue";
+import InventoryView from "@/views/reception/InventoryView.vue";
+import ProcessItemsView from "@/views/reception/ProcessItemsView.vue";
 
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 import LoginView from "@/views/LoginView.vue";
@@ -32,7 +37,6 @@ import AdminFloorsView from "@/views/admin/AdminFloorsView.vue";
 import AdminKPIView from "@/views/admin/AdminKPIView.vue";
 import AdminAuditView from "@/views/admin/AdminAuditView.vue";
 import AdminVoucherView from "@/views/admin/AdminVoucherView.vue";
-
 
 // ─── Staff/Hall Views ─────────────────────────────────────────────────────────
 import StaffFloorPlanView from "@/views/staff/StaffFloorPlanView.vue";
@@ -65,8 +69,12 @@ import DailyReceiptView from "@/views/purchasing/DailyReceiptView.vue";
 import InventoryAuditView from "@/views/purchasing/InventoryAuditView.vue";
 
 // ─── Accounting Views ──────────────────────────────────────────────────────────
+import AccountingDashboardView from "@/views/accounting/AccountingDashboardView.vue";
 import InvoiceManagerView from "@/views/accounting/InvoiceManagerView.vue";
 import TaxExportView from "@/views/accounting/TaxExportView.vue";
+import CashFlowView from "@/views/accounting/CashFlowView.vue";
+import APPayablesView from "@/views/accounting/APPayablesView.vue";
+import PLReportView from "@/views/accounting/PLReportView.vue";
 
 // ─── Tablet Views ───────────────────────────────────────────────────────────────
 import TabletIdleView from "@/views/tablet/TabletIdleView.vue";
@@ -126,7 +134,6 @@ const routes: RouteRecordRaw[] = [
       { path: "kpi", name: "admin-kpi", component: AdminKPIView },
       { path: "audit", name: "admin-audit", component: AdminAuditView },
       { path: "vouchers", name: "admin-vouchers", component: AdminVoucherView },
-
     ],
   },
 
@@ -183,12 +190,13 @@ const routes: RouteRecordRaw[] = [
     path: "/accounting",
     component: AccountingLayout,
     children: [
-      {
-        path: "invoices",
-        name: "accounting-invoices",
-        component: InvoiceManagerView,
-      },
-      { path: "tax", name: "accounting-tax", component: TaxExportView },
+      { path: "", redirect: "/accounting/dashboard" },
+      { path: "dashboard", name: "accounting-dashboard", component: AccountingDashboardView },
+      { path: "cashflow",  name: "accounting-cashflow",  component: CashFlowView },
+      { path: "ap",        name: "accounting-ap",        component: APPayablesView },
+      { path: "pl-report", name: "accounting-pl-report", component: PLReportView },
+      { path: "invoices",  name: "accounting-invoices",  component: InvoiceManagerView },
+      { path: "tax",       name: "accounting-tax",       component: TaxExportView },
     ],
   },
 
@@ -220,8 +228,6 @@ const routes: RouteRecordRaw[] = [
     ],
   },
 
-
-
   // ═══════════════════════════════════════════════════════════════
   // SUPERADMIN PORTAL (Desktop — Role: Enterprise Admin)
   // ═══════════════════════════════════════════════════════════════
@@ -243,6 +249,16 @@ const routes: RouteRecordRaw[] = [
         path: "integrations",
         name: "superadmin-integrations",
         component: SuperadminIntegrationsView,
+      },
+      {
+        path: "accounts",
+        name: "superadmin-accounts",
+        component: AdminAccountsView,
+      },
+      {
+        path: "vouchers",
+        name: "superadmin-vouchers",
+        component: AdminVoucherView,
       },
     ],
   },
@@ -282,6 +298,7 @@ const routes: RouteRecordRaw[] = [
       },
     ],
   },
+
   {
     path: "/reception",
     component: ReceptionLayout,
@@ -311,6 +328,56 @@ const routes: RouteRecordRaw[] = [
         name: "reception-order",
         component: ReceptionOrderView,
         meta: { fullscreen: true },
+      },
+      {
+        path: "reports",
+        name: "reception-reports",
+        component: ReportsView,
+        meta: {
+          requiresAuth: true,
+          title: "Báo cáo",
+          fullscreen: true,
+        },
+      },
+      {
+        path: "revenue-overview",
+        name: "reception-revenue-overview",
+        component: RevenueOverviewView,
+        meta: {
+          requiresAuth: true,
+          title: "DT Tổng thể",
+          fullscreen: true,
+        },
+      },
+      {
+        path: "shift-handover",
+        name: "reception-shift-handover",
+        component: ShiftHandoverView,
+        meta: {
+          requiresAuth: true,
+          title: "Giao ca",
+          fullscreen: true,
+        },
+      },
+      {
+        path: "inventory",
+        name: "reception-inventory",
+        component: InventoryView,
+        meta: {
+          requiresAuth: true,
+          title: "Tồn kho tức thời",
+          fullscreen: true,
+        },
+      },
+      {
+        path: "process-items",
+        name: "reception-process-items",
+        component: ProcessItemsView,
+        meta: {
+          requiresAuth: true,
+          title: "Xử lý món",
+          fullscreen: true,
+        },
       },
     ],
   },
@@ -415,20 +482,20 @@ const router = createRouter({
 });
 
 const ROUTE_ROLES: Record<string, string[]> = {
-  superadmin: ['superadmin'],
-  admin: ['superadmin'],
-  manager: ['superadmin', 'manager'],
-  reception: ['superadmin', 'manager', 'reception'],
-  staff: ['superadmin', 'manager', 'staff'],
-  hall: ['superadmin', 'manager', 'reception', 'staff'],
-  kitchen: ['superadmin', 'manager', 'kitchen'],
-  purchasing: ['superadmin', 'procurement_manager', 'procurement_staff'],
-  accounting: ['superadmin', 'accountant'],
-  crm: ['superadmin', 'manager', 'crm_manager'],
-  marketing: ['superadmin', 'manager', 'marketing'],
-  bod: ['superadmin', 'bod'],
-  tablet: ['superadmin', 'manager', 'reception', 'staff', 'customer'],
-}
+  superadmin: ["superadmin"],
+  admin: ["superadmin", "admin"],
+  manager: ["superadmin", "admin", "manager"],
+  reception: ["superadmin", "admin", "manager", "reception"],
+  staff: ["superadmin", "admin", "manager", "staff"],
+  hall: ["superadmin", "admin", "manager", "reception", "staff"],
+  kitchen: ["superadmin", "admin", "manager", "kitchen"],
+  purchasing: ["superadmin", "admin", "procurement", "procurement_manager", "procurement_staff", "purchasing"],
+  accounting: ["superadmin", "admin", "accounting", "accounting_manager", "manager"],
+  crm: ["superadmin", "admin", "manager", "crm_manager", "crm"],
+  marketing: ["superadmin", "admin", "manager", "marketing"],
+  bod: ["superadmin", "admin", "bod"],
+  tablet: ["superadmin", "admin", "manager", "reception", "staff", "customer"],
+};
 
 router.beforeEach(async (to) => {
   const { isAuthenticated, loading, role, isAdmin } = useAuth();
@@ -459,6 +526,13 @@ router.beforeEach(async (to) => {
       "[DEBUG ROUTER] Bypass match for public customer route:",
       to.path,
     );
+    if (isAuthenticated.value && to.name === "login" && role.value) {
+      const fallback = getFallbackRouteForRole(role.value);
+      if (typeof fallback === 'object' && fallback !== null && 'name' in fallback && fallback.name === 'login') {
+        return; // Prevent infinite loop if role has no home mapped
+      }
+      return fallback;
+    }
     return;
   }
 
@@ -478,14 +552,14 @@ router.beforeEach(async (to) => {
     }
   }
 
-  const prefix = String(to.path.split('/')[1] ?? '')
-  const allowed = ROUTE_ROLES[prefix]
-  
+  const prefix = String(to.path.split("/")[1] ?? "");
+  const allowed = ROUTE_ROLES[prefix];
+
   // Normalize checking
   const currentRole = role.value;
 
   if (allowed && currentRole && !allowed.includes(currentRole)) {
-    return getFallbackRouteForRole(currentRole)
+    return getFallbackRouteForRole(currentRole);
   }
 
   console.log("[DEBUG ROUTER] Navigation allowed to:", to.path);

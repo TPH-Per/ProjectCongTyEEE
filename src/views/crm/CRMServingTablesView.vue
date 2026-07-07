@@ -1,511 +1,363 @@
 <template>
-  <div class="space-y-5">
-    <header class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-      <div>
-        <h1 class="text-2xl font-bold text-gray-900">CRM Customer Care</h1>
-        <p class="text-sm text-gray-500">Serving tables</p>
-      </div>
-      <button
-        type="button"
-        class="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-bold text-gray-700 hover:bg-gray-50 disabled:opacity-50"
-        :disabled="loading"
-        @click="refresh"
-      >
-        {{ loading ? 'Loading...' : 'Refresh' }}
-      </button>
+  <div class="space-y-4">
+    <header class="flex flex-col gap-1">
+      <h1 class="text-2xl font-bold text-white">{{ $t('crm.servingTables', 'Serving Tables') }}</h1>
+      <p class="text-sm text-yellow-500/80">{{ $t('crm.overview', 'Overview') }}</p>
     </header>
 
-    <div v-if="error" class="rounded-lg border border-red-200 bg-red-50 p-3 text-sm font-semibold text-red-700">
+    <!-- Filters -->
+    <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+      <button
+        v-for="filter in filters"
+        :key="filter.value"
+        @click="activeFilter = filter.value"
+        class="whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-semibold transition-colors border"
+        :class="
+          activeFilter === filter.value
+            ? 'bg-yellow-500 border-yellow-500 text-gray-900'
+            : 'bg-gray-800 border-gray-700 text-gray-400 hover:bg-gray-700'
+        "
+      >
+        {{ filter.label }}
+      </button>
+    </div>
+
+    <!-- Error state -->
+    <div v-if="error" class="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
       {{ error }}
     </div>
 
-    <section class="grid gap-5 xl:grid-cols-[minmax(0,1.35fr)_minmax(380px,0.65fr)]">
-      <div class="space-y-4">
-        <div class="flex flex-wrap gap-2">
-          <button
-            v-for="status in filters"
-            :key="status.value"
-            type="button"
-            class="rounded-lg border px-3 py-2 text-xs font-bold transition-colors"
-            :class="activeFilter === status.value
-              ? 'border-red-300 bg-red-50 text-red-700'
-              : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'"
-            @click="activeFilter = status.value"
-          >
-            {{ status.label }}
-          </button>
-        </div>
+    <!-- Loading state -->
+    <div v-if="loading && !tables.length" class="space-y-3">
+      <div v-for="i in 3" :key="i" class="h-24 w-full animate-pulse rounded-2xl bg-gray-800 border border-gray-700"></div>
+    </div>
 
-        <div class="overflow-hidden rounded-lg border border-gray-200 bg-white">
-          <table class="w-full border-collapse text-left text-sm">
-            <thead class="bg-gray-50 text-xs uppercase text-gray-500">
-              <tr>
-                <th class="px-4 py-3 font-bold">Table</th>
-                <th class="px-4 py-3 font-bold">Order</th>
-                <th class="px-4 py-3 font-bold">Guests</th>
-                <th class="px-4 py-3 font-bold">Started</th>
-                <th class="px-4 py-3 font-bold">CRM</th>
-                <th class="px-4 py-3 text-right font-bold">Action</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-100">
-              <tr
-                v-for="table in filteredTables"
-                :key="table.order_id"
-                class="hover:bg-gray-50"
-                :class="selectedTable?.order_id === table.order_id ? 'bg-red-50/60' : ''"
-              >
-                <td class="px-4 py-3">
-                  <div class="font-black text-gray-900">{{ table.table_code }}</div>
-                  <div class="text-xs text-gray-500">{{ table.zone_name || 'No zone' }}</div>
-                </td>
-                <td class="px-4 py-3 font-mono text-xs text-gray-500">
-                  {{ shortId(table.order_id) }}
-                </td>
-                <td class="px-4 py-3 font-semibold text-gray-700">
-                  {{ table.guest_count || '-' }}
-                </td>
-                <td class="px-4 py-3 text-gray-600">
-                  {{ formatTime(table.started_at) }}
-                </td>
-                <td class="px-4 py-3">
-                  <span class="inline-flex rounded-lg px-2.5 py-1 text-xs font-black" :class="statusClass(table.crm_status)">
-                    {{ statusLabel(table.crm_status) }}
-                  </span>
-                </td>
-                <td class="px-4 py-3 text-right">
-                  <div class="flex items-center justify-end gap-2">
-                    <button
-                      v-if="canUndo(table)"
-                      type="button"
-                      class="rounded-lg border border-amber-300 bg-amber-50 px-2.5 py-1 text-[10px] font-bold text-amber-700 hover:bg-amber-100"
-                      :title="`Hoàn tác về ${lastChangeFor(table)?.from}`"
-                      @click="undoLast(table)"
-                    >
-                      ↺ Hoàn tác
-                    </button>
-                    <button
-                      type="button"
-                      class="rounded-lg bg-gray-900 px-3 py-2 text-xs font-bold text-white hover:bg-black"
-                      @click="selectTable(table)"
-                    >
-                      {{ actionLabel(table.crm_status) }}
-                    </button>
-                  </div>
-                </td>
-              </tr>
-              <tr v-if="filteredTables.length === 0">
-                <td colspan="6" class="px-4 py-8 text-center text-gray-400">
-                  No serving tables for this filter.
-                </td>
-              </tr>
-            </tbody>
-          </table>
+    <!-- Empty state -->
+    <div v-else-if="!filteredTables.length" class="flex flex-col items-center justify-center py-12 text-center">
+      <div class="mb-4 rounded-full bg-gray-800 border border-gray-700 p-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+        </svg>
+      </div>
+      <p class="text-gray-400">{{ $t('crm.noTables', 'No tables found.') }}</p>
+    </div>
+
+    <!-- Table Cards -->
+    <div v-else class="grid gap-3">
+      <div
+        v-for="table in filteredTables"
+        :key="table.table_id"
+        class="relative overflow-hidden rounded-2xl border border-gray-700 bg-gray-800 p-4 shadow-sm transition-all hover:border-yellow-500/50 hover:shadow-yellow-900/20 cursor-pointer"
+        @click="openSurvey(table)"
+      >
+        <div class="flex justify-between items-start mb-2">
+          <div>
+            <h3 class="text-lg font-bold text-white">{{ table.table_code }}</h3>
+            <p class="text-xs text-gray-400">{{ table.zone_name || 'No zone' }}</p>
+          </div>
+          <span :class="['px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider', statusClass(table.crm_status)]">
+            {{ statusLabel(table.crm_status) }}
+          </span>
+        </div>
+        
+        <div class="flex items-center gap-4 text-sm text-gray-400 mt-4">
+          <div class="flex items-center gap-1">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-yellow-500/50" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+            </svg>
+            <span>{{ table.guest_count }} {{ $t('crm.guests', 'Guests') }}</span>
+          </div>
+          <div class="flex items-center gap-1">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-yellow-500/50" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
+            </svg>
+            <span>{{ formatTime(table.started_at) }}</span>
+          </div>
         </div>
       </div>
+    </div>
 
-      <aside class="rounded-lg border border-gray-200 bg-white p-5">
-        <div v-if="!selectedTable" class="py-16 text-center text-sm text-gray-400">
-          Select a serving table to start CRM survey.
+    <!-- Survey Modal (Bottom Sheet for Mobile) -->
+    <Teleport to="body">
+      <Transition
+        enter-active-class="transition duration-300 ease-out"
+        enter-from-class="translate-y-full opacity-0"
+        enter-to-class="translate-y-0 opacity-100"
+        leave-active-class="transition duration-200 ease-in"
+        leave-from-class="translate-y-0 opacity-100"
+        leave-to-class="translate-y-full opacity-0"
+      >
+        <div v-if="selectedTable" class="fixed inset-0 z-50 flex items-end justify-center sm:items-center bg-gray-900/40 backdrop-blur-sm">
+          <!-- Click outside to close -->
+          <div class="absolute inset-0" @click="closeSurvey"></div>
+          
+          <div class="relative bg-gray-900 border-t border-gray-800 w-full rounded-t-3xl sm:rounded-3xl sm:max-w-md shadow-2xl shadow-yellow-900/20 flex flex-col max-h-[90vh]">
+            <div class="flex justify-center pt-3 pb-2 sm:hidden" @click="closeSurvey">
+              <div class="w-12 h-1.5 bg-gray-700 rounded-full"></div>
+            </div>
+            
+            <div class="px-6 pb-4 border-b border-gray-800 flex justify-between items-center shrink-0 mt-4 sm:mt-0">
+              <div>
+                <h2 class="text-xl font-bold text-white">{{ $t('crm.surveyFor', 'Survey') }} {{ selectedTable.table_code }}</h2>
+                <p class="text-sm text-yellow-500/80">{{ selectedTable.zone_name || '' }}</p>
+              </div>
+              <button @click="closeSurvey" class="rounded-full p-2 bg-gray-800 text-gray-400 hover:bg-gray-700">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                </svg>
+              </button>
+            </div>
+            
+            <!-- Survey Content -->
+            <div class="p-6 overflow-y-auto">
+              <div v-if="selectedTable.crm_status === 'completed'" class="flex flex-col items-center justify-center py-8 text-center">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <h3 class="text-lg font-bold text-white mb-1">{{ $t('crm.surveyCompleted', 'Survey Completed') }}</h3>
+                <p class="text-sm text-gray-500">{{ $t('crm.alreadySurveyed', 'This table has already been surveyed.') }}</p>
+              </div>
+
+              <form v-else @submit.prevent="submit" class="space-y-6">
+                <!-- Customer Details -->
+                <div class="space-y-4">
+                  <h3 class="text-sm font-bold text-white uppercase tracking-wider">{{ $t('crm.customerDetails', 'Customer Details') }}</h3>
+                  
+                  <div>
+                    <label class="block text-xs font-semibold text-gray-400 mb-1">{{ $t('crm.customerName', 'Customer Name') }}</label>
+                    <input
+                      v-model="surveyForm.customerName"
+                      type="text"
+                      class="w-full rounded-xl border border-gray-700 bg-gray-800 px-4 py-3 text-sm text-white focus:border-yellow-500 focus:outline-none focus:ring-2 focus:ring-yellow-500/20 transition-all placeholder-gray-500"
+                      :placeholder="$t('crm.namePlaceholder', 'Enter name')"
+                    />
+                  </div>
+
+                  <div>
+                    <label class="block text-xs font-semibold text-gray-400 mb-1">{{ $t('crm.phoneNumber', 'Phone Number') }}</label>
+                    <input
+                      v-model="surveyForm.customerPhone"
+                      type="tel"
+                      class="w-full rounded-xl border border-gray-700 bg-gray-800 px-4 py-3 text-sm text-white focus:border-yellow-500 focus:outline-none focus:ring-2 focus:ring-yellow-500/20 transition-all placeholder-gray-500"
+                      :placeholder="$t('crm.phonePlaceholder', 'Enter phone')"
+                    />
+                  </div>
+
+                  <div>
+                    <label class="block text-xs font-semibold text-gray-400 mb-1">{{ $t('crm.visitReason', 'Reason for Visit') }}</label>
+                    <select
+                      v-model="surveyForm.visitReason"
+                      class="w-full rounded-xl border border-gray-700 bg-gray-800 px-4 py-3 text-sm text-white focus:border-yellow-500 focus:outline-none focus:ring-2 focus:ring-yellow-500/20 transition-all"
+                    >
+                      <option value="">{{ $t('crm.selectReason', 'Select reason') }}</option>
+                      <option value="casual">{{ $t('crm.reason.casual', 'Casual Dining') }}</option>
+                      <option value="birthday">{{ $t('crm.reason.birthday', 'Birthday') }}</option>
+                      <option value="anniversary">{{ $t('crm.reason.anniversary', 'Anniversary') }}</option>
+                      <option value="business">{{ $t('crm.reason.business', 'Business Meeting') }}</option>
+                      <option value="other">{{ $t('crm.reason.other', 'Other') }}</option>
+                    </select>
+                  </div>
+                </div>
+
+                <!-- Feedback -->
+                <div class="space-y-4">
+                  <h3 class="text-sm font-bold text-white uppercase tracking-wider">{{ $t('crm.generalFeedback', 'Feedback') }}</h3>
+                  <div>
+                    <textarea
+                      v-model="surveyForm.feedback"
+                      rows="3"
+                      class="w-full rounded-xl border border-gray-700 bg-gray-800 px-4 py-3 text-sm text-white focus:border-yellow-500 focus:outline-none focus:ring-2 focus:ring-yellow-500/20 transition-all placeholder-gray-500"
+                      :placeholder="$t('crm.feedbackPlaceholder', 'How was the experience?')"
+                    ></textarea>
+                  </div>
+                  <div>
+                    <label class="block text-xs font-semibold text-gray-400 mb-1">{{ $t('crm.improvementNotes', 'Improvement Notes') }}</label>
+                    <textarea
+                      v-model="surveyForm.improvementNote"
+                      rows="2"
+                      class="w-full rounded-xl border border-gray-700 bg-gray-800 px-4 py-3 text-sm text-white focus:border-yellow-500 focus:outline-none focus:ring-2 focus:ring-yellow-500/20 transition-all placeholder-gray-500"
+                      :placeholder="$t('crm.improvementPlaceholder', 'What can we do better?')"
+                    ></textarea>
+                  </div>
+                </div>
+
+                <!-- Buttons -->
+                <div class="pt-4 flex flex-col gap-3 pb-6 sm:pb-0">
+                  <button
+                    type="submit"
+                    class="w-full rounded-xl bg-gradient-to-r from-yellow-500 to-yellow-600 px-4 py-3.5 text-sm font-bold text-gray-900 shadow-lg shadow-yellow-900/30 hover:opacity-90 transition-all active:scale-[0.98] disabled:opacity-50"
+                    :disabled="crmStore.loading"
+                  >
+                    {{ crmStore.loading ? $t('crm.saving', 'Saving...') : $t('crm.submitSurvey', 'Submit Survey') }}
+                  </button>
+                  <button
+                    v-if="selectedTable.crm_status === 'not_started' || selectedTable.crm_status === 'assigned'"
+                    type="button"
+                    class="w-full rounded-xl bg-gray-800 border border-gray-700 px-4 py-3.5 text-sm font-bold text-gray-300 hover:bg-gray-700 transition-all active:scale-[0.98] disabled:opacity-50"
+                    :disabled="crmStore.loading"
+                    @click="markInProgress"
+                  >
+                    {{ $t('crm.markInProgress', 'Mark as In Progress') }}
+                  </button>
+                  <button
+                    type="button"
+                    class="w-full rounded-xl bg-red-900/20 border border-red-900/50 text-red-400 px-4 py-3.5 text-sm font-bold hover:bg-red-900/40 transition-all active:scale-[0.98] disabled:opacity-50"
+                    :disabled="crmStore.loading"
+                    @click="skipSurvey"
+                  >
+                    {{ $t('crm.skip', 'Customer Refused / Skip') }}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
         </div>
-
-        <form v-else-if="isReadOnlySurvey(selectedTable)" class="space-y-4" @submit.prevent>
-          <div class="flex items-start justify-between gap-3 border-b pb-4">
-            <div>
-              <h2 class="text-lg font-black text-gray-900">{{ selectedTable.table_code }}</h2>
-              <p class="text-xs text-gray-500">
-                Order {{ shortId(selectedTable.order_id) }} · Submitted
-                {{ selectedTable.crm_submitted_at ? formatTime(selectedTable.crm_submitted_at) : '' }}
-              </p>
-            </div>
-            <span class="rounded-lg px-2.5 py-1 text-xs font-black bg-green-100 text-green-700">
-              View-only (submitted)
-            </span>
-          </div>
-          <p class="rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-xs text-gray-500">
-            Survey đã gửi — chỉ xem. Để chỉnh sửa sau khi gửi, liên hệ quản lý.
-          </p>
-          <dl class="grid gap-2 text-sm">
-            <div v-if="selectedTable.customer_name" class="flex justify-between border-b border-gray-100 py-2">
-              <dt class="text-gray-500">Customer</dt><dd class="font-semibold text-gray-800">{{ selectedTable.customer_name }}</dd>
-            </div>
-            <div v-if="selectedTable.customer_phone" class="flex justify-between border-b border-gray-100 py-2">
-              <dt class="text-gray-500">Phone</dt><dd class="font-mono text-gray-800">{{ selectedTable.customer_phone }}</dd>
-            </div>
-          </dl>
-        </form>
-
-        <form v-else class="space-y-4" @submit.prevent="submitSurvey">
-          <div class="flex items-start justify-between gap-3 border-b pb-4">
-            <div>
-              <h2 class="text-lg font-black text-gray-900">{{ selectedTable.table_code }}</h2>
-              <p class="text-xs text-gray-500">
-                Order {{ shortId(selectedTable.order_id) }} · {{ statusLabel(selectedTable.crm_status) }}
-              </p>
-            </div>
-            <span class="rounded-lg px-2.5 py-1 text-xs font-black" :class="statusClass(selectedTable.crm_status)">
-              {{ statusLabel(selectedTable.crm_status) }}
-            </span>
-          </div>
-
-          <div class="grid gap-3 sm:grid-cols-2">
-            <label class="block">
-              <span class="mb-1 block text-xs font-bold uppercase text-gray-500">Source</span>
-              <select v-model="form.sourceCode" class="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm font-semibold outline-none focus:border-red-400">
-                <option value="">Select source</option>
-                <option v-for="source in sourceOptions" :key="source.value" :value="source.value">{{ source.label }}</option>
-              </select>
-            </label>
-
-            <label class="block">
-              <span class="mb-1 block text-xs font-bold uppercase text-gray-500">Visit reason</span>
-              <select v-model="form.visitReason" class="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm font-semibold outline-none focus:border-red-400">
-                <option value="">Select reason</option>
-                <option v-for="reason in reasonOptions" :key="reason.value" :value="reason.value">{{ reason.label }}</option>
-              </select>
-            </label>
-          </div>
-
-          <label class="block">
-            <span class="mb-1 block text-xs font-bold uppercase text-gray-500">Feedback</span>
-            <textarea v-model="form.feedback" rows="3" class="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-red-400" />
-          </label>
-
-          <label class="block">
-            <span class="mb-1 block text-xs font-bold uppercase text-gray-500">Improvement note</span>
-            <textarea v-model="form.improvementNote" rows="3" class="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-red-400" />
-          </label>
-
-          <div class="grid gap-3 sm:grid-cols-2">
-            <label class="block">
-              <span class="mb-1 block text-xs font-bold uppercase text-gray-500">Customer name</span>
-              <input v-model="form.customerName" class="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-red-400" />
-            </label>
-            <label class="block">
-              <span class="mb-1 block text-xs font-bold uppercase text-gray-500">Phone</span>
-              <input v-model="form.customerPhone" inputmode="tel" class="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-red-400" />
-            </label>
-          </div>
-
-          <div class="grid gap-3 sm:grid-cols-2">
-            <label class="block">
-              <span class="mb-1 block text-xs font-bold uppercase text-gray-500">Zalo</span>
-              <input v-model="form.zalo" class="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-red-400" />
-            </label>
-            <label class="block">
-              <span class="mb-1 block text-xs font-bold uppercase text-gray-500">Tags</span>
-              <input v-model="tagText" placeholder="vip, birthday, family" class="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-red-400" />
-            </label>
-          </div>
-
-          <label class="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm font-semibold text-gray-700">
-            <input v-model="form.marketingConsent" type="checkbox" class="h-4 w-4 accent-red-600" />
-            Marketing consent
-          </label>
-
-          <label class="block">
-            <span class="mb-1 block text-xs font-bold uppercase text-gray-500">Internal note</span>
-            <input v-model="form.note" class="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-red-400" />
-          </label>
-
-          <div class="grid gap-2 sm:grid-cols-3">
-            <button
-              type="submit"
-              class="rounded-lg bg-red-600 px-4 py-3 text-sm font-black text-white hover:bg-red-700 disabled:opacity-50"
-              :disabled="loading || !canSubmit"
-            >
-              Submit
-            </button>
-            <button
-              type="button"
-              class="rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-black text-gray-700 hover:bg-gray-50 disabled:opacity-50"
-              :disabled="loading"
-              @click="markRefused"
-            >
-              Refused
-            </button>
-            <button
-              type="button"
-              class="rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-black text-gray-700 hover:bg-gray-50 disabled:opacity-50"
-              :disabled="loading"
-              @click="skipSurvey"
-            >
-              Skip
-            </button>
-          </div>
-        </form>
-      </aside>
-    </section>
+      </Transition>
+    </Teleport>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
-import { useCRM, type CrmServingTable, type CrmSurveyStatus } from '@/composables/useCRM'
+import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useCrmStore } from '@/stores/crmStore'
+import type { CrmServingTable, CrmSurveyInput, CrmSurveyStatus } from '@/stores/crmStore'
 import { useRealtime } from '@/composables/useRealtime'
 
-const {
-  loading,
-  error,
-  listServingTables,
-  submitTableSurvey,
-  markSurveyInProgress,
-  skipTableSurvey,
-  refuseTableSurvey,
-  setSurveyStatus,
-} = useCRM()
+const { t } = useI18n()
+const crmStore = useCrmStore()
+const loading = computed(() => crmStore.loading)
+const error = computed(() => crmStore.error)
 
 const tables = ref<CrmServingTable[]>([])
+const activeFilter = ref<string>('all')
 const selectedTable = ref<CrmServingTable | null>(null)
-const activeFilter = ref<'all' | CrmSurveyStatus>('all')
-const tagText = ref('')
 
-// Recent status changes per table — kept for 10 s so the UI can offer an
-// "undo last action" affordance. Cleared after either TTL or undo.
-interface StatusChange {
-  orderId: string
-  from: CrmSurveyStatus
-  to: CrmSurveyStatus
-  changedAt: number
-}
-const recentChanges = ref<StatusChange[]>([])
-const RECENT_TTL_MS = 10_000
-
-function recordChange(orderId: string, from: CrmSurveyStatus, to: CrmSurveyStatus) {
-  if (from === to) return
-  recentChanges.value = [
-    ...recentChanges.value.filter((c) => c.orderId !== orderId),
-    { orderId, from, to, changedAt: Date.now() },
-  ]
-  // Garbage-collect expired entries so the map doesn't grow unbounded.
-  setTimeout(() => {
-    recentChanges.value = recentChanges.value.filter(
-      (c) => Date.now() - c.changedAt < RECENT_TTL_MS,
-    )
-  }, RECENT_TTL_MS + 1000)
-}
-
-function lastChangeFor(table: CrmServingTable): StatusChange | undefined {
-  return recentChanges.value.find((c) => c.orderId === table.order_id)
-}
-function canUndo(table: CrmServingTable): boolean {
-  const c = lastChangeFor(table)
-  // Don't surface an undo option when reverting would require un-doing a
-  // submit (`completed` is not reversible through `setSurveyStatus`).
-  if (!c) return false
-  if (c.to === 'completed') return false
-  return Date.now() - c.changedAt < RECENT_TTL_MS
-}
-
-async function undoLast(table: CrmServingTable) {
-  const c = lastChangeFor(table)
-  if (!c) return
-  // `setSurveyStatus` only accepts the 4 reversible workflow statuses.
-  // `not_started` is the implicit "no row" state — there is no row to
-  // update to that status, so the undo button is hidden in `canUndo` and we
-  // additionally guard here as a safety net.
-  const reversible = ['assigned', 'in_progress', 'skipped', 'customer_refused'] as const
-  if (!(reversible as readonly string[]).includes(c.from)) return
-  try {
-    await setSurveyStatus(table, c.from as (typeof reversible)[number])
-    // Drop the entry immediately so the UI doesn't show "undo" again.
-    recentChanges.value = recentChanges.value.filter((x) => x.orderId !== table.order_id)
-    await refresh()
-  } catch (e: any) {
-    error.value = e?.message ?? String(e)
-  }
-}
-
-function isReadOnlySurvey(table: CrmServingTable | null): boolean {
-  if (!table) return false
-  return table.crm_status === 'completed'
-}
-
-const form = ref({
-  sourceCode: '',
+const surveyForm = ref({
+  customerName: '',
+  customerPhone: '',
   visitReason: '',
   feedback: '',
   improvementNote: '',
-  customerName: '',
-  customerPhone: '',
-  zalo: '',
-  marketingConsent: false,
-  note: '',
 })
 
-const filters: Array<{ value: 'all' | CrmSurveyStatus; label: string }> = [
-  { value: 'all', label: 'All' },
-  { value: 'not_started', label: 'Not asked' },
-  { value: 'in_progress', label: 'In progress' },
-  { value: 'completed', label: 'Completed' },
-  { value: 'customer_refused', label: 'Refused' },
-  { value: 'skipped', label: 'Skipped' },
-]
-
-const sourceOptions = [
-  { value: 'google_map', label: 'Google Map' },
-  { value: 'facebook', label: 'Facebook' },
-  { value: 'tiktok', label: 'TikTok' },
-  { value: 'instagram', label: 'Instagram' },
-  { value: 'friend_referral', label: 'Friend referral' },
-  { value: 'walk_by', label: 'Walk by' },
-  { value: 'returning_customer', label: 'Returning customer' },
-  { value: 'booking_platform', label: 'Booking platform' },
-  { value: 'other', label: 'Other' },
-]
-
-const reasonOptions = [
-  { value: 'family_meal', label: 'Family meal' },
-  { value: 'birthday', label: 'Birthday' },
-  { value: 'date', label: 'Date' },
-  { value: 'company', label: 'Company' },
-  { value: 'friends', label: 'Friends' },
-  { value: 'first_try', label: 'First try' },
-  { value: 'regular', label: 'Regular customer' },
-  { value: 'other', label: 'Other' },
-]
+const filters = computed(() => [
+  { label: t('crm.status.toDo', 'All Tables'), value: 'all' },
+  { label: t('crm.status.assigned', 'Action Needed'), value: 'action_needed' },
+  { label: t('crm.status.inProgress', 'In Progress'), value: 'in_progress' },
+  { label: t('crm.status.done', 'Completed'), value: 'completed' },
+])
 
 const filteredTables = computed(() => {
   if (activeFilter.value === 'all') return tables.value
-  return tables.value.filter((table) => table.crm_status === activeFilter.value)
+  if (activeFilter.value === 'completed') {
+    return tables.value.filter(tbl => tbl.crm_status === 'completed' || tbl.crm_status === 'skipped' || tbl.crm_status === 'customer_refused')
+  }
+  if (activeFilter.value === 'in_progress') {
+    return tables.value.filter(tbl => tbl.crm_status === 'in_progress')
+  }
+  if (activeFilter.value === 'action_needed') {
+    return tables.value.filter(tbl => tbl.crm_status === 'not_started' || tbl.crm_status === 'assigned')
+  }
+  return tables.value
 })
 
-const canSubmit = computed(() => {
-  if (!selectedTable.value?.order_id) return false
-  return Boolean(
-    form.value.sourceCode ||
-      form.value.visitReason ||
-      form.value.feedback.trim() ||
-      form.value.improvementNote.trim() ||
-      form.value.customerPhone.trim(),
-  )
-})
-
-function shortId(id?: string | null): string {
-  return id ? id.slice(0, 8) : '-'
-}
-
-function formatTime(value?: string | null): string {
-  if (!value) return '-'
-  const date = new Date(value)
-  return Number.isNaN(date.getTime())
-    ? '-'
-    : date.toLocaleString('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' })
-}
-
-function statusLabel(status: CrmSurveyStatus): string {
-  switch (status) {
-    case 'not_started': return 'Not asked'
-    case 'assigned': return 'Assigned'
-    case 'in_progress': return 'In progress'
-    case 'completed': return 'Completed'
-    case 'skipped': return 'Skipped'
-    case 'customer_refused': return 'Refused'
-    case 'expired': return 'Expired'
-    case 'late_submitted': return 'Late submitted'
-    default: return status
+async function refresh() {
+  await crmStore.fetchServingTables()
+  tables.value = crmStore.servingTables
+  if (selectedTable.value) {
+    selectedTable.value = tables.value.find((t) => t.table_id === selectedTable.value?.table_id) ?? null
   }
 }
 
-function statusClass(status: CrmSurveyStatus): string {
-  switch (status) {
-    case 'completed': return 'bg-green-100 text-green-700'
-    case 'in_progress':
-    case 'assigned': return 'bg-blue-100 text-blue-700'
-    case 'customer_refused': return 'bg-red-100 text-red-700'
-    case 'skipped': return 'bg-gray-100 text-gray-700'
-    case 'expired':
-    case 'late_submitted': return 'bg-purple-100 text-purple-700'
-    default: return 'bg-orange-100 text-orange-700'
-  }
-}
-
-function actionLabel(status: CrmSurveyStatus): string {
-  if (status === 'completed') return 'View'
-  if (status === 'in_progress' || status === 'assigned') return 'Continue'
-  return 'Start'
-}
-
-function resetForm() {
-  form.value = {
-    sourceCode: '',
+function openSurvey(table: CrmServingTable) {
+  selectedTable.value = table
+  surveyForm.value = {
+    customerName: table.customer_name || '',
+    customerPhone: table.customer_phone || '',
     visitReason: '',
     feedback: '',
     improvementNote: '',
-    customerName: '',
-    customerPhone: '',
-    zalo: '',
-    marketingConsent: false,
-    note: '',
-  }
-  tagText.value = ''
-}
-
-async function refresh() {
-  tables.value = await listServingTables()
-  if (selectedTable.value) {
-    selectedTable.value = tables.value.find((table) => table.order_id === selectedTable.value?.order_id) ?? null
   }
 }
 
-async function selectTable(table: CrmServingTable) {
-  selectedTable.value = table
-  resetForm()
-  if (table.crm_status === 'not_started') {
-    const before = table.crm_status
-    await markSurveyInProgress(table)
-    await refresh()
-    const after = tables.value.find((t) => t.order_id === table.order_id)
-    if (after) recordChange(table.order_id, before, after.crm_status)
-  }
+function closeSurvey() {
+  selectedTable.value = null
 }
 
-function parsedTags(): string[] {
-  return tagText.value
-    .split(',')
-    .map((tag) => tag.trim())
-    .filter(Boolean)
-}
-
-async function submitSurvey() {
+async function markInProgress() {
   if (!selectedTable.value) return
-  const before = selectedTable.value.crm_status
-  await submitTableSurvey({
-    tableId: selectedTable.value.table_id,
-    orderId: selectedTable.value.order_id,
-    tableAssignmentId: selectedTable.value.table_assignment_id,
-    sourceCode: form.value.sourceCode,
-    visitReason: form.value.visitReason,
-    feedback: form.value.feedback.trim(),
-    improvementNote: form.value.improvementNote.trim(),
-    customerName: form.value.customerName.trim(),
-    customerPhone: form.value.customerPhone.trim(),
-    zalo: form.value.zalo.trim(),
-    marketingConsent: form.value.marketingConsent,
-    tags: parsedTags(),
-    note: form.value.note.trim(),
+  await crmStore.markSurveyInProgress({
+    table_id: selectedTable.value.table_id,
+    order_id: selectedTable.value.order_id,
+    table_assignment_id: selectedTable.value.table_assignment_id
   })
   await refresh()
-  const after = tables.value.find((t) => t.order_id === selectedTable.value?.order_id)
-  if (after) recordChange(selectedTable.value.order_id, before, after.crm_status)
-}
-
-async function markRefused() {
-  if (!selectedTable.value) return
-  const before = selectedTable.value.crm_status
-  await refuseTableSurvey(selectedTable.value, form.value.note.trim())
-  await refresh()
-  const after = tables.value.find((t) => t.order_id === selectedTable.value?.order_id)
-  if (after) recordChange(selectedTable.value.order_id, before, after.crm_status)
+  closeSurvey()
 }
 
 async function skipSurvey() {
   if (!selectedTable.value) return
-  const before = selectedTable.value.crm_status
-  await skipTableSurvey(selectedTable.value, form.value.note.trim())
+  await crmStore.skipTableSurvey({
+    table_id: selectedTable.value.table_id,
+    order_id: selectedTable.value.order_id,
+    table_assignment_id: selectedTable.value.table_assignment_id
+  })
   await refresh()
-  const after = tables.value.find((t) => t.order_id === selectedTable.value?.order_id)
-  if (after) recordChange(selectedTable.value.order_id, before, after.crm_status)
+  closeSurvey()
+}
+
+async function submit() {
+  if (!selectedTable.value) return
+  try {
+    const input: CrmSurveyInput = {
+      tableId: selectedTable.value.table_id,
+      orderId: selectedTable.value.order_id,
+      tableAssignmentId: selectedTable.value.table_assignment_id,
+      customerName: surveyForm.value.customerName || null,
+      customerPhone: surveyForm.value.customerPhone || null,
+      visitReason: surveyForm.value.visitReason || null,
+      feedback: surveyForm.value.feedback || null,
+      improvementNote: surveyForm.value.improvementNote || null,
+    }
+    await crmStore.submitTableSurvey(input)
+    await refresh()
+    closeSurvey()
+  } catch (err) {
+    console.error(err)
+  }
+}
+
+function formatTime(iso: string) {
+  if (!iso) return ''
+  const d = new Date(iso)
+  return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+}
+
+function statusLabel(status: CrmSurveyStatus) {
+  switch (status) {
+    case 'not_started': return t('crm.status.toDo')
+    case 'assigned': return t('crm.status.assigned')
+    case 'in_progress': return t('crm.status.inProgress')
+    case 'completed': return t('crm.status.done')
+    case 'skipped': return t('crm.status.skipped')
+    case 'customer_refused': return t('crm.status.refused')
+    default: return status
+  }
+}
+
+function statusClass(status: CrmSurveyStatus) {
+  switch (status) {
+    case 'completed': return 'bg-green-900/30 text-green-400 border border-green-800'
+    case 'in_progress': return 'bg-blue-900/30 text-blue-400 border border-blue-800'
+    case 'not_started':
+    case 'assigned': return 'bg-yellow-900/30 text-yellow-500 border border-yellow-700'
+    case 'skipped':
+    case 'customer_refused': return 'bg-gray-800 text-gray-400 border border-gray-700'
+    default: return 'bg-gray-800 text-gray-400 border border-gray-700'
+  }
 }
 
 // Realtime: any new survey or order change auto-refreshes the list.
@@ -528,3 +380,13 @@ onBeforeUnmount(() => {
   refreshWatcherB?.()
 })
 </script>
+
+<style scoped>
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+</style>

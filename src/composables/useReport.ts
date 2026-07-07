@@ -53,22 +53,24 @@ export function useReport() {
     loading.value = true
     error.value = null
     const today = new Date().toISOString().slice(0, 10)
-    // Rebuilt invoices (schema_hardening_v2) use status in (VALID, UPDATED) and
-    // created_at (no issued_at). The legacy invoices table also has these columns
-    // but the rebuilt path is the one created by process_checkout.
-    const { data: invoices, error: err } = await supabase
-      .from('invoices')
-      .select('grand_total, order_id')
-      .eq('branch_id', (activeBranchId.value ?? throwBranchGuard()))
-      .in('status', ['VALID', 'UPDATED'])
-      .gte('created_at', `${today}T00:00:00Z`)
+    
+    const { data, error: err } = await supabase.rpc('get_executive_dashboard', {
+      p_period_start: today,
+      p_period_end: today
+    })
+    
     loading.value = false
     if (err) {
       error.value = err.message
       throw err
     }
-    const revenue = (invoices ?? []).reduce((acc, r) => acc + Number(r.grand_total), 0)
-    const orders = new Set((invoices ?? []).map((r) => r.order_id)).size
+    
+    const branches = (data as any)?.branches || []
+    const branchStats = branches.find((b: any) => b.branch_id === activeBranchId.value)
+    
+    const revenue = branchStats ? Number(branchStats.revenue) : 0
+    const orders = branchStats ? Number(branchStats.bill_count) : 0
+    
     return { revenue, orders, covers: orders * 2 } // placeholder covers estimate
   }
 

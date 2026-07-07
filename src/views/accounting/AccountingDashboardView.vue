@@ -1,165 +1,260 @@
 <template>
-  <div class="min-h-screen bg-gray-50 p-6">
-    <!-- Page Header -->
-    <div class="mb-6 flex items-center justify-between">
+  <div class="p-6 space-y-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center">
       <div>
-        <h1 class="text-2xl font-bold text-gray-800">{{ $t('accounting.dashboard') }}</h1>
-        <p class="text-sm text-gray-500 mt-1">Financial overview and key metrics</p>
+        <h1 class="text-2xl font-bold text-[hsl(var(--foreground))]">{{ i18n.t('accounting.dashboard.title') }}</h1>
+        <p class="text-sm text-[hsl(var(--muted-foreground))] mt-0.5">{{ i18n.t('accounting.dashboard.subtitle') }}</p>
       </div>
-      <div class="flex items-center gap-3">
-        <button class="flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm border border-gray-200 hover:bg-gray-50 transition-colors">
-          <CalendarIcon class="w-4 h-4" />
-          <span>This Month</span>
-          <ChevronDownIcon class="w-4 h-4" />
-        </button>
-        <button class="flex items-center gap-2 rounded-xl bg-[hsl(var(--primary))] px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[hsl(var(--primary))]/90 transition-colors">
-          <DownloadIcon class="w-4 h-4" />
-          <span>Export Report</span>
+      <div class="flex items-center gap-2">
+        <select v-if="isManager" v-model="selectedBranch" class="kawaii-input py-1.5 text-sm w-40 max-w-xs truncate" @change="loadDashboard">
+          <option value="all">{{ i18n.t('accounting.allBranches') }}</option>
+          <option v-for="b in branches" :key="b.id" :value="b.id">{{ b.name }} ({{ b.code }})</option>
+        </select>
+        <select v-model="selectedMonth" class="kawaii-input py-1.5 text-sm w-20">
+          <option v-for="m in months" :key="m.value" :value="m.value">{{ m.label }}</option>
+        </select>
+        <select v-model="selectedYear" class="kawaii-input py-1.5 text-sm w-24">
+          <option v-for="y in years" :key="y" :value="y">{{ y }}</option>
+        </select>
+        <button @click="loadDashboard" class="kawaii-btn-primary px-3 py-1.5 text-sm flex items-center gap-2">
+          <RefreshCwIcon class="w-3.5 h-3.5" />
+          <span class="hidden sm:inline">{{ i18n.t('common.refresh') }}</span>
         </button>
       </div>
     </div>
 
-    <!-- Quick Stats -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-      <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col relative overflow-hidden group hover:shadow-md transition-shadow">
-        <div class="absolute -right-4 -top-4 w-24 h-24 bg-blue-50 rounded-full opacity-50 group-hover:scale-110 transition-transform"></div>
-        <div class="flex items-center justify-between mb-4">
-          <div class="p-2.5 bg-blue-100 text-blue-600 rounded-xl">
-            <DollarSignIcon class="w-6 h-6" />
-          </div>
-          <span class="inline-flex items-center gap-1 text-xs font-semibold text-green-600 bg-green-50 rounded-full px-2 py-0.5">
-            <TrendingUpIcon class="w-3 h-3" /> +12.5%
+    <!-- Loading -->
+    <div v-if="loading" class="grid grid-cols-4 gap-4">
+      <div v-for="i in 4" :key="i" class="kawaii-card p-5 animate-pulse h-28 bg-[hsl(var(--muted))]"></div>
+    </div>
+
+    <!-- KPI Cards -->
+    <div v-else-if="dashboard" class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <!-- Total Income -->
+      <div class="kawaii-card p-5 border-l-4 border-green-500">
+        <div class="flex justify-between items-start mb-3">
+          <p class="text-xs font-semibold text-[hsl(var(--muted-foreground))] uppercase tracking-wider">
+            {{ i18n.t('accounting.dashboard.totalIncome') }}
+          </p>
+          <span class="w-8 h-8 rounded-xl bg-green-100 flex items-center justify-center">
+            <TrendingUpIcon class="w-4 h-4 text-green-600" />
           </span>
         </div>
-        <p class="text-sm font-medium text-gray-500 mb-1">Total Revenue</p>
-        <h3 class="text-2xl font-bold text-gray-800">{{ loading ? '...' : formatCurrency(profitLossData.revenue) }}</h3>
+        <p class="text-2xl font-black text-green-600">{{ formatCurrency(dashboard.total_income) }}</p>
+        <p class="text-xs text-[hsl(var(--muted-foreground))] mt-1">{{ i18n.t('accounting.dashboard.approvedOnly') }}</p>
       </div>
 
-      <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col relative overflow-hidden group hover:shadow-md transition-shadow">
-        <div class="absolute -right-4 -top-4 w-24 h-24 bg-red-50 rounded-full opacity-50 group-hover:scale-110 transition-transform"></div>
-        <div class="flex items-center justify-between mb-4">
-          <div class="p-2.5 bg-red-100 text-red-600 rounded-xl">
-            <CreditCardIcon class="w-6 h-6" />
-          </div>
-          <span class="inline-flex items-center gap-1 text-xs font-semibold text-red-600 bg-red-50 rounded-full px-2 py-0.5">
-            <TrendingUpIcon class="w-3 h-3" /> +4.2%
+      <!-- Total Expense -->
+      <div class="kawaii-card p-5 border-l-4 border-red-500">
+        <div class="flex justify-between items-start mb-3">
+          <p class="text-xs font-semibold text-[hsl(var(--muted-foreground))] uppercase tracking-wider">
+            {{ i18n.t('accounting.dashboard.totalExpense') }}
+          </p>
+          <span class="w-8 h-8 rounded-xl bg-red-100 flex items-center justify-center">
+            <TrendingDownIcon class="w-4 h-4 text-red-600" />
           </span>
         </div>
-        <p class="text-sm font-medium text-gray-500 mb-1">Total Expenses</p>
-        <h3 class="text-2xl font-bold text-gray-800">{{ loading ? '...' : formatCurrency(profitLossData.expense) }}</h3>
+        <p class="text-2xl font-black text-red-600">{{ formatCurrency(dashboard.total_expense) }}</p>
+        <p class="text-xs text-[hsl(var(--muted-foreground))] mt-1">{{ i18n.t('accounting.dashboard.approvedOnly') }}</p>
       </div>
 
-      <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col relative overflow-hidden group hover:shadow-md transition-shadow">
-        <div class="absolute -right-4 -top-4 w-24 h-24 bg-green-50 rounded-full opacity-50 group-hover:scale-110 transition-transform"></div>
-        <div class="flex items-center justify-between mb-4">
-          <div class="p-2.5 bg-green-100 text-green-600 rounded-xl">
-            <BriefcaseIcon class="w-6 h-6" />
-          </div>
-          <span class="inline-flex items-center gap-1 text-xs font-semibold text-green-600 bg-green-50 rounded-full px-2 py-0.5">
-            <TrendingUpIcon class="w-3 h-3" /> +18.7%
+      <!-- Net Cash Flow -->
+      <div class="kawaii-card p-5 border-l-4" :class="dashboard.net_cashflow >= 0 ? 'border-blue-500' : 'border-orange-500'">
+        <div class="flex justify-between items-start mb-3">
+          <p class="text-xs font-semibold text-[hsl(var(--muted-foreground))] uppercase tracking-wider">
+            {{ i18n.t('accounting.dashboard.netCashflow') }}
+          </p>
+          <span class="w-8 h-8 rounded-xl flex items-center justify-center"
+            :class="dashboard.net_cashflow >= 0 ? 'bg-blue-100' : 'bg-orange-100'">
+            <DollarSignIcon class="w-4 h-4" :class="dashboard.net_cashflow >= 0 ? 'text-blue-600' : 'text-orange-600'" />
           </span>
         </div>
-        <p class="text-sm font-medium text-gray-500 mb-1">Net Profit</p>
-        <h3 class="text-2xl font-bold text-gray-800">{{ loading ? '...' : formatCurrency(profitLossData.profit) }}</h3>
+        <p class="text-2xl font-black" :class="dashboard.net_cashflow >= 0 ? 'text-blue-600' : 'text-orange-600'">
+          {{ dashboard.net_cashflow >= 0 ? '+' : '' }}{{ formatCurrency(dashboard.net_cashflow) }}
+        </p>
+        <p class="text-xs text-[hsl(var(--muted-foreground))] mt-1">{{ i18n.t('accounting.dashboard.netMonthly') }}</p>
       </div>
 
-      <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col relative overflow-hidden group hover:shadow-md transition-shadow">
-        <div class="absolute -right-4 -top-4 w-24 h-24 bg-purple-50 rounded-full opacity-50 group-hover:scale-110 transition-transform"></div>
-        <div class="flex items-center justify-between mb-4">
-          <div class="p-2.5 bg-purple-100 text-purple-600 rounded-xl">
-            <ActivityIcon class="w-6 h-6" />
-          </div>
-          <span class="inline-flex items-center gap-1 text-xs font-semibold text-green-600 bg-green-50 rounded-full px-2 py-0.5">
-            <TrendingUpIcon class="w-3 h-3" /> +2.1%
+      <!-- AP Outstanding -->
+      <div class="kawaii-card p-5 border-l-4 border-amber-500">
+        <div class="flex justify-between items-start mb-3">
+          <p class="text-xs font-semibold text-[hsl(var(--muted-foreground))] uppercase tracking-wider">
+            {{ i18n.t('accounting.dashboard.apOutstanding') }}
+          </p>
+          <span class="w-8 h-8 rounded-xl bg-amber-100 flex items-center justify-center">
+            <AlertCircleIcon class="w-4 h-4 text-amber-600" />
           </span>
         </div>
-        <p class="text-sm font-medium text-gray-500 mb-1">Profit Margin</p>
-        <h3 class="text-2xl font-bold text-gray-800">{{ loading ? '...' : (profitLossData.revenue ? ((profitLossData.profit / profitLossData.revenue) * 100).toFixed(1) : 0) }}%</h3>
+        <p class="text-2xl font-black text-amber-600">{{ formatCurrency(dashboard.ap_unpaid_amount) }}</p>
+        <p class="text-xs text-[hsl(var(--muted-foreground))] mt-1">
+          {{ dashboard.ap_unpaid_count }} {{ i18n.t('accounting.dashboard.invoices') }}
+          <span v-if="dashboard.ap_overdue_count > 0" class="text-red-500 font-bold ml-1">
+            ({{ dashboard.ap_overdue_count }} {{ i18n.t('accounting.dashboard.overdue') }})
+          </span>
+        </p>
       </div>
     </div>
 
-    <!-- Charts & Details -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <div class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-        <div class="flex justify-between items-center mb-6">
-          <h2 class="text-lg font-bold text-gray-800">Cash Flow Overview</h2>
-          <button class="text-sm font-semibold text-[hsl(var(--primary))] hover:underline">View Report</button>
-        </div>
-        <div class="h-64 flex items-end justify-between gap-2 px-2 pb-2 relative">
-          <div class="absolute inset-0 flex flex-col justify-between py-2 text-xs text-gray-400">
-            <span>500k</span>
-            <span>400k</span>
-            <span>300k</span>
-            <span>200k</span>
-            <span>100k</span>
-            <span>0</span>
-          </div>
-          <div class="w-full h-full flex items-end justify-around pl-10 z-10">
-            <div v-for="bar in chartBars" :key="bar.label" class="w-12 group flex gap-1 items-end">
-              <div class="w-1/2 bg-blue-400 rounded-t-sm group-hover:bg-blue-500 transition-colors" :style="`height: ${bar.revenue}%`"></div>
-              <div class="w-1/2 bg-red-400 rounded-t-sm group-hover:bg-red-500 transition-colors" :style="`height: ${bar.expense}%`"></div>
-            </div>
-          </div>
-        </div>
-        <div class="flex justify-around pl-10 mt-3 text-xs font-medium text-gray-500">
-          <span v-for="bar in chartBars" :key="bar.label">{{ bar.label }}</span>
-        </div>
+    <!-- Pending / Draft alerts -->
+    <div v-if="dashboard && (dashboard.pending_count > 0 || dashboard.draft_count > 0)"
+      class="flex gap-3 flex-wrap">
+      <div v-if="dashboard.pending_count > 0"
+        class="flex items-center gap-2 px-4 py-2 bg-yellow-50 border border-yellow-200 rounded-xl text-sm text-yellow-800">
+        <ClockIcon class="w-4 h-4" />
+        <span>{{ dashboard.pending_count }} {{ i18n.t('accounting.dashboard.pendingApproval') }}</span>
+        <router-link to="/accounting/cashflow" class="font-bold underline">{{ i18n.t('accounting.dashboard.review') }}</router-link>
       </div>
+      <div v-if="dashboard.draft_count > 0"
+        class="flex items-center gap-2 px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-700">
+        <FileTextIcon class="w-4 h-4" />
+        <span>{{ dashboard.draft_count }} {{ i18n.t('accounting.dashboard.draftEntries') }}</span>
+        <router-link to="/accounting/cashflow" class="font-bold underline">{{ i18n.t('accounting.dashboard.view') }}</router-link>
+      </div>
+    </div>
 
-      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-        <h2 class="text-lg font-bold text-gray-800 mb-6">Recent Transactions</h2>
-        <div class="rounded-xl border border-dashed border-gray-200 p-6 text-sm text-gray-500">
-          No recent transaction feed is connected yet. Revenue and expense totals above come from the accounting RPC.
-        </div>
-        <button class="w-full mt-6 py-2 border border-gray-200 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-colors">
-          View All Activity
-        </button>
+    <!-- P&L Quick View -->
+    <div class="kawaii-card overflow-hidden">
+      <div class="p-5 border-b border-[hsl(var(--border))] flex justify-between items-center">
+        <h2 class="font-bold text-[hsl(var(--foreground))]">{{ i18n.t('accounting.pl.title') }}</h2>
+        <router-link to="/accounting/pl-report"
+          class="text-xs font-bold text-[hsl(var(--primary))] hover:underline flex items-center gap-1">
+          {{ i18n.t('accounting.dashboard.viewFull') }} <ChevronRightIcon class="w-3.5 h-3.5" />
+        </router-link>
+      </div>
+      <div v-if="plLoading" class="p-5 text-center text-sm text-[hsl(var(--muted-foreground))]">
+        {{ i18n.t('common.loading') }}
+      </div>
+      <div v-else class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="bg-[hsl(var(--muted))]/50">
+              <th class="px-5 py-3 text-left font-semibold text-[hsl(var(--muted-foreground))]">{{ i18n.t('accounting.pl.category') }}</th>
+              <th class="px-5 py-3 text-right font-semibold text-[hsl(var(--muted-foreground))]">{{ i18n.t('accounting.pl.thisMonth') }}</th>
+              <th class="px-5 py-3 text-right font-semibold text-[hsl(var(--muted-foreground))]">{{ i18n.t('accounting.pl.ytd') }}</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-[hsl(var(--border))]">
+            <!-- Income rows -->
+            <tr v-for="row in plIncome" :key="row.category_code" class="hover:bg-[hsl(var(--muted))]/30">
+              <td class="px-5 py-3">
+                <div class="flex items-center gap-2">
+                  <span class="w-2 h-2 rounded-full bg-green-500 shrink-0"></span>
+                  <span class="text-[hsl(var(--foreground))]">{{ row.category_name }}</span>
+                  <span class="text-xs text-[hsl(var(--muted-foreground))]">{{ row.category_code }}</span>
+                </div>
+              </td>
+              <td class="px-5 py-3 text-right font-semibold text-green-600">{{ formatCurrency(row.month_amount) }}</td>
+              <td class="px-5 py-3 text-right text-green-600">{{ formatCurrency(row.ytd_amount) }}</td>
+            </tr>
+            <!-- Income subtotal -->
+            <tr class="bg-green-50">
+              <td class="px-5 py-2 font-bold text-green-700">{{ i18n.t('accounting.pl.totalIncome') }}</td>
+              <td class="px-5 py-2 text-right font-bold text-green-700">
+                {{ formatCurrency(plIncome.reduce((s, r) => s + Number(r.month_amount), 0)) }}
+              </td>
+              <td class="px-5 py-2 text-right font-bold text-green-700">
+                {{ formatCurrency(plIncome.reduce((s, r) => s + Number(r.ytd_amount), 0)) }}
+              </td>
+            </tr>
+            <!-- Expense rows -->
+            <tr v-for="row in plExpense" :key="row.category_code" class="hover:bg-[hsl(var(--muted))]/30">
+              <td class="px-5 py-3">
+                <div class="flex items-center gap-2">
+                  <span class="w-2 h-2 rounded-full bg-red-500 shrink-0"></span>
+                  <span class="text-[hsl(var(--foreground))]">{{ row.category_name }}</span>
+                  <span class="text-xs text-[hsl(var(--muted-foreground))]">{{ row.category_code }}</span>
+                </div>
+              </td>
+              <td class="px-5 py-3 text-right font-semibold text-red-600">{{ formatCurrency(row.month_amount) }}</td>
+              <td class="px-5 py-3 text-right text-red-600">{{ formatCurrency(row.ytd_amount) }}</td>
+            </tr>
+            <!-- Expense subtotal -->
+            <tr class="bg-red-50">
+              <td class="px-5 py-2 font-bold text-red-700">{{ i18n.t('accounting.pl.totalExpense') }}</td>
+              <td class="px-5 py-2 text-right font-bold text-red-700">
+                {{ formatCurrency(plExpense.reduce((s, r) => s + Number(r.month_amount), 0)) }}
+              </td>
+              <td class="px-5 py-2 text-right font-bold text-red-700">
+                {{ formatCurrency(plExpense.reduce((s, r) => s + Number(r.ytd_amount), 0)) }}
+              </td>
+            </tr>
+            <!-- Net P&L -->
+            <tr class="font-extrabold text-base" :class="plNetMonth >= 0 ? 'bg-blue-50' : 'bg-orange-50'">
+              <td class="px-5 py-3" :class="plNetMonth >= 0 ? 'text-blue-700' : 'text-orange-700'">
+                {{ i18n.t('accounting.pl.netPL') }}
+              </td>
+              <td class="px-5 py-3 text-right" :class="plNetMonth >= 0 ? 'text-blue-700' : 'text-orange-700'">
+                {{ plNetMonth >= 0 ? '+' : '' }}{{ formatCurrency(plNetMonth) }}
+              </td>
+              <td class="px-5 py-3 text-right" :class="plNetYTD >= 0 ? 'text-blue-700' : 'text-orange-700'">
+                {{ plNetYTD >= 0 ? '+' : '' }}{{ formatCurrency(plNetYTD) }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted } from 'vue'
-import { 
-  CalendarIcon, 
-  ChevronDownIcon, 
-  DownloadIcon, 
-  DollarSignIcon, 
-  TrendingUpIcon, 
-  CreditCardIcon, 
-  BriefcaseIcon, 
-  ActivityIcon,
+import { ref, onMounted, computed } from 'vue'
+import {
+  TrendingUpIcon, TrendingDownIcon, DollarSignIcon, AlertCircleIcon,
+  ClockIcon, FileTextIcon, RefreshCwIcon, ChevronRightIcon
 } from 'lucide-vue-next'
-import { useLanguageStore } from '@/stores/useLanguageStore'
-import { useAccounting } from '@/composables/useAccounting'
+import { useAuth } from '@/composables/useAuth'
+import { useBranch } from '@/composables/useBranch'
+import type { Branch } from '@/types/database'
+import { useAccountingModule } from '@/composables/useAccountingModule'
+import { useI18nStore } from '@/stores/i18n'
 
-const { t } = useLanguageStore()
-const { getProfitLoss, loading } = useAccounting()
+const i18n = useI18nStore()
+const { role } = useAuth()
+const { listBranches } = useBranch()
+const { dashboard, loading, fetchDashboard, plReport, plIncome, plExpense, plNetMonth, plNetYTD, fetchPLReport } = useAccountingModule()
 
-const profitLossData = ref({ revenue: 0, expense: 0, profit: 0 })
-const chartBars = computed(() => {
-  const revenue = Math.max(4, Math.min(100, profitLossData.value.revenue ? 72 : 4))
-  const expense = Math.max(4, Math.min(100, profitLossData.value.expense && profitLossData.value.revenue
-    ? (profitLossData.value.expense / profitLossData.value.revenue) * 72
-    : profitLossData.value.expense ? 48 : 4))
-  return ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((label) => ({
-    label,
-    revenue,
-    expense,
-  }))
-})
+const isManager = computed(() => role.value === 'accounting_manager' || role.value === 'superadmin' || role.value === 'admin')
+const branches = ref<Branch[]>([])
+const selectedBranch = ref<string>('all')
 
-function formatCurrency(val: number) {
-  return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val)
+const plLoading = ref(false)
+const now = new Date()
+const selectedMonth = ref(now.getMonth() + 1)
+const selectedYear = ref(now.getFullYear())
+
+const months = [
+  { value: 1, label: 'T1' }, { value: 2, label: 'T2' }, { value: 3, label: 'T3' },
+  { value: 4, label: 'T4' }, { value: 5, label: 'T5' }, { value: 6, label: 'T6' },
+  { value: 7, label: 'T7' }, { value: 8, label: 'T8' }, { value: 9, label: 'T9' },
+  { value: 10, label: 'T10' }, { value: 11, label: 'T11' }, { value: 12, label: 'T12' },
+]
+const years = Array.from({ length: 5 }, (_, i) => now.getFullYear() - 2 + i)
+
+function formatCurrency(val: number | null | undefined) {
+  return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val ?? 0)
+}
+
+async function loadDashboard() {
+  const bId = selectedBranch.value === 'all' ? null : selectedBranch.value
+  await fetchDashboard(bId, selectedYear.value, selectedMonth.value)
+  plLoading.value = true
+  try {
+    await fetchPLReport(bId, selectedYear.value, selectedMonth.value)
+  } finally {
+    plLoading.value = false
+  }
 }
 
 onMounted(async () => {
-  const start = new Date()
-  start.setDate(1) // Start of month
-  const end = new Date() // Today
-  
-  const data = await getProfitLoss(start.toISOString().split('T')[0], end.toISOString().split('T')[0])
-  profitLossData.value = data
+  if (isManager.value) {
+    try {
+      branches.value = await listBranches()
+    } catch (e) {
+      console.error('Failed to list branches', e)
+    }
+  }
+  loadDashboard()
 })
 </script>

@@ -111,14 +111,19 @@ export const useI18nStore = defineStore('i18n', () => {
    * Hỗ trợ interpolation:  t('greet', { name: 'Per' })
    */
   function t(key: string, params?: Record<string, unknown>): string {
-    const lookup = (l: AppLocale): unknown =>
-      key.split('.').reduce<unknown>(
+    const lookup = (l: AppLocale): unknown => {
+      const localeObj = l === 'vi' ? vi : l === 'ja' ? ja : en
+      if (localeObj && typeof localeObj === 'object' && key in localeObj) {
+        return (localeObj as Record<string, unknown>)[key]
+      }
+      return key.split('.').reduce<unknown>(
         (acc, segment) =>
           acc && typeof acc === 'object'
             ? (acc as Record<string, unknown>)[segment]
             : undefined,
-        l === 'vi' ? vi : l === 'ja' ? ja : en,
+        localeObj,
       )
+    }
     const raw: unknown = lookup(locale.value) ?? lookup('vi') ?? key
     if (typeof raw !== 'string') return key
     if (!params) return raw

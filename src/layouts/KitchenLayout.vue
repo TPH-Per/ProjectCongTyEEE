@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen bg-background text-foreground flex flex-col font-sans">
     <!-- Header -->
-    <header class="bg-card border-b border-border px-6 py-4 flex items-center shadow-md kawaii-shadow z-10">
+    <header class="bg-card border-b border-border px-6 py-4 flex items-center shadow-md kawaii-shadow z-10 z-40">
       <div class="flex items-center space-x-4">
         <TextLogo size="sm" gradient />
         <span class="bg-muted px-3 py-1 rounded-full text-sm font-medium text-muted-foreground">{{ $t('layout.district_1_branch', 'Chi nhánh Quận 1') }}</span>

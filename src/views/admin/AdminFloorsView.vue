@@ -282,7 +282,7 @@
                         v-if="isEditModeEnabled"
                         @click.stop="openMaintenanceModal(table)"
                         class="text-[8px] px-1.5 py-0.5 bg-yellow-100 text-yellow-700 rounded hover:bg-yellow-200 border border-yellow-200"
-                        :title="$t('admin_floors.table.' + (table.status === 'Maintenance' ? 'unlock' : 'lock'))"
+                        :title="i18n.t('admin_floors.table.' + (table.status === 'Maintenance' ? 'unlock' : 'lock'))"
                       >
                         {{ table.status === 'Maintenance' ? '🔓' : '🔒' }}
                       </button>
@@ -290,7 +290,7 @@
                         v-if="isEditModeEnabled"
                         @click.stop="openEditTableModal(table, area.name)"
                         class="text-[8px] px-1.5 py-0.5 bg-blue-100 text-blue-600 rounded hover:bg-blue-200 border border-blue-200"
-                        :title="$t('admin_floors.table.edit')"
+                        :title="i18n.t('admin_floors.table.edit')"
                       >
                         ✏️
                       </button>
@@ -298,7 +298,7 @@
                         v-if="isEditModeEnabled"
                         @click.stop="deleteTable(table.id || '', table.code)"
                         class="text-[8px] px-1.5 py-0.5 bg-red-100 text-red-600 rounded hover:bg-red-200 border border-red-200"
-                        :title="$t('admin_floors.table.delete')"
+                        :title="i18n.t('admin_floors.table.delete')"
                       >
                         ✕
                       </button>
@@ -680,7 +680,7 @@
                   <button
                     @click="showBookingDetails(booking)"
                     class="p-1 bg-gray-50 hover:bg-gray-150 text-gray-600 rounded border border-gray-200 text-[10px]"
-                    :title="$t('admin_floors.action.details')"
+                    :title="i18n.t('admin_floors.action.details')"
                   >
                     👁️
                   </button>
@@ -691,7 +691,7 @@
                       booking.status !== 'Completed'
                     "
                     class="p-1 bg-gray-50 hover:bg-gray-150 text-gray-600 rounded border border-gray-200 text-[10px]"
-                    :title="$t('admin_floors.action.edit')"
+                    :title="i18n.t('admin_floors.action.edit')"
                   >
                     ✏️
                   </button>
@@ -703,7 +703,7 @@
                       booking.status !== 'Seated'
                     "
                     class="p-1 bg-pink-50 hover:bg-pink-100 text-[#FF7B89] rounded border border-pink-100 text-[10px]"
-                    :title="$t('admin_floors.action.assign_table')"
+                    :title="i18n.t('admin_floors.action.assign_table')"
                   >
                     🪑
                   </button>
@@ -711,7 +711,7 @@
                     @click="markBookingArrived(booking)"
                     v-if="booking.status === 'Waiting'"
                     class="p-1 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded border border-blue-200 text-[10px]"
-                    :title="$t('admin_floors.action.welcome')"
+                    :title="i18n.t('admin_floors.action.welcome')"
                   >
                     🚶
                   </button>
@@ -719,7 +719,7 @@
                     @click="openTableFromBooking(booking)"
                     v-if="booking.status === 'Arrived'"
                     class="p-1 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded border border-rose-250 text-[10px] animate-pulse"
-                    :title="$t('admin_floors.action.open_table')"
+                    :title="i18n.t('admin_floors.action.open_table')"
                   >
                     🍽️
                   </button>
@@ -943,7 +943,7 @@
               <input
                 type="text"
                 v-model="tableModalForm.customerName"
-                :placeholder="$t('admin_floors.placeholder.customer_name')"
+                :placeholder="i18n.t('admin_floors.placeholder.customer_name')"
                 class="w-full bg-white border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
               />
             </div>
@@ -1090,7 +1090,7 @@
             <input
               type="text"
               v-model="newBookingForm.customerName"
-              :placeholder="$t('admin_floors.placeholder.booking_name')"
+              :placeholder="i18n.t('admin_floors.placeholder.booking_name')"
               class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
             />
           </div>
@@ -1103,7 +1103,7 @@
               <input
                 type="text"
                 v-model="newBookingForm.phone"
-                :placeholder="$t('admin_floors.placeholder.phone')"
+                :placeholder="i18n.t('admin_floors.placeholder.phone')"
                 class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
               />
             </div>
@@ -1127,7 +1127,7 @@
               <input
                 type="number"
                 v-model="newBookingForm.guestCount"
-                :placeholder="$t('admin_floors.placeholder.guests')"
+                :placeholder="i18n.t('admin_floors.placeholder.guests')"
                 class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
               />
             </div>
@@ -1167,7 +1167,7 @@
             }}</label>
             <textarea
               v-model="newBookingForm.notes"
-              :placeholder="$t('admin_floors.placeholder.notes')"
+              :placeholder="i18n.t('admin_floors.placeholder.notes')"
               class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89] h-16 resize-none"
             ></textarea>
           </div>
@@ -1258,7 +1258,7 @@
             <input
               type="text"
               v-model="quickOpenForm.customerName"
-              :placeholder="$t('admin_floors.placeholder.optional_name')"
+              :placeholder="i18n.t('admin_floors.placeholder.optional_name')"
               class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
             />
           </div>
@@ -1271,7 +1271,7 @@
               <input
                 type="number"
                 v-model="quickOpenForm.guestCount"
-                :placeholder="$t('admin_floors.placeholder.guests')"
+                :placeholder="i18n.t('admin_floors.placeholder.guests')"
                 class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
               />
             </div>
@@ -1616,7 +1616,7 @@
             <input
               type="text"
               v-model="createTableForm.zone"
-              :placeholder="$t('admin_floors.placeholder.floor')"
+              :placeholder="i18n.t('admin_floors.placeholder.floor')"
               class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-850 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
               list="zone-datalist"
             />
@@ -1884,6 +1884,9 @@
 </template>
 
 <script setup lang="ts">
+import { useI18nStore } from '@/stores/i18n'
+
+const i18n = useI18nStore()
 import Swal from 'sweetalert2';
 import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
@@ -3416,3 +3419,4 @@ const resetToCurrentState = () => {
   display: none;
 }
 </style>
+

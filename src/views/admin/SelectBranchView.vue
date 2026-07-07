@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import { useI18nStore } from '@/stores/i18n'
+
+const i18n = useI18nStore()
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useI18n } from 'vue-i18n'
 import { useAuth } from '@/composables/useAuth'
 import { useBranch } from '@/composables/useBranch'
 import { getHomeRouteForRole } from '@/utils/route'
@@ -10,11 +12,10 @@ import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
 import { Store } from 'lucide-vue-next'
 
 const router = useRouter()
-const { t } = useI18n()
 const { role } = useAuth()
 const { selectBranch, listBranches } = useBranch()
 
-void t
+
 
 const branches = ref<Branch[]>([])
 const loading = ref(true)
@@ -56,18 +57,18 @@ async function onSelectBranch(id: string) {
     </div>
     <div class="select-branch-card relative">
       <div class="brand-header">
-        <h1 class="brand-title">{{ $t('select_branch.brand_title') }}</h1>
-        <p class="brand-subtitle">{{ $t('select_branch.choose_branch') }}</p>
+        <h1 class="brand-title">{{ i18n.t('select_branch.brand_title') }}</h1>
+        <p class="brand-subtitle">{{ i18n.t('select_branch.choose_branch') }}</p>
       </div>
 
       <p v-if="errorMsg" class="error-msg">{{ errorMsg }}</p>
 
       <div v-if="loading" class="loading-state">
-        {{ $t('select_branch.loading_branches') }}
+        {{ i18n.t('select_branch.loading_branches') }}
       </div>
       
       <div v-else-if="branches.length === 0" class="empty-state">
-        {{ $t('select_branch.no_active_branches') }}
+        {{ i18n.t('select_branch.no_active_branches') }}
       </div>
 
       <div v-else class="branch-grid">

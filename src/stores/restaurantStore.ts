@@ -343,7 +343,305 @@ export const useRestaurantStore = defineStore('restaurant', () => {
   const selectedTableCode = ref<string | null>(null);
 
   // Table Orders Map (persistent carts for each table)
-  const tableOrders = ref<Record<string, TableOrder>>({});
+  const tableOrders = ref<Record<string, TableOrder>>({
+    A03: {
+      orderNumber: 'SF_00001003',
+      tableCode: 'A03',
+      customerName: 'Phạm Hùng',
+      guestCount: 2,
+      openedTime: '17:45 04/07/2026',
+      items: [
+        {
+          id: 'bf-tiec-1',
+          name: 'SET1-Tiệc Chiêu Đãi',
+          unit: 'Phần',
+          price: 450000,
+          price_display: '450K',
+          quantity: 1,
+          category_id: 'set-tiec-cd'
+        }
+      ]
+    },
+    A08: {
+      orderNumber: 'SF_00001008',
+      tableCode: 'A08',
+      customerName: 'Lê Văn C',
+      guestCount: 4,
+      openedTime: '16:55 04/07/2026',
+      items: [
+        {
+          id: 'bf680-1',
+          name: 'Vé Người Lớn 680',
+          unit: 'Vé',
+          price: 680000,
+          price_display: '680K',
+          quantity: 2,
+          category_id: 'buffet'
+        },
+        {
+          id: 'bf-tiec-1',
+          name: 'SET1-Tiệc Chiêu Đãi',
+          unit: 'Phần',
+          price: 450000,
+          price_display: '450K',
+          quantity: 1,
+          category_id: 'set-tiec-cd'
+        },
+        {
+          id: 'lunch-40',
+          name: 'Tôm Tempura - Lunch',
+          unit: 'Phần',
+          price: 40000,
+          price_display: '40K',
+          quantity: 1,
+          category_id: 'set-lunch'
+        }
+      ]
+    },
+    B03: {
+      orderNumber: 'SF_00002003',
+      tableCode: 'B03',
+      customerName: 'Công ty ABC',
+      guestCount: 10,
+      openedTime: '16:05 04/07/2026',
+      items: [
+        {
+          id: 'bf1390-1',
+          name: 'Vé Người Lớn 1380',
+          unit: 'Vé',
+          price: 1380000,
+          price_display: '1.380K',
+          quantity: 3,
+          category_id: 'buffet'
+        },
+        {
+          id: 'bf-drink-soft',
+          name: 'Nước ngọt uống không giới hạn',
+          unit: 'Vé',
+          price: 80000,
+          price_display: '80K',
+          quantity: 1,
+          category_id: 'buffet'
+        }
+      ]
+    },
+    C06: {
+      orderNumber: 'SF_00003006',
+      tableCode: 'C06',
+      customerName: 'Đức Huy',
+      guestCount: 4,
+      openedTime: '17:25 04/07/2026',
+      items: [
+        {
+          id: 'bf-tiec-3',
+          name: 'SET3-Tiệc Chiêu Đãi',
+          unit: 'Phần',
+          price: 850000,
+          price_display: '850K',
+          quantity: 1,
+          category_id: 'set-tiec-cd'
+        },
+        {
+          id: 'lunch-40',
+          name: 'Tôm Tempura - Lunch',
+          unit: 'Phần',
+          price: 40000,
+          price_display: '40K',
+          quantity: 1,
+          category_id: 'set-lunch'
+        }
+      ]
+    },
+    R03: {
+      orderNumber: 'SF_00004003',
+      tableCode: 'R03',
+      customerName: 'Gia đình chị Vy',
+      guestCount: 6,
+      openedTime: '17:05 04/07/2026',
+      items: [
+        {
+          id: 'bf-tiec-1',
+          name: 'SET1-Tiệc Chiêu Đãi',
+          unit: 'Phần',
+          price: 450000,
+          price_display: '450K',
+          quantity: 5,
+          category_id: 'set-tiec-cd'
+        },
+        {
+          id: 'bf-tiec-drink-1',
+          name: 'SET1-Drink Tiệc Chiêu Đãi',
+          unit: 'Phần',
+          price: 250000,
+          price_display: '250K',
+          quantity: 1,
+          category_id: 'set-tiec-cd'
+        }
+      ]
+    },
+    R08: {
+      orderNumber: 'SF_00004008',
+      tableCode: 'R08',
+      customerName: 'Sinh nhật Minh',
+      guestCount: 12,
+      openedTime: '16:30 04/07/2026',
+      items: [
+        {
+          id: 'bf1390-1',
+          name: 'Vé Người Lớn 1380',
+          unit: 'Vé',
+          price: 1380000,
+          price_display: '1.380K',
+          quantity: 4,
+          category_id: 'buffet'
+        },
+        {
+          id: 'bf-drink-soft',
+          name: 'Nước ngọt uống không giới hạn',
+          unit: 'Vé',
+          price: 80000,
+          price_display: '80K',
+          quantity: 1,
+          category_id: 'buffet'
+        }
+      ]
+    },
+    T04: {
+      orderNumber: 'SF_00005004',
+      tableCode: 'T04',
+      customerName: 'Anh Trung',
+      guestCount: 4,
+      openedTime: '17:30 04/07/2026',
+      items: [
+        {
+          id: 'bf-tiec-2',
+          name: 'SET2-Tiệc Chiêu Đãi',
+          unit: 'Phần',
+          price: 550000,
+          price_display: '550K',
+          quantity: 2,
+          category_id: 'set-tiec-cd'
+        },
+        {
+          id: 'lunch-7',
+          name: 'Lunch - Sét Cơm Gà Cay Ngọt',
+          unit: 'Phần',
+          price: 109000,
+          price_display: '109K',
+          quantity: 1,
+          category_id: 'set-lunch'
+        }
+      ]
+    },
+    CP02: {
+      orderNumber: 'SF_00006002',
+      tableCode: 'CP02',
+      customerName: 'Capichi Order #1',
+      guestCount: 1,
+      openedTime: '17:50 04/07/2026',
+      items: [
+        {
+          id: 'lunch-4',
+          name: 'Lunch - Cơm thịt heo kim chi',
+          unit: 'Phần',
+          price: 129000,
+          price_display: '129K',
+          quantity: 1,
+          category_id: 'set-lunch'
+        },
+        {
+          id: 'lunch-45',
+          name: 'Gà Chiên Nhật Bản - Lunch',
+          unit: 'Phần',
+          price: 35000,
+          price_display: '35K',
+          quantity: 1,
+          category_id: 'set-lunch'
+        }
+      ]
+    },
+    Shopee03: {
+      orderNumber: 'SF_00007003',
+      tableCode: 'Shopee03',
+      customerName: 'Shopee #452',
+      guestCount: 1,
+      openedTime: '17:53 04/07/2026',
+      items: [
+        {
+          id: 'lunch-8',
+          name: 'Lunch - Set Heo Tổng Hợp',
+          unit: 'Phần',
+          price: 169000,
+          price_display: '169K',
+          quantity: 1,
+          category_id: 'set-lunch'
+        },
+        {
+          id: 'lunch-16',
+          name: 'Mì Udon Kim Chi - Lunch',
+          unit: 'Phần',
+          price: 149000,
+          price_display: '149K',
+          quantity: 1,
+          category_id: 'set-lunch'
+        }
+      ]
+    },
+    BE03: {
+      orderNumber: 'SF_00008003',
+      tableCode: 'BE03',
+      customerName: 'beFood #12',
+      guestCount: 1,
+      openedTime: '17:47 04/07/2026',
+      items: [
+        {
+          id: 'lunch-4',
+          name: 'Lunch - Cơm thịt heo kim chi',
+          unit: 'Phần',
+          price: 129000,
+          price_display: '129K',
+          quantity: 1,
+          category_id: 'set-lunch'
+        },
+        {
+          id: 'lunch-41',
+          name: 'Cá Ngân chiên giòn',
+          unit: 'Phần',
+          price: 45000,
+          price_display: '45K',
+          quantity: 1,
+          category_id: 'set-lunch'
+        }
+      ]
+    },
+    Grab02: {
+      orderNumber: 'SF_00009002',
+      tableCode: 'Grab02',
+      customerName: 'Grab #90',
+      guestCount: 1,
+      openedTime: '17:42 04/07/2026',
+      items: [
+        {
+          id: 'lunch-8',
+          name: 'Lunch - Set Heo Tổng Hợp',
+          unit: 'Phần',
+          price: 169000,
+          price_display: '169K',
+          quantity: 1,
+          category_id: 'set-lunch'
+        },
+        {
+          id: 'lunch-45',
+          name: 'Gà Chiên Nhật Bản - Lunch',
+          unit: 'Phần',
+          price: 35000,
+          price_display: '35K',
+          quantity: 2,
+          category_id: 'set-lunch'
+        }
+      ]
+    }
+  });
 
   // Helper: Find table by code in areas
   const getTableByCode = (code: string): TableInfo | null => {

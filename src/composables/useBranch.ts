@@ -22,8 +22,11 @@ export function useBranch() {
     typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEY) : null,
   )
 
-  const activeBranchId = computed<string | undefined>(() => {
-    if (isAdmin.value && selectedBranchId.value) return selectedBranchId.value
+  const activeBranchId = computed<string | undefined | null>(() => {
+    if (isAdmin.value) {
+      if (selectedBranchId.value === 'all') return null
+      if (selectedBranchId.value) return selectedBranchId.value
+    }
     return defaultBranchId.value
   })
 
@@ -77,13 +80,7 @@ export function useBranch() {
   async function listBranches(): Promise<Branch[]> {
     const { data, error } = await supabase
       .from('branches')
-      .select(`
-        *,
-        manager:manager_id (
-          id,
-          raw_user_meta_data
-        )
-      `)
+      .select(`*`)
       .order('created_at', { ascending: false })
     if (error) throw error
     return (data ?? []) as Branch[]

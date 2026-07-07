@@ -5,7 +5,7 @@
         <!-- Header -->
         <div class="modal-header">
           <div class="header-left">
-            <span class="modal-icon">📋</span>
+            <span class="logo-icon">📋</span>
             <div>
               <h2 class="modal-title">Theo dõi món ăn</h2>
               <p class="modal-subtitle">Bàn {{ tableNumber }} • {{ items.length }} món</p>
@@ -14,28 +14,64 @@
           <button class="close-btn" @click="$emit('close')">×</button>
         </div>
 
-        <!-- Status Summary -->
+        <!-- Status Summary Cards -->
         <div class="status-summary">
-          <div class="status-card status-served">
-            <div class="status-icon"></div>
+          <div class="status-card served">
+            <div class="status-icon">
+              <span class="icon">✅</span>
+              <div class="glow-effect"></div>
+            </div>
             <div class="status-info">
               <div class="status-count">{{ servedItems.length }}</div>
               <div class="status-label">Đã phục vụ</div>
             </div>
           </div>
-          <div class="status-card status-preparing">
-            <div class="status-icon"></div>
+
+          <div class="status-card preparing">
+            <div class="status-icon">
+              <span class="icon">🍲</span>
+              <div class="glow-effect"></div>
+            </div>
             <div class="status-info">
               <div class="status-count">{{ preparingItems.length }}</div>
               <div class="status-label">Đang chế biến</div>
             </div>
           </div>
-          <div class="status-card status-pending">
-            <div class="status-icon"></div>
+
+          <div class="status-card pending">
+            <div class="status-icon">
+              <span class="icon">⏳</span>
+              <div class="glow-effect"></div>
+            </div>
             <div class="status-info">
               <div class="status-count">{{ pendingItems.length }}</div>
               <div class="status-label">Chờ xử lý</div>
             </div>
+          </div>
+        </div>
+
+        <!-- Progress Overview Bars -->
+        <div class="progress-overview">
+          <div class="overview-item">
+            <span class="overview-label">Đã phục vụ</span>
+            <div class="overview-bar">
+              <div class="overview-fill served" :style="{ width: servedPercent + '%' }"></div>
+            </div>
+            <span class="overview-value">{{ servedPercent }}%</span>
+          </div>
+          <div class="overview-item">
+            <span class="overview-label">Đang chế biến</span>
+            <div class="overview-bar">
+              <div class="overview-fill preparing" :style="{ width: preparingPercent + '%' }"></div>
+            </div>
+            <span class="overview-value">{{ preparingPercent }}%</span>
+          </div>
+          <div class="overview-item">
+            <span class="overview-label">Chờ xử lý</span>
+            <div class="overview-bar">
+              <div class="overview-fill pending" :style="{ width: pendingPercent + '%' }"></div>
+            </div>
+            <span class="overview-value">{{ pendingPercent }}%</span>
           </div>
         </div>
 
@@ -83,37 +119,54 @@
                 </div>
               </div>
               <div class="item-status-badge">
-                <span v-if="item.status === 'served'" class="badge badge-served">Đã phục vụ</span>
-                <span v-else-if="item.status === 'preparing'" class="badge badge-preparing">Đang chế biến</span>
-                <span v-else class="badge badge-pending">Chờ xử lý</span>
+                <span :class="['status-badge', `badge-${item.status}`]">{{ getStatusText(item.status) }}</span>
               </div>
             </div>
 
             <!-- Progress Bar -->
-            <div class="progress-bar">
-              <div 
-                class="progress-fill"
-                :class="`progress-${item.status}`"
-                :style="{ width: getProgressWidth(item.status) }"
-              ></div>
+            <div class="progress-container">
+              <div class="progress-bar">
+                <div 
+                  class="progress-fill"
+                  :class="`progress-${item.status}`"
+                  :style="{ width: getItemProgress(item.status) + '%' }"
+                >
+                  <div class="progress-shine"></div>
+                </div>
+              </div>
+              <span class="progress-percent">{{ getItemProgress(item.status) }}%</span>
             </div>
 
             <!-- Timeline -->
             <div class="timeline">
-              <div class="timeline-item completed">
-                <div class="timeline-dot">✓</div>
-                <div class="timeline-label">Đã đặt</div>
-                <div class="timeline-time">{{ item.orderedTime }}</div>
+              <div class="timeline-step completed">
+                <div class="step-dot completed">
+                  <span class="dot-icon">✓</span>
+                </div>
+                <div class="step-info">
+                  <div class="step-label">Đã đặt</div>
+                  <div class="step-time">{{ item.orderedTime }}</div>
+                </div>
               </div>
-              <div class="timeline-item" :class="{ completed: item.status !== 'pending' }">
-                <div class="timeline-dot">✓</div>
-                <div class="timeline-label">Đang chế biến</div>
-                <div class="timeline-time">{{ item.status === 'preparing' || item.status === 'served' ? '...' : '--:--' }}</div>
+
+              <div class="timeline-step" :class="{ completed: item.status !== 'pending' }">
+                <div class="step-dot" :class="{ completed: item.status !== 'pending' }">
+                  <span class="dot-icon">✓</span>
+                </div>
+                <div class="step-info">
+                  <div class="step-label">Đang chế biến</div>
+                  <div class="step-time">{{ item.status === 'preparing' || item.status === 'served' ? formatTime(item.orderedTime) : '--:--' }}</div>
+                </div>
               </div>
-              <div class="timeline-item" :class="{ completed: item.status === 'served' }">
-                <div class="timeline-dot">✓</div>
-                <div class="timeline-label">Đã phục vụ</div>
-                <div class="timeline-time">{{ item.servedTime || '--:--' }}</div>
+
+              <div class="timeline-step" :class="{ completed: item.status === 'served' }">
+                <div class="step-dot" :class="{ completed: item.status === 'served' }">
+                  <span class="dot-icon">✓</span>
+                </div>
+                <div class="step-info">
+                  <div class="step-label">Đã phục vụ</div>
+                  <div class="step-time">{{ item.servedTime || '--:--' }}</div>
+                </div>
               </div>
             </div>
           </div>
@@ -122,6 +175,7 @@
           <div v-if="filteredItems.length === 0" class="empty-state">
             <div class="empty-icon">🍽️</div>
             <p class="empty-text">Không có món nào</p>
+            <p class="empty-subtext">Vui lòng gọi món để theo dõi trạng thái.</p>
           </div>
         </div>
 
@@ -165,15 +219,41 @@ const servedItems = computed(() => props.items.filter(item => item.status === 's
 const preparingItems = computed(() => props.items.filter(item => item.status === 'preparing'))
 const pendingItems = computed(() => props.items.filter(item => item.status === 'pending'))
 
+const servedPercent = computed(() => {
+  if (props.items.length === 0) return 0
+  return Math.round((servedItems.value.length / props.items.length) * 100)
+})
+const preparingPercent = computed(() => {
+  if (props.items.length === 0) return 0
+  return Math.round((preparingItems.value.length / props.items.length) * 100)
+})
+const pendingPercent = computed(() => {
+  if (props.items.length === 0) return 0
+  return Math.round((pendingItems.value.length / props.items.length) * 100)
+})
+
 const filteredItems = computed(() => {
   if (activeFilter.value === 'all') return props.items
   return props.items.filter(item => item.status === activeFilter.value)
 })
 
-function getProgressWidth(status: string): string {
-  if (status === 'pending') return '33%'
-  if (status === 'preparing') return '66%'
-  return '100%'
+function getStatusText(status: string): string {
+  const statusMap: Record<string, string> = {
+    'served': 'Đã phục vụ',
+    'preparing': 'Đang chế biến',
+    'pending': 'Chờ xử lý'
+  }
+  return statusMap[status] || status
+}
+
+function getItemProgress(status: string): number {
+  if (status === 'pending') return 33
+  if (status === 'preparing') return 66
+  return 100
+}
+
+function formatTime(time: string | null): string {
+  return time || '--:--'
 }
 
 function refreshStatus() {
@@ -182,12 +262,12 @@ function refreshStatus() {
 </script>
 
 <style scoped>
-/* Modal Overlay */
+/* ===== MODAL OVERLAY ===== */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(8px);
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(12px);
   z-index: 9999;
   display: flex;
   align-items: center;
@@ -195,27 +275,32 @@ function refreshStatus() {
   padding: 20px;
 }
 
+/* ===== MODAL CONTAINER - GLASSMORPHISM ===== */
 .modal-container {
-  background: #23170e;
-  border: 1px solid #442c19;
-  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(26, 26, 46, 0.95), rgba(22, 33, 62, 0.95));
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
   width: 100%;
-  max-width: 600px;
-  max-height: 85vh;
+  max-width: 700px;
+  max-height: 90vh;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+  box-shadow: 
+    0 25px 50px rgba(0, 0, 0, 0.5),
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.05) inset;
 }
 
-/* Header */
+/* ===== HEADER ===== */
 .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 20px 24px;
-  background: linear-gradient(135deg, #1a110a 0%, #2a1c11 100%);
-  border-bottom: 1px solid #442c19;
+  background: rgba(255, 255, 255, 0.02);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .header-left {
@@ -224,236 +309,396 @@ function refreshStatus() {
   gap: 16px;
 }
 
-.modal-icon {
+.logo-icon {
   font-size: 28px;
 }
 
 .modal-title {
-  font-size: 18px;
-  font-weight: 900;
-  color: #ff9800;
+  font-size: 20px;
+  font-weight: 700;
+  color: #ffffff;
   margin: 0;
-  font-family: serif;
 }
 
 .modal-subtitle {
   font-size: 12px;
-  color: #a8a8a8;
+  color: #94a3b8;
   margin: 4px 0 0 0;
-  font-weight: bold;
 }
 
 .close-btn {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  background: #3a2517;
-  border: 1px solid #5a3d25;
-  color: #c8c8c8;
-  font-size: 20px;
-  font-weight: bold;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  font-size: 18px;
   cursor: pointer;
+  transition: all 0.2s;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s;
 }
 
 .close-btn:hover {
-  background: #d32f2f;
-  color: white;
-  border-color: #d32f2f;
+  background: rgba(255, 255, 255, 0.15);
   transform: rotate(90deg);
 }
 
-/* Status Summary */
+/* ===== STATUS SUMMARY ===== */
 .status-summary {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  padding: 16px 24px;
-  background: #1a110a;
-  border-bottom: 1px solid #442c19;
+  gap: 16px;
+  padding: 20px 24px;
+  background: rgba(255, 255, 255, 0.01);
 }
 
 .status-card {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  border-radius: 10px;
-  background: #2a1c11;
-  border: 1px solid #3d2817;
+  gap: 16px;
+  padding: 16px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s;
+}
+
+.status-card:hover {
+  background: rgba(255, 255, 255, 0.05);
+  transform: translateY(-2px);
+}
+
+.status-card.served {
+  box-shadow: 0 0 20px rgba(74, 222, 128, 0.1);
+}
+
+.status-card.preparing {
+  box-shadow: 0 0 20px rgba(96, 165, 250, 0.1);
+}
+
+.status-card.pending {
+  box-shadow: 0 0 20px rgba(251, 146, 36, 0.1);
 }
 
 .status-icon {
-  width: 24px;
-  height: 24px;
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
+  position: relative;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
 }
 
-.status-served .status-icon {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234CAF50' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
+.status-card.served .status-icon {
+  background: rgba(74, 222, 128, 0.1);
+  border: 1px solid rgba(74, 222, 128, 0.3);
 }
 
-.status-preparing .status-icon {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FF9800' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6'/%3E%3C/svg%3E");
+.status-card.preparing .status-icon {
+  background: rgba(96, 165, 250, 0.1);
+  border: 1px solid rgba(96, 165, 250, 0.3);
 }
 
-.status-pending .status-icon {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f44336' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'%3E%3C/circle%3E%3Cpolyline points='12 6 12 12 16 14'%3E%3C/polyline%3E%3C/svg%3E");
+.status-card.pending .status-icon {
+  background: rgba(251, 146, 36, 0.1);
+  border: 1px solid rgba(251, 146, 36, 0.3);
+}
+
+.glow-effect {
+  position: absolute;
+  inset: -2px;
+  border-radius: 12px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.status-card.served:hover .glow-effect {
+  opacity: 1;
+  background: radial-gradient(circle, rgba(74, 222, 128, 0.3), transparent);
+}
+
+.status-card.preparing:hover .glow-effect {
+  opacity: 1;
+  background: radial-gradient(circle, rgba(96, 165, 250, 0.3), transparent);
+}
+
+.status-card.pending:hover .glow-effect {
+  opacity: 1;
+  background: radial-gradient(circle, rgba(251, 146, 36, 0.3), transparent);
+}
+
+.status-info {
+  flex: 1;
 }
 
 .status-count {
-  font-size: 18px;
-  font-weight: 900;
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.status-card.served .status-count {
+  color: #4ade80;
+  text-shadow: 0 0 15px rgba(74, 222, 128, 0.3);
+}
+
+.status-card.preparing .status-count {
+  color: #60a5fa;
+  text-shadow: 0 0 15px rgba(96, 165, 250, 0.3);
+}
+
+.status-card.pending .status-count {
+  color: #fb923c;
+  text-shadow: 0 0 15px rgba(251, 146, 36, 0.3);
 }
 
 .status-label {
-  font-size: 10px;
-  color: #a8a8a8;
-  margin-top: 1px;
-  font-weight: bold;
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 600;
 }
 
-.status-served .status-count { color: #4CAF50; }
-.status-preparing .status-count { color: #FF9800; }
-.status-pending .status-count { color: #f44336; }
+/* ===== PROGRESS OVERVIEW ===== */
+.progress-overview {
+  padding: 0 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
 
-/* Filter Tabs */
+.overview-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.overview-label {
+  width: 90px;
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.overview-bar {
+  flex: 1;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.overview-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+
+.overview-fill.served { background: #4ade80; }
+.overview-fill.preparing { background: #60a5fa; }
+.overview-fill.pending { background: #fb923c; }
+
+.overview-value {
+  width: 36px;
+  text-align: right;
+  font-size: 11px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+/* ===== FILTER TABS ===== */
 .filter-tabs {
   display: flex;
   gap: 8px;
   padding: 12px 24px;
-  border-bottom: 1px solid #442c19;
+  background: rgba(255, 255, 255, 0.01);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   overflow-x: auto;
 }
 
 .tab-btn {
-  padding: 8px 16px;
-  background: #2a1c11;
-  border: 1px solid #3d2817;
+  padding: 6px 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 20px;
-  color: #a8a8a8;
+  color: #94a3b8;
   font-size: 11px;
-  font-weight: bold;
+  font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
   transition: all 0.2s;
 }
 
 .tab-btn:hover {
-  background: #3d2817;
+  background: rgba(255, 255, 255, 0.08);
   color: white;
 }
 
 .tab-btn.active {
-  background: #E8772E;
-  border-color: #E8772E;
+  background: linear-gradient(135deg, #fb923c, #f97316);
+  border-color: #fb923c;
   color: white;
+  box-shadow: 0 4px 12px rgba(251, 146, 36, 0.2);
 }
 
-/* Items List */
+/* ===== ITEMS LIST ===== */
 .items-list {
   flex: 1;
   overflow-y: auto;
-  padding: 16px 24px;
-  background: #1d120a;
+  padding: 20px 24px;
 }
 
 .item-card {
-  background: #2a1c11;
-  border: 1px solid #3d2817;
-  border-radius: 12px;
-  padding: 14px 16px;
-  margin-bottom: 12px;
-  border-left: 4px solid #444;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 16px;
+  border-left: 4px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s;
+}
+
+.item-card:hover {
+  background: rgba(255, 255, 255, 0.04);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
 }
 
 .item-card.status-served {
-  border-left-color: #4CAF50;
+  border-left-color: #4ade80;
+  box-shadow: 0 0 15px rgba(74, 222, 128, 0.05);
 }
 
 .item-card.status-preparing {
-  border-left-color: #FF9800;
+  border-left-color: #60a5fa;
+  box-shadow: 0 0 15px rgba(96, 165, 250, 0.05);
 }
 
 .item-card.status-pending {
-  border-left-color: #F44336;
+  border-left-color: #fb923c;
+  box-shadow: 0 0 15px rgba(251, 146, 36, 0.05);
 }
 
 .item-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 10px;
+  margin-bottom: 14px;
 }
 
 .item-name {
-  font-size: 13px;
-  font-weight: bold;
+  font-size: 14px;
+  font-weight: 700;
   color: white;
-  margin: 0 0 4px 0;
+  margin: 0 0 6px 0;
 }
 
 .item-meta {
   display: flex;
-  gap: 12px;
-  font-size: 10px;
-  color: #a8a8a8;
-  font-weight: bold;
+  gap: 16px;
+  font-size: 11px;
+  color: #94a3b8;
 }
 
-.item-status-badge .badge {
-  padding: 3px 8px;
+.status-badge {
+  padding: 4px 10px;
   border-radius: 12px;
-  font-size: 9px;
-  font-weight: 800;
-  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  display: inline-block;
 }
 
 .badge-served {
-  background: rgba(76, 175, 80, 0.15);
-  color: #4CAF50;
-  border: 1px solid rgba(76, 175, 80, 0.2);
+  background: rgba(74, 222, 128, 0.15);
+  color: #4ade80;
+  border: 1px solid rgba(74, 222, 128, 0.3);
 }
 
 .badge-preparing {
-  background: rgba(255, 152, 0, 0.15);
-  color: #FF9800;
-  border: 1px solid rgba(255, 152, 0, 0.2);
+  background: rgba(96, 165, 250, 0.15);
+  color: #60a5fa;
+  border: 1px solid rgba(96, 165, 250, 0.3);
 }
 
 .badge-pending {
-  background: rgba(244, 67, 54, 0.15);
-  color: #F44336;
-  border: 1px solid rgba(244, 67, 54, 0.2);
+  background: rgba(251, 146, 36, 0.15);
+  color: #fb923c;
+  border: 1px solid rgba(251, 146, 36, 0.3);
 }
 
-/* Progress Bar */
+/* ===== PROGRESS BAR WITH SHINE ===== */
+.progress-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
 .progress-bar {
-  height: 5px;
-  background: #1a110a;
-  border-radius: 3px;
+  flex: 1;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
   overflow: hidden;
-  margin-bottom: 12px;
+  position: relative;
 }
 
 .progress-fill {
   height: 100%;
-  border-radius: 3px;
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
   transition: width 0.5s ease;
 }
 
-.progress-pending { background: #F44336; }
-.progress-preparing { background: #FF9800; }
-.progress-served { background: #4CAF50; }
+.progress-fill::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+  animation: shine 2.5s infinite;
+}
 
-/* Timeline */
+@keyframes shine {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+.progress-served {
+  background: linear-gradient(90deg, #4ade80, #22c55e);
+  box-shadow: 0 0 8px rgba(74, 222, 128, 0.3);
+}
+
+.progress-preparing {
+  background: linear-gradient(90deg, #60a5fa, #3b82f6);
+  box-shadow: 0 0 8px rgba(96, 165, 250, 0.3);
+}
+
+.progress-pending {
+  background: linear-gradient(90deg, #fb923c, #f97316);
+  box-shadow: 0 0 8px rgba(251, 146, 36, 0.3);
+}
+
+.progress-percent {
+  width: 36px;
+  text-align: right;
+  font-size: 12px;
+  font-weight: 700;
+  color: white;
+}
+
+/* ===== TIMELINE ===== */
 .timeline {
   display: flex;
   justify-content: space-between;
@@ -464,119 +709,156 @@ function refreshStatus() {
 .timeline::before {
   content: '';
   position: absolute;
-  top: 13px;
+  top: 14px;
   left: 0;
   right: 0;
   height: 2px;
-  background: #1a110a;
+  background: rgba(255, 255, 255, 0.08);
   z-index: 0;
 }
 
-.timeline-item {
+.timeline-step {
   flex: 1;
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   position: relative;
   z-index: 1;
 }
 
-.timeline-dot {
-  width: 16px;
-  height: 16px;
+.step-dot {
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
-  background: #1a110a;
-  border: 1px solid #3d2817;
-  color: #555;
+  background: #1b1c2a;
+  border: 2px solid rgba(255, 255, 255, 0.15);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 4px;
-  font-size: 8px;
-  font-weight: bold;
+  margin-bottom: 6px;
+  transition: all 0.3s;
 }
 
-.timeline-item.completed .timeline-dot {
-  background: #4CAF50;
-  border-color: #4CAF50;
-  color: white;
+.step-dot.completed {
+  background: linear-gradient(135deg, #4ade80, #22c55e);
+  border-color: #4ade80;
+  box-shadow: 0 0 10px rgba(74, 222, 128, 0.4);
 }
 
-.timeline-label {
-  font-size: 9px;
-  color: #a8a8a8;
-  margin-bottom: 1px;
-  font-weight: bold;
-}
-
-.timeline-time {
+.dot-icon {
   font-size: 10px;
+  color: #1b1c2a;
   font-weight: bold;
+}
+
+.step-dot:not(.completed) .dot-icon {
+  display: none;
+}
+
+.step-info {
+  text-align: center;
+}
+
+.step-label {
+  font-size: 10px;
+  color: #94a3b8;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.step-time {
+  font-size: 11px;
+  font-weight: 700;
   color: white;
 }
 
-/* Empty State */
+/* ===== EMPTY STATE ===== */
 .empty-state {
   text-align: center;
-  padding: 40px 20px;
+  padding: 50px 20px;
 }
 
 .empty-icon {
-  font-size: 40px;
-  margin-bottom: 8px;
+  font-size: 48px;
+  margin-bottom: 12px;
+  opacity: 0.6;
 }
 
 .empty-text {
-  color: #a8a8a8;
-  font-size: 13px;
-  font-weight: bold;
+  color: white;
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 6px;
 }
 
-/* Footer */
+.empty-subtext {
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+/* ===== FOOTER ===== */
 .modal-footer {
   display: flex;
   gap: 12px;
   padding: 16px 24px;
-  background: #1a110a;
-  border-top: 1px solid #442c19;
+  background: rgba(0, 0, 0, 0.15);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .btn-refresh,
 .btn-close {
   flex: 1;
-  padding: 12px;
+  padding: 12px 20px;
   border: none;
-  border-radius: 8px;
-  font-weight: 800;
-  font-size: 12px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 13px;
   cursor: pointer;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  transition: all 0.2s;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .btn-refresh {
-  background: #E8772E;
+  background: linear-gradient(135deg, #fb923c, #f97316);
   color: white;
+  box-shadow: 0 4px 12px rgba(251, 146, 36, 0.2);
 }
 
 .btn-refresh:hover {
-  background: #ff9800;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(251, 146, 36, 0.35);
 }
 
 .btn-close {
-  background: #3d2817;
-  border: 1px solid #5a3d25;
-  color: #c8c8c8;
+  background: rgba(255, 255, 255, 0.08);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .btn-close:hover {
-  background: #4e341f;
-  color: white;
+  background: rgba(255, 255, 255, 0.18);
 }
 
-/* Animations */
+/* ===== SCROLLBAR ===== */
+.items-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.items-list::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.items-list::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #fb923c, #f97316);
+  border-radius: 3px;
+}
+
+/* ===== ANIMATIONS ===== */
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.2s ease;
+  transition: opacity 0.3s ease;
 }
 
 .fade-enter-from,
@@ -589,7 +871,7 @@ function refreshStatus() {
   display: none;
 }
 .scrollbar-hide {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 </style>

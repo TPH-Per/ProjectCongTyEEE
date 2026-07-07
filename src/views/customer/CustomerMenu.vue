@@ -109,6 +109,20 @@
       </div>
     </div>
 
+    <!-- Floating "Gọi Phục Vụ" Action Button (bottom right corner) -->
+    <div class="fixed bottom-24 right-6 z-30">
+      <button
+        @click="goToServiceRequest"
+        class="w-14 h-14 bg-[#E8772E] hover:bg-amber-600 active:scale-95 text-white rounded-full flex items-center justify-center shadow-2xl shadow-[#E8772E]/20 border-2 border-white/10 transition-all hover:rotate-12 select-none animate-bounce"
+        title="Gọi phục vụ"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+        </svg>
+      </button>
+    </div>
+
     <!-- Modal Detail - Teleport to body -->
     <MenuItemDetailModal
       :item="focusedItem"

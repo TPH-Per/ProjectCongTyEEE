@@ -90,7 +90,8 @@
             min="360"
             max="1410"
             step="15"
-            v-model="simulatedMinutes"
+            v-model="simulatedMinutesRaw"
+            @change="commitSimulatedMinutes"
             class="flex-1 accent-[#FF7B89] h-1.5 bg-gray-200 rounded-lg cursor-pointer"
           />
           <span class="text-[9px] text-gray-400 font-bold select-none"
@@ -948,27 +949,27 @@
             </div>
 
             <div class="grid grid-cols-2 gap-3.5">
+              <!-- Bill total: read-only, derived from the active order's items.
+                   Backend is the source of truth via hall_get_checkout_summary;
+                   we render whatever the RPC returned so staff never types a
+                   wrong number. -->
               <div class="space-y-1">
                 <label class="text-[8px] font-black text-gray-400 uppercase">{{
                   t('admin_floors.modal.bill_estimate')
                 }}</label>
-                <input
-                  type="text"
-                  v-model="tableModalForm.billAmount"
-                  :placeholder="i18n.t('admin_floors.placeholder.zero')"
-                  class="w-full bg-white border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
-                />
+                <div class="w-full bg-rose-50 border border-rose-200 rounded-lg px-2.5 py-2 font-extrabold text-rose-700 text-sm">
+                  {{ liveBillTotal }}
+                </div>
               </div>
+              <!-- Time-in: read-only, computed from now − opened_at so it
+                   counts up live. No more free-text typing. -->
               <div class="space-y-1">
                 <label class="text-[8px] font-black text-gray-400 uppercase">{{
                   t('admin_floors.modal.time_in')
                 }}</label>
-                <input
-                  type="text"
-                  v-model="tableModalForm.occupiedDuration"
-                  :placeholder="i18n.t('admin_floors.placeholder.time')"
-                  class="w-full bg-white border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
-                />
+                <div class="w-full bg-rose-50 border border-rose-200 rounded-lg px-2.5 py-2 font-extrabold text-rose-700 text-sm">
+                  {{ liveOccupiedDuration }}
+                </div>
               </div>
             </div>
           </div>
@@ -1110,11 +1111,10 @@
               <label class="text-[9px] font-black text-gray-400 uppercase">{{
                 t('admin_floors.booking.time')
               }}</label>
-              <input
-                type="text"
+              <TimePicker15
                 v-model="newBookingForm.reservationTime"
-                :placeholder="i18n.t('admin_floors.placeholder.time_example')"
-                class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
+                :label="$t('admin_floors.booking.time')"
+                :min-time="nowHHmm()"
               />
             </div>
           </div>
@@ -1279,19 +1279,17 @@
               <label class="text-[9px] font-black text-gray-400 uppercase">{{
                 t('admin_floors.booking.initial_bill')
               }}</label>
-              <input
-                type="text"
-                v-model="quickOpenForm.billAmount"
-                :placeholder="i18n.t('admin_floors.placeholder.zero')"
-                class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
-              />
+              <!-- Read-only: derived from the live order total, never typed. -->
+              <div class="w-full bg-rose-50 border border-rose-200 rounded-lg px-2.5 py-2 font-extrabold text-rose-700 text-sm">
+                {{ liveBillTotal }}
+              </div>
             </div>
           </div>
         </div>
 
         <div class="flex gap-3 select-none">
           <button
-            @click="isQuickOpenModalOpen = false"
+            @click="async () => { if (await confirmQuickOpenDirty()) isQuickOpenModalOpen = false }"
             class="flex-1 py-2 rounded-xl border border-gray-250 bg-white hover:bg-gray-50 text-gray-700 text-[11px] font-bold transition-colors"
           >
             {{ t('admin_floors.action.close_btn') }}
@@ -1892,12 +1890,20 @@ const i18n = useI18nStore()
 import Swal from 'sweetalert2';
 import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useRestaurantStore } from '@/stores/restaurantStore';
 import { storeToRefs } from 'pinia';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/composables/useAuth';
+import { useUnsavedGuard } from '@/composables/useUnsavedGuard';
+import TimePicker15 from '@/components/TimePicker15.vue';
+
+// SECURITY: branchId comes from useAuth only — never from
+// session.user.user_metadata (which is attacker-editable). It's a top-level
+// ref so the liveBillTotal RPC preview and every other branch-scoped query
+// can read it without a re-destructuring ceremony.
+const { branchId: activeBranchId } = useAuth()
 
 // The simulated-time controls and the entire `simulatedAreas` overlay are
 // only useful when the page is being run in /admin/floors (or any non-reception
@@ -1967,8 +1973,21 @@ const isZoneDropdownOpen = ref(false);
 const activeShift = ref<'all' | 'morning' | 'lunch' | 'afternoon' | 'evening'>('all');
 const searchBookingQuery = ref('');
 
-// Simulated time state refs & presets
-const simulatedMinutes = ref(1080); // Default to 18:00 (6:00 PM)
+// Simulated time state refs & presets.
+// `simulatedMinutesRaw` is what the slider is bound to (so dragging the
+// thumb doesn't trigger a recompute of `simulatedAreas` on every input
+// event). `simulatedMinutes` is the debounced (100 ms) value that the rest
+// of the page actually reads from.
+const simulatedMinutesRaw = ref(1080)
+const simulatedMinutes = ref(1080)
+let simDebounceHandle: number | null = null
+function commitSimulatedMinutes() {
+  if (simDebounceHandle != null) clearTimeout(simDebounceHandle)
+  simDebounceHandle = window.setTimeout(() => {
+    simDebounceHandle = null
+    simulatedMinutes.value = simulatedMinutesRaw.value
+  }, 100)
+}
 const selectedSimulatedTime = computed(() => {
   const h = Math.floor(simulatedMinutes.value / 60);
   const m = simulatedMinutes.value % 60;
@@ -1984,7 +2003,9 @@ const inputSimulatedTime = computed({
   set(val: string) {
     if (!val) return;
     const [h, m] = val.split(':').map(Number);
-    simulatedMinutes.value = h * 60 + m;
+    const next = h * 60 + m;
+    simulatedMinutes.value = next;
+    simulatedMinutesRaw.value = next;
   }
 });
 
@@ -1992,12 +2013,16 @@ const resetToRealTimeOnly = () => {
   const now = new Date();
   const currentHour = now.getHours();
   const currentMin = now.getMinutes();
-  simulatedMinutes.value = currentHour * 60 + currentMin;
+  const next = currentHour * 60 + currentMin;
+  simulatedMinutes.value = next;
+  simulatedMinutesRaw.value = next;
 };
 
 const setSimulatedTimePreset = (presetStr: string) => {
   const [h, m] = presetStr.split(':').map(Number);
-  simulatedMinutes.value = h * 60 + m;
+  const next = h * 60 + m;
+  simulatedMinutes.value = next;
+  simulatedMinutesRaw.value = next;
 };
 
 // Date Navigation Setup
@@ -2323,9 +2348,11 @@ const simulatedAreas = computed<AreaInfo[]>(() => {
           } else if (currentMin >= bookingMin + 15 && currentMin < bookingMin + 120) {
             computedStatus = 'Serving';
             computedCustomer = booking.customerName;
-            const guests = booking.adults + booking.children;
-            const price = guests * 200000 + 150000;
-            computedBill = price.toLocaleString('vi-VN') + 'đ';
+            // Provisional bill comes from `hall_get_checkout_totals` RPC. Until
+            // the RPC is available we show a dash so the cashier doesn't see a
+            // fabricated number; the Dashboard / ReceptionOrderView surfaces
+            // the real number once the order has at least one item.
+            computedBill = '—';
             computedCheckIn = booking.reservationTime;
             computedDuration = `${currentMin - bookingMin} phút`;
             foundActive = true;
@@ -2481,6 +2508,13 @@ function getTableReservationTime(tableCode: string) {
   const formattedToday = getFormattedSelectedDate.value;
   const match = bookings.value.find(b => b.date === formattedToday && b.assignedTable === tableCode && b.status !== 'Seated' && b.status !== 'Completed' && b.status !== 'Cancelled');
   return match ? match.reservationTime : null;
+}
+
+// "HH:mm" of the current wall-clock time, used as the floor for the booking
+// time picker so the cashier can't pick a past time.
+function nowHHmm(): string {
+  const d = new Date();
+  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
 }
 
 function getBadgeColorClass(status: string) {
@@ -2655,6 +2689,18 @@ const updateSystemClock = () => {
   });
 };
 
+// Smart cadence: 1 s ONLY when (reception mode AND any modal is open), else
+// 30 s (so the header clock still tracks the wall-clock minute). This avoids
+// waking up once a second for a display that's mostly showing the same value.
+function scheduleSystemClock(forceSlow?: boolean) {
+  if (systemClockInterval != null) {
+    clearInterval(systemClockInterval);
+    systemClockInterval = null;
+  }
+  const fast = !forceSlow && isReceptionMode.value && isTableModalOpen.value
+  systemClockInterval = setInterval(updateSystemClock, fast ? 1000 : 30_000) as unknown as number;
+}
+
 async function loadTables() {
   const { branchId } = useAuth();
   const bid = branchId.value;
@@ -2702,7 +2748,12 @@ async function loadTables() {
 
 onMounted(async () => {
   updateSystemClock();
-  systemClockInterval = setInterval(updateSystemClock, 1000) as unknown as number;
+  // The header clock is used purely for visual feedback. In admin mode the
+  // second-resolution is overkill — a 30 s tick is plenty. We bump up to 1 s
+  // only while a modal is open AND we're in reception mode (where live
+  // duration countdown is being read). When a modal closes or the page
+  // leaves reception mode, `systemClockInterval` is rescheduled at 30 s.
+  scheduleSystemClock();
   resetToRealTimeOnly();
   // In /reception mode the operator MUST NOT be able to drag the simulated
   // time. We re-sync `simulatedMinutes` to real time every 30 s so even if
@@ -2711,7 +2762,9 @@ onMounted(async () => {
   if (isReceptionMode.value) {
     receptionClockInterval = setInterval(() => {
       const now = new Date();
-      simulatedMinutes.value = now.getHours() * 60 + now.getMinutes();
+      const next = now.getHours() * 60 + now.getMinutes();
+      simulatedMinutes.value = next;
+      simulatedMinutesRaw.value = next;
     }, 30_000) as unknown as number;
   }
 
@@ -2746,6 +2799,11 @@ onMounted(async () => {
 onUnmounted(() => {
   if (systemClockInterval) clearInterval(systemClockInterval);
   if (receptionClockInterval) clearInterval(receptionClockInterval);
+  stopDurationTicker();
+  if (simDebounceHandle != null) {
+    clearTimeout(simDebounceHandle);
+    simDebounceHandle = null;
+  }
 });
 
 // ----------------------------------------------------
@@ -2757,20 +2815,165 @@ const isTableModalOpen = ref(false);
 const selectedTableForModal = ref<(TableInfo & { areaName: string }) | null>(null);
 const tableModalForm = ref({
   customerName: '',
-  billAmount: '',
-  occupiedDuration: '',
   status: 'Available' as 'Available' | 'Reserved' | 'Arrived' | 'Serving' | 'Maintenance'
 });
+
+// Live, read-only displays derived from the active order / open time. These
+// replace what used to be free-text inputs for billAmount and
+// occupiedDuration, which were a known source of typos and silent data loss.
+//
+// `liveBillTotal` is now driven by the hall_get_checkout_totals RPC — same
+// single source of truth as the cashier sees at checkout. Cached per tableId
+// so flipping back to the same modal is instant. Stale entries clear when
+// a checkout completes (useCheckout.clearTableCache).
+import { useCheckout } from '@/composables/useCheckout'
+import { useRealtime } from '@/composables/useRealtime'
+const { previewTableSummary, clearTableCache } = useCheckout()
+const { watchTable } = useRealtime()
+const billTotalsCache = ref<Record<string, { subtotal: number; grand_total: number; loading: boolean; error: string | null }>>({})
+const liveBillTotal = computed(() => {
+  const code = selectedTableForModal.value?.code ?? ''
+  const t = code ? getTableByCode(code) : null
+  if (!t) return '0đ'
+  const tableId = (t as any).id as string | undefined
+  if (!tableId) return '0đ'
+  const cached = billTotalsCache.value[tableId]
+  if (cached?.loading) return '…'
+  if (cached?.error) return cached.error
+  if (cached) return `${cached.grand_total.toLocaleString('vi-VN')}đ`
+  return '—'
+})
+
+async function refreshBillTotalForTable(tableId: string) {
+  if (!activeBranchId.value) return
+  billTotalsCache.value = { ...billTotalsCache.value, [tableId]: { subtotal: 0, grand_total: 0, loading: true, error: null } }
+  try {
+    const preview = await previewTableSummary(activeBranchId.value, tableId)
+    if (preview.ok && preview.totals) {
+      billTotalsCache.value = {
+        ...billTotalsCache.value,
+        [tableId]: {
+          subtotal: preview.totals.subtotal,
+          grand_total: preview.totals.grand_total,
+          loading: false,
+          error: null,
+        },
+      }
+    } else {
+      billTotalsCache.value = {
+        ...billTotalsCache.value,
+        [tableId]: { subtotal: 0, grand_total: 0, loading: false, error: preview.error ?? '—' },
+      }
+    }
+  } catch (e: any) {
+    billTotalsCache.value = {
+      ...billTotalsCache.value,
+      [tableId]: { subtotal: 0, grand_total: 0, loading: false, error: e?.message ?? 'lỗi' },
+    }
+  }
+}
+
+// Watch the modal's selected table so we fetch fresh totals every time the
+// manager opens it on a different table.
+//
+// IMPORTANT: previously this only fetched when the cache was empty, which
+// meant re-opening a table modal showed stale totals AND rapid A→B→A clicks
+// could leave the wrong table's total on screen because the cache key is
+// `tableId` only. Now we always force a fresh fetch on every modal open.
+watch(
+  () => selectedTableForModal.value?.code,
+  (newCode, oldCode) => {
+    if (newCode === oldCode) return
+    const t = newCode ? getTableByCode(newCode) : null
+    const tableId = (t as any)?.id as string | undefined
+    if (tableId) {
+      refreshBillTotalForTable(tableId)
+    }
+  },
+)
+
+// Invalidate the per-table bill cache whenever a new order or order_item
+// lands in the DB. This is what makes the floor-plan's `liveBillTotal`
+// actually live: when a customer taps "Đặt món" at table A, the realtime
+// event fires here, we drop A's cached preview, and the next time the
+// manager opens A's modal (or refreshes the floor) they see the new total
+// instead of the stale one.
+watchTable<Record<string, unknown>>('orders', '*', () => {
+  // Drop the currently-open table's cache so the next re-read pulls fresh.
+  const code = selectedTableForModal.value?.code
+  if (code) {
+    const t = getTableByCode(code)
+    const tableId = (t as any)?.id as string | undefined
+    if (tableId) clearTableCache(tableId)
+  }
+})
+watchTable<Record<string, unknown>>('order_items', '*', () => {
+  const code = selectedTableForModal.value?.code
+  if (code) {
+    const t = getTableByCode(code)
+    const tableId = (t as any)?.id as string | undefined
+    if (tableId) clearTableCache(tableId)
+  }
+})
+
+const liveOccupiedDuration = computed(() => {
+  const code = selectedTableForModal.value?.code ?? ''
+  const t = code ? getTableByCode(code) : null
+  if (!t || !t.checkInTime) return '—'
+  // t.checkInTime may be 'HH:mm' (mock) or an ISO timestamp; both are handled.
+  const open = parseCheckInTime(t.checkInTime)
+  if (!open) return t.checkInTime
+  const elapsedMin = Math.max(0, Math.round((now.value - open) / 60000))
+  if (elapsedMin < 60) return `${elapsedMin} phút`
+  const h = Math.floor(elapsedMin / 60)
+  const m = elapsedMin % 60
+  return `${h}h ${m}p`
+})
+
+// Tick the duration display only while the table modal is open — outside of
+// that modal the value isn't visible, so we don't pay the 30 s interval cost.
+// `now` is the timestamp the liveOccupiedDuration computed reads to compute
+// elapsed minutes; it doesn't need to be reactive on every tick because the
+// computation rounds to whole minutes. 30 s cadence is enough for live UX.
+const now = ref(Date.now())
+let durationTimer: ReturnType<typeof setInterval> | null = null
+
+function startDurationTicker() {
+  if (durationTimer) return
+  durationTimer = setInterval(() => { now.value = Date.now() }, 30_000)
+}
+function stopDurationTicker() {
+  if (!durationTimer) return
+  clearInterval(durationTimer)
+  durationTimer = null
+}
+
+function parseCheckInTime(raw: string): number | null {
+  // Legacy mock: '17:45' (no date) → assume today.
+  if (/^\d{1,2}:\d{2}$/.test(raw)) {
+    const [h, m] = raw.split(':').map(Number)
+    const d = new Date()
+    d.setHours(h, m, 0, 0)
+    return d.getTime()
+  }
+  const t = Date.parse(raw)
+  return Number.isNaN(t) ? null : t
+}
 
 function openTableModal(areaName: string, table: TableInfo) {
   selectedTableForModal.value = { ...table, areaName };
   tableModalForm.value = {
     customerName: table.customerName || '',
-    billAmount: table.billAmount || '',
-    occupiedDuration: table.occupiedDuration || '',
     status: table.status
   };
+  // Snapshot for the dirty-comparison baseline.
+  tableModalBaseline.value = { ...tableModalForm.value };
   isTableModalOpen.value = true;
+  // The duration display only matters while the modal is visible — start the
+  // ticker here and stop it on close to keep idle CPU near zero.
+  startDurationTicker()
+  // Header clock: bump to 1 s cadence in reception mode while modal is open.
+  scheduleSystemClock()
 }
 
 function setTableModalStatus(status: 'Available' | 'Reserved' | 'Arrived' | 'Serving' | 'Maintenance') {
@@ -2783,8 +2986,7 @@ function saveTableModal() {
     if (origTable) {
       origTable.status = tableModalForm.value.status;
       origTable.customerName = tableModalForm.value.customerName;
-      origTable.billAmount = tableModalForm.value.billAmount;
-      origTable.occupiedDuration = tableModalForm.value.occupiedDuration;
+      // billAmount + occupiedDuration are now derived, never persisted here.
 
       if (origTable.status === 'Available') {
         origTable.customerName = '';
@@ -2797,12 +2999,28 @@ function saveTableModal() {
       }
     }
   }
-  closeTableModal();
-}
-
-function closeTableModal() {
+  tableModalBaseline.value = { ...tableModalForm.value };
   isTableModalOpen.value = false;
   selectedTableForModal.value = null;
+  stopDurationTicker()
+  scheduleSystemClock()
+}
+
+const tableModalBaseline = ref({
+  customerName: '',
+  status: 'Available' as 'Available' | 'Reserved' | 'Arrived' | 'Serving' | 'Maintenance'
+});
+const { confirmIfDirty: confirmTableDirty } = useUnsavedGuard(
+  tableModalForm,
+  tableModalBaseline,
+);
+
+async function closeTableModal() {
+  if (await confirmTableDirty()) {
+    isTableModalOpen.value = false;
+    selectedTableForModal.value = null;
+    stopDurationTicker()
+  }
 }
 
 // Modal 2: Create / Edit Booking
@@ -2930,7 +3148,6 @@ const quickOpenForm = ref({
   tableCode: '',
   customerName: '',
   guestCount: 2,
-  billAmount: '0đ'
 });
 
 function openQuickOpenModal() {
@@ -2938,10 +3155,20 @@ function openQuickOpenModal() {
     tableCode: '',
     customerName: t('admin_floors.table.walk_in'),
     guestCount: 2,
-    billAmount: '0đ'
   };
+  quickOpenBaseline.value = { ...quickOpenForm.value };
   isQuickOpenModalOpen.value = true;
 }
+
+const quickOpenBaseline = ref({
+  tableCode: '',
+  customerName: '',
+  guestCount: 2,
+});
+const { confirmIfDirty: confirmQuickOpenDirty } = useUnsavedGuard(
+  quickOpenForm,
+  quickOpenBaseline,
+);
 
 function goToOrderScreen(tableCode: string) {
   // If editing in modal, apply those values first
@@ -2976,8 +3203,8 @@ function saveQuickOpen() {
   if (table) {
     table.status = 'Serving';
     table.customerName = quickOpenForm.value.customerName || t('admin_floors.table.walk_in');
-    table.billAmount = quickOpenForm.value.billAmount || '0đ';
-    table.occupiedDuration = '1 phút';
+    // billAmount + occupiedDuration are derived, not typed — leave them to
+    // the live computeds.
     const now = new Date();
     table.checkInTime = now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
 
@@ -2985,6 +3212,7 @@ function saveQuickOpen() {
     goToOrderScreen(table.code);
   }
 
+  quickOpenBaseline.value = { ...quickOpenForm.value };
   isQuickOpenModalOpen.value = false;
 }
 
@@ -3137,7 +3365,9 @@ const resetToCurrentState = () => {
   const now = new Date();
   const currentHour = now.getHours();
   const currentMin = now.getMinutes();
-  simulatedMinutes.value = currentHour * 60 + currentMin;
+  const next = currentHour * 60 + currentMin;
+  simulatedMinutes.value = next;
+  simulatedMinutesRaw.value = next;
 };
 </script>
 

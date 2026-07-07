@@ -53,7 +53,13 @@ export interface TableOrder {
 }
 
 export const useRestaurantStore = defineStore('restaurant', () => {
-  // Global Mock Areas & Tables
+  // NOTE: This is OFFLINE / DEV fallback data. In production the cashier
+  // views (ReceptionOrderView, AdminFloorsView, ReceptionDashboardView)
+  // all source their tables from `hall_list_tables` RPC and the realtime
+  // channel. The structure here is kept ONLY so the dashboard UI does not
+  // crash during a cold dev run with no Supabase project; billAmount /
+  // occupiedDuration / checkInTime are intentionally NOT pre-filled so
+  // no fake numbers leak into the cashier's view.
   const areas = ref<AreaInfo[]>([
     {
       name: 'Khu A',
@@ -61,12 +67,12 @@ export const useRestaurantStore = defineStore('restaurant', () => {
       tables: [
         { code: 'A01', status: 'Available', capacity: 4 },
         { code: 'A02', status: 'Reserved', capacity: 4, customerName: 'Nguyễn Văn A' },
-        { code: 'A03', status: 'Serving', capacity: 2, customerName: 'Phạm Hùng', billAmount: '450.000đ', occupiedDuration: '30 phút', checkInTime: '17:45' },
+        { code: 'A03', status: 'Serving', capacity: 2, customerName: 'Phạm Hùng' },
         { code: 'A04', status: 'Arrived', capacity: 6, customerName: 'Lê Thảo' },
         { code: 'A05', status: 'Available', capacity: 4 },
         { code: 'A06', status: 'Available', capacity: 4 },
         { code: 'A07', status: 'Reserved', capacity: 4, customerName: 'Trần Bình' },
-        { code: 'A08', status: 'Serving', capacity: 8, customerName: 'Lê Văn C', billAmount: '1.850.000đ', occupiedDuration: '1h 20p', checkInTime: '16:55' },
+        { code: 'A08', status: 'Serving', capacity: 8, customerName: 'Lê Văn C' },
         { code: 'A09', status: 'Available', capacity: 4 },
       ]
     },
@@ -76,7 +82,7 @@ export const useRestaurantStore = defineStore('restaurant', () => {
       tables: [
         { code: 'B01', status: 'Available', capacity: 10 },
         { code: 'B02', status: 'Reserved', capacity: 8, customerName: 'Bùi Lan' },
-        { code: 'B03', status: 'Serving', capacity: 10, customerName: 'Công ty ABC', billAmount: '4.200.000đ', occupiedDuration: '2h 10p', checkInTime: '16:05' },
+        { code: 'B03', status: 'Serving', capacity: 10, customerName: 'Công ty ABC' },
       ]
     },
     {
@@ -88,7 +94,7 @@ export const useRestaurantStore = defineStore('restaurant', () => {
         { code: 'C03', status: 'Arrived', capacity: 4, customerName: 'Trần Thị B' },
         { code: 'C04', status: 'Available', capacity: 4 },
         { code: 'C05', status: 'Reserved', capacity: 2, customerName: 'Hoàng Long' },
-        { code: 'C06', status: 'Serving', capacity: 4, customerName: 'Đức Huy', billAmount: '890.000đ', occupiedDuration: '50 phút', checkInTime: '17:25' },
+        { code: 'C06', status: 'Serving', capacity: 4, customerName: 'Đức Huy' },
         { code: 'C07', status: 'Available', capacity: 2 },
         { code: 'C08', status: 'Available', capacity: 4 },
       ]
@@ -99,12 +105,12 @@ export const useRestaurantStore = defineStore('restaurant', () => {
       tables: [
         { code: 'R01', status: 'Available', capacity: 6 },
         { code: 'R02', status: 'Reserved', capacity: 6, customerName: 'Vũ Nam' },
-        { code: 'R03', status: 'Serving', capacity: 6, customerName: 'Gia đình chị Vy', billAmount: '2.500.000đ', occupiedDuration: '1h 10p', checkInTime: '17:05' },
+        { code: 'R03', status: 'Serving', capacity: 6, customerName: 'Gia đình chị Vy' },
         { code: 'R04', status: 'Available', capacity: 6 },
         { code: 'R05', status: 'Reserved', capacity: 8, customerName: 'Phạm Minh Hoàng' },
         { code: 'R06', status: 'Available', capacity: 6 },
         { code: 'R07', status: 'Reserved', capacity: 6, customerName: 'Trần Hào' },
-        { code: 'R08', status: 'Serving', capacity: 12, customerName: 'Sinh nhật Minh', billAmount: '5.600.000đ', occupiedDuration: '1h 45p', checkInTime: '16:30' },
+        { code: 'R08', status: 'Serving', capacity: 12, customerName: 'Sinh nhật Minh' },
       ]
     },
     {
@@ -114,7 +120,7 @@ export const useRestaurantStore = defineStore('restaurant', () => {
         { code: 'T01', status: 'Available', capacity: 4 },
         { code: 'T02', status: 'Reserved', capacity: 4, customerName: 'Đặng Thu Thảo' },
         { code: 'T03', status: 'Reserved', capacity: 4 },
-        { code: 'T04', status: 'Serving', capacity: 4, customerName: 'Anh Trung', billAmount: '1.200.000đ', occupiedDuration: '45 phút', checkInTime: '17:30' },
+        { code: 'T04', status: 'Serving', capacity: 4, customerName: 'Anh Trung' },
         { code: 'T05', status: 'Arrived', capacity: 4, customerName: 'Khánh Hà' },
         { code: 'T06', status: 'Available', capacity: 4 },
         { code: 'T07', status: 'Available', capacity: 4 },
@@ -126,7 +132,7 @@ export const useRestaurantStore = defineStore('restaurant', () => {
       description: 'Trực tuyến Capichi',
       tables: [
         { code: 'CP01', status: 'Available', capacity: 1 },
-        { code: 'CP02', status: 'Serving', capacity: 1, customerName: 'Capichi Order #1', billAmount: '150.000đ', occupiedDuration: '12 phút', checkInTime: '17:50' },
+        { code: 'CP02', status: 'Serving', capacity: 1, customerName: 'Capichi Order #1' },
         { code: 'CP03', status: 'Available', capacity: 1 },
         { code: 'CP04', status: 'Reserved', capacity: 1, customerName: 'Capichi Order #2' },
         { code: 'CP05', status: 'Arrived', capacity: 1, customerName: 'Capichi Order #3' },
@@ -138,7 +144,7 @@ export const useRestaurantStore = defineStore('restaurant', () => {
       tables: [
         { code: 'Shopee01', status: 'Available', capacity: 1 },
         { code: 'Shopee02', status: 'Available', capacity: 1 },
-        { code: 'Shopee03', status: 'Serving', capacity: 1, customerName: 'Shopee #452', billAmount: '320.000đ', occupiedDuration: '8 phút', checkInTime: '17:53' },
+        { code: 'Shopee03', status: 'Serving', capacity: 1, customerName: 'Shopee #452' },
         { code: 'Shopee04', status: 'Reserved', capacity: 1, customerName: 'Shopee #460' },
         { code: 'Shopee05', status: 'Arrived', capacity: 1, customerName: 'Shopee #461' },
       ]
@@ -149,7 +155,7 @@ export const useRestaurantStore = defineStore('restaurant', () => {
       tables: [
         { code: 'BE01', status: 'Available', capacity: 1 },
         { code: 'BE02', status: 'Reserved', capacity: 1, customerName: 'beFood #11' },
-        { code: 'BE03', status: 'Serving', capacity: 1, customerName: 'beFood #12', billAmount: '180.000đ', occupiedDuration: '15 phút', checkInTime: '17:47' },
+        { code: 'BE03', status: 'Serving', capacity: 1, customerName: 'beFood #12' },
         { code: 'BE04', status: 'Available', capacity: 1 },
         { code: 'BE05', status: 'Arrived', capacity: 1, customerName: 'beFood #14' },
       ]
@@ -159,7 +165,7 @@ export const useRestaurantStore = defineStore('restaurant', () => {
       description: 'GrabFood Orders',
       tables: [
         { code: 'Grab01', status: 'Available', capacity: 1 },
-        { code: 'Grab02', status: 'Serving', capacity: 1, customerName: 'Grab #90', billAmount: '240.000đ', occupiedDuration: '20 phút', checkInTime: '17:42' },
+        { code: 'Grab02', status: 'Serving', capacity: 1, customerName: 'Grab #90' },
         { code: 'Grab03', status: 'Reserved', capacity: 1, customerName: 'Grab #91' },
         { code: 'Grab04', status: 'Available', capacity: 1 },
         { code: 'Grab05', status: 'Arrived', capacity: 1, customerName: 'Grab #95' },

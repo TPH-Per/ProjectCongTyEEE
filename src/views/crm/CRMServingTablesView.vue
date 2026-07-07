@@ -220,13 +220,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useCrmStore } from '@/stores/crmStore'
 import type { CrmServingTable, CrmSurveyInput, CrmSurveyStatus } from '@/stores/crmStore'
+import { useRealtime } from '@/composables/useRealtime'
 
 const { t } = useI18n()
 const crmStore = useCrmStore()
+const loading = computed(() => crmStore.loading)
+const error = computed(() => crmStore.error)
 
 const tables = ref<CrmServingTable[]>([])
 const activeFilter = ref<string>('all')
@@ -264,11 +267,10 @@ const filteredTables = computed(() => {
 async function refresh() {
   await crmStore.fetchServingTables()
   tables.value = crmStore.servingTables
+  if (selectedTable.value) {
+    selectedTable.value = tables.value.find((t) => t.table_id === selectedTable.value?.table_id) ?? null
+  }
 }
-
-onMounted(() => {
-  refresh()
-})
 
 function openSurvey(table: CrmServingTable) {
   selectedTable.value = table
@@ -312,6 +314,8 @@ async function submit() {
   try {
     const input: CrmSurveyInput = {
       tableId: selectedTable.value.table_id,
+      orderId: selectedTable.value.order_id,
+      tableAssignmentId: selectedTable.value.table_assignment_id,
       customerName: surveyForm.value.customerName || null,
       customerPhone: surveyForm.value.customerPhone || null,
       visitReason: surveyForm.value.visitReason || null,
@@ -355,6 +359,26 @@ function statusClass(status: CrmSurveyStatus) {
     default: return 'bg-gray-800 text-gray-400 border border-gray-700'
   }
 }
+
+// Realtime: any new survey or order change auto-refreshes the list.
+const realtime = useRealtime()
+let refreshWatcherA: (() => void) | null = null
+let refreshWatcherB: (() => void) | null = null
+
+onMounted(async () => {
+  await refresh()
+  refreshWatcherA = realtime.watchTable('crm_surveys', '*', () => {
+    refresh().catch(() => {})
+  })
+  refreshWatcherB = realtime.watchTable('orders', '*', () => {
+    refresh().catch(() => {})
+  })
+})
+
+onBeforeUnmount(() => {
+  refreshWatcherA?.()
+  refreshWatcherB?.()
+})
 </script>
 
 <style scoped>

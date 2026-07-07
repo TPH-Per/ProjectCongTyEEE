@@ -210,8 +210,14 @@ function triggerPayment() {
   }).then(async (result) => {
     if (result.isConfirmed) {
       await store.requestPayment();
-      // Redirect to feedback popup
-      router.push({ name: 'Feedback' });
+      // After "Yêu cầu thanh toán", keep the customer on the menu screen
+      // so they can still see the order list and the "đang chờ thanh
+      // toán" status badge. The cashier will pick the bill up from the
+      // reception dashboard and process it from there. We must NOT push
+      // them to /customer/Feedback (that would surface an empty rating
+      // form) and we must NOT log them out (that would force them to
+      // re-enter the staff passcode).
+      router.push({ name: 'CustomerMenu' });
     }
   });
 }

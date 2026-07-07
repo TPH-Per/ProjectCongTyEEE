@@ -62,7 +62,9 @@
                 : 'text-gray-400 hover:text-white',
             ]"
             type="button"
-          >{{ t('reception.receipt') }}</button>
+          >
+            {{ t("reception.receipt") }}
+          </button>
 
           <button
             @click="activeMainTab = 'menu'"
@@ -73,7 +75,9 @@
                 : 'text-gray-400 hover:text-white',
             ]"
             type="button"
-          >{{ t('reception.details') }}<span
+          >
+            {{ t("reception.details")
+            }}<span
               class="bg-red-600 text-white text-[9px] font-black w-4.5 h-4.5 rounded-full flex items-center justify-center"
             >
               {{
@@ -97,7 +101,9 @@
                 : 'text-gray-400 hover:text-white',
             ]"
             type="button"
-          >{{ t('reception.unprocessed') }}<span
+          >
+            {{ t("reception.unprocessed")
+            }}<span
               v-if="pendingCount > 0"
               class="bg-red-600 text-white text-[9px] font-black w-4.5 h-4.5 rounded-full flex items-center justify-center"
             >
@@ -114,13 +120,15 @@
                 : 'text-gray-400 hover:text-white',
             ]"
             type="button"
-          >{{ t('reception.floor_plan') }}</button>
+          >
+            {{ t("reception.floor_plan") }}
+          </button>
         </div>
 
         <!-- Cashier info -->
         <div class="flex items-center gap-6 text-xs font-bold text-gray-300">
           <div>
-            <span class="text-gray-500 mr-1">{{ t('reception.cashier') }}</span>
+            <span class="text-gray-500 mr-1">{{ t("reception.cashier") }}</span>
             <span class="text-white">{{ profile?.full_name || "mo" }}</span>
           </div>
           <div class="font-mono text-gray-400 flex items-center gap-2">
@@ -193,13 +201,25 @@
 
             <!-- Dropdown Menu -->
             <div v-if="showMoreMenu" class="more-dropdown">
-              <button type="button" @click="showOtherIncomeModal = true">{{ t('reception.other_income') }}</button>
-              <button type="button" @click="openSettings">{{ t('reception.settings') }}</button>
-              <button type="button" @click="openShortcuts">{{ t('reception.shortcuts') }}</button>
-              <button type="button" @click="openHelp">{{ t('reception.help') }}</button>
-              <button type="button" @click="openAbout">{{ t('reception.about') }}</button>
+              <button type="button" @click="showOtherIncomeModal = true">
+                {{ t("reception.other_income") }}
+              </button>
+              <button type="button" @click="openSettings">
+                {{ t("reception.settings") }}
+              </button>
+              <button type="button" @click="openShortcuts">
+                {{ t("reception.shortcuts") }}
+              </button>
+              <button type="button" @click="openHelp">
+                {{ t("reception.help") }}
+              </button>
+              <button type="button" @click="openAbout">
+                {{ t("reception.about") }}
+              </button>
               <hr />
-              <button type="button" @click="logout" class="danger">{{ t('reception.logout') }}</button>
+              <button type="button" @click="logout" class="danger">
+                {{ t("reception.logout") }}
+              </button>
             </div>
           </div>
 
@@ -219,13 +239,17 @@
             @click="goBack"
             class="px-4 py-2 bg-[#E8772E] hover:bg-[#d0621f] text-white text-xs font-bold rounded-lg transition-all active:scale-95 shadow mr-1"
             type="button"
-          >{{ t('reception.temp_exit') }}</button>
+          >
+            {{ t("reception.temp_exit") }}
+          </button>
 
           <button
             @click="goBack"
             class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-lg transition-all active:scale-95 shadow"
             type="button"
-          >{{ t('reception.go_back') }}</button>
+          >
+            {{ t("reception.go_back") }}
+          </button>
         </div>
       </header>
 
@@ -233,7 +257,11 @@
       <div class="flex-1 flex min-h-0 relative">
         <aside
           class="pos-traditional-layout pos-sidebar transition-all duration-300 ease-in-out sidebar-container bg-[#1a1a1a] border-r border-[#333] h-full overflow-hidden flex-shrink-0 flex flex-col w-[320px]"
-          :class="selectedTableCode && activeMainTab !== 'invoice' ? 'sidebar-open' : 'sidebar-closed'"
+          :class="
+            selectedTableCode && activeMainTab !== 'invoice'
+              ? 'sidebar-open'
+              : 'sidebar-closed'
+          "
         >
           <!-- Top Tabs -->
           <div class="top-tabs flex-shrink-0">
@@ -241,7 +269,9 @@
               :class="['tab-btn', activeMainTab === 'menu' ? 'active' : '']"
               @click="activeMainTab = 'menu'"
               type="button"
-            >{{ t('reception.ordering') }}<span class="badge">{{
+            >
+              {{ t("reception.ordering")
+              }}<span class="badge">{{
                 activeOrder.items ? activeOrder.items.length : 0
               }}</span>
             </button>
@@ -249,12 +279,16 @@
               :class="['tab-btn', activeMainTab === 'invoice' ? 'active' : '']"
               @click="activeMainTab = 'invoice'"
               type="button"
-            >{{ t('reception.details') }}</button>
+            >
+              {{ t("reception.details") }}
+            </button>
             <button
               :class="['tab-btn', activeMainTab === 'pending' ? 'active' : '']"
               @click="activeMainTab = 'pending'"
               type="button"
-            >{{ t('reception.unprocessed') }}<span v-if="pendingCount > 0" class="badge bg-[#F44336]">{{
+            >
+              {{ t("reception.unprocessed")
+              }}<span v-if="pendingCount > 0" class="badge bg-[#F44336]">{{
                 pendingCount
               }}</span>
             </button>
@@ -292,62 +326,122 @@
           <!-- IF activeMainTab !== 'invoice' (ĐANG ORDER / CHƯA XỬ LÝ / SƠ ĐỒ BÀN) -->
           <template v-if="activeMainTab !== 'invoice'">
             <!-- 1. Header Info (Fixed) -->
-            <div class="flex-shrink-0 bg-[#2d2d2d] border-b border-[#444] p-2 text-white">
+            <div
+              class="flex-shrink-0 bg-[#2d2d2d] border-b border-[#444] p-2 text-white"
+            >
               <div class="flex justify-between items-center text-[11px]">
-                <span class="text-[#E8772E] font-bold">Vị trí: {{ selectedTableCode || "[Chưa chọn]" }}</span>
+                <span class="text-[#E8772E] font-bold"
+                  >Vị trí: {{ selectedTableCode || "[Chưa chọn]" }}</span
+                >
                 <span class="text-gray-400">In: {{ printCount }}</span>
               </div>
-              <div class="text-[10px] text-gray-500 mt-0.5">TG: {{ currentTime }}</div>
-              <input type="text" :placeholder="t('reception.customer_dots')" v-model="activeOrder.customerName" class="w-full mt-1.5 bg-[#1a1a1a] border border-[#444] rounded px-2 py-1 text-[11px] text-white" />
+              <div class="text-[10px] text-gray-500 mt-0.5">
+                TG: {{ currentTime }}
+              </div>
+              <input
+                type="text"
+                :placeholder="t('reception.customer_dots')"
+                v-model="activeOrder.customerName"
+                class="w-full mt-1.5 bg-[#1a1a1a] border border-[#444] rounded px-2 py-1 text-[11px] text-white"
+              />
             </div>
 
             <!-- 2. Order Items (Scrollable) -->
-            <div class="flex-1 overflow-y-auto p-2 space-y-1.5 min-h-0 items-list animate-all duration-250" 
-                 style="scrollbar-width: thin; scrollbar-color: #E8772E #2d2d2d;">
+            <div
+              class="flex-1 overflow-y-auto p-2 space-y-1.5 min-h-0 items-list animate-all duration-250"
+              style="scrollbar-width: thin; scrollbar-color: #e8772e #2d2d2d"
+            >
               <!-- Empty State -->
-              <div v-if="!activeOrder.items || activeOrder.items.length === 0" 
-                   class="flex flex-col items-center justify-center h-full text-gray-500 py-20">
+              <div
+                v-if="!activeOrder.items || activeOrder.items.length === 0"
+                class="flex flex-col items-center justify-center h-full text-gray-500 py-20"
+              >
                 <span class="text-3xl mb-2">🛒</span>
-                <p class="text-xs font-bold">{{ t('reception.empty_order') }}</p>
+                <p class="text-xs font-bold">
+                  {{ t("reception.empty_order") }}
+                </p>
               </div>
 
               <!-- Items -->
-              <div v-for="item in activeOrder.items" :key="item.id" 
-                   class="bg-[#2d2d2d] border border-[#444] rounded-lg p-2 flex-shrink-0 text-white hover:border-[#555] transition-all">
+              <div
+                v-for="item in activeOrder.items"
+                :key="item.id"
+                class="bg-[#2d2d2d] border border-[#444] rounded-lg p-2 flex-shrink-0 text-white hover:border-[#555] transition-all"
+              >
                 <div class="flex justify-between items-center gap-2">
-                  <h4 class="text-[11px] font-bold text-white flex-1 truncate item-name-truncate" :title="item.name">
+                  <h4
+                    class="text-[11px] font-bold text-white flex-1 truncate item-name-truncate"
+                    :title="item.name"
+                  >
                     {{ item.name }}
                   </h4>
-                  <div class="flex items-center gap-1 bg-[#1a1a1a] rounded px-1.5 py-0.5 flex-shrink-0">
-                    <button type="button" @click="updateQty(item.id, -1)" class="w-5 h-5 text-xs text-white hover:bg-[#444] rounded flex items-center justify-center">-</button>
-                    <span class="text-[11px] font-bold text-white w-4 text-center">{{ item.quantity }}</span>
-                    <button type="button" @click="updateQty(item.id, 1)" class="w-5 h-5 text-xs text-white hover:bg-[#444] rounded flex items-center justify-center">+</button>
+                  <div
+                    class="flex items-center gap-1 bg-[#1a1a1a] rounded px-1.5 py-0.5 flex-shrink-0"
+                  >
+                    <button
+                      type="button"
+                      @click="updateQty(item.id, -1)"
+                      class="w-5 h-5 text-xs text-white hover:bg-[#444] rounded flex items-center justify-center"
+                    >
+                      -
+                    </button>
+                    <span
+                      class="text-[11px] font-bold text-white w-4 text-center"
+                      >{{ item.quantity }}</span
+                    >
+                    <button
+                      type="button"
+                      @click="updateQty(item.id, 1)"
+                      class="w-5 h-5 text-xs text-white hover:bg-[#444] rounded flex items-center justify-center"
+                    >
+                      +
+                    </button>
                   </div>
                 </div>
-                <div class="flex justify-between items-center text-[10px] pt-1 border-t border-[#444] mt-1">
-                  <span class="text-gray-400">{{ formatVND(item.price) }}/{{ item.unit }}</span>
-                  <span class="text-[#E8772E] font-bold font-mono">{{ formatVND(item.price * item.quantity) }}</span>
+                <div
+                  class="flex justify-between items-center text-[10px] pt-1 border-t border-[#444] mt-1"
+                >
+                  <span class="text-gray-400"
+                    >{{ formatVND(item.price) }}/{{ item.unit }}</span
+                  >
+                  <span class="text-[#E8772E] font-bold font-mono">{{
+                    formatVND(item.price * item.quantity)
+                  }}</span>
                 </div>
               </div>
             </div>
 
             <!-- 3. Billing Summary (Fixed bottom) -->
-            <div class="flex-shrink-0 bg-[#2d2d2d] border-t border-[#444] p-2 text-white">
+            <div
+              class="flex-shrink-0 bg-[#2d2d2d] border-t border-[#444] p-2 text-white"
+            >
               <div class="flex justify-between text-[11px] mb-1">
-                <span class="text-gray-400">{{ t('reception.goods_amount') }}</span>
-                <span class="text-white font-mono">{{ formatVND(summary.subtotal) }}</span>
+                <span class="text-gray-400">{{
+                  t("reception.goods_amount")
+                }}</span>
+                <span class="text-white font-mono">{{
+                  formatVND(summary.subtotal)
+                }}</span>
               </div>
               <div class="flex justify-between text-[11px] mb-1">
-                <span class="text-gray-400">{{ t('reception.discount') }}</span>
-                <span class="text-red-400 font-mono">-{{ formatVND(summary.discount) }}</span>
+                <span class="text-gray-400">{{ t("reception.discount") }}</span>
+                <span class="text-red-400 font-mono"
+                  >-{{ formatVND(summary.discount) }}</span
+                >
               </div>
               <div class="flex justify-between text-[11px] mb-1">
                 <span class="text-gray-400">VAT (8%):</span>
-                <span class="text-green-400 font-mono">{{ formatVND(summary.vat) }}</span>
+                <span class="text-green-400 font-mono">{{
+                  formatVND(summary.vat)
+                }}</span>
               </div>
-              <div class="flex justify-between text-xs font-bold pt-1.5 border-t border-[#444] mt-1.5">
-                <span class="text-white">{{ t('reception.total') }}</span>
-                <span class="text-[#E8772E] font-mono text-sm">{{ formatVND(summary.grandTotal) }}</span>
+              <div
+                class="flex justify-between text-xs font-bold pt-1.5 border-t border-[#444] mt-1.5"
+              >
+                <span class="text-white">{{ t("reception.total") }}</span>
+                <span class="text-[#E8772E] font-mono text-sm">{{
+                  formatVND(summary.grandTotal)
+                }}</span>
               </div>
 
               <!-- Go to Menu button -->
@@ -355,7 +449,9 @@
                 class="w-full mt-2.5 py-1.5 bg-[#2980B9] hover:bg-[#1a5276] text-white text-xs font-bold rounded-lg transition-all active:scale-95 shadow font-sans"
                 type="button"
                 @click="activeMainTab = 'menu'"
-              >{{ t('reception.view_menu') }}</button>
+              >
+                {{ t("reception.view_menu") }}
+              </button>
             </div>
           </template>
 
@@ -429,7 +525,9 @@
                 2
               </div>
               <div class="total-info">
-                <span class="text-[10px] text-gray-300">{{ t('reception.total_vnd') }}</span>
+                <span class="text-[10px] text-gray-300">{{
+                  t("reception.total_vnd")
+                }}</span>
                 <span class="total-value font-mono font-black text-sm">{{
                   formatVND(1490400)
                 }}</span>
@@ -438,7 +536,9 @@
                 class="btn-remind"
                 type="button"
                 @click="handleRemindKitchen"
-              >{{ t('reception.remind_kitchen') }}</button>
+              >
+                {{ t("reception.remind_kitchen") }}
+              </button>
               <button
                 class="btn-deliver"
                 type="button"
@@ -450,13 +550,15 @@
                 class="btn-go-menu py-2 px-3 bg-[#2980B9] hover:bg-[#1a5276] text-white text-xs font-bold rounded-lg transition-all active:scale-95 shadow font-sans ml-1"
                 type="button"
                 @click="activeMainTab = 'menu'"
-              >{{ t('reception.menu') }}</button>
+              >
+                {{ t("reception.menu") }}
+              </button>
             </div>
 
             <!-- NHẬT KÝ THAO TÁC -->
             <div class="activity-log">
               <div class="log-header">
-                <span>{{ t('reception.action_log') }}</span>
+                <span>{{ t("reception.action_log") }}</span>
                 <span class="log-count">{{ activities.length }}</span>
               </div>
 
@@ -464,10 +566,10 @@
                 <table class="log-table">
                   <thead>
                     <tr>
-                      <th>{{ t('reception.date') }}</th>
-                      <th>{{ t('reception.action') }}</th>
-                      <th>{{ t('reception.employee') }}</th>
-                      <th>{{ t('reception.amount') }}</th>
+                      <th>{{ t("reception.date") }}</th>
+                      <th>{{ t("reception.action") }}</th>
+                      <th>{{ t("reception.employee") }}</th>
+                      <th>{{ t("reception.amount") }}</th>
                       <th>POSID</th>
                     </tr>
                   </thead>
@@ -503,7 +605,7 @@
               type="button"
             >
               <span class="nav-icon">🗺️</span>
-              <span>{{ t('reception.floor_plan') }}</span>
+              <span>{{ t("reception.floor_plan") }}</span>
             </button>
             <button
               :class="['nav-btn', activeMainTab === 'menu' ? 'active' : '']"
@@ -511,7 +613,7 @@
               type="button"
             >
               <span class="nav-icon">🍽️</span>
-              <span>{{ t('reception.menu') }}</span>
+              <span>{{ t("reception.menu") }}</span>
             </button>
             <button
               :class="['nav-btn', activeMainTab === 'invoice' ? 'active' : '']"
@@ -519,7 +621,7 @@
               type="button"
             >
               <span class="nav-icon">📄</span>
-              <span>{{ t('reception.receipt') }}</span>
+              <span>{{ t("reception.receipt") }}</span>
             </button>
             <button
               v-if="
@@ -560,18 +662,39 @@
                   @dblclick="handleTableDoubleClick(table, $event)"
                   :class="[
                     'p-3 rounded-xl border-2 transition-all cursor-pointer flex flex-col justify-between min-h-[110px] text-center hover:scale-[1.02] active:scale-[0.98] duration-200 shadow-sm relative',
-                    selectedTableCode === table.code ? 'border-orange-500 ring-2 ring-orange-400 bg-orange-50/5' : 'border-transparent',
+                    selectedTableCode === table.code
+                      ? 'border-orange-500 ring-2 ring-orange-400 bg-orange-50/5'
+                      : 'border-transparent',
                     getTableStatusClass(table),
                     // Selection Mode styles
-                    selectionMode !== 'none' && table.code === sourceTableCode ? 'ring-4 ring-red-500 border-red-500 animate-pulse' : '',
-                    selectionMode !== 'none' && isValidTargetTable(table.code) ? 'ring-4 ring-green-500 border-green-500 cursor-pointer animate-bounce' : '',
-                    selectionMode !== 'none' && !isValidTargetTable(table.code) && table.code !== sourceTableCode ? 'opacity-30 cursor-not-allowed' : ''
+                    selectionMode !== 'none' && table.code === sourceTableCode
+                      ? 'ring-4 ring-red-500 border-red-500 animate-pulse'
+                      : '',
+                    selectionMode !== 'none' && isValidTargetTable(table.code)
+                      ? 'ring-4 ring-green-500 border-green-500 cursor-pointer animate-bounce'
+                      : '',
+                    selectionMode !== 'none' &&
+                    !isValidTargetTable(table.code) &&
+                    table.code !== sourceTableCode
+                      ? 'opacity-30 cursor-not-allowed'
+                      : '',
                   ]"
                 >
                   <!-- Table badge for Selection Mode -->
-                  <div v-if="selectionMode !== 'none'" class="absolute top-2 right-2 z-10">
-                    <span v-if="table.code === sourceTableCode" class="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">{{ t('reception.source') }}</span>
-                    <span v-else-if="isValidTargetTable(table.code)" class="bg-green-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full animate-pulse">{{ t('reception.select') }}</span>
+                  <div
+                    v-if="selectionMode !== 'none'"
+                    class="absolute top-2 right-2 z-10"
+                  >
+                    <span
+                      v-if="table.code === sourceTableCode"
+                      class="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full"
+                      >{{ t("reception.source") }}</span
+                    >
+                    <span
+                      v-else-if="isValidTargetTable(table.code)"
+                      class="bg-green-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full animate-pulse"
+                      >{{ t("reception.select") }}</span
+                    >
                   </div>
                   <div class="flex justify-between items-center select-none">
                     <span class="font-extrabold text-sm">{{ table.code }}</span>
@@ -611,7 +734,9 @@
                     </div>
                     <div class="text-xs mt-1">🔒</div>
                   </div>
-                  <div v-else class="mt-2 text-[10px] text-gray-500">{{ t('reception.empty') }}</div>
+                  <div v-else class="mt-2 text-[10px] text-gray-500">
+                    {{ t("reception.empty") }}
+                  </div>
                 </div>
               </div>
             </div>
@@ -621,9 +746,9 @@
               class="shrink-0 bg-[#2d2d2d] p-3 rounded-xl border border-[#4a4a4a] flex items-center justify-between mt-4"
             >
               <div class="flex items-center gap-3 relative">
-                <span class="text-xs text-gray-400 font-bold uppercase"
-                  >{{ t('reception.area') }}</span
-                >
+                <span class="text-xs text-gray-400 font-bold uppercase">{{
+                  t("reception.area")
+                }}</span>
                 <div class="area-selector-wrapper mr-2" ref="areaDropdownRef">
                   <button
                     class="area-btn text-xs font-bold"
@@ -665,9 +790,9 @@
                 </div>
 
                 <!-- Dropdown Lọc bàn -->
-                <span class="text-xs text-gray-400 font-bold uppercase ml-2"
-                  >{{ t('reception.filter') }}</span
-                >
+                <span class="text-xs text-gray-400 font-bold uppercase ml-2">{{
+                  t("reception.filter")
+                }}</span>
                 <div class="filter-dropdown" ref="dropdownRef">
                   <button
                     class="filter-btn text-xs font-bold"
@@ -708,7 +833,9 @@
                   @click="selectedArea = 'Tất cả'"
                   class="px-3.5 py-1.5 bg-[#ff8f00] hover:bg-[#e07f00] text-white text-xs font-bold rounded-lg transition-all shadow font-sans"
                   type="button"
-                >{{ t('reception.all') }}</button>
+                >
+                  {{ t("reception.all") }}
+                </button>
                 <button
                   class="p-2 bg-[#3a3a3a] hover:bg-[#4a4a4a] rounded-lg transition-colors text-xs"
                   :title="t('reception.grid')"
@@ -781,18 +908,28 @@
                       v-model="activeStatusFilter"
                       class="bg-[#3a3a3a] text-xs text-gray-200 border border-[#4a4a4a] rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-[#ff8f00] cursor-pointer font-bold"
                     >
-                      <option value="all">{{ t('reception.all_items') }}</option>
-                      <option value="available">{{ t('reception.available') }}</option>
-                      <option value="unavailable">{{ t('reception.out_of_stock') }}</option>
+                      <option value="all">
+                        {{ t("reception.all_items") }}
+                      </option>
+                      <option value="available">
+                        {{ t("reception.available") }}
+                      </option>
+                      <option value="unavailable">
+                        {{ t("reception.out_of_stock") }}
+                      </option>
                     </select>
 
                     <select
                       v-model="priceSort"
                       class="bg-[#3a3a3a] text-xs text-gray-200 border border-[#4a4a4a] rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-[#ff8f00] cursor-pointer font-bold"
                     >
-                      <option value="">{{ t('reception.no_sort') }}</option>
-                      <option value="asc">{{ t('reception.price_asc') }}</option>
-                      <option value="desc">{{ t('reception.price_desc') }}</option>
+                      <option value="">{{ t("reception.no_sort") }}</option>
+                      <option value="asc">
+                        {{ t("reception.price_asc") }}
+                      </option>
+                      <option value="desc">
+                        {{ t("reception.price_desc") }}
+                      </option>
                     </select>
                   </div>
                 </div>
@@ -816,7 +953,9 @@
                 class="h-64 flex flex-col items-center justify-center text-gray-500 text-center border border-dashed border-[#4a4a4a] rounded-2xl p-6 select-none"
               >
                 <div class="text-4xl mb-2">🍽️</div>
-                <h4 class="font-bold text-gray-400 text-xs">{{ t('reception.no_matching_food') }}</h4>
+                <h4 class="font-bold text-gray-400 text-xs">
+                  {{ t("reception.no_matching_food") }}
+                </h4>
               </div>
 
               <div v-else class="menu-grid">
@@ -882,7 +1021,9 @@
                     border: '2px solid transparent',
                   }"
                   class="category-btn-sub px-3 py-1.5 rounded-lg text-[11px] font-extrabold text-white transition-all shadow-sm font-sans"
-                >{{ t('reception.all') }}</button>
+                >
+                  {{ t("reception.all") }}
+                </button>
                 <button
                   v-for="sub in activeSubcategoriesList"
                   :key="sub.id"
@@ -944,26 +1085,38 @@
                 <div
                   class="bg-[#1a5276] text-white px-3 py-2 text-xs font-bold flex justify-between shrink-0"
                 >
-                  <span>{{ t('reception.receipt') }}</span>
-                  <span>{{ t('reception.details') }}</span>
+                  <span>{{ t("reception.receipt") }}</span>
+                  <span>{{ t("reception.details") }}</span>
                 </div>
                 <div class="flex-1 overflow-y-auto">
                   <table class="w-full text-xs border-collapse text-gray-800">
                     <thead class="bg-black text-white sticky top-0 z-10">
                       <tr>
-                        <th class="p-2 text-left font-bold">{{ t('reception.item_name') }}</th>
-                        <th class="p-2 text-right font-bold">{{ t('reception.unit_price') }}</th>
+                        <th class="p-2 text-left font-bold">
+                          {{ t("reception.item_name") }}
+                        </th>
+                        <th class="p-2 text-right font-bold">
+                          {{ t("reception.unit_price") }}
+                        </th>
                         <th class="p-2 text-center font-bold">% VAT</th>
-                        <th class="p-2 text-right font-bold">{{ t('reception.discount_short') }}</th>
-                        <th class="p-2 text-right font-bold">{{ t('reception.total_short') }}</th>
+                        <th class="p-2 text-right font-bold">
+                          {{ t("reception.discount_short") }}
+                        </th>
+                        <th class="p-2 text-right font-bold">
+                          {{ t("reception.total_short") }}
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
-                      <tr class="bg-gray-100 font-bold text-gray-800 border-b border-gray-250">
+                      <tr
+                        class="bg-gray-100 font-bold text-gray-800 border-b border-gray-250"
+                      >
                         <td colspan="5" class="p-2">SET LUNCH (Vé)</td>
                       </tr>
                       <tr class="border-b border-gray-200 bg-white">
-                        <td colspan="5" class="p-2 text-gray-800 font-semibold">1</td>
+                        <td colspan="5" class="p-2 text-gray-800 font-semibold">
+                          1
+                        </td>
                       </tr>
                       <tr
                         v-for="item in activeOrder.items"
@@ -972,7 +1125,9 @@
                       >
                         <td class="p-2 font-semibold text-gray-800">
                           {{ item.name }}
-                          <div class="text-[10px] text-gray-500">({{ item.unit }})</div>
+                          <div class="text-[10px] text-gray-500">
+                            ({{ item.unit }})
+                          </div>
                         </td>
                         <td class="p-2 text-right font-mono text-gray-700">
                           {{ formatVND(item.price) }}
@@ -985,7 +1140,9 @@
                               : "0đ"
                           }}
                         </td>
-                        <td class="p-2 text-right font-bold font-mono text-gray-800">
+                        <td
+                          class="p-2 text-right font-bold font-mono text-gray-800"
+                        >
                           {{ formatVND(calculateNetPrice(item)) }}
                         </td>
                       </tr>
@@ -1002,7 +1159,9 @@
                   <!-- Payment Grid -->
                   <div class="grid grid-cols-2 gap-2 mb-3">
                     <div>
-                      <label class="text-[10px] text-gray-400 block mb-1">{{ t('reception.goods_money') }}</label>
+                      <label class="text-[10px] text-gray-400 block mb-1">{{
+                        t("reception.goods_money")
+                      }}</label>
                       <div
                         class="bg-[#1a1a1a] px-2 py-1.5 rounded text-white font-mono font-bold text-right text-xs"
                       >
@@ -1010,7 +1169,9 @@
                       </div>
                     </div>
                     <div>
-                      <label class="text-[10px] text-gray-400 block mb-1">{{ t('reception.service_fee') }}</label>
+                      <label class="text-[10px] text-gray-400 block mb-1">{{
+                        t("reception.service_fee")
+                      }}</label>
                       <div class="flex gap-1">
                         <input
                           type="text"
@@ -1019,7 +1180,10 @@
                             (e) =>
                               (serviceCharge =
                                 parseInt(
-                                  (e.target as HTMLInputElement).value.replace(/[^0-9]/g, ''),
+                                  (e.target as HTMLInputElement).value.replace(
+                                    /[^0-9]/g,
+                                    '',
+                                  ),
                                 ) || 0)
                           "
                           class="flex-1 bg-[#1a1a1a] px-2 py-1.5 rounded text-white font-mono text-right text-xs focus:outline-none"
@@ -1034,7 +1198,9 @@
                       </div>
                     </div>
                     <div>
-                      <label class="text-[10px] text-gray-400 block mb-1">{{ t('reception.item_discount') }}</label>
+                      <label class="text-[10px] text-gray-400 block mb-1">{{
+                        t("reception.item_discount")
+                      }}</label>
                       <div class="flex gap-1">
                         <input
                           type="text"
@@ -1057,7 +1223,9 @@
                       </div>
                     </div>
                     <div>
-                      <label class="text-[10px] text-gray-400 block mb-1">{{ t('reception.receipt_discount') }}</label>
+                      <label class="text-[10px] text-gray-400 block mb-1">{{
+                        t("reception.receipt_discount")
+                      }}</label>
                       <div class="flex gap-1">
                         <input
                           type="text"
@@ -1066,7 +1234,10 @@
                             (e) =>
                               (discountBill =
                                 parseInt(
-                                  (e.target as HTMLInputElement).value.replace(/[^0-9]/g, ''),
+                                  (e.target as HTMLInputElement).value.replace(
+                                    /[^0-9]/g,
+                                    '',
+                                  ),
                                 ) || 0)
                           "
                           class="flex-1 bg-[#1a1a1a] px-2 py-1.5 rounded text-white font-mono text-right text-xs focus:outline-none"
@@ -1081,7 +1252,9 @@
                       </div>
                     </div>
                     <div>
-                      <label class="text-[10px] text-gray-400 block mb-1">TTDB</label>
+                      <label class="text-[10px] text-gray-400 block mb-1"
+                        >TTDB</label
+                      >
                       <div
                         class="bg-[#1a1a1a] px-2 py-1.5 rounded text-white font-mono text-right text-xs"
                       >
@@ -1089,7 +1262,9 @@
                       </div>
                     </div>
                     <div>
-                      <label class="text-[10px] text-gray-400 block mb-1">{{ t('reception.total_tax') }}</label>
+                      <label class="text-[10px] text-gray-400 block mb-1">{{
+                        t("reception.total_tax")
+                      }}</label>
                       <div class="flex gap-1">
                         <input
                           type="text"
@@ -1098,7 +1273,9 @@
                           class="flex-1 bg-[#1a1a1a] px-2 py-1.5 rounded text-white font-mono text-right text-xs"
                         />
                         <button
-                          @click="triggerToast('info', 'Không thể xóa VAT trực tiếp')"
+                          @click="
+                            triggerToast('info', 'Không thể xóa VAT trực tiếp')
+                          "
                           type="button"
                           class="bg-[#F44336] text-white px-2 rounded text-xs flex items-center justify-center"
                         >
@@ -1107,7 +1284,9 @@
                       </div>
                     </div>
                     <div>
-                      <label class="text-[10px] text-gray-400 block mb-1">{{ t('reception.deposit') }}</label>
+                      <label class="text-[10px] text-gray-400 block mb-1">{{
+                        t("reception.deposit")
+                      }}</label>
                       <div class="flex gap-1">
                         <input
                           type="text"
@@ -1116,7 +1295,10 @@
                             (e) =>
                               (depositAmount =
                                 parseInt(
-                                  (e.target as HTMLInputElement).value.replace(/[^0-9]/g, ''),
+                                  (e.target as HTMLInputElement).value.replace(
+                                    /[^0-9]/g,
+                                    '',
+                                  ),
                                 ) || 0)
                           "
                           class="flex-1 bg-[#1a1a1a] px-2 py-1.5 rounded text-white font-mono text-right text-xs focus:outline-none"
@@ -1131,7 +1313,9 @@
                       </div>
                     </div>
                     <div>
-                      <label class="text-[10px] text-gray-400 block mb-1">{{ t('reception.delivery') }}</label>
+                      <label class="text-[10px] text-gray-400 block mb-1">{{
+                        t("reception.delivery")
+                      }}</label>
                       <div class="flex gap-1">
                         <input
                           type="text"
@@ -1140,7 +1324,10 @@
                             (e) =>
                               (deliveryFee =
                                 parseInt(
-                                  (e.target as HTMLInputElement).value.replace(/[^0-9]/g, ''),
+                                  (e.target as HTMLInputElement).value.replace(
+                                    /[^0-9]/g,
+                                    '',
+                                  ),
                                 ) || 0)
                           "
                           class="flex-1 bg-[#1a1a1a] px-2 py-1.5 rounded text-white font-mono text-right text-xs focus:outline-none"
@@ -1160,12 +1347,14 @@
                   <div
                     class="bg-[#1a5276] rounded-lg p-2 flex justify-between items-center mb-3 shadow-inner"
                   >
-                    <span class="text-white font-bold text-xs uppercase tracking-wider"
-                      >{{ t('reception.amount_to_pay') }}</span
+                    <span
+                      class="text-white font-bold text-xs uppercase tracking-wider"
+                      >{{ t("reception.amount_to_pay") }}</span
                     >
-                    <span class="text-white font-bold font-mono text-sm shadow-inner">{{
-                      formatVND(summary.grandTotal)
-                    }}</span>
+                    <span
+                      class="text-white font-bold font-mono text-sm shadow-inner"
+                      >{{ formatVND(summary.grandTotal) }}</span
+                    >
                   </div>
 
                   <!-- Customer Payment -->
@@ -1173,13 +1362,17 @@
                     class="space-y-1 mb-3 p-2 bg-[#1e1e1e]/40 rounded-lg border border-[#444]/20"
                   >
                     <div class="flex justify-between items-center text-xs">
-                      <span class="text-gray-400 font-bold">{{ t('reception.customer_gave') }}</span>
+                      <span class="text-gray-400 font-bold">{{
+                        t("reception.customer_gave")
+                      }}</span>
                       <span class="text-white font-mono font-bold">{{
                         formatVND(customerPaid)
                       }}</span>
                     </div>
                     <div class="flex justify-between items-center text-xs">
-                      <span class="text-gray-400 font-bold">{{ t('reception.change') }}</span>
+                      <span class="text-gray-400 font-bold">{{
+                        t("reception.change")
+                      }}</span>
                       <span class="text-[#4CAF50] font-mono font-bold">{{
                         formatVND(changePaid)
                       }}</span>
@@ -1202,7 +1395,8 @@
                           v-model="vipMode"
                           value="points_discount"
                           class="accent-[#FF9800]"
-                        />{{ t('reception.earn_points_discount') }}</label>
+                        />{{ t("reception.earn_points_discount") }}</label
+                      >
                       <label
                         class="flex items-center gap-1 text-white cursor-pointer select-none font-bold"
                       >
@@ -1211,7 +1405,8 @@
                           v-model="vipMode"
                           value="discount"
                           class="accent-[#FF9800]"
-                        />{{ t('reception.discount_short') }}</label>
+                        />{{ t("reception.discount_short") }}</label
+                      >
                       <label
                         class="flex items-center gap-1 text-white cursor-pointer select-none font-bold"
                       >
@@ -1220,10 +1415,13 @@
                           v-model="vipMode"
                           value="points"
                           class="accent-[#FF9800]"
-                        />{{ t('reception.earn_points') }}</label>
+                        />{{ t("reception.earn_points") }}</label
+                      >
                     </div>
                     <div class="flex gap-2 items-center">
-                      <label class="text-xs text-gray-450 font-bold w-20">{{ t('reception.vip_card') }}</label>
+                      <label class="text-xs text-gray-450 font-bold w-20">{{
+                        t("reception.vip_card")
+                      }}</label>
                       <input
                         v-model="vipCardNumber"
                         type="text"
@@ -1242,17 +1440,23 @@
                         @click="checkVIP"
                         type="button"
                         class="bg-[#FF9800] hover:bg-[#e07f00] text-white px-3 py-1.5 rounded text-xs font-bold transition-all shadow active:scale-95"
-                      >{{ t('reception.check_vip') }}</button>
+                      >
+                        {{ t("reception.check_vip") }}
+                      </button>
                       <button
                         @click="applyVIP"
                         type="button"
                         class="bg-[#4CAF50] hover:bg-[#43a047] text-white px-3 py-1.5 rounded text-xs font-bold transition-all shadow active:scale-95"
-                      >{{ t('reception.apply_vip') }}</button>
+                      >
+                        {{ t("reception.apply_vip") }}
+                      </button>
                       <button
                         @click="clearVIP"
                         type="button"
                         class="bg-[#F44336] hover:bg-[#e53935] text-white px-3 py-1.5 rounded text-xs font-bold transition-all shadow active:scale-95"
-                      >{{ t('reception.remove_vip') }}</button>
+                      >
+                        {{ t("reception.remove_vip") }}
+                      </button>
                     </div>
                   </div>
 
@@ -1262,7 +1466,9 @@
                     class="space-y-2"
                   >
                     <div class="flex gap-2 items-center">
-                      <label class="text-xs text-gray-455 font-bold w-24">{{ t('reception.card_type') }}</label>
+                      <label class="text-xs text-gray-455 font-bold w-24">{{
+                        t("reception.card_type")
+                      }}</label>
                       <select
                         v-model="cardType"
                         class="flex-1 bg-white px-2 py-1 rounded text-xs text-gray-800 focus:outline-none"
@@ -1273,7 +1479,9 @@
                       </select>
                     </div>
                     <div class="flex gap-2 items-center">
-                      <label class="text-xs text-gray-455 font-bold w-24">{{ t('reception.card_number') }}</label>
+                      <label class="text-xs text-gray-455 font-bold w-24">{{
+                        t("reception.card_number")
+                      }}</label>
                       <input
                         v-model="cardNumber"
                         type="text"
@@ -1287,7 +1495,9 @@
                       </button>
                     </div>
                     <div class="flex gap-2 items-center">
-                      <label class="text-xs text-gray-455 font-bold w-24">{{ t('reception.cardholder_name') }}</label>
+                      <label class="text-xs text-gray-455 font-bold w-24">{{
+                        t("reception.cardholder_name")
+                      }}</label>
                       <input
                         v-model="cardHolder"
                         type="text"
@@ -1308,7 +1518,9 @@
                     class="space-y-2"
                   >
                     <div class="flex gap-2 items-center">
-                      <label class="text-xs text-gray-455 font-bold w-24">{{ t('reception.card_code') }}</label>
+                      <label class="text-xs text-gray-455 font-bold w-24">{{
+                        t("reception.card_code")
+                      }}</label>
                       <input
                         v-model="voucherCode"
                         type="text"
@@ -1329,7 +1541,9 @@
                       </button>
                     </div>
                     <div class="flex gap-2 items-center">
-                      <label class="text-xs text-gray-455 font-bold w-24">{{ t('reception.voucher_type') }}</label>
+                      <label class="text-xs text-gray-455 font-bold w-24">{{
+                        t("reception.voucher_type")
+                      }}</label>
                       <input
                         v-model="voucherType"
                         type="text"
@@ -1343,8 +1557,12 @@
                       </button>
                     </div>
                     <div class="flex gap-2 items-center">
-                      <label class="text-xs text-gray-455 font-bold w-24">{{ t('reception.quantity') }}</label>
-                      <div class="flex items-center gap-1 bg-white rounded px-2">
+                      <label class="text-xs text-gray-455 font-bold w-24">{{
+                        t("reception.quantity")
+                      }}</label>
+                      <div
+                        class="flex items-center gap-1 bg-white rounded px-2"
+                      >
                         <button
                           @click="voucherQty = Math.max(1, voucherQty - 1)"
                           type="button"
@@ -1352,11 +1570,22 @@
                         >
                           -
                         </button>
-                        <span class="text-xs font-bold text-gray-800">{{ voucherQty }}</span>
-                        <button @click="voucherQty++" type="button" class="text-gray-600 px-2 font-bold">+</button>
+                        <span class="text-xs font-bold text-gray-800">{{
+                          voucherQty
+                        }}</span>
+                        <button
+                          @click="voucherQty++"
+                          type="button"
+                          class="text-gray-600 px-2 font-bold"
+                        >
+                          +
+                        </button>
                       </div>
                     </div>
-                    <p v-if="voucherError" class="text-[#FF9800] text-xs text-center font-bold">
+                    <p
+                      v-if="voucherError"
+                      class="text-[#FF9800] text-xs text-center font-bold"
+                    >
                       {{ voucherError }}
                     </p>
                   </div>
@@ -1367,7 +1596,9 @@
                     class="space-y-2"
                   >
                     <div class="flex gap-2 items-center">
-                      <label class="text-xs text-gray-455 font-bold w-24">{{ t('reception.card_code') }}</label>
+                      <label class="text-xs text-gray-455 font-bold w-24">{{
+                        t("reception.card_code")
+                      }}</label>
                       <input
                         v-model="couponCode"
                         type="text"
@@ -1386,7 +1617,10 @@
                         🔍
                       </button>
                     </div>
-                    <p v-if="couponError" class="text-[#FF9800] text-xs text-center font-bold">
+                    <p
+                      v-if="couponError"
+                      class="text-[#FF9800] text-xs text-center font-bold"
+                    >
                       {{ couponError }}
                     </p>
                   </div>
@@ -1397,7 +1631,9 @@
                     class="space-y-2"
                   >
                     <div class="flex gap-2 items-center">
-                      <label class="text-xs text-gray-455 font-bold w-24">{{ t('reception.deposit_date') }}</label>
+                      <label class="text-xs text-gray-455 font-bold w-24">{{
+                        t("reception.deposit_date")
+                      }}</label>
                       <input
                         v-model="depositDate"
                         type="date"
@@ -1405,7 +1641,9 @@
                       />
                     </div>
                     <div class="flex gap-2 items-center">
-                      <label class="text-xs text-gray-455 font-bold w-24">{{ t('reception.receipt_number') }}</label>
+                      <label class="text-xs text-gray-455 font-bold w-24">{{
+                        t("reception.receipt_number")
+                      }}</label>
                       <input
                         v-model="depositVoucher"
                         type="text"
@@ -1419,7 +1657,10 @@
                         ...
                       </button>
                     </div>
-                    <p v-if="depositError" class="text-[#FF9800] text-xs text-center font-bold">
+                    <p
+                      v-if="depositError"
+                      class="text-[#FF9800] text-xs text-center font-bold"
+                    >
                       {{ depositError }}
                     </p>
                   </div>
@@ -1431,7 +1672,9 @@
                   >
                     <!-- Radio buttons -->
                     <div class="flex gap-3 justify-end mb-1">
-                      <label class="flex items-center gap-1.5 text-white text-xs cursor-pointer select-none font-bold">
+                      <label
+                        class="flex items-center gap-1.5 text-white text-xs cursor-pointer select-none font-bold"
+                      >
                         <input
                           type="radio"
                           v-model="discountType"
@@ -1440,18 +1683,23 @@
                         />
                         %
                       </label>
-                      <label class="flex items-center gap-1.5 text-white text-xs cursor-pointer select-none font-bold">
+                      <label
+                        class="flex items-center gap-1.5 text-white text-xs cursor-pointer select-none font-bold"
+                      >
                         <input
                           type="radio"
                           v-model="discountType"
                           value="value"
                           class="accent-[#FF9800] w-3.5 h-3.5"
-                        />{{ t('reception.value') }}</label>
+                        />{{ t("reception.value") }}</label
+                      >
                     </div>
 
                     <!-- Giá trị -->
                     <div class="form-row">
-                      <label class="form-label">{{ t('reception.value') }}</label>
+                      <label class="form-label">{{
+                        t("reception.value")
+                      }}</label>
                       <input
                         v-model="discountValue"
                         type="text"
@@ -1462,23 +1710,36 @@
 
                     <!-- Lý do -->
                     <div class="form-row">
-                      <label class="form-label">{{ t('reception.reason') }}</label>
-                      <select
-                        v-model="discountReason"
-                        class="form-select"
-                      >
-                        <option value="">{{ t('reception.select_reason') }}</option>
-                        <option value="khach_than_thiet">{{ t('reception.loyal_customer') }}</option>
-                        <option value="sinh_nhat">{{ t('reception.birthday') }}</option>
-                        <option value="khuyen_mai">{{ t('reception.promotion') }}</option>
-                        <option value="vip">{{ t('reception.vip_customer') }}</option>
-                        <option value="other">{{ t('reception.other') }}</option>
+                      <label class="form-label">{{
+                        t("reception.reason")
+                      }}</label>
+                      <select v-model="discountReason" class="form-select">
+                        <option value="">
+                          {{ t("reception.select_reason") }}
+                        </option>
+                        <option value="khach_than_thiet">
+                          {{ t("reception.loyal_customer") }}
+                        </option>
+                        <option value="sinh_nhat">
+                          {{ t("reception.birthday") }}
+                        </option>
+                        <option value="khuyen_mai">
+                          {{ t("reception.promotion") }}
+                        </option>
+                        <option value="vip">
+                          {{ t("reception.vip_customer") }}
+                        </option>
+                        <option value="other">
+                          {{ t("reception.other") }}
+                        </option>
                       </select>
                     </div>
 
                     <!-- Quản lý -->
                     <div class="form-row">
-                      <label class="form-label">{{ t('reception.manage') }}</label>
+                      <label class="form-label">{{
+                        t("reception.manage")
+                      }}</label>
                       <input
                         v-model="discountManager"
                         type="text"
@@ -1499,11 +1760,15 @@
                         @click="applyDiscount"
                         type="button"
                         class="btn-apply"
-                      >{{ t('reception.apply') }}</button>
+                      >
+                        {{ t("reception.apply") }}
+                      </button>
                       <button
                         type="button"
                         class="bg-[#F44336] hover:bg-[#E53935] text-white px-4 py-2 rounded text-xs font-bold transition-all shadow active:scale-95"
-                      >{{ t('reception.policy_discount') }}</button>
+                      >
+                        {{ t("reception.policy_discount") }}
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -1515,9 +1780,14 @@
                 <div
                   class="bg-[#2d2d2d] rounded-lg p-2 shadow-lg border border-[#333]/15 flex flex-col"
                 >
-                  <div class="text-[10px] text-gray-400 mb-1 flex justify-between">
-                    <span>{{ t('reception.print_count_label') }}<span class="text-[#FF9800] font-bold">3</span></span>
-                    <span>{{ t('reception.denomination_vnd') }}</span>
+                  <div
+                    class="text-[10px] text-gray-400 mb-1 flex justify-between"
+                  >
+                    <span
+                      >{{ t("reception.print_count_label")
+                      }}<span class="text-[#FF9800] font-bold">3</span></span
+                    >
+                    <span>{{ t("reception.denomination_vnd") }}</span>
                   </div>
                   <div class="flex gap-1 mb-2">
                     <button
@@ -1535,7 +1805,9 @@
                       {{ curr }}
                     </button>
                   </div>
-                  <label class="text-[10px] text-gray-400 block mb-1">{{ t('reception.value') }}</label>
+                  <label class="text-[10px] text-gray-400 block mb-1">{{
+                    t("reception.value")
+                  }}</label>
                   <input
                     v-model="keypadValue"
                     type="text"
@@ -1551,7 +1823,9 @@
                     @click="handleAcceptPayment"
                     type="button"
                     class="w-full bg-[#FF9800] hover:bg-[#e07f00] active:scale-95 transition-all text-white py-1.5 rounded text-xs font-bold mb-2 shadow"
-                  >{{ t('reception.accept') }}</button>
+                  >
+                    {{ t("reception.accept") }}
+                  </button>
                   <div class="grid grid-cols-4 gap-1 flex-1">
                     <button
                       v-for="key in keypadKeys"
@@ -1579,7 +1853,7 @@
                 class="payment-btn"
                 :class="[
                   `payment-${method.id}`,
-                  { active: selectedPaymentMethod === method.id }
+                  { active: selectedPaymentMethod === method.id },
                 ]"
                 @click="selectedPaymentMethod = method.id"
                 type="button"
@@ -1599,21 +1873,21 @@
                   type="button"
                   class="flex items-center gap-1.5 px-3 py-1.5 bg-transparent text-[#BDC3C7] hover:text-white transition-colors text-xs font-bold"
                 >
-                  <span>🗺️</span><span>{{ t('reception.floor_plan') }}</span>
+                  <span>🗺️</span><span>{{ t("reception.floor_plan") }}</span>
                 </button>
                 <button
                   @click="activeMainTab = 'menu'"
                   type="button"
                   class="flex items-center gap-1.5 px-3 py-1.5 bg-transparent text-[#BDC3C7] hover:text-white transition-colors text-xs font-bold"
                 >
-                  <span>🍽️</span><span>{{ t('reception.menu') }}</span>
+                  <span>🍽️</span><span>{{ t("reception.menu") }}</span>
                 </button>
                 <button
                   @click="activeMainTab = 'invoice'"
                   type="button"
                   class="flex items-center gap-1.5 px-3 py-1.5 bg-[#2980B9] text-white text-xs rounded font-bold shadow"
                 >
-                  <span>📄</span><span>{{ t('reception.receipt') }}</span>
+                  <span>📄</span><span>{{ t("reception.receipt") }}</span>
                 </button>
               </div>
               <div class="flex gap-2">
@@ -1621,32 +1895,44 @@
                   @click="showHistory"
                   type="button"
                   class="px-3 py-1.5 bg-[#FFC107] hover:bg-[#ffb300] active:scale-95 transition-all text-gray-800 text-xs font-bold rounded shadow"
-                >{{ t('reception.history') }}</button>
+                >
+                  {{ t("reception.history") }}
+                </button>
                 <button
                   @click="handleDelivery"
                   type="button"
                   class="px-3 py-1.5 bg-[#FF9800] hover:bg-[#f57c00] active:scale-95 transition-all text-white text-xs font-bold rounded shadow"
-                >{{ t('reception.delivery_icon') }}</button>
+                >
+                  {{ t("reception.delivery_icon") }}
+                </button>
                 <button
                   @click="printKitchenCheck"
                   type="button"
                   class="px-3 py-1.5 bg-[#9C27B0] hover:bg-[#8e24aa] active:scale-95 transition-all text-white text-xs font-bold rounded shadow"
-                >{{ t('reception.print_check') }}</button>
+                >
+                  {{ t("reception.print_check") }}
+                </button>
                 <button
                   @click="printDraftBill"
                   type="button"
                   class="px-3 py-1.5 bg-[#00BCD4] hover:bg-[#00acc1] active:scale-95 transition-all text-white text-xs font-bold rounded shadow"
-                >{{ t('reception.print_provisional') }}</button>
+                >
+                  {{ t("reception.print_provisional") }}
+                </button>
                 <button
                   @click="finishOrder(false)"
                   type="button"
                   class="px-3 py-1.5 bg-[#F44336] hover:bg-[#d32f2f] active:scale-95 transition-all text-white text-xs font-bold rounded shadow"
-                >{{ t('reception.end') }}</button>
+                >
+                  {{ t("reception.end") }}
+                </button>
                 <button
                   @click="finishOrder(true)"
                   type="button"
                   class="px-3 py-2 bg-[#d32f2f] hover:bg-[#c62828] active:scale-95 transition-all text-white text-xs font-bold rounded shadow"
-                >{{ t('reception.print_and_end') }}</button>
+                >
+                  {{ t("reception.print_and_end") }}
+                </button>
               </div>
             </div>
           </div>
@@ -1662,7 +1948,9 @@
               >
                 <h3
                   class="text-lg font-black uppercase text-[#ff8f00] tracking-wider"
-                >{{ t('reception.unprocessed_orders_list') }}</h3>
+                >
+                  {{ t("reception.unprocessed_orders_list") }}
+                </h3>
                 <span
                   class="bg-[#F44336] text-white text-xs font-bold px-3 py-1 rounded-full"
                   >{{ pendingCount }} Đơn chờ</span
@@ -1688,7 +1976,9 @@
                         >{{ order.id }}</span
                       >
                     </div>
-                    <div class="text-xs text-gray-400">{{ t('reception.customer_label') }}<strong class="text-white">{{
+                    <div class="text-xs text-gray-400">
+                      {{ t("reception.customer_label")
+                      }}<strong class="text-white">{{
                         order.customerName
                       }}</strong>
                       — {{ order.time }}
@@ -2820,7 +3110,9 @@
           <div
             class="modal-header bg-[#1a5276] text-white p-4 flex items-center justify-between"
           >
-            <h2 class="text-base font-black uppercase tracking-wide">{{ t('reception.other_income_short') }}</h2>
+            <h2 class="text-base font-black uppercase tracking-wide">
+              {{ t("reception.other_income_short") }}
+            </h2>
             <button
               @click="showOtherIncomeModal = false"
               class="text-white/80 hover:text-white transition-colors"
@@ -2924,7 +3216,7 @@
                 >
                   <option value="withdraw">Rút tiền dư</option>
                   <option value="adjustment">Điều chỉnh</option>
-                  <option value="other">{{ t('reception.other') }}</option>
+                  <option value="other">{{ t("reception.other") }}</option>
                 </select>
               </div>
             </div>
@@ -2956,7 +3248,9 @@
 
             <!-- Lý do -->
             <div class="form-row flex flex-col gap-1">
-              <label class="text-xs font-bold text-gray-600">{{ t('reception.reason') }}</label>
+              <label class="text-xs font-bold text-gray-600">{{
+                t("reception.reason")
+              }}</label>
               <div class="input-with-button flex items-center gap-1.5">
                 <input
                   v-model="form.reason"
@@ -3015,7 +3309,7 @@
               <label
                 for="isCash"
                 class="text-xs font-bold text-gray-700 cursor-pointer"
-                >{{ t('reception.cash') }}</label
+                >{{ t("reception.cash") }}</label
               >
             </div>
           </form>
@@ -3028,17 +3322,23 @@
               type="button"
               class="btn btn-save-print px-4 py-2 bg-[#4CAF50] hover:bg-[#43A047] text-white text-xs font-extrabold rounded-lg shadow transition-all active:scale-95 flex items-center gap-1.5"
               @click="handleSaveAndPrint"
-            >{{ t('reception.save_and_print') }}</button>
+            >
+              {{ t("reception.save_and_print") }}
+            </button>
             <button
               type="button"
               class="btn btn-save px-4 py-2 bg-[#FF9800] hover:bg-[#F57C00] text-white text-xs font-extrabold rounded-lg shadow transition-all active:scale-95"
               @click="handleSave"
-            >{{ t('reception.save') }}</button>
+            >
+              {{ t("reception.save") }}
+            </button>
             <button
               type="button"
               class="btn btn-cancel px-4 py-2 bg-[#F44336] hover:bg-[#E53935] text-white text-xs font-extrabold rounded-lg shadow transition-all active:scale-95"
               @click="showOtherIncomeModal = false"
-            >{{ t('reception.skip') }}</button>
+            >
+              {{ t("reception.skip") }}
+            </button>
           </div>
         </div>
       </div>
@@ -3057,7 +3357,9 @@
           <div
             class="modal-header bg-[#1a5276] text-white p-4 flex items-center justify-between"
           >
-            <h2 class="text-base font-black uppercase tracking-wide">{{ t('reception.configuration') }}</h2>
+            <h2 class="text-base font-black uppercase tracking-wide">
+              {{ t("reception.configuration") }}
+            </h2>
             <button
               @click="showSettingsModal = false"
               class="text-white/80 hover:text-white transition-colors"
@@ -3081,9 +3383,9 @@
           <div class="modal-content p-5 space-y-4">
             <!-- Username -->
             <div class="form-row flex flex-col gap-1">
-              <label class="text-xs font-bold text-gray-600"
-                >{{ t('reception.username') }}</label
-              >
+              <label class="text-xs font-bold text-gray-600">{{
+                t("reception.username")
+              }}</label>
               <div class="input-group flex items-center gap-1.5">
                 <input
                   v-model="settingsUsername"
@@ -3102,7 +3404,9 @@
 
             <!-- Password -->
             <div class="form-row flex flex-col gap-1">
-              <label class="text-xs font-bold text-gray-600">{{ t('reception.password') }}</label>
+              <label class="text-xs font-bold text-gray-600">{{
+                t("reception.password")
+              }}</label>
               <div class="input-group flex items-center gap-1.5">
                 <input
                   v-model="settingsPassword"
@@ -3128,12 +3432,16 @@
               type="button"
               class="btn btn-confirm px-6 py-2 bg-[#4DB6AC] hover:bg-[#40a095] text-white text-xs font-extrabold rounded-lg shadow transition-all active:scale-95"
               @click="handleSaveSettings"
-            >{{ t('reception.confirm') }}</button>
+            >
+              {{ t("reception.confirm") }}
+            </button>
             <button
               type="button"
               class="btn btn-skip px-6 py-2 bg-[#E57373] hover:bg-[#d9534f] text-white text-xs font-extrabold rounded-lg shadow transition-all active:scale-95"
               @click="showSettingsModal = false"
-            >{{ t('reception.ignore') }}</button>
+            >
+              {{ t("reception.ignore") }}
+            </button>
           </div>
         </div>
       </div>
@@ -3169,8 +3477,8 @@
 
     <!-- Context Menu Overlay -->
     <Transition name="fade">
-      <div 
-        v-if="showTableContextMenu" 
+      <div
+        v-if="showTableContextMenu"
         class="fixed inset-0 z-[9998] bg-black/30 backdrop-blur-xs"
         @click="showTableContextMenu = false"
       ></div>
@@ -3178,21 +3486,29 @@
 
     <!-- Context Menu Popup -->
     <Transition name="scale-up">
-      <div 
-        v-if="showTableContextMenu" 
+      <div
+        v-if="showTableContextMenu"
         class="fixed z-[9999] bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-200"
         :style="contextMenuStyle"
         @click.stop
       >
         <!-- Header -->
-        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-5 py-4 border-b border-gray-200">
+        <div
+          class="bg-gradient-to-r from-blue-50 to-indigo-50 px-5 py-4 border-b border-gray-200"
+        >
           <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+            <div
+              class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center"
+            >
               <span class="text-xl">📋</span>
             </div>
             <div>
-              <div class="text-sm font-bold text-gray-800">Bàn {{ selectedTableForAction?.code }}</div>
-              <div class="text-xs text-gray-500">{{ selectedTableForAction?.customerName || 'Khách vãng lai' }}</div>
+              <div class="text-sm font-bold text-gray-800">
+                Bàn {{ selectedTableForAction?.code }}
+              </div>
+              <div class="text-xs text-gray-500">
+                {{ selectedTableForAction?.customerName || "Khách vãng lai" }}
+              </div>
             </div>
           </div>
         </div>
@@ -3205,89 +3521,135 @@
             @click="handleTableAction(action.id)"
             class="w-full flex items-center gap-3 p-3 rounded-xl transition-all group"
             :class="[
-              action.isPrimary 
-                ? 'primary-action bg-gradient-to-r from-green-50 to-green-100/80 border-2 border-green-500 p-4 mb-3' 
-                : 'hover:bg-gray-50'
+              action.isPrimary
+                ? 'primary-action bg-gradient-to-r from-green-50 to-green-100/80 border-2 border-green-500 p-4 mb-3'
+                : 'hover:bg-gray-50',
             ]"
             type="button"
           >
-            <div 
+            <div
               class="w-11 h-11 rounded-xl flex items-center justify-center text-xl shadow-sm group-hover:scale-110 transition-transform shrink-0"
               :class="action.colorClass"
             >
               {{ action.icon }}
             </div>
             <div class="flex-1 text-left">
-              <div class="font-bold text-gray-800 text-sm" :class="[action.isPrimary ? 'text-green-800 font-extrabold text-base' : '']">{{ action.label }}</div>
-              <div class="text-xs text-gray-500" :class="[action.isPrimary ? 'text-green-700 font-medium' : '']">
-                {{ action.description }} {{ action.id === 'select_items' ? selectedTableForAction?.code : '' }}
+              <div
+                class="font-bold text-gray-800 text-sm"
+                :class="[
+                  action.isPrimary
+                    ? 'text-green-800 font-extrabold text-base'
+                    : '',
+                ]"
+              >
+                {{ action.label }}
+              </div>
+              <div
+                class="text-xs text-gray-500"
+                :class="[action.isPrimary ? 'text-green-700 font-medium' : '']"
+              >
+                {{ action.description }}
+                {{
+                  action.id === "select_items"
+                    ? selectedTableForAction?.code
+                    : ""
+                }}
               </div>
             </div>
-            <span class="text-gray-400 text-lg group-hover:translate-x-1 transition-transform" :class="[action.isPrimary ? 'text-green-600' : '']">➡️</span>
+            <span
+              class="text-gray-400 text-lg group-hover:translate-x-1 transition-transform"
+              :class="[action.isPrimary ? 'text-green-600' : '']"
+              >➡️</span
+            >
           </button>
         </div>
       </div>
     </Transition>
 
-
-
     <!-- Modal 4: TÁCH MÔN -->
     <Transition name="fade">
-      <div v-if="showSplitItemModal" class="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
-          <div class="bg-gradient-to-r from-pink-500 to-pink-600 text-white px-6 py-4">
+      <div
+        v-if="showSplitItemModal"
+        class="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs"
+      >
+        <div
+          class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden"
+        >
+          <div
+            class="bg-gradient-to-r from-pink-500 to-pink-600 text-white px-6 py-4"
+          >
             <h3 class="text-lg font-bold flex items-center gap-2">
               <span>🍽️</span> Tách món bàn {{ selectedTableForAction?.code }}
             </h3>
-            <p class="text-xs text-pink-100 mt-1">{{ t('reception.select_split_items') }}</p>
+            <p class="text-xs text-pink-100 mt-1">
+              {{ t("reception.select_split_items") }}
+            </p>
           </div>
 
           <div class="p-6">
-            <div class="mb-4 text-sm text-gray-600">{{ t('reception.select_at_least_one') }}</div>
+            <div class="mb-4 text-sm text-gray-600">
+              {{ t("reception.select_at_least_one") }}
+            </div>
 
             <div class="space-y-2 max-h-80 overflow-y-auto">
               <div
-                v-for="item in restaurantStore.tableOrders[selectedTableForAction?.code]?.items || []"
+                v-for="item in restaurantStore.tableOrders[
+                  selectedTableForAction?.code
+                ]?.items || []"
                 :key="item.id"
                 @click="toggleItemForSplit(item.id)"
                 :class="[
                   'p-3 rounded-lg border-2 cursor-pointer transition-all flex items-center gap-3',
                   selectedItemsToSplit.includes(item.id)
                     ? 'border-pink-500 bg-pink-50'
-                    : 'border-gray-200 hover:border-gray-300'
+                    : 'border-gray-200 hover:border-gray-300',
                 ]"
               >
-                <input 
-                  type="checkbox" 
+                <input
+                  type="checkbox"
                   :checked="selectedItemsToSplit.includes(item.id)"
                   class="w-5 h-5 accent-pink-500"
                 />
                 <div class="flex-1">
-                  <div class="font-bold text-sm text-gray-800">{{ item.name }}</div>
+                  <div class="font-bold text-sm text-gray-800">
+                    {{ item.name }}
+                  </div>
                   <div class="text-xs text-gray-500">
-                    x{{ item.quantity }} {{ item.unit }} - {{ formatVND(item.price * item.quantity) }}
+                    x{{ item.quantity }} {{ item.unit }} -
+                    {{ formatVND(item.price * item.quantity) }}
                   </div>
                 </div>
               </div>
             </div>
 
-            <div v-if="selectedItemsToSplit.length === 0" class="mt-3 text-xs text-orange-600 bg-orange-50 p-2 rounded">{{ t('reception.please_select_one') }}</div>
+            <div
+              v-if="selectedItemsToSplit.length === 0"
+              class="mt-3 text-xs text-orange-600 bg-orange-50 p-2 rounded"
+            >
+              {{ t("reception.please_select_one") }}
+            </div>
           </div>
 
-          <div class="bg-gray-50 px-6 py-4 flex justify-end gap-3 border-t border-gray-200">
-            <button 
-              @click="showSplitItemModal = false" 
+          <div
+            class="bg-gray-50 px-6 py-4 flex justify-end gap-3 border-t border-gray-200"
+          >
+            <button
+              @click="showSplitItemModal = false"
               class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg font-bold text-sm"
               type="button"
-            >{{ t('reception.cancel') }}</button>
-            <button 
+            >
+              {{ t("reception.cancel") }}
+            </button>
+            <button
               @click="executeSplitItem"
               :disabled="selectedItemsToSplit.length === 0 || splitItemLoading"
               class="px-4 py-2 bg-pink-500 hover:bg-pink-600 disabled:bg-gray-300 text-white rounded-lg font-bold text-sm flex items-center gap-2"
               type="button"
             >
-              <span v-if="splitItemLoading" class="animate-spin inline-block">⏳</span>
-              <span>{{ splitItemLoading ? 'Đang tách...' : 'Tách món' }}</span>
+              <span v-if="splitItemLoading" class="animate-spin inline-block"
+                >⏳</span
+              >
+              <span>{{ splitItemLoading ? "Đang tách..." : "Tách món" }}</span>
             </button>
           </div>
         </div>
@@ -3296,13 +3658,22 @@
 
     <!-- Modal 5: HỦY PHIẾU -->
     <Transition name="fade">
-      <div v-if="showCancelModal" class="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
-          <div class="bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-4">
+      <div
+        v-if="showCancelModal"
+        class="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs"
+      >
+        <div
+          class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden"
+        >
+          <div
+            class="bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-4"
+          >
             <h3 class="text-lg font-bold flex items-center gap-2">
               <span>❌</span> Hủy phiếu bàn {{ selectedTableForAction?.code }}
             </h3>
-            <p class="text-xs text-red-100 mt-1">{{ t('reception.delete_entire_order') }}</p>
+            <p class="text-xs text-red-100 mt-1">
+              {{ t("reception.delete_entire_order") }}
+            </p>
           </div>
 
           <div class="p-6">
@@ -3310,24 +3681,43 @@
               <div class="flex items-start gap-3">
                 <span class="text-2xl">⚠️</span>
                 <div>
-                  <div class="font-bold text-red-800 text-sm mb-1">{{ t('reception.warning') }}</div>
-                  <div class="text-xs text-red-700">{{ t('reception.this_action_will') }}<strong>{{ t('reception.permanently_delete') }}</strong>{{ t('reception.entire_order_of_table') }}<strong>{{ selectedTableForAction?.code }}</strong>{{ t('reception.cannot_be_undone') }}</div>
+                  <div class="font-bold text-red-800 text-sm mb-1">
+                    {{ t("reception.warning") }}
+                  </div>
+                  <div class="text-xs text-red-700">
+                    {{ t("reception.this_action_will")
+                    }}<strong>{{ t("reception.permanently_delete") }}</strong
+                    >{{ t("reception.entire_order_of_table")
+                    }}<strong>{{ selectedTableForAction?.code }}</strong
+                    >{{ t("reception.cannot_be_undone") }}
+                  </div>
                 </div>
               </div>
             </div>
 
             <div class="bg-gray-50 rounded-lg p-3 mb-4">
-              <div class="text-xs text-gray-600 mb-2">{{ t('reception.order_info') }}</div>
+              <div class="text-xs text-gray-600 mb-2">
+                {{ t("reception.order_info") }}
+              </div>
               <div class="text-sm text-gray-800">
-                <strong>{{ restaurantStore.tableOrders[selectedTableForAction?.code]?.items?.length || 0 }} món</strong> - 
-                Tổng: <strong class="text-red-600">{{ formatVND(summary?.grandTotal || 0) }}</strong>
+                <strong
+                  >{{
+                    restaurantStore.tableOrders[selectedTableForAction?.code]
+                      ?.items?.length || 0
+                  }}
+                  món</strong
+                >
+                - Tổng:
+                <strong class="text-red-600">{{
+                  formatVND(summary?.grandTotal || 0)
+                }}</strong>
               </div>
             </div>
 
             <label class="block text-sm font-bold text-gray-700 mb-2">
               Nhập "HỦY" để xác nhận:
             </label>
-            <input 
+            <input
               v-model="cancelConfirmText"
               type="text"
               :placeholder="t('reception.type_cancel')"
@@ -3335,20 +3725,26 @@
             />
           </div>
 
-          <div class="bg-gray-50 px-6 py-4 flex justify-end gap-3 border-t border-gray-200">
-            <button 
-              @click="showCancelModal = false" 
+          <div
+            class="bg-gray-50 px-6 py-4 flex justify-end gap-3 border-t border-gray-200"
+          >
+            <button
+              @click="showCancelModal = false"
               class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg font-bold text-sm"
               type="button"
-            >{{ t('reception.cancel') }}</button>
-            <button 
+            >
+              {{ t("reception.cancel") }}
+            </button>
+            <button
               @click="executeCancel"
               :disabled="cancelConfirmText !== 'HỦY' || cancelLoading"
               class="px-4 py-2 bg-red-500 hover:bg-red-600 disabled:bg-gray-300 text-white rounded-lg font-bold text-sm flex items-center gap-2"
               type="button"
             >
-              <span v-if="cancelLoading" class="animate-spin inline-block">⏳</span>
-              <span>{{ cancelLoading ? 'Đang hủy...' : 'Xác nhận hủy' }}</span>
+              <span v-if="cancelLoading" class="animate-spin inline-block"
+                >⏳</span
+              >
+              <span>{{ cancelLoading ? "Đang hủy..." : "Xác nhận hủy" }}</span>
             </button>
           </div>
         </div>
@@ -3356,15 +3752,26 @@
     </Transition>
 
     <!-- Selection Mode Info Bar -->
-    <div v-if="selectionMode !== 'none'" class="fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white px-6 py-3 rounded-xl shadow-2xl z-[10000] flex items-center gap-3 animate-slide-up">
+    <div
+      v-if="selectionMode !== 'none'"
+      class="fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white px-6 py-3 rounded-xl shadow-2xl z-[10000] flex items-center gap-3 animate-slide-up"
+    >
       <span class="text-xl">ℹ️</span>
       <div>
         <div class="font-bold text-sm">
           {{ getSelectionModeTitle() }}
         </div>
-        <div class="text-xs text-blue-100">{{ t('reception.click_highlighted_table') }}</div>
+        <div class="text-xs text-blue-100">
+          {{ t("reception.click_highlighted_table") }}
+        </div>
       </div>
-      <button @click="cancelSelectionMode" class="ml-4 px-3 py-1 bg-blue-700 hover:bg-blue-800 rounded-lg text-xs font-bold" type="button">{{ t('reception.cancel_esc') }}</button>
+      <button
+        @click="cancelSelectionMode"
+        class="ml-4 px-3 py-1 bg-blue-700 hover:bg-blue-800 rounded-lg text-xs font-bold"
+        type="button"
+      >
+        {{ t("reception.cancel_esc") }}
+      </button>
     </div>
   </div>
 </template>
@@ -3450,28 +3857,28 @@ const cancelLoading = ref(false)
 const contextMenuStyle = computed(() => {
   const x = contextMenuPosition.value.x;
   const y = contextMenuPosition.value.y;
-  
+
   // Ước lượng kích thước menu
   const menuWidth = 320;
   const menuHeight = 400; // 5 items ~80px + header
-  
+
   // Viewport dimensions
   const viewportWidth = window.innerWidth;
   const viewportHeight = window.innerHeight;
-  
+
   // Check overflow RIGHT
-  const adjustedX = (x + menuWidth > viewportWidth) 
-    ? viewportWidth - menuWidth - 10 
+  const adjustedX = (x + menuWidth > viewportWidth)
+    ? viewportWidth - menuWidth - 10
     : Math.max(10, x);
-  
+
   // Check overflow BOTTOM -> FLIP UP
   const spaceBelow = viewportHeight - y;
   const shouldFlipUp = spaceBelow < menuHeight;
-  
-  const adjustedY = shouldFlipUp 
+
+  const adjustedY = shouldFlipUp
     ? Math.max(10, y - menuHeight - 10) // Mở lên trên
     : y; // Mở xuống dưới
-  
+
   return {
     left: `${adjustedX}px`,
     top: `${adjustedY}px`,
@@ -3515,38 +3922,38 @@ const tableActions = ref([
     description: 'Thêm món vào bàn',
     isPrimary: true
   },
-  { 
-    id: 'transfer', 
-    label: 'Chuyển bàn', 
-    icon: '🔁', 
+  {
+    id: 'transfer',
+    label: 'Chuyển bàn',
+    icon: '🔁',
     colorClass: 'bg-blue-500 text-white',
     description: 'Di chuyển order sang bàn khác'
   },
-  { 
-    id: 'merge', 
-    label: 'Ghép phiếu', 
-    icon: '🔗', 
+  {
+    id: 'merge',
+    label: 'Ghép phiếu',
+    icon: '🔗',
     colorClass: 'bg-purple-500 text-white',
     description: 'Gộp order từ 2 bàn thành 1'
   },
-  { 
-    id: 'split-order', 
-    label: 'Tách phiếu', 
-    icon: '✂️', 
+  {
+    id: 'split-order',
+    label: 'Tách phiếu',
+    icon: '✂️',
     colorClass: 'bg-orange-500 text-white',
     description: 'Chia order thành nhiều phiếu'
   },
-  { 
-    id: 'split-item', 
-    label: 'Tách món', 
-    icon: '🍽️', 
+  {
+    id: 'split-item',
+    label: 'Tách món',
+    icon: '🍽️',
     colorClass: 'bg-pink-500 text-white',
     description: 'Tách riêng một số món'
   },
-  { 
-    id: 'cancel', 
-    label: 'Hủy phiếu', 
-    icon: '❌', 
+  {
+    id: 'cancel',
+    label: 'Hủy phiếu',
+    icon: '❌',
     colorClass: 'bg-red-500 text-white',
     description: 'Xóa toàn bộ order'
   }
@@ -3565,10 +3972,10 @@ const getTablesWithStatus = () => {
 // Handle table action
 function handleTableAction(actionId: string) {
   showTableContextMenu.value = false;
-  
+
   const table = selectedTableForAction.value;
   if (!table) return;
-  
+
   switch(actionId) {
     case 'select_items':
       activeMainTab.value = 'menu';
@@ -3580,25 +3987,25 @@ function handleTableAction(actionId: string) {
       selectionMode.value = 'transfer';
       triggerToast('info', `Chọn bàn đích để chuyển từ bàn ${table.code}`);
       break;
-      
+
     case 'merge':
       sourceTableCode.value = table.code;
       selectionMode.value = 'merge';
       triggerToast('info', `Chọn bàn để ghép với bàn ${table.code}`);
       break;
-      
+
     case 'split-order':
       sourceTableCode.value = table.code;
       selectionMode.value = 'split-order';
       triggerToast('info', `Chọn bàn đích để tách phiếu từ bàn ${table.code}`);
       break;
-      
+
     case 'split-item':
       sourceTableCode.value = table.code;
       selectionMode.value = 'split-item';
       triggerToast('info', `Chọn bàn đích để tách món từ bàn ${table.code}`);
       break;
-      
+
     case 'cancel':
       showCancelModal.value = true;
       break;
@@ -3608,9 +4015,9 @@ function handleTableAction(actionId: string) {
 // Computed: Valid target tables
 const validTargetTables = computed(() => {
   if (selectionMode.value === 'none') return [];
-  
+
   const allTables = restaurantStore.areas.flatMap(a => a.tables);
-  
+
   switch(selectionMode.value) {
     case 'transfer':
       // Only empty tables
@@ -3619,7 +4026,7 @@ const validTargetTables = computed(() => {
       // Tables with orders (not empty)
       return allTables.filter(t => {
         const order = restaurantStore.tableOrders[t.code];
-        return t.status !== 'Available' && 
+        return t.status !== 'Available' &&
                t.code !== sourceTableCode.value &&
                order && order.items && order.items.length > 0;
       });
@@ -3640,16 +4047,16 @@ function isValidTargetTable(tableCode: string): boolean {
 // Handle table click in Selection Mode
 const handleTableClickInSelectionMode = async (targetTable: any) => {
   if (selectionMode.value === 'none') return;
-  
+
   // Check if valid target
   if (!isValidTargetTable(targetTable.code)) {
     triggerToast('warning', 'Bàn chọn không hợp lệ!');
     return;
   }
-  
+
   const sourceTable = restaurantStore.getTableByCode(sourceTableCode.value);
   if (!sourceTable) return;
-  
+
   switch(selectionMode.value) {
     case 'transfer':
       Swal.fire({
@@ -3667,7 +4074,7 @@ const handleTableClickInSelectionMode = async (targetTable: any) => {
         }
       });
       break;
-      
+
     case 'merge':
       Swal.fire({
         title: 'Xác nhận ghép phiếu?',
@@ -3684,7 +4091,7 @@ const handleTableClickInSelectionMode = async (targetTable: any) => {
         }
       });
       break;
-      
+
     case 'split-order':
       // Ask split count
       Swal.fire({
@@ -3705,7 +4112,7 @@ const handleTableClickInSelectionMode = async (targetTable: any) => {
         }
       });
       break;
-      
+
     case 'split-item':
       // Open multi-select split item modal targeting this selected targetTable
       selectedTableForAction.value = sourceTable;
@@ -3726,17 +4133,17 @@ async function executeTransfer(sourceTable: any, targetTable: any) {
     targetOrder.items = [...sourceOrder.items];
     targetOrder.customerName = sourceOrder.customerName;
     targetOrder.openedTime = sourceOrder.openedTime;
-    
+
     sourceOrder.items = [];
     sourceOrder.customerName = '';
-    
+
     sourceTable.status = 'Available';
     sourceTable.customerName = '';
     sourceTable.billAmount = '';
-    
+
     targetTable.status = 'Serving';
     targetTable.customerName = targetOrder.customerName;
-    
+
     const total = targetOrder.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
     targetTable.billAmount = formatVND(total);
 
@@ -3751,7 +4158,7 @@ async function executeMerge(sourceTable: any, targetTable: any) {
   try {
     const sourceOrder = restaurantStore.getOrCreateOrder(sourceTable.code);
     const targetOrder = restaurantStore.getOrCreateOrder(targetTable.code);
-    
+
     if (!sourceOrder.items || sourceOrder.items.length === 0) {
       throw new Error('Bàn nguồn không có order!');
     }
@@ -3760,18 +4167,18 @@ async function executeMerge(sourceTable: any, targetTable: any) {
       ...targetOrder.items,
       ...sourceOrder.items
     ];
-    
+
     if (!targetOrder.customerName) {
       targetOrder.customerName = sourceOrder.customerName;
     }
 
     sourceOrder.items = [];
     sourceOrder.customerName = '';
-    
+
     sourceTable.status = 'Available';
     sourceTable.customerName = '';
     sourceTable.billAmount = '';
-    
+
     const targetTotal = targetOrder.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
     targetTable.billAmount = formatVND(targetTotal);
 
@@ -3785,7 +4192,7 @@ async function executeMerge(sourceTable: any, targetTable: any) {
 async function executeSplitOrder(sourceTable: any, targetTable: any) {
   try {
     const sourceOrder = restaurantStore.getOrCreateOrder(sourceTable.code);
-    
+
     if (!sourceOrder.items || sourceOrder.items.length === 0) {
       throw new Error('Bàn không có order!');
     }
@@ -3793,31 +4200,31 @@ async function executeSplitOrder(sourceTable: any, targetTable: any) {
     const items = sourceOrder.items;
     const itemsPerSplit = Math.ceil(items.length / splitOrderCount.value);
     const assignedCodes = new Set<string>();
-    
+
     // Create split orders
     for (let i = 1; i < splitOrderCount.value; i++) {
       const splitItems = items.slice(i * itemsPerSplit, (i + 1) * itemsPerSplit);
-      
+
       if (splitItems.length > 0) {
         let availableTable = null;
         if (i === 1) {
           availableTable = targetTable;
         } else {
-          availableTable = filteredTables.value.find(t => 
-            t.status === 'Available' && 
+          availableTable = filteredTables.value.find(t =>
+            t.status === 'Available' &&
             t.code !== sourceTable.code &&
             t.code !== targetTable.code &&
             !assignedCodes.has(t.code)
           );
         }
-        
+
         if (availableTable) {
           assignedCodes.add(availableTable.code);
           const splitOrder = restaurantStore.getOrCreateOrder(availableTable.code);
           splitOrder.items = splitItems;
           splitOrder.customerName = sourceOrder.customerName;
           splitOrder.openedTime = sourceOrder.openedTime;
-          
+
           const table = restaurantStore.getTableByCode(availableTable.code);
           if (table) {
             table.status = 'Serving';
@@ -3859,15 +4266,15 @@ async function executeSplitItem() {
   }
 
   splitItemLoading.value = true;
-  
+
   try {
     const sourceOrder = restaurantStore.getOrCreateOrder(selectedTableForAction.value.code);
-    
+
     // Get items to split
-    const itemsToSplit = sourceOrder.items.filter(item => 
+    const itemsToSplit = sourceOrder.items.filter(item =>
       selectedItemsToSplit.value.includes(item.id)
     );
-    
+
     if (itemsToSplit.length === 0) {
       throw new Error('Không tìm thấy món cần tách!');
     }
@@ -3882,12 +4289,12 @@ async function executeSplitItem() {
     newOrder.items = [...newOrder.items, ...itemsToSplit];
     newOrder.customerName = sourceOrder.customerName;
     newOrder.openedTime = sourceOrder.openedTime;
-    
+
     // Remove from source
-    sourceOrder.items = sourceOrder.items.filter(item => 
+    sourceOrder.items = sourceOrder.items.filter(item =>
       !selectedItemsToSplit.value.includes(item.id)
     );
-    
+
     // Update table status
     const targetTable = restaurantStore.getTableByCode(targetCode);
     if (targetTable) {
@@ -3921,14 +4328,14 @@ async function executeCancel() {
   }
 
   cancelLoading.value = true;
-  
+
   try {
     const order = restaurantStore.getOrCreateOrder(selectedTableForAction.value.code);
-    
+
     order.items = [];
     order.customerName = '';
     order.openedTime = '';
-    
+
     const table = restaurantStore.getTableByCode(selectedTableForAction.value.code);
     if (table) {
       table.status = 'Available';
@@ -3941,7 +4348,7 @@ async function executeCancel() {
     triggerToast('success', `Đã hủy phiếu bàn ${selectedTableForAction.value.code}`);
     showCancelModal.value = false;
     cancelConfirmText.value = '';
-    
+
     selectedTableCode.value = '';
   } catch (error) {
     triggerToast('error', error instanceof Error ? error.message : 'Hủy phiếu thất bại!');
@@ -4099,10 +4506,10 @@ function finishOrder(printReceipt = false) {
       amount: amount,
       posId: 29
     });
-    
+
     // Clear items
     activeOrder.value.items = [];
-    
+
     // Reset table status to empty in restaurantStore
     if (selectedTableCode.value) {
       const table = restaurantStore.getTableByCode(selectedTableCode.value);
@@ -4112,7 +4519,7 @@ function finishOrder(printReceipt = false) {
         table.customerName = "";
       }
     }
-    
+
     Swal.fire({
       title: "Thành công",
       text: printReceipt ? "Đã in hóa đơn và hoàn tất thanh toán!" : "Đã hoàn tất thanh toán thành công!",
@@ -5111,6 +5518,17 @@ const tableSettings = ref<
   >
 >({});
 
+function ensureTableSettings(code: string) {
+  if (!tableSettings.value[code]) {
+    tableSettings.value[code] = {
+      package: "",
+      drinkGroup: "A",
+      language: "VI",
+      isLocked: false,
+    };
+  }
+}
+
 const activeSettings = computed(() => {
   const code = selectedTableCode.value;
   if (!code)
@@ -5140,6 +5558,10 @@ interface Toast {
 }
 const toasts = ref<Toast[]>([]);
 let toastIdCounter = 0;
+// Track every pending auto-dismiss timer so we can clear them on unmount;
+// otherwise a router push right after `triggerToast` would leave the toast
+// mutating `toasts.value` after the component is gone.
+const toastTimers = new Set<number>()
 
 function triggerToast(
   type: "success" | "warning" | "error" | "info",
@@ -5147,9 +5569,15 @@ function triggerToast(
 ) {
   const id = toastIdCounter++;
   toasts.value.push({ id, type, message });
-  setTimeout(() => {
+  const handle = window.setTimeout(() => {
     toasts.value = toasts.value.filter((t) => t.id !== id);
   }, 3000);
+  toastTimers.add(handle);
+}
+
+function clearToastTimers() {
+  for (const h of toastTimers) clearTimeout(h)
+  toastTimers.clear()
 }
 
 // Left cart collapsing triggers
@@ -5434,42 +5862,63 @@ const activeTableStatus = computed(() => {
   return tbl.status;
 });
 
-// Watch selected table code to configure timers and load options
-watch(
-  selectedTableCode,
-  (newCode) => {
-    if (newCode) {
-      // Reset timer
-      updateTimer();
-      startSessionTimer();
-
-      // Reset checkout states
-      customerPaid.value = 0;
-      serviceCharge.value = 0;
-      discountBill.value = 0;
-      ttdb.value = 0;
-      depositAmount.value = 0;
-      deliveryFee.value = 0;
-
-      // If table settings aren't set, auto-open the package selector
-      if (
-        !tableSettings.value[newCode] ||
-        !tableSettings.value[newCode].package
-      ) {
-        // openSettingsConfig(); // Disabled automatic popup configurator
+// Watch selected table code to configure timers and load options.
+// When the user switches tables with a non-empty cart we MUST prompt before
+// clearing — otherwise a cashier mid-order could lose an entire ticket by
+// accidentally clicking a different table. Items stay on the source table
+// until the cashier confirms the discard.
+watch(selectedTableCode, async (newCode, oldCode) => {
+  if (newCode && oldCode && newCode !== oldCode) {
+    const prev = activeOrder.value
+    const hasItems = prev && Array.isArray(prev.items) && prev.items.length > 0
+    if (hasItems) {
+      const r = await Swal.fire({
+        icon: 'warning',
+        title: t('reception_order.switch_table_prompt_title', 'Đổi bàn?'),
+        text: t(
+          'reception_order.switch_table_prompt_text',
+          `Giỏ hàng hiện tại có ${prev!.items.length} món. Nếu đổi bàn mà KHÔNG gửi bếp, các món sẽ bị hủy.`,
+        ),
+        showCancelButton: true,
+        confirmButtonText: t('reception_order.discard_cart', 'Hủy giỏ & đổi bàn'),
+        cancelButtonText: t('common.keep_editing', 'Ở lại'),
+        reverseButtons: true,
+      })
+      if (!r.isConfirmed) {
+        // Restore the old code so state matches user intent.
+        selectedTableCode.value = oldCode
+        return
       }
-    } else {
-      stopSessionTimer();
+      prev!.items = []
+    } else if (prev) {
+      prev.items = []
     }
-  },
-  { immediate: true },
+  }
+  if (newCode) {
+    // Reset timer
+    updateTimer();
+    startSessionTimer();
+
+    // Seed default settings for this table (lazy, no side-effects inside
+    // the `activeSettings` computed).
+    ensureTableSettings(newCode)
+
+    // If table settings aren't set, auto-open the package selector
+    if (!tableSettings.value[newCode] || !tableSettings.value[newCode].package) {
+      // openSettingsConfig(); // Disabled automatic popup configurator
+    }
+  }
+},
+{ immediate: true }
 );
 
-// Session timer tick updates
+// Session timer tick updates. We tick every 2 s (not 1 s) because the
+// formatted display rounds to HH:MM:SS and the extra wake-up only served to
+// pin a CPU core; 2 s still gives the cashier a live countdown feel.
 function startSessionTimer() {
   stopSessionTimer();
   updateTimer();
-  timerInterval = setInterval(updateTimer, 1000) as unknown as number;
+  timerInterval = setInterval(updateTimer, 2000) as unknown as number;
 }
 
 function stopSessionTimer() {
@@ -5749,36 +6198,39 @@ function getEnrichedItem(item: {
   };
 }
 
-// Summary Calculation
+// Summary Calculation. Memoized per (packageName, items signature) so each
+// item mutation only invalidates the cached subtotal rather than forcing a
+// full reload across the whole items list.
 const summary = computed(() => {
-  let subtotal = 0;
-  let discount = 0;
-  let vat = 0;
-
   const guestCount = activeOrder.value.guestCount || 2;
   const ticketSubtotal = guestCount * selectedPackagePrice.value;
-  subtotal += ticketSubtotal;
+  // Take HEAD: matches the DB `process_checkout` math (5% service + 10% VAT).
+  // origin/main's variant dropped service_charge entirely (was a quality-bar
+  // regression) so the cashier preview disagreed with the bill.
+  const pkg = activeSettings.value.package;
 
   const items = activeOrder.value.items || [];
+  let itemsSubtotal = 0;
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i];
+    const charge = isItemInPackage(item, pkg) ? 0 : item.price;
+    itemsSubtotal += charge * item.quantity;
+  }
 
-  items.forEach((item: any) => {
-    const isLunch = item.name.toLowerCase().includes("lunch");
-    const inPackage = isItemInPackage(item, activeSettings.value.package);
+  const subtotal = ticketSubtotal + itemsSubtotal;
+  const serviceCharge = Math.round(subtotal * 0.05); // 5% Service Charge
+  // Ishii spec (02/07/2026): VAT = 8%, NOT 10%. This is the cashier-side
+  // preview only; the authoritative number comes from `hall_get_checkout_totals`
+  // RPC at checkout time (which the DB-side `process_checkout` also computes).
+  const vat = Math.round((subtotal + serviceCharge) * 0.08); // 8% VAT
+  const grandTotal = subtotal + serviceCharge + vat;
+  // `discount` is exposed (currently 0) so the cashier-side preview matches
+  // the template layout from origin/main. The real discount path is wired
+  // through `process_checkout` (voucher + manual) — see Phase A in the
+  // quality-bar plan.
+  const discount = 0;
 
-    const price = inPackage ? 0 : item.price;
-    const itemSub = price * item.quantity;
-    subtotal += itemSub;
-
-    const itemDiscount = isLunch ? price * 0.5 * item.quantity : 0;
-    discount += itemDiscount;
-
-    const base = price - (isLunch ? price * 0.5 : 0);
-    vat += Math.round(base * 0.08) * item.quantity;
-  });
-
-  const grandTotal = Math.max(0, subtotal + serviceCharge.value - discount - discountBill.value + vat - depositAmount.value + deliveryFee.value);
-
-  return { subtotal, discount, vat, serviceCharge: serviceCharge.value, grandTotal };
+  return { subtotal, serviceCharge, vat, grandTotal, discount };
 });
 
 // Parsed Japanese and Vietnamese Names extractor helper
@@ -5934,14 +6386,31 @@ const activeSubcategoriesList = computed(() => {
   return cat?.subcategories || [];
 });
 
+// Stale-token cancellation — rapid category clicks fire overlapping timers;
+// we only honour the most recent one so the spinner finishes when the user
+// settles on a category.
+let gridLoadingToken = 0
+let gridLoadingHandle: number | null = null
+function clearGridLoadingTimer() {
+  if (gridLoadingHandle != null) {
+    clearTimeout(gridLoadingHandle)
+    gridLoadingHandle = null
+  }
+}
+
 function selectCategory(catId: string) {
   activeCategoryId.value = catId;
-  activeSubCategoryId.value = "all";
+  activeSubCategoryId.value = 'all';
 
-  isGridLoading.value = true;
-  setTimeout(() => {
-    isGridLoading.value = false;
-  }, 350);
+  clearGridLoadingTimer()
+  const myToken = ++gridLoadingToken
+  isGridLoading.value = true
+  gridLoadingHandle = window.setTimeout(() => {
+    if (myToken === gridLoadingToken) {
+      isGridLoading.value = false
+    }
+    gridLoadingHandle = null
+  }, 350)
 }
 
 function getEligibleBuffetGroups(product: MenuItem) {
@@ -6566,12 +7035,39 @@ async function sendToKitchen() {
     if (!branchId.value)
       throw new Error(t("reception_order.tai_khoan_chua_gan_chi_nhanh"));
     // 1. Resolve the real `tables.id` from the mock table code through Hall RPC.
-    const tableRow = (await listTables()).find(
-      (table: any) => table.code === code,
-    );
-    if (!tableRow)
-      throw new Error(t("reception_order.khong_tim_thay_ban", { code }));
-    const tableId: string = (tableRow as { id: string }).id;
+    //    Always re-fetch (not cached) so we see the server's authoritative
+    //    status — if the table is still `available` we have to open it first
+    //    or hall_submit_table_order will 400 with "Hall can submit orders
+    //    only for occupied tables".
+    const tableRow = (await listTables()).find((table: any) => table.code === code)
+    if (!tableRow) throw new Error(t('reception_order.khong_tim_thay_ban', { code }))
+    const tableId: string = (tableRow as { id: string }).id
+    const tableStatus: string = (tableRow as { status?: string }).status ?? 'available'
+
+    // 2. If the table isn't yet `occupied`, flip it with the lightweight
+    //    `hall_open_table` RPC. We deliberately do NOT call the heavy
+    //    `check-in` Edge Function here — that path creates a fresh walk-in
+    //    reservation on every click and (after a previous checkout) can
+    //    400 on duplicate customers / cross-branch tables. The dedicated
+    //    Reservation / Quick-Open modals in AdminFloorsView still go
+    //    through check-in for the full ceremonial flow.
+    if (tableStatus !== 'occupied') {
+      const { data: openData, error: openErr } = await supabase.rpc(
+        'hall_open_table',
+        { p_branch_id: branchId.value, p_table_id: tableId },
+      )
+      if (openErr) {
+        throw new Error(
+          `Không thể mở bàn trước khi gửi bếp: ${(openErr as any).message ?? String(openErr)}`,
+        )
+      }
+      // Surface the actual server reason in console so 400s are debuggable.
+      if (openData && (openData as any).ok === false) {
+        throw new Error(
+          `Bàn ${code} mở thất bại: ${(openData as any).reason ?? 'unknown'}`,
+        )
+      }
+    }
 
     await ensureMenuDbIds(
       branchId.value,
@@ -6641,11 +7137,50 @@ async function sendToKitchen() {
       );
     }
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    triggerToast("error", t("reception_order.gui_bep_that_bai", { msg }));
+    // Surface the full Postgres / Edge Function message — the previous code
+    // collapsed it into a generic "send to kitchen failed" toast, hiding the
+    // real cause (table not occupied, item unavailable, etc.). We pop a
+    // modal Swal so the cashier actually has time to read the message.
+    const msg = err instanceof Error ? err.message : String(err)
+    // Postgres RPC errors embed JSON-like text inside the .message field;
+    // try to extract the human `message`/`detail`/`hint` lines so the cashier
+    // sees the cause, not `{"code":"P0001","message":"..."}`.
+    const pretty = extractReadableDbError(msg)
+    Swal.fire({
+      icon: 'error',
+      title: t('reception_order.gui_bep_that_bai_title', 'Gửi bếp thất bại'),
+      text: pretty,
+      footer: msg !== pretty ? `<pre class="text-left text-xs whitespace-pre-wrap">${msg}</pre>` : undefined,
+    })
   } finally {
     kitchenLoading.value = false;
   }
+}
+
+/**
+ * Pull the human-readable cause out of a Postgres RPC error string.
+ * Examples:
+ *   `{"code":"P0001","message":"Table is occupied"}` → "Table is occupied"
+ *   `function hall_open_table(uuid,uuid) does not exist` → unchanged
+ * Returns the input unchanged when no JSON is detected.
+ */
+function extractReadableDbError(raw: string): string {
+  if (!raw) return raw
+  const jsonStart = raw.indexOf('{')
+  const jsonEnd = raw.lastIndexOf('}')
+  if (jsonStart >= 0 && jsonEnd > jsonStart) {
+    try {
+      const obj = JSON.parse(raw.slice(jsonStart, jsonEnd + 1))
+      const parts: string[] = []
+      if (obj.message) parts.push(String(obj.message))
+      if (obj.detail && obj.detail !== obj.message) parts.push(String(obj.detail))
+      if (obj.hint && obj.hint !== obj.message) parts.push(`Hint: ${obj.hint}`)
+      if (parts.length) return parts.join('\n')
+    } catch {
+      // not valid JSON — fall through to returning the raw string
+    }
+  }
+  return raw
 }
 
 function saveOrder() {
@@ -6760,8 +7295,12 @@ onMounted(() => {
 
 onUnmounted(() => {
   stopSessionTimer();
-  window.removeEventListener("keydown", handleKeyDown);
-  clearInterval(clockInterval);
+  window.removeEventListener('keydown', handleKeyDown);
+  clearToastTimers()
+  clearGridLoadingTimer()
+  if (typeof clockInterval !== 'undefined' && clockInterval != null) {
+    clearInterval(clockInterval)
+  }
 });
 </script>
 
@@ -6802,8 +7341,8 @@ onUnmounted(() => {
 }
 
 .payment-btn.active {
-  background: #2196F3;
-  border-color: #2196F3;
+  background: #2196f3;
+  border-color: #2196f3;
   color: white;
   box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3);
 }
@@ -6818,13 +7357,35 @@ onUnmounted(() => {
 }
 
 /* Color coding for active states */
-.payment-cash.active { background: #4CAF50; border-color: #4CAF50; }
-.payment-transfer.active { background: #2196F3; border-color: #2196F3; }
-.payment-voucher.active { background: #9C27B0; border-color: #9C27B0; }
-.payment-coupon.active { background: #FF9800; border-color: #FF9800; }
-.payment-deposit.active { background: #795548; border-color: #795548; }
-.payment-discount.active { background: #F44336; border-color: #F44336; }
-.payment-vip.active { background: #FFD700; border-color: #FFD700; color: #333; }
+.payment-cash.active {
+  background: #4caf50;
+  border-color: #4caf50;
+}
+.payment-transfer.active {
+  background: #2196f3;
+  border-color: #2196f3;
+}
+.payment-voucher.active {
+  background: #9c27b0;
+  border-color: #9c27b0;
+}
+.payment-coupon.active {
+  background: #ff9800;
+  border-color: #ff9800;
+}
+.payment-deposit.active {
+  background: #795548;
+  border-color: #795548;
+}
+.payment-discount.active {
+  background: #f44336;
+  border-color: #f44336;
+}
+.payment-vip.active {
+  background: #ffd700;
+  border-color: #ffd700;
+  color: #333;
+}
 
 /* Responsive */
 @media (max-width: 1200px) {
@@ -6837,12 +7398,12 @@ onUnmounted(() => {
   .payment-methods-bar {
     grid-template-columns: repeat(3, 1fr);
   }
-  
+
   .payment-btn {
     padding: 6px 8px;
     font-size: 10px;
   }
-  
+
   .payment-icon {
     font-size: 12px;
   }
@@ -6865,12 +7426,12 @@ onUnmounted(() => {
 }
 
 .payment-details-container::-webkit-scrollbar-thumb {
-  background: #E8772E;
+  background: #e8772e;
   border-radius: 3px;
 }
 
 .payment-details-container::-webkit-scrollbar-thumb:hover {
-  background: #F5A623;
+  background: #f5a623;
 }
 
 /* Compact form cho payment methods */
@@ -6907,13 +7468,13 @@ onUnmounted(() => {
 .discount-form-compact .form-input:focus,
 .discount-form-compact .form-select:focus {
   outline: none;
-  border-color: #FF9800;
+  border-color: #ff9800;
   box-shadow: 0 0 0 2px rgba(255, 152, 0, 0.1);
 }
 
 .discount-form-compact .btn-apply {
   padding: 8px 16px;
-  background: #FF9800;
+  background: #ff9800;
   color: white;
   border: none;
   border-radius: 6px;
@@ -6924,7 +7485,7 @@ onUnmounted(() => {
 }
 
 .discount-form-compact .btn-apply:hover {
-  background: #F57C00;
+  background: #f57c00;
   transform: translateY(-1px);
 }
 
@@ -8577,7 +9138,7 @@ onUnmounted(() => {
 }
 
 .items-list::-webkit-scrollbar-thumb {
-  background: #E8772E;
+  background: #e8772e;
   border-radius: 2px;
 }
 
@@ -8599,7 +9160,7 @@ onUnmounted(() => {
   border: 1px solid #e5e7eb;
   overflow: hidden;
   width: 280px;
-  
+
   /* Fallback: Giới hạn chiều cao + scroll nếu cần */
   max-height: calc(100vh - 20px);
   overflow-y: auto;
@@ -8660,12 +9221,30 @@ onUnmounted(() => {
 }
 
 /* Color variants */
-.icon-green { background: #22c55e; color: white; }
-.icon-blue { background: #3b82f6; color: white; }
-.icon-purple { background: #a855f7; color: white; }
-.icon-orange { background: #f97316; color: white; }
-.icon-pink { background: #ec4899; color: white; }
-.icon-red { background: #ef4444; color: white; }
+.icon-green {
+  background: #22c55e;
+  color: white;
+}
+.icon-blue {
+  background: #3b82f6;
+  color: white;
+}
+.icon-purple {
+  background: #a855f7;
+  color: white;
+}
+.icon-orange {
+  background: #f97316;
+  color: white;
+}
+.icon-pink {
+  background: #ec4899;
+  color: white;
+}
+.icon-red {
+  background: #ef4444;
+  color: white;
+}
 
 .primary-action {
   background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%) !important;

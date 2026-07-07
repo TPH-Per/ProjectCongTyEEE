@@ -13,7 +13,7 @@ export function useOCR() {
     
     try {
       const worker = await Tesseract.createWorker('vie', 1, {
-        logger: m => {
+        logger: (m: any) => {
           if (m.status === 'recognizing text') {
             ocrProgress.value = Math.round(m.progress * 100)
           }

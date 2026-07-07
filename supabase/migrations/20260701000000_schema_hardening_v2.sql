@@ -1556,6 +1556,12 @@ GRANT  EXECUTE ON FUNCTION public.get_revenue_report(uuid,date,date) TO authenti
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 8.13 get_executive_dashboard
 -- FIX (5): now returns per-branch breakdown, not single global number
+-- FIX (D.17): the LEFT JOIN aggregates (`bdata`, `edata`) MUST stay inside the
+--   branch-filtered subquery so that `totals_data` only sums the active
+--   branches that survive the `WHERE` filter. If a future refactor moves the
+--   aggregates out of the subquery (e.g. into a CTE), they MUST keep the same
+--   `br.is_active AND (br.id = current_branch_id() OR has_role('admin'))`
+--   guard, otherwise a non-admin caller would see cross-branch totals.
 -- ─────────────────────────────────────────────────────────────────────────────
 CREATE OR REPLACE FUNCTION public.get_executive_dashboard(
   p_period_start date DEFAULT (date_trunc('month', CURRENT_DATE))::date,

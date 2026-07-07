@@ -8,15 +8,36 @@ export interface CheckoutResult {
   invoice_number: string
   grand_total: number
   linked_crm_surveys?: number
+  subtotal?: number
+  discount_total?: number
+  voucher_discount?: number
+  points_discount?: number
+  service_charge_amount?: number
+  vat_amount?: number
+}
+
+export interface CheckoutTotals {
+  subtotal: number
+  tier_discount: number
+  voucher_discount: number
+  points_discount: number
+  total_discount: number
+  net_before_tax: number
+  service_charge_percent: number
+  service_charge_amount: number
+  vat_rate: number
+  vat_amount: number
+  grand_total: number
 }
 
 export interface CheckoutPreview {
-  subtotal: number
-  voucherDiscount: number
-  pointsDiscount: number
-  netBeforeTax: number
-  vat: number
-  grandTotal: number
+  ok: boolean
+  order?: Record<string, unknown>
+  table?: Record<string, unknown>
+  items?: Array<Record<string, unknown>>
+  totals: CheckoutTotals
+  voucher_valid: boolean
+  error?: string
 }
 
 export function useCheckout() {
@@ -24,27 +45,93 @@ export function useCheckout() {
   const loading = ref(false)
   const error = ref<string | null>(null)
 
+  /**
+   * Preview the EXACT totals process_checkout will compute. Frontend display
+   * matches the eventual bill byte-for-byte — no more 10% UI vs 8% DB drift.
+   */
   async function previewCheckout(params: {
-    orderId: string;
-    voucherCode?: string;
-    pointsToRedeem?: number;
-    orderTotal: number;
-    customerId?: string;
+    branchId: string
+    tableId: string
+    orderId?: string
+    voucherCode?: string
+    pointsToRedeem?: number
+    customerId?: string
   }): Promise<CheckoutPreview> {
-    void params
-    throw new Error('previewCheckout is disabled; use hall_get_checkout_summary RPC for checkout totals')
+    loading.value = true
+    error.value = null
+    try {
+      const { data, error: err } = await supabase.rpc('hall_get_checkout_totals', {
+        p_branch_id: params.branchId,
+        p_table_id: params.tableId,
+        p_order_id: params.orderId ?? null,
+        p_voucher_code: params.voucherCode ?? null,
+        p_points_to_use: params.pointsToRedeem ?? 0,
+        p_customer_id: params.customerId ?? null,
+      })
+      if (err) throw err
+      const row = (data ?? {}) as { ok?: boolean; error?: string } & Record<string, unknown>
+      return {
+        ok: row.ok === true,
+        order: row.order as Record<string, unknown> | undefined,
+        table: row.table as Record<string, unknown> | undefined,
+        items: row.items as Array<Record<string, unknown>> | undefined,
+        totals: row.totals as CheckoutTotals,
+        voucher_valid: row.voucher_valid === true,
+        error: row.error,
+      }
+    } catch (e: any) {
+      error.value = e.message || String(e)
+      throw e
+    } finally {
+      loading.value = false
+    }
+  }
+
+  /**
+   * Single-table summary for floor-plan / table-modal previews.
+   * Caches by tableId to avoid re-querying when switching back.
+   *
+   * IMPORTANT: previously the cache never re-fetched after the first load,
+   * which meant opening the same table-modal twice in a row would show
+   * stale totals — and if the cashier rapidly opened A then B, the B total
+   * would appear to "leak" with the previous A value because both views
+   * shared the same Map. We now always force a re-fetch by default and
+   * only honour the cache when the caller passes `useCache: true`.
+   */
+  const _tableCache = new Map<string, CheckoutPreview>()
+  async function previewTableSummary(
+    branchId: string,
+    tableId: string,
+    options: { useCache?: boolean } = {},
+  ): Promise<CheckoutPreview> {
+    if (options.useCache) {
+      const cached = _tableCache.get(tableId)
+      if (cached) return cached
+    }
+    const fresh = await previewCheckout({ branchId, tableId })
+    _tableCache.set(tableId, fresh)
+    return fresh
+  }
+  /**
+   * Drop the cached preview for a table. Pass a tableId to drop just that
+   * entry (used by realtime order/table events) or omit to drop everything
+   * (used after a successful checkout).
+   */
+  function clearTableCache(tableId?: string) {
+    if (tableId) _tableCache.delete(tableId)
+    else _tableCache.clear()
   }
 
   async function executeCheckout(params: {
-    orderId: string;
-    paymentMethod: string;
-    paymentRef?: string;
-    voucherCode?: string;
-    pointsToRedeem?: number;
-    serviceChargePct?: number;
-    vatPct?: number;
-    branchId: string;
-    cashierId: string;
+    orderId: string
+    paymentMethod: string
+    paymentRef?: string
+    voucherCode?: string
+    pointsToRedeem?: number
+    serviceChargePct?: number
+    vatPct?: number
+    branchId: string
+    cashierId: string
   }): Promise<CheckoutResult> {
     loading.value = true
     error.value = null
@@ -55,11 +142,14 @@ export function useCheckout() {
         p_cashier_id: params.cashierId,
         p_payment_method: params.paymentMethod,
         p_voucher_code: params.voucherCode || null,
-        p_points_to_use: params.pointsToRedeem || 0
+        p_points_to_use: params.pointsToRedeem || 0,
       })
       if (err) throw err
-      checkoutResult.value = data as any
-      return data as any
+      checkoutResult.value = data as CheckoutResult
+      // After successful checkout, drop the cached preview for this table
+      // (the table's bill is now Paid — preview is stale).
+      _tableCache.clear()
+      return data as CheckoutResult
     } catch (e: any) {
       error.value = e.message || String(e)
       throw e
@@ -91,7 +181,14 @@ export function useCheckout() {
   }
 
   return {
-    checkoutResult, loading, error,
-    previewCheckout, executeCheckout, checkout, printReceipt
+    checkoutResult,
+    loading,
+    error,
+    previewCheckout,
+    previewTableSummary,
+    clearTableCache,
+    executeCheckout,
+    checkout,
+    printReceipt,
   }
 }

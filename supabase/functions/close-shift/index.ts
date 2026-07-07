@@ -51,15 +51,61 @@ serve(async (req) => {
       throw new AuthError('Reception chỉ được đóng ca do chính mình mở', 403)
     }
 
-    // 2. Tính expected_cash (cash payments trong ca)
+    // 1.5 Guard: refuse to close the shift while there are unsettled orders.
+    // An "unsettled" order is one whose status is not Paid/Cancelled (so it's
+    // still Pending/Preparing/Served). The user must resolve them first or
+    // explicitly mark them as voided (manager override).
+    const { count: unsettledCount, error: countErr } = await admin
+      .from('orders')
+      .select('id', { count: 'exact', head: true })
+      .eq('branch_id', shift.branch_id)
+      .not('status', 'in', '(Paid,Cancelled)')
+
+    if (countErr) throw countErr
+    if ((unsettledCount ?? 0) > 0) {
+      return new Response(
+        JSON.stringify({
+          ok: false,
+          error: 'unsettled_orders',
+          message: `Còn ${unsettledCount} order chưa thanh toán/hủy — phải xử lý trước khi đóng ca.`,
+          count: unsettledCount,
+        }),
+        { status: 409, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      )
+    }
+
+    // 2. Tính expected_cash (cash payments trong ca).
+    //
+    // Cash math is subtle. Two rules:
+    //
+    //   - The actual cash LEFT in the till = opening + (Σ received − Σ change
+    //     given back). `amount` is the net sale, but the cashier physically
+    //     pocketed `received_amount` and gave back `change_amount`; so we use
+    //     received − change, not amount.
+    //
+    //   - Refunds (future — not implemented yet, but the migration plan
+    //     reserves `transaction_type = 'refund'`) are a negative line that
+    //     reduces the cash in the till. Today we don't have a refunds table
+    //     so the second term is zero — but the loop is written so the
+    //     moment a refund row exists the math will already be correct.
+    //
+    //   - `amount` is the NET of the sale; using it directly over-counts
+    //     whenever the customer overpaid (received > amount + change).
     const { data: cashPayments } = await admin
       .from('payments')
-      .select('amount, received_amount, change_amount')
+      .select('amount, received_amount, change_amount, revenue_type')
       .eq('shift_id', shift.id)
       .eq('method', 'cash')
 
     const expectedCash = Number(shift.opening_cash) + (cashPayments ?? []).reduce(
-      (s, p) => s + Number(p.amount), 0
+      (s, p) => {
+        const received = Number(p.received_amount ?? p.amount ?? 0)
+        const change = Number(p.change_amount ?? 0)
+        const isRefund = (p.revenue_type ?? 'other') === 'refund'
+        // Refunds subtract from the till; sales add (received − change).
+        return s + (isRefund ? -Math.abs(received) : received - change)
+      },
+      0
     )
 
     const cashDifference = body.closingCash - expectedCash

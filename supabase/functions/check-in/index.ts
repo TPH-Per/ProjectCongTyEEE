@@ -171,21 +171,71 @@ serve(async (req) => {
     }
 
     // 4. Update tables.status = occupied and metadata (filter by branch)
-    const tableMetadata = { 
-      ...packageMeta, 
-      flow_mode: body.flowMode, 
-      party_size: body.partySize, 
-      demographics_capture: body.partySize, 
-      reservation_id: finalResvId, 
-      assigned_by: user.id, 
-      assigned_at: new Date().toISOString() 
+    const tableMetadata = {
+      ...packageMeta,
+      flow_mode: body.flowMode,
+      party_size: body.partySize,
+      demographics_capture: body.partySize,
+      reservation_id: finalResvId,
+      assigned_by: user.id,
+      assigned_at: new Date().toISOString()
     }
-    
+
     await admin
       .from('tables')
       .update({ status: 'occupied', metadata: tableMetadata })
       .in('id', body.tableIds)
       .eq('branch_id', branchId)
+
+    // 5. Write `table_assignments` rows so the seating shows up in the same
+    //    discoverable path as seated reservations. CRM survey, KDS tablet
+    //    limit, and dashboard all query this table; without it walk-in
+    //    guests effectively "don't exist" once seated.
+    //    Unique constraint is (reservation_id, table_id) — for walk-ins we
+    //    just created the reservation in step 1.5 above, so this is safe to
+    //    upsert idempotently.
+    const assignmentRows = body.tableIds.map((tableId) => ({
+      branch_id: branchId,
+      reservation_id: finalResvId,
+      table_id: tableId,
+      assigned_by: user.id,
+      metadata: tableMetadata,
+    }))
+    const { error: assignErr } = await admin
+      .from('table_assignments')
+      .upsert(assignmentRows, { onConflict: 'reservation_id,table_id', ignoreDuplicates: true })
+    if (assignErr) throw assignErr
+
+    // 5.5 Realtime notification for the reception panel. The dashboard
+    // subscribes via useRealtime on `notifications` and bumps the new
+    // walk-in into the notification list. Best-effort — never block the
+    // seating flow on this.
+    try {
+      const { data: tablesForCode } = await admin
+        .from('tables')
+        .select('id, code')
+        .in('id', body.tableIds)
+      const codes = (tablesForCode ?? []).map((t) => t.code).join(', ')
+      await admin.from('notifications').insert({
+        branch_id: branchId,
+        channel: 'reception-panel',
+        recipient: 'reception',
+        template: 'new_seated',
+        variables: {
+          table_ids: body.tableIds,
+          table_codes: codes,
+          reservation_id: finalResvId,
+          customer_name: customerName ?? null,
+          party_size: body.partySize,
+          message: `${codes ? `Bàn ${codes}` : 'Bàn'} vừa nhận khách.`,
+        },
+        status: 'sent',
+        sent_at: new Date().toISOString(),
+        metadata: { source: 'check-in', reservation_id: finalResvId },
+      })
+    } catch (notifErr) {
+      console.warn('[check-in] notification insert failed:', notifErr)
+    }
 
     // 6. Nếu có reservation → update status = Dining (filter by branch)
     if (body.reservationId) {

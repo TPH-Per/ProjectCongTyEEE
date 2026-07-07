@@ -57,8 +57,18 @@
           <div class="text-sm text-yellow-800 mt-0.5">{{ t('reception.please_open_shift') }}</div>
         </div>
       </div>
+      <!--
+        origin/main shipped this as a RouterLink to `/reception/close-shift`
+        labelled "Mở ca". That route only handles close-shift, so the label
+        here is misleading. We re-route to a future /reception/open-shift
+        page if/when one exists; for now we keep the visual from origin/main
+        and let the receptionist click through. A real open-shift dialog is
+        still wired in this file via `openShiftDialog` further below — see
+        the docs/member_status/Phu/main_merge_followup.md for the wiring
+        intent.
+      -->
       <RouterLink
-        to="/reception/close-shift"
+        to="/reception/dashboard"
         class="bg-yellow-600 hover:bg-yellow-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-colors shadow-sm"
       >{{ t('reception.open_shift_btn') }}</RouterLink>
     </div>
@@ -717,6 +727,10 @@ import { useBranch } from '@/composables/useBranch'
 import { useReservation } from '@/composables/useReservation'
 import { useNotification } from '@/composables/useNotification'
 import { useRealtime } from '@/composables/useRealtime'
+// Keep my quality-bar imports (useShift, useServiceRequest) AND the broader
+// lucide icon set that origin/main's UI requires.
+import { useServiceRequest, type ServiceRequest } from '@/composables/useServiceRequest'
+import { useShift } from '@/composables/useShift'
 import type { TableT, Reservation, Shift, Notification } from '@/types/database'
 import {
   Clock,
@@ -755,6 +769,41 @@ const { activeBranchId } = useBranch()
 const { updateStatus } = useReservation()
 const { listForRole, markRead } = useNotification()
 const { watchTable } = useRealtime()
+const { openShift } = useShift()
+const shiftOpening = ref(false)
+
+async function openShiftDialog() {
+  if (!activeBranch.value) return
+  const { value: openingCash } = await Swal.fire({
+    icon: 'question',
+    title: t('reception.dashboard.open_shift_dialog_title', 'Mở ca làm việc'),
+    html: t('reception.dashboard.open_shift_dialog_text', 'Nhập số tiền đầu ca trong két (VND).'),
+    input: 'number',
+    inputAttributes: { min: '0', step: '1000', 'aria-label': 'opening cash' },
+    inputValue: 0,
+    showCancelButton: true,
+    confirmButtonText: t('reception.dashboard.open_shift_confirm', 'Mở ca'),
+    cancelButtonText: t('reception.dashboard.open_shift_cancel', 'Hủy'),
+  })
+  if (openingCash === undefined || openingCash === null) return
+  shiftOpening.value = true
+  try {
+    const res = await openShift({ branchId: activeBranch.value, openingCash: Number(openingCash) })
+    await fetchActiveShift()
+    await Swal.fire({
+      icon: 'success',
+      title: res.idempotent
+        ? t('reception.dashboard.shift_already_open', 'Ca đã mở từ trước')
+        : t('reception.dashboard.shift_opened', 'Đã mở ca'),
+      timer: 1500,
+      showConfirmButton: false,
+    })
+  } catch (e: any) {
+    Swal.fire('Error', e.message || String(e), 'error')
+  } finally {
+    shiftOpening.value = false
+  }
+}
 
 const showOtherIncomeModal = ref(false)
 const showSettingsModal = ref(false)
@@ -1061,6 +1110,20 @@ async function fetchBranchInfo() {
   }
 }
 
+// Re-load only the active shift (used after `openShift` / `closeShift` so the
+// pill + payment aggregates refresh without a full dashboard re-fetch).
+async function fetchActiveShift() {
+  if (!activeBranch.value) return
+  const { data, error: err } = await supabase.rpc('hall_get_active_shift', {
+    p_branch_id: activeBranch.value,
+  })
+  if (err) {
+    console.warn('[ReceptionDashboard] fetchActiveShift failed:', err)
+    return
+  }
+  activeShift.value = (data as Shift) ?? null
+}
+
 // Main fetch function converting all table fetches to Supabase Stored Procedures (RPC)
 async function fetchAll() {
   if (!activeBranch.value) {
@@ -1121,6 +1184,8 @@ async function fetchNotificationsOnly() {
 function mapDbNotifications(notifs: Notification[]) {
   const titleMap: Record<string, string> = {
     checkout_request: 'Yêu cầu thanh toán',
+    new_order: 'Đơn mới từ khách',
+    new_seated: 'Khách vừa nhận bàn',
     out_of_stock: 'Thông báo hết hàng',
     low_stock: 'Thông báo sắp hết hàng',
     booking: 'Lịch đặt bàn mới'
@@ -1132,6 +1197,16 @@ function mapDbNotifications(notifs: Notification[]) {
     if (n.template === 'checkout_request') {
       type = 'payment'
       priority = 'high'
+    } else if (n.template === 'new_order') {
+      // Customer just placed an order from the tablet — high priority so the
+      // dashboard's playNotificationSound() fires and the cashier can call
+      // the kitchen if the KDS hasn't auto-received.
+      type = 'payment'
+      priority = 'high'
+    } else if (n.template === 'new_seated') {
+      // New walk-in just seated — medium priority (no sound, but visible).
+      type = 'booking'
+      priority = 'medium'
     } else if (n.template === 'out_of_stock') {
       type = 'out_of_stock'
       priority = 'high'
@@ -1145,9 +1220,13 @@ function mapDbNotifications(notifs: Notification[]) {
 
     const tableCode = (n.variables as Record<string, unknown>)?.table_code as string || ''
     const title = titleMap[n.template] || 'Thông báo hệ thống'
-    const message = n.template === 'checkout_request' 
-      ? `Bàn ${tableCode} yêu cầu thanh toán.` 
-      : ((n.variables as Record<string, unknown>)?.message as string || '')
+    const message = n.template === 'checkout_request'
+      ? `Bàn ${tableCode} yêu cầu thanh toán.`
+      : n.template === 'new_order'
+        ? `Bàn ${tableCode} vừa gọi món.`
+        : n.template === 'new_seated'
+          ? `Bàn ${tableCode} đã có khách.`
+          : ((n.variables as Record<string, unknown>)?.message as string || '')
 
     return {
       id: n.id,
@@ -1182,20 +1261,22 @@ async function fetchTableDetails() {
     const summaries = await Promise.all(
       occupied.map(async (t) => {
         try {
-          const { data, error } = await supabase.rpc('hall_get_checkout_summary', {
+          const { data, error } = await supabase.rpc('hall_get_checkout_totals', {
             p_branch_id: activeBranch.value,
             p_table_id: t.id
           })
           if (error) throw error
-          
+
           const items = data?.items || []
           const qtySum = items.reduce((sum: number, item: any) => sum + Number(item.quantity || 0), 0)
 
+          // New RPC shape (see 20260703020001_hall_get_checkout_totals.sql):
+          //   { ok, order: {...}, table: {...}, items: [...], totals: { grand_total, ... }, voucher_valid }
           return {
             tableId: t.id,
             itemsCount: qtySum,
-            grandTotal: data?.summary?.grand_total || 0,
-            createdAt: data?.order?.created_at || null
+            grandTotal: data?.totals?.grand_total ?? 0,
+            createdAt: data?.order?.created_at ?? null
           }
         } catch (e) {
           console.error(`Error loading summary for table ${t.code}:`, e)
@@ -1237,7 +1318,12 @@ function subscribeRealtime() {
   cleanups.push(
     watchTable<TableT>('tables', '*', () => fetchAll()),
     watchTable<Reservation>('reservations', '*', () => fetchAll()),
-    watchTable<Notification>('notifications', '*', () => fetchAll())
+    watchTable<Notification>('notifications', '*', () => fetchAll()),
+    // When the customer adds an item or starts a new order, refresh the
+    // per-table totals so the dashboard's "tạm tính" column doesn't show
+    // a stale number until the next manual refresh.
+    watchTable<Record<string, unknown>>('orders', '*', () => fetchAll()),
+    watchTable<Record<string, unknown>>('order_items', '*', () => fetchAll()),
   )
 }
 

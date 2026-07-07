@@ -408,11 +408,11 @@ const endShift = async () => {
     title: 'Xác nhận ra ca?',
     html: `
       <div class="text-left text-sm space-y-1 mb-2 text-gray-700">
-        <div class="flex justify-between"><span>{{ t('reception.initial_cash') }}</span><b>${(cashSummary.value?.opening ?? 0).toLocaleString('vi-VN')}đ</b></div>
-        <div class="flex justify-between"><span>{{ t('reception.est_revenue') }}</span><b>${(cashSummary.value?.cashRevenue ?? 0).toLocaleString('vi-VN')}đ</b></div>
-        <div class="flex justify-between"><span>{{ t('reception.system_theory') }}</span><b>${expected.toLocaleString('vi-VN')}đ</b></div>
-        <div class="flex justify-between text-orange-600 border-t pt-1 mt-1 font-bold"><span>{{ t('reception.actual_counted') }}</span><b>${actual.toLocaleString('vi-VN')}đ</b></div>
-        <div class="flex justify-between ${diff >= 0 ? 'text-green-600' : 'text-red-600'} font-bold"><span>{{ t('reception.difference') }}</span><b>${diff >= 0 ? '+' : ''}${diff.toLocaleString('vi-VN')}đ</b></div>
+        <div class="flex justify-between"><span>${t('reception.initial_cash')}</span><b>${(cashSummary.value?.opening ?? 0).toLocaleString('vi-VN')}đ</b></div>
+        <div class="flex justify-between"><span>${t('reception.est_revenue')}</span><b>${(cashSummary.value?.cashRevenue ?? 0).toLocaleString('vi-VN')}đ</b></div>
+        <div class="flex justify-between"><span>${t('reception.system_theory')}</span><b>${expected.toLocaleString('vi-VN')}đ</b></div>
+        <div class="flex justify-between text-orange-600 border-t pt-1 mt-1 font-bold"><span>${t('reception.actual_counted')}</span><b>${actual.toLocaleString('vi-VN')}đ</b></div>
+        <div class="flex justify-between ${diff >= 0 ? 'text-green-600' : 'text-red-600'} font-bold"><span>${t('reception.difference')}</span><b>${diff >= 0 ? '+' : ''}${diff.toLocaleString('vi-VN')}đ</b></div>
       </div>
     `,
     icon: 'warning',
@@ -434,7 +434,7 @@ const endShift = async () => {
           icon: 'success',
           title: 'Ra ca thành công',
           html: `
-            Chênh lệch: <b>${diff >= 0 ? '+' : ''}${diff.toLocaleString('vi-VN')}đ</b><br/>{{ t('reception.actual') }}<b>${actual.toLocaleString('vi-VN')}đ</b>
+            Chênh lệch: <b>${diff >= 0 ? '+' : ''}${diff.toLocaleString('vi-VN')}đ</b><br/>${t('reception.actual')} <b>${actual.toLocaleString('vi-VN')}đ</b>
           `,
           confirmButtonColor: '#4CAF50'
         });

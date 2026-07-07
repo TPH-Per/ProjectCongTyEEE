@@ -57,6 +57,26 @@
               </span>
             </button>
 
+            <!-- NEW: Order Tracking button with badge -->
+            <button @click="showOrderTracking = true"
+                    :class="[
+                      'w-9 h-9 rounded-lg flex items-center justify-center border relative transition-all active:scale-90',
+                      showOrderTracking 
+                        ? 'bg-[#E8772E] border-[#E8772E] text-black' 
+                        : 'bg-[#2a1b10] border-[#442c19] text-gray-400 hover:text-white'
+                    ]"
+                    title="Theo dõi món ăn">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+              </svg>
+              <!-- Badge -->
+              <span v-if="pendingItemsCount > 0" 
+                    class="absolute -top-1.5 -right-1.5 min-w-4 h-4 bg-amber-500 text-black text-[9px] font-black rounded-full flex items-center justify-center px-1 border border-[#1a110a] animate-pulse">
+                {{ pendingItemsCount }}
+              </span>
+            </button>
+
             <!-- 2. Service Requests button with badge -->
             <button @click="goToView('ServiceRequest')"
                     :class="[
@@ -142,6 +162,15 @@
           <p class="text-sm font-semibold">{{ notif.message }}</p>
         </div>
       </transition-group>
+
+      <!-- Order Tracking Modal -->
+      <OrderTrackingModal 
+        v-if="showOrderTracking"
+        :items="trackingItems"
+        :table-number="session?.tableNumber || ''"
+        @close="showOrderTracking = false"
+        @refresh="store.loadOrderHistory()"
+      />
     </template>
 
     <!-- Inactive Session Layout (Authentication Flow) -->
@@ -154,11 +183,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import Swal from 'sweetalert2';
 import { useCustomerStore } from '@/stores/customerStore';
 import { useCustomerSession } from '@/composables/useCustomerSession';
+import OrderTrackingModal from '@/components/customer/OrderTrackingModal.vue';
 
 const store = useCustomerStore();
 const router = useRouter();
@@ -170,6 +200,45 @@ const cartItemCount = computed(() => store.cartItemCount);
 const activeServiceRequests = computed(() => store.activeServiceRequests);
 const notifications = computed(() => store.notifications);
 
+const showOrderTracking = ref(false);
+
+const trackingItems = computed(() => {
+  const list: any[] = [];
+  for (const order of store.orders) {
+    let trackingStatus: 'pending' | 'preparing' | 'served' = 'pending';
+    if (order.status === 'cooking') {
+      trackingStatus = 'preparing';
+    } else if (order.status === 'served' || order.status === 'completed') {
+      trackingStatus = 'served';
+    }
+    
+    const date = new Date(order.createdAt);
+    const orderedTime = date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+    
+    let servedTime: string | null = null;
+    if (trackingStatus === 'served') {
+      const servedDate = new Date(date.getTime() + 10 * 60000);
+      servedTime = servedDate.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    for (const item of order.items) {
+      list.push({
+        id: `${order.id}-${item.menuItemId}`,
+        name: item.name,
+        quantity: item.quantity,
+        status: trackingStatus,
+        orderedTime,
+        servedTime
+      });
+    }
+  }
+  return list;
+});
+
+const pendingItemsCount = computed(() => {
+  return trackingItems.value.filter(item => item.status !== 'served').length;
+});
+
 // Restore session synchronously before child components mount
 restoreSessionFromLocalStorage();
 
@@ -177,6 +246,8 @@ onMounted(() => {
   // If not authenticated or no session, redirect to the customer home page (passcode screen)
   if (!store.session && route.name !== 'CustomerHome' && route.path.startsWith('/customer')) {
     router.push({ name: 'CustomerHome' });
+  } else if (store.session) {
+    store.loadOrderHistory();
   }
 });
 
@@ -184,6 +255,8 @@ onMounted(() => {
 watch(session, (newVal) => {
   if (!newVal && route.path.startsWith('/customer') && route.name !== 'CustomerHome' && route.name !== 'SessionEnd') {
     router.push({ name: 'CustomerHome' });
+  } else if (newVal) {
+    store.loadOrderHistory();
   }
 });
 

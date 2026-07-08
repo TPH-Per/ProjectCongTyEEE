@@ -1,7 +1,7 @@
 <!-- File: src/views/reception/ReportsView.vue -->
 <template>
   <!-- CONTAINER CHÍNH: h-screen + overflow-hidden -->
-  <div class="reports-page">
+  <div class="reports-page scrollable">
     <!-- Hamburger Menu Button -->
     <HamburgerMenu
       :is-active="showSidebar"
@@ -76,7 +76,7 @@
             :class="['tab-btn', { active: activeTab === tab.id }]"
             @click="changeTab(tab.id)"
           >
-            {{ tab.label }}
+            {{ t('reception.' + tab.id) || tab.label }}
           </button>
         </div>
         <div class="tabs-right">
@@ -90,19 +90,19 @@
             </button>
             <div v-if="showColumnPicker" class="column-picker-dropdown">
               <div class="picker-section">
-                <h4>Hiển thị nhanh</h4>
+                <h4>{{ t('receipts.quick_presets') }}</h4>
                 <button @click="applyPreset('basic')" class="preset-btn">
-                  Cơ bản
+                  {{ t('common.basic') }}
                 </button>
                 <button @click="applyPreset('full')" class="preset-btn">
-                  Đầy đủ
+                  {{ t('common.full') || 'Đầy đủ' }}
                 </button>
                 <button @click="applyPreset('minimal')" class="preset-btn">
-                  Tối thiểu
+                  {{ t('common.minimal') || 'Tối thiểu' }}
                 </button>
               </div>
               <div class="picker-section">
-                <h4>Nhóm cột</h4>
+                <h4>{{ t('receipts.column_groups') }}</h4>
                 <label
                   v-for="group in columnGroups"
                   :key="group.id"
@@ -113,9 +113,9 @@
                     v-model="group.visible"
                     @change="saveColumnSettings"
                   />
-                  <span>{{ group.label }}</span>
+                  <span>{{ t('receipts.groups.' + group.id) }}</span>
                   <span class="column-count"
-                    >({{ group.columns.length }} cột)</span
+                    >({{ group.columns.length }} {{ t('receipts.columns_unit') }})</span
                   >
                 </label>
               </div>
@@ -133,7 +133,7 @@
               }"
             >
               <span class="filter-icon">🔍</span>
-              <span class="filter-label">{{ currentFilter.label }}</span>
+              <span class="filter-label">{{ t('receipts.filters.' + currentFilter.value) }}</span>
             </button>
 
             <Transition name="fade">
@@ -149,7 +149,7 @@
                   }"
                   @click="applyFilter(filter)"
                 >
-                  {{ filter.label }}
+                  {{ t('receipts.filters.' + filter.value) }}
                 </button>
               </div>
             </Transition>
@@ -165,8 +165,9 @@
       </div>
 
       <!-- 3.2 DATA TABLE: flex-1 + overflow-y-auto (CHỈ PHẦN NÀY SCROLL DỌC) -->
-      <div class="table-wrapper flex-1 overflow-y-auto">
-        <table class="data-table">
+      <div class="main-table-wrapper">
+        <div class="table-scroll-container small-scroll">
+          <table class="data-table">
           <thead>
             <tr>
               <!-- Sticky Columns (Luôn hiển thị) -->
@@ -180,95 +181,95 @@
                 class="sticky-col col-so-phieu"
                 style="left: 70px; z-index: 20"
               >
-                SỐ PHIẾU
+                {{ t('receipts.columns.receipt_number') }}
               </th>
               <th class="sticky-col col-so-hd" style="left: 210px; z-index: 20">
-                SỐ HÓA ĐƠN
+                {{ t('receipts.columns.invoice_number') }}
               </th>
               <th class="sticky-col col-ban" style="left: 310px; z-index: 20">
-                BÀN
+                {{ t('receipts.columns.table') }}
               </th>
               <th
                 class="sticky-col col-tong-tien"
                 style="left: 370px; z-index: 20"
               >
-                TỔNG TIỀN
+                {{ t('receipts.columns.total') }}
               </th>
               <th
                 class="sticky-col col-da-tra"
                 style="left: 480px; z-index: 20"
               >
-                ĐÃ TRẢ
+                {{ t('receipts.columns.paid') }}
               </th>
               <th
                 class="sticky-col col-con-lai"
                 style="left: 590px; z-index: 20"
               >
-                CÒN LẠI
+                {{ t('receipts.columns.remaining') }}
               </th>
 
               <!-- Collapsible Groups -->
               <template
                 v-if="columnGroups.find((g) => g.id === 'financial')?.visible"
               >
-                <th class="col-tien-hang">TIỀN HÀNG</th>
-                <th class="col-giam">GIẢM</th>
-                <th class="col-thue">THUẾ</th>
-                <th class="col-phi-phuc-vu">PHÍ PHỤC VỤ</th>
-                <th class="col-giam-percent">% GIẢM</th>
-                <th class="col-vat-percent">% VAT</th>
-                <th class="col-phuc-vu-percent">% PHỤC VỤ</th>
-                <th class="col-tien-coc">TIỀN CỌC</th>
+                <th class="col-tien-hang">{{ t('receipts.columns.goods_amount') }}</th>
+                <th class="col-giam">{{ t('receipts.columns.discount') }}</th>
+                <th class="col-thue">{{ t('receipts.columns.tax') }}</th>
+                <th class="col-phi-phuc-vu">{{ t('receipts.columns.service_fee') }}</th>
+                <th class="col-giam-percent">{{ t('receipts.columns.percent_discount') }}</th>
+                <th class="col-vat-percent">{{ t('receipts.columns.percent_vat') }}</th>
+                <th class="col-phuc-vu-percent">{{ t('receipts.columns.percent_service') }}</th>
+                <th class="col-tien-coc">{{ t('receipts.columns.deposit') }}</th>
               </template>
 
               <template
                 v-if="columnGroups.find((g) => g.id === 'customer')?.visible"
               >
-                <th class="col-mst">MST KHÁCH HÀNG</th>
-                <th class="col-khach-hang">KHÁCH HÀNG</th>
-                <th class="col-sl-khach">SL KHÁCH</th>
+                <th class="col-mst">{{ t('receipts.columns.tax_code') }}</th>
+                <th class="col-khach-hang">{{ t('receipts.columns.customer') }}</th>
+                <th class="col-sl-khach">{{ t('receipts.columns.guest_count') }}</th>
               </template>
 
               <template
                 v-if="columnGroups.find((g) => g.id === 'staff')?.visible"
               >
-                <th class="col-thu-ngan">THU NGÂN</th>
-                <th class="col-nguoi-tao">NGƯỜI TẠO</th>
-                <th class="col-phuc-vu">PHỤC VỤ</th>
-                <th class="col-quan-ly">QUẢN LÝ</th>
+                <th class="col-thu-ngan">{{ t('receipts.columns.cashier') }}</th>
+                <th class="col-nguoi-tao">{{ t('receipts.columns.creator') }}</th>
+                <th class="col-phuc-vu">{{ t('receipts.columns.waiter') }}</th>
+                <th class="col-quan-ly">{{ t('receipts.columns.manager') }}</th>
               </template>
 
               <template
                 v-if="columnGroups.find((g) => g.id === 'time')?.visible"
               >
-                <th class="col-tg-tao">TG TẠO</th>
-                <th class="col-tg-dong">TG ĐÓNG</th>
-                <th class="col-tg-in-cuoi">TG. IN CUỐI</th>
+                <th class="col-tg-tao">{{ t('receipts.columns.created_time') }}</th>
+                <th class="col-tg-dong">{{ t('receipts.columns.closed_time') }}</th>
+                <th class="col-tg-in-cuoi">{{ t('receipts.columns.last_printed_time') }}</th>
               </template>
 
               <template
                 v-if="columnGroups.find((g) => g.id === 'system')?.visible"
               >
-                <th class="col-day-hd">DÃY HĐ</th>
-                <th class="col-may-tao">MÁY TẠO</th>
-                <th class="col-so-lan-in">SỐ LẦN IN</th>
-                <th class="col-so-lan-tam-tinh">SỐ LẦN TẠM TÍNH</th>
-                <th class="col-nguoi-in-cuoi">NGƯỜI IN CUỐI</th>
+                <th class="col-day-hd">{{ t('receipts.columns.invoice_series') }}</th>
+                <th class="col-may-tao">{{ t('receipts.columns.created_device') }}</th>
+                <th class="col-so-lan-in">{{ t('receipts.columns.print_count') }}</th>
+                <th class="col-so-lan-tam-tinh">{{ t('receipts.columns.pre_invoice_count') }}</th>
+                <th class="col-nguoi-in-cuoi">{{ t('receipts.columns.last_printed_by') }}</th>
               </template>
 
               <template
                 v-if="columnGroups.find((g) => g.id === 'notes')?.visible"
               >
-                <th class="col-ghi-chu">GHI CHÚ</th>
-                <th class="col-ly-do-giam">LÝ DO GIẢM</th>
+                <th class="col-ghi-chu">{{ t('receipts.columns.notes') }}</th>
+                <th class="col-ly-do-giam">{{ t('receipts.columns.discount_reason') }}</th>
               </template>
 
               <template
                 v-if="columnGroups.find((g) => g.id === 'status')?.visible"
               >
-                <th class="col-trang-thai">TRẠNG THÁI HÓA ĐƠN</th>
-                <th class="col-khu">KHU</th>
-                <th class="col-nhan-vien-goi">NHÂN VIÊN GỌI LẠI</th>
+                <th class="col-trang-thai">{{ t('receipts.columns.invoice_status') }}</th>
+                <th class="col-khu">{{ t('receipts.columns.area') }}</th>
+                <th class="col-nhan-vien-goi">{{ t('receipts.columns.recalled_by') }}</th>
               </template>
             </tr>
           </thead>
@@ -281,6 +282,7 @@
                 { 'row-selected': selectedRowId === row.id },
               ]"
               @click="handleRowClick(row, $event)"
+              @contextmenu.prevent="handleRowContextMenu(row, $event)"
             >
               <!-- Sticky Columns -->
               <td
@@ -433,6 +435,7 @@
           </tbody>
         </table>
       </div>
+    </div>
 
       <!-- 3.3 PAGINATION: flex-shrink-0 -->
       <div class="pagination-footer flex-shrink-0">
@@ -482,7 +485,7 @@
       </div>
 
       <!-- 3.5 SUB TABS + ITEMS TABLE: flex-shrink-0 với max-height -->
-      <div class="sub-tabs-section flex-shrink-0">
+      <div class="detail-section">
         <div class="sub-tabs-header">
           <button
             v-for="subTab in subTabs"
@@ -490,12 +493,12 @@
             :class="['sub-tab-btn', { active: activeSubTab === subTab.id }]"
             @click="activeSubTab = subTab.id"
           >
-            {{ subTab.label }}
+            {{ t('receipts.detail_tabs.' + subTab.id) }}
           </button>
         </div>
 
         <!-- Items table với scroll riêng nếu cần -->
-        <div class="sub-tab-content">
+        <div class="detail-content-scroll small-scroll">
           <div v-if="activeSubTab === 'items'" class="items-table-wrapper">
             <table class="items-table">
               <thead>
@@ -570,7 +573,7 @@
           </div>
           <div v-else class="p-8 text-center text-gray-400">
             Nội dung tab [{{
-              subTabs.find((t) => t.id === activeSubTab)?.label
+              t('receipts.detail_tabs.' + activeSubTab)
             }}] đang phát triển.
           </div>
         </div>
@@ -608,7 +611,7 @@
             @click="handleMenuAction(action.id)"
           >
             <span class="menu-icon">{{ action.icon }}</span>
-            <span class="menu-label">{{ action.label }}</span>
+            <span class="menu-label">{{ t('receipts.actions.' + getActionKey(action.id)) }}</span>
             <span class="menu-arrow"></span>
           </button>
         </div>
@@ -646,7 +649,7 @@ const searchQuery = ref("");
 const activeTab = ref("restaurant");
 const activeSubTab = ref("items");
 const currentPage = ref(1);
-const itemsPerPage = ref(20);
+const itemsPerPage = ref(12);
 const showFilterDropdown = ref(false);
 const selectedFilter = ref("all");
 const selectedRow = ref<any>(null);
@@ -1426,6 +1429,7 @@ function getRowClass(row: any): string {
     return "row-danger";
   if (row.status === "paid") return "row-paid";
   if (row.status === "hold" || row.status === "shortage") return "row-warning";
+  if (row.status === "ordering") return "row-processing";
   return "";
 }
 
@@ -1681,26 +1685,35 @@ function calculateMenuPosition(rowRect: DOMRect): {
   };
 }
 
-// Row click handler for floating actions
+// Row click handler (just select the row to show items below)
 function handleRowClick(row: any, event: MouseEvent) {
-  const target = event.currentTarget as HTMLElement;
-
-  // Select row and load details below
   selectRow(row);
+  selectedRowId.value = row.id;
+  showFloatingMenu.value = false;
+}
 
-  // If clicking same row, toggle close menu
-  if (selectedRowId.value === row.id && showFloatingMenu.value) {
-    closeFloatingMenu();
-    return;
-  }
-
+// Right-click context menu handler
+function handleRowContextMenu(row: any, event: MouseEvent) {
+  selectRow(row);
   selectedRowId.value = row.id;
 
-  const rect = target.getBoundingClientRect();
-  const position = calculateMenuPosition(rect);
-
-  menuPosition.value = position;
+  menuPosition.value = {
+    top: event.clientY,
+    left: event.clientX
+  };
   showFloatingMenu.value = true;
+}
+
+function getActionKey(id: string): string {
+  const map: Record<string, string> = {
+    'print-invoice': 'print_invoice',
+    'reprint': 'reprint',
+    'edit-info': 'edit_receipt_info',
+    'edit-payment': 'edit_payment_info',
+    'recall': 'recall_receipt',
+    'cancel': 'cancel_receipt'
+  };
+  return map[id] || id;
 }
 
 function closeFloatingMenu() {
@@ -1915,25 +1928,65 @@ onUnmounted(() => {
 
 <style scoped>
 /* KEY FIX: Toàn bộ trang KHÔNG scroll */
-.reports-page {
-  height: 100vh;
-  width: 100vw;
-  overflow: hidden; /* QUAN TRỌNG: Không scroll toàn trang */
+/* ===== CONTAINER CHÍNH: Scroll lớn ===== */
+.reports-page.scrollable {
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   background: #f5f5f5;
+  overflow-y: auto; /* SCROLL LỚN BÊN PHẢI */
+  overflow-x: hidden;
+  padding: 8px;
+  gap: 8px;
+  box-sizing: border-box;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   position: relative;
+}
+
+/* Custom scrollbar lớn */
+.reports-page.scrollable::-webkit-scrollbar {
+  width: 12px; /* LỚN HƠN */
+}
+
+.reports-page.scrollable::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 6px;
+}
+
+.reports-page.scrollable::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #10b981, #059669);
+  border-radius: 6px;
+  border: 2px solid #f1f1f1;
+}
+
+.reports-page.scrollable::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #059669, #047857);
+}
+
+/* ===== STICKY ELEMENTS ===== */
+.reports-header.sticky,
+.filters-section.sticky,
+.tabs-row.sticky,
+.pagination-footer.sticky,
+.summary-footer.sticky {
+  position: sticky;
+  z-index: 100;
+}
+
+.reports-header.sticky {
+  top: 0;
 }
 
 /* 1. HEADER - Cố định */
 .reports-header {
   background: white;
-  padding: 16px 24px 16px 76px; /* Added left padding to prevent overlapping hamburger */
+  padding: 10px 16px 10px 76px; /* Keep left padding for hamburger menu */
+  height: 56px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid #e0e0e0;
+  border-radius: 8px;
+  flex-shrink: 0;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
@@ -1973,11 +2026,11 @@ onUnmounted(() => {
 }
 
 .btn {
-  padding: 10px 16px;
+  padding: 6px 12px;
   border: none;
   border-radius: 8px;
   font-weight: 600;
-  font-size: 13px;
+  font-size: 12px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -2013,8 +2066,16 @@ onUnmounted(() => {
 /* 2. FILTERS - Cố định */
 .filters-section {
   background: white;
-  padding: 16px 24px;
-  border-bottom: 1px solid #e0e0e0;
+  padding: 10px 16px;
+  border-radius: 8px;
+  flex-shrink: 0;
+  height: 52px;
+  align-items: flex-end;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.filters-section.sticky {
+  top: 64px;
 }
 
 .filter-row {
@@ -2043,11 +2104,12 @@ onUnmounted(() => {
 
 .search-input {
   width: 100%;
-  padding: 10px 14px;
+  padding: 6px 12px;
   border: 1px solid #ddd;
   border-radius: 8px;
   font-size: 13px;
   outline: none;
+  height: 32px;
 }
 
 .search-input:focus {
@@ -2061,25 +2123,25 @@ onUnmounted(() => {
 
 .date-input,
 .time-input {
-  padding: 10px 12px;
+  padding: 4px 8px;
   border: 1px solid #ddd;
   border-radius: 8px;
   font-size: 13px;
   outline: none;
+  height: 28px;
 }
 
 .time-input {
-  width: 120px;
+  width: 90px;
 }
 
 /* 3. MAIN CONTENT - Chiếm phần còn lại, KHÔNG scroll */
 .main-content {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  overflow: hidden; /* Không scroll ở đây */
+  flex: 1;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+  gap: 8px;
 }
 
 /* 3.1 TABS - Cố định */
@@ -2087,9 +2149,16 @@ onUnmounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 16px;
-  border-bottom: 2px solid #e0e0e0;
-  background: #fafafa;
+  padding: 8px 16px;
+  background: white;
+  border-radius: 8px;
+  flex-shrink: 0;
+  height: 44px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.tabs-row.sticky {
+  top: 124px;
 }
 
 .tabs-left {
@@ -2098,14 +2167,14 @@ onUnmounted(() => {
 }
 
 .tab-btn {
-  padding: 10px 20px;
-  background: transparent;
+  padding: 7px 14px;
+  background: #f3f4f6;
   border: none;
+  border-radius: 6px;
   font-weight: 600;
-  font-size: 13px;
+  font-size: 12px;
   color: #666;
   cursor: pointer;
-  border-radius: 8px;
 }
 
 .tab-btn.active {
@@ -2126,11 +2195,11 @@ onUnmounted(() => {
 }
 
 .filter-dropdown-btn {
-  padding: 10px 16px;
+  padding: 6px 12px;
   border: none;
   border-radius: 8px;
   font-weight: 700;
-  font-size: 13px;
+  font-size: 12px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -2194,44 +2263,54 @@ onUnmounted(() => {
 }
 
 /* 3.2 DATA TABLE - CHỈ PHẦN NÀY SCROLL DỌC */
-.table-wrapper {
-  flex: 1;
-  overflow-y: auto; /* CHỈ SCROLL DỌC Ở ĐÂY */
+/* ===== BẢNG TRÊN: Giới hạn chiều cao + Scroll riêng ===== */
+.main-table-wrapper {
+  background: white;
+  border-radius: 8px;
+  height: 340px; /* CHIỀU CAO CỐ ĐỊNH */
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.table-scroll-container.small-scroll {
+  height: 100%;
+  overflow-y: auto; /* SCROLL NHỎ 1 */
   overflow-x: auto;
 }
 
-/* Custom scrollbar cho table */
-.table-wrapper::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+/* Custom scrollbar nhỏ cho bảng trên */
+.table-scroll-container.small-scroll::-webkit-scrollbar {
+  width: 6px; /* NHỎ HƠN */
+  height: 6px;
 }
 
-.table-wrapper::-webkit-scrollbar-track {
+.table-scroll-container.small-scroll::-webkit-scrollbar-track {
   background: #f1f1f1;
+  border-radius: 3px;
 }
 
-.table-wrapper::-webkit-scrollbar-thumb {
+.table-scroll-container.small-scroll::-webkit-scrollbar-thumb {
   background: #10b981;
-  border-radius: 4px;
+  border-radius: 3px;
 }
 
-.table-wrapper::-webkit-scrollbar-thumb:hover {
+.table-scroll-container.small-scroll::-webkit-scrollbar-thumb:hover {
   background: #059669;
 }
 
 .data-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .data-table th {
   background: #10b981;
   color: white;
-  padding: 12px 10px;
+  padding: 8px 10px;
   text-align: left;
   font-weight: 600;
-  font-size: 11px;
+  font-size: 10px;
   text-transform: uppercase;
   position: sticky;
   top: 0;
@@ -2240,9 +2319,10 @@ onUnmounted(() => {
 }
 
 .data-table td {
-  padding: 10px;
+  padding: 6px 10px;
   border-bottom: 1px solid #eee;
   border-right: 1px solid #f0f0f0;
+  height: 34px;
 }
 
 .data-table tbody tr {
@@ -2256,6 +2336,10 @@ onUnmounted(() => {
 
 .row-paid {
   background: #f3e8ff !important;
+}
+
+.row-processing {
+  background: #dbeafe !important;
 }
 
 .row-danger {
@@ -2495,10 +2579,12 @@ onUnmounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 20px;
-  background: #fafafa;
-  border-top: 1px solid #e0e0e0;
-  font-size: 13px;
+  padding: 8px 16px;
+  background: white;
+  border-radius: 8px;
+  flex-shrink: 0;
+  height: 40px;
+  font-size: 12px;
 }
 
 .record-count {
@@ -2539,10 +2625,14 @@ onUnmounted(() => {
 .summary-footer {
   display: flex;
   justify-content: flex-end;
-  gap: 32px;
-  padding: 16px 20px;
+  gap: 24px;
+  padding: 10px 16px;
   background: #1e293b;
   color: white;
+  border-radius: 8px;
+  flex-shrink: 0;
+  height: 44px;
+  align-items: center;
 }
 
 .summary-item {
@@ -2554,30 +2644,39 @@ onUnmounted(() => {
 .summary-item .label {
   font-weight: 600;
   color: #94a3b8;
+  font-size: 12px;
 }
 
 .summary-item .value {
   font-weight: 700;
-  font-size: 14px;
+  font-size: 13px;
 }
 
-/* 3.5 SUB TABS - Cố định */
-.sub-tabs-section {
-  border-top: 2px solid #1e3a5f;
+/* ===== BẢNG DƯỚI: Scroll tự do ===== */
+.detail-section {
+  background: white;
+  border-radius: 8px;
+  height: 420px; /* CHIỀU CAO CỐ ĐỊNH */
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
 .sub-tabs-header {
   display: flex;
   background: #1e3a5f;
+  flex-shrink: 0;
+  height: 38px;
 }
 
 .sub-tab-btn {
-  padding: 12px 20px;
+  padding: 10px 18px;
   background: transparent;
   border: none;
   color: #94a3b8;
   font-weight: 600;
-  font-size: 13px;
+  font-size: 12px;
   cursor: pointer;
   border-right: 1px solid rgba(255, 255, 255, 0.1);
   transition: all 0.2s;
@@ -2592,10 +2691,30 @@ onUnmounted(() => {
   color: white;
 }
 
-.sub-tab-content {
-  background: white;
-  max-height: 250px; /* Giới hạn chiều cao */
-  overflow-y: auto; /* Scroll riêng nếu cần */
+.detail-content-scroll.small-scroll {
+  flex: 1;
+  overflow-y: auto; /* SCROLL NHỎ 2 */
+  overflow-x: auto;
+}
+
+/* Custom scrollbar nhỏ cho bảng dưới */
+.detail-content-scroll.small-scroll::-webkit-scrollbar {
+  width: 6px; /* NHỎ HƠN */
+  height: 6px;
+}
+
+.detail-content-scroll.small-scroll::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.detail-content-scroll.small-scroll::-webkit-scrollbar-thumb {
+  background: #3b82f6;
+  border-radius: 3px;
+}
+
+.detail-content-scroll.small-scroll::-webkit-scrollbar-thumb:hover {
+  background: #2563eb;
 }
 
 .items-table-wrapper {
@@ -2605,16 +2724,16 @@ onUnmounted(() => {
 .items-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .items-table th {
   background: #1e3a5f;
   color: white;
-  padding: 10px 12px;
+  padding: 8px 10px;
   text-align: left;
   font-weight: 600;
-  font-size: 11px;
+  font-size: 10px;
   position: sticky;
   top: 0;
   border-right: 1px solid rgba(255, 255, 255, 0.1);
@@ -2625,9 +2744,10 @@ onUnmounted(() => {
 }
 
 .items-table td {
-  padding: 8px 12px;
+  padding: 6px 10px;
   border-bottom: 1px solid #eee;
   border-right: 1px solid #f0f0f0;
+  height: 34px;
 }
 
 .items-table td:last-child {
@@ -2640,7 +2760,7 @@ onUnmounted(() => {
 }
 
 .items-table tfoot td {
-  padding: 12px;
+  padding: 6px 10px;
   font-weight: 700;
 }
 
@@ -2961,6 +3081,10 @@ thead th.sticky-col {
 
 tbody tr.row-paid .sticky-col {
   background: #f3e8ff !important;
+}
+
+tbody tr.row-processing .sticky-col {
+  background: #dbeafe !important;
 }
 
 tbody tr.row-danger .sticky-col {

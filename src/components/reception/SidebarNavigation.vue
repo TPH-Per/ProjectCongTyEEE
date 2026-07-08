@@ -35,33 +35,35 @@
           @click="handleMenuClick(item)"
         >
           <span class="menu-icon">{{ item.icon }}</span>
-          <span class="menu-label">{{ item.label }}</span>
+          <span class="menu-label">{{ t('reception.sidebar.' + item.id) }}</span>
           <span v-if="item.badge" class="menu-badge">{{ item.badge }}</span>
         </button>
       </nav>
-
+ 
       <!-- Footer -->
       <div class="sidebar-footer">
         <div class="user-info">
           <div class="user-avatar">🧑‍💼</div>
           <div class="user-details">
             <div class="user-name">{{ profile?.full_name || 'Thu Ngân' }}</div>
-            <div class="user-role">Thu ngân / Lễ tân</div>
+            <div class="user-role">{{ t('reception.cashier_receptionist') }}</div>
           </div>
         </div>
       </div>
     </aside>
   </Transition>
 </template>
-
+ 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'
-
+import { useLanguageStore } from '@/stores/useLanguageStore'
+ 
 const router = useRouter()
 const route = useRoute()
 const { profile } = useAuth()
+const { t } = useLanguageStore()
 
 // Props
 const props = defineProps<{

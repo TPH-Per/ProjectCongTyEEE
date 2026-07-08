@@ -1865,9 +1865,9 @@
 
             <!-- BOTTOM ACTION BUTTONS -->
             <div
-              class="bg-[#1a5276] border-t border-[#0e2f44] px-3 py-2 flex justify-between items-center shrink-0"
+              class="bg-[#1a5276] border-t border-[#0e2f44] px-3 py-2.5 flex flex-col xl:flex-row justify-between items-center gap-3 shrink-0"
             >
-              <div class="flex gap-2">
+              <div class="flex flex-wrap gap-2 justify-center">
                 <button
                   @click="activeMainTab = 'table_map'"
                   type="button"
@@ -1890,7 +1890,7 @@
                   <span>📄</span><span>{{ t("reception.receipt") }}</span>
                 </button>
               </div>
-              <div class="flex gap-2">
+              <div class="flex flex-wrap gap-2 justify-center">
                 <button
                   @click="showHistory"
                   type="button"

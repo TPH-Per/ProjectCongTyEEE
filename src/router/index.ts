@@ -379,6 +379,16 @@ const routes: RouteRecordRaw[] = [
           fullscreen: true,
         },
       },
+      {
+        path: "other-expense",
+        name: "reception-other-expense",
+        component: () => import("@/views/reception/OtherExpenseView.vue"),
+        meta: {
+          requiresAuth: true,
+          title: "Chi khác",
+          fullscreen: true,
+        },
+      },
     ],
   },
   {

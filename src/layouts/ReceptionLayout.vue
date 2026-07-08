@@ -11,7 +11,7 @@
       <nav class="flex-1 px-4 space-y-2 py-6 overflow-y-auto">
         <div
           class="text-[11px] font-extrabold text-gray-500 uppercase tracking-wider mb-2"
-        >{{ $t('layout.activity', 'Hoạt động') }}</div>
+        >{{ t('sidebar.activity') }}</div>
         
         <RouterLink
           to="/reception/dashboard"
@@ -19,12 +19,12 @@
           active-class="bg-red-50 text-red-600 hover:bg-red-50"
         >
           <LayoutDashboard class="w-[18px] h-[18px]" />
-          {{ $t('layout.dashboard', 'Bảng điều khiển') }}
+          {{ t('sidebar.dashboard') }}
         </RouterLink>
 
         <!-- Nhóm Bán hàng -->
         <div class="text-[11px] font-extrabold text-gray-500 uppercase tracking-wider mb-2 mt-4">
-          Bán hàng
+          {{ t('sidebar.sales') }}
         </div>
         <RouterLink
           to="/reception/order"
@@ -32,7 +32,7 @@
           active-class="bg-red-50 text-red-600 hover:bg-red-50"
         >
           <Utensils class="w-[18px] h-[18px]" />
-          Chọn món
+          {{ t('sidebar.order_menu') }}
         </RouterLink>
         <RouterLink
           to="/reception/floors"
@@ -40,7 +40,7 @@
           active-class="bg-red-50 text-red-600 hover:bg-red-50"
         >
           <Grid class="w-[18px] h-[18px]" />
-          Sơ đồ bàn
+          {{ t('sidebar.floor_plan') }}
         </RouterLink>
         <RouterLink
           to="/reception/order"
@@ -48,38 +48,38 @@
           active-class="bg-red-50 text-red-600 hover:bg-red-50"
         >
           <Store class="w-[18px] h-[18px]" />
-          Nhà hàng
+          {{ t('sidebar.restaurant') }}
         </RouterLink>
 
         <!-- Nhóm Nghiệp vụ khác -->
         <div class="text-[11px] font-extrabold text-gray-500 uppercase tracking-wider mb-2 mt-4">
-          Nghiệp vụ khác
+          {{ t('sidebar.other_services') }}
         </div>
         <button
           @click="handleQuickAction('Thu khác', '/transactions/income')"
           class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-sm font-semibold text-gray-600 hover:bg-gray-100 text-left"
         >
           <BadgePlus class="w-[18px] h-[18px]" />
-          Thu khác
+          {{ t('sidebar.other_income') }}
         </button>
         <button
-          @click="handleQuickAction('Chi khác', '/transactions/expense')"
+          @click="handleQuickAction('Chi khác', '/reception/other-expense')"
           class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-sm font-semibold text-gray-600 hover:bg-gray-100 text-left"
         >
           <BadgeMinus class="w-[18px] h-[18px]" />
-          Chi khác
+          {{ t('sidebar.other_expense') }}
         </button>
         <button
           @click="handleQuickAction('Cấu hình', '/settings')"
           class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-sm font-semibold text-gray-600 hover:bg-gray-100 text-left"
         >
           <SettingsIcon class="w-[18px] h-[18px]" />
-          Cấu hình
+          {{ t('sidebar.configuration') }}
         </button>
 
         <!-- Nhóm Quản trị -->
         <div class="text-[11px] font-extrabold text-gray-500 uppercase tracking-wider mb-2 mt-4">
-          Quản trị
+          {{ t('sidebar.management') }}
         </div>
         <RouterLink
           to="/reception/reports"
@@ -87,7 +87,7 @@
           active-class="bg-orange-50 text-[#E8772E] hover:bg-orange-50"
         >
           <Receipt class="w-[18px] h-[18px]" />
-          Phiếu
+          {{ t('sidebar.receipts') }}
         </RouterLink>
         <RouterLink
           to="/reception/revenue-overview"
@@ -95,12 +95,12 @@
           active-class="bg-orange-50 text-[#E8772E] hover:bg-orange-50"
         >
           <BarChart3 class="w-[18px] h-[18px]" />
-          Báo cáo
+          {{ t('sidebar.reports') }}
         </RouterLink>
 
         <!-- Ca làm việc -->
         <div class="text-[11px] font-extrabold text-gray-500 uppercase tracking-wider mb-2 mt-4">
-          Ca làm việc
+          {{ t('sidebar.shift') }}
         </div>
         <RouterLink
           to="/reception/close-shift"
@@ -108,14 +108,14 @@
           active-class="bg-red-50 text-red-600 hover:bg-red-50"
         >
           <Clock class="w-[18px] h-[18px]" />
-          Tổng Kết Ca
+          {{ t('sidebar.close_shift') }}
         </RouterLink>
         <button
           @click="handleQuickAction('Ra ca', '/shift/end')"
           class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-sm font-semibold text-gray-600 hover:bg-gray-100 text-left"
         >
           <LogOut class="w-[18px] h-[18px]" />
-          Ra ca
+          {{ t('sidebar.exit_shift') }}
         </button>
       </nav>
       <div class="p-4 border-t relative">
@@ -608,7 +608,7 @@ function handleQuickAction(name: string, path: string) {
   }
 
   // Placeholder paths
-  if (path === '/transactions/expense' || path === '/admin/reports' || path === '/restaurant-pos') {
+  if (path === '/admin/reports' || path === '/restaurant-pos') {
     Swal.fire({
       title: 'Chức năng đang phát triển',
       text: `Phân hệ ${name} đang được phát triển. Vui lòng thử lại sau.`,
@@ -625,11 +625,11 @@ function handleQuickAction(name: string, path: string) {
 const isFullscreen = computed(() => route.meta.fullscreen === true);
 
 const headerTitle = computed(() => {
-  if (route.path.includes('/reception/close-shift')) return 'Tổng Kết Ca'
-  if (route.path.includes('/reception/floors')) return 'Sơ đồ bàn & Đặt chỗ'
-  if (route.path.includes('/reception/order')) return 'Chọn món & Gọi đồ'
-  if (route.path.includes('/reception/checkout')) return 'Thanh toán hóa đơn'
-  return 'Bảng điều khiển'
+  if (route.path.includes('/reception/close-shift')) return t('reception.title.close_shift')
+  if (route.path.includes('/reception/floors')) return t('reception.title.floors')
+  if (route.path.includes('/reception/order')) return t('reception.title.order')
+  if (route.path.includes('/reception/checkout')) return t('reception.title.checkout')
+  return t('reception.title.dashboard')
 })
 
 const ROLE_LABELS: Record<string, string> = {
@@ -647,7 +647,10 @@ const ROLE_LABELS: Record<string, string> = {
 const roleLabel = computed(() => {
   const r = role.value ?? profile.value?.role
   if (!r) return '—'
-  return ROLE_LABELS[r] ?? r
+  const key = `role.${r}`
+  const fallback = ROLE_LABELS[r] ?? r
+  const translated = t(key)
+  return translated !== key ? translated : fallback
 })
 
 const branchLabel = computed(() => {

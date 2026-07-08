@@ -143,75 +143,75 @@
             <!-- Nhóm Bán hàng -->
             <button 
               @click="handleQuickAction('Nhà hàng', '/reception/order')"
-              class="flex flex-col items-center justify-center p-4 rounded-xl border border-orange-100 bg-[#E8772E]/5 hover:bg-[#E8772E]/10 hover:scale-[1.05] active:scale-[0.98] transition-all text-center gap-2"
+              class="flex flex-col items-center justify-center p-2.5 sm:p-4 min-h-[110px] rounded-xl border border-orange-100 bg-[#E8772E]/5 hover:bg-[#E8772E]/10 hover:scale-[1.05] active:scale-[0.98] transition-all text-center gap-2 w-full"
             >
-              <div class="w-10 h-10 rounded-full bg-[#E8772E] text-white flex items-center justify-center shadow-md">
+              <div class="w-10 h-10 rounded-full bg-[#E8772E] text-white flex items-center justify-center shadow-md shrink-0">
                 <Utensils class="w-5 h-5" />
               </div>
-              <span class="text-xs font-bold text-[#E8772E]">{{ t('reception.restaurant') }}</span>
+              <span class="text-[11px] sm:text-xs font-bold text-[#E8772E] leading-tight break-words max-w-full">{{ t('reception.restaurant') }}</span>
             </button>
 
             <!-- Nhóm Nghiệp vụ khác -->
             <button 
               @click="handleQuickAction('Thu khác', '/transactions/income')"
-              class="flex flex-col items-center justify-center p-4 rounded-xl border border-green-100 bg-green-50/50 hover:bg-green-50 hover:scale-[1.05] active:scale-[0.98] transition-all text-center gap-2"
+              class="flex flex-col items-center justify-center p-2.5 sm:p-4 min-h-[110px] rounded-xl border border-green-100 bg-green-50/50 hover:bg-green-50 hover:scale-[1.05] active:scale-[0.98] transition-all text-center gap-2 w-full"
             >
-              <div class="w-10 h-10 rounded-full bg-[#4CAF50] text-white flex items-center justify-center shadow-md">
+              <div class="w-10 h-10 rounded-full bg-[#4CAF50] text-white flex items-center justify-center shadow-md shrink-0">
                 <BadgePlus class="w-5 h-5" />
               </div>
-              <span class="text-xs font-bold text-green-700">{{ t('reception.other_income_short') }}</span>
+              <span class="text-[11px] sm:text-xs font-bold text-green-700 leading-tight break-words max-w-full">{{ t('reception.other_income_short') }}</span>
             </button>
 
             <button 
-              @click="handleQuickAction('Chi khác', '/transactions/expense')"
-              class="flex flex-col items-center justify-center p-4 rounded-xl border border-red-100 bg-red-50/50 hover:bg-red-50 hover:scale-[1.05] active:scale-[0.98] transition-all text-center gap-2"
+              @click="handleQuickAction('Chi khác', '/reception/other-expense')"
+              class="flex flex-col items-center justify-center p-2.5 sm:p-4 min-h-[110px] rounded-xl border border-red-100 bg-red-50/50 hover:bg-red-50 hover:scale-[1.05] active:scale-[0.98] transition-all text-center gap-2 w-full"
             >
-              <div class="w-10 h-10 rounded-full bg-[#F44336] text-white flex items-center justify-center shadow-md">
+              <div class="w-10 h-10 rounded-full bg-[#F44336] text-white flex items-center justify-center shadow-md shrink-0">
                 <BadgeMinus class="w-5 h-5" />
               </div>
-              <span class="text-xs font-bold text-red-600">{{ t('reception.other_expenses') }}</span>
+              <span class="text-[11px] sm:text-xs font-bold text-red-600 leading-tight break-words max-w-full">{{ t('reception.other_expenses') }}</span>
             </button>
 
             <button 
               @click="handleQuickAction('Cấu hình', '/settings')"
-              class="flex flex-col items-center justify-center p-4 rounded-xl border border-purple-100 bg-purple-50/50 hover:bg-purple-50 hover:scale-[1.05] active:scale-[0.98] transition-all text-center gap-2"
+              class="flex flex-col items-center justify-center p-2.5 sm:p-4 min-h-[110px] rounded-xl border border-purple-100 bg-purple-50/50 hover:bg-purple-50 hover:scale-[1.05] active:scale-[0.98] transition-all text-center gap-2 w-full"
             >
-              <div class="w-10 h-10 rounded-full bg-[#9C27B0] text-white flex items-center justify-center shadow-md">
+              <div class="w-10 h-10 rounded-full bg-[#9C27B0] text-white flex items-center justify-center shadow-md shrink-0">
                 <Settings class="w-5 h-5" />
               </div>
-              <span class="text-xs font-bold text-purple-700">{{ t('reception.configuration') }}</span>
+              <span class="text-[11px] sm:text-xs font-bold text-purple-700 leading-tight break-words max-w-full">{{ t('reception.configuration') }}</span>
             </button>
 
             <!-- Nhóm Quản trị -->
             <button 
               @click="handleQuickAction('Phiếu', '/reception/reports')"
-              class="flex flex-col items-center justify-center p-4 rounded-xl border border-yellow-100 bg-yellow-50/30 hover:bg-yellow-50/70 hover:scale-[1.05] active:scale-[0.98] transition-all text-center gap-2"
+              class="flex flex-col items-center justify-center p-2.5 sm:p-4 min-h-[110px] rounded-xl border border-yellow-100 bg-yellow-50/30 hover:bg-yellow-50/70 hover:scale-[1.05] active:scale-[0.98] transition-all text-center gap-2 w-full"
             >
-              <div class="w-10 h-10 rounded-full bg-[#FF9800] text-white flex items-center justify-center shadow-md">
+              <div class="w-10 h-10 rounded-full bg-[#FF9800] text-white flex items-center justify-center shadow-md shrink-0">
                 <Receipt class="w-5 h-5" />
               </div>
-              <span class="text-xs font-bold text-yellow-700">{{ t('reception.receipt') }}</span>
+              <span class="text-[11px] sm:text-xs font-bold text-yellow-700 leading-tight break-words max-w-full">{{ t('reception.receipt') }}</span>
             </button>
 
             <button 
               @click="handleQuickAction('Báo cáo', '/reception/revenue-overview')"
-              class="flex flex-col items-center justify-center p-4 rounded-xl border border-orange-100 bg-orange-50/20 hover:bg-orange-50/50 hover:scale-[1.05] active:scale-[0.98] transition-all text-center gap-2"
+              class="flex flex-col items-center justify-center p-2.5 sm:p-4 min-h-[110px] rounded-xl border border-orange-100 bg-orange-50/20 hover:bg-orange-50/50 hover:scale-[1.05] active:scale-[0.98] transition-all text-center gap-2 w-full"
             >
-              <div class="w-10 h-10 rounded-full bg-[#FFB74D] text-white flex items-center justify-center shadow-md">
+              <div class="w-10 h-10 rounded-full bg-[#FFB74D] text-white flex items-center justify-center shadow-md shrink-0">
                 <BarChart3 class="w-5 h-5" />
               </div>
-              <span class="text-xs font-bold text-orange-700">{{ t('reception.reports') }}</span>
+              <span class="text-[11px] sm:text-xs font-bold text-orange-700 leading-tight break-words max-w-full">{{ t('reception.reports') }}</span>
             </button>
 
             <!-- Ra ca -->
             <button 
               @click="handleQuickAction('Ra ca', '/shift/end')"
-              class="flex flex-col items-center justify-center p-4 rounded-xl border border-purple-200 bg-purple-50 hover:bg-purple-100 hover:scale-[1.05] active:scale-[0.98] transition-all text-center gap-2"
+              class="flex flex-col items-center justify-center p-2.5 sm:p-4 min-h-[110px] rounded-xl border border-purple-200 bg-purple-50 hover:bg-purple-100 hover:scale-[1.05] active:scale-[0.98] transition-all text-center gap-2 w-full"
             >
-              <div class="w-10 h-10 rounded-full bg-[#8E24AA] text-white flex items-center justify-center shadow-md">
+              <div class="w-10 h-10 rounded-full bg-[#8E24AA] text-white flex items-center justify-center shadow-md shrink-0">
                 <LogOut class="w-5 h-5" />
               </div>
-              <span class="text-xs font-bold text-[#8E24AA]">Ra ca</span>
+              <span class="text-[11px] sm:text-xs font-bold text-[#8E24AA] leading-tight break-words max-w-full">Ra ca</span>
             </button>
           </div>
         </div>
@@ -1414,7 +1414,7 @@ function handleQuickAction(name: string, path: string) {
   }
 
   // Placeholder paths
-  if (path === '/transactions/expense' || path === '/admin/reports') {
+  if (path === '/admin/reports') {
     Swal.fire({
       title: 'Chức năng đang phát triển',
       text: `Phân hệ ${name} đang được tích hợp thêm. Vui lòng thử lại sau.`,

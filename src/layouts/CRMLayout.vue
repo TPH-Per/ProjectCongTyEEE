@@ -19,14 +19,14 @@
       <div class="p-5 border-b border-gray-100">
         <TextLogo size="md" />
         <div class="mt-2 text-[10px] font-bold uppercase tracking-widest text-gray-400">
-          {{ i18n.t('role.crm_manager', 'CRM Manager') }}
+          {{ i18n.t('role.crm_manager') }}
         </div>
       </div>
 
       <!-- Nav -->
       <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
         <div class="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest px-3 mb-2">
-          {{ i18n.t('crm.dashboard', 'Dashboard') }}
+          {{ i18n.t('crm.dashboard') }}
         </div>
 
         <RouterLink
@@ -50,7 +50,7 @@
           <button @click="handleSignOut"
             class="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50 transition-colors">
             <LogOutIcon class="w-[18px] h-[18px]" />
-            <span>{{ i18n.t('layout.logout', 'Đăng xuất') }}</span>
+            <span>{{ i18n.t('layout.logout') }}</span>
           </button>
         </div>
 
@@ -108,7 +108,7 @@
         
         <button @click="handleSignOut" class="flex flex-col items-center gap-1 flex-1 py-3 text-gray-400 hover:text-red-500 transition-colors">
           <LogOutIcon class="w-6 h-6 shrink-0 stroke-[1.5]" />
-          <span class="text-[10px] font-bold">{{ i18n.t('layout.logout', 'Đăng xuất') }}</span>
+          <span class="text-[10px] font-bold">{{ i18n.t('layout.logout') }}</span>
         </button>
       </nav>
     </main>
@@ -141,9 +141,9 @@ const i18n = useI18nStore()
 const isDropdownOpen = ref(false)
 
 const navItems = computed(() => [
-  { to: '/crm/dashboard', label: i18n.t('crm.dashboard', 'Dashboard'), icon: LayoutDashboardIcon },
-  { to: '/crm/serving-tables', label: i18n.t('crm.servingTables', 'Bàn đang phục vụ'), icon: UserGroupIcon },
-  { to: '/crm/feedback', label: i18n.t('crm.recentFeedback', 'Phản hồi'), icon: ChatBubbleLeftRightIcon },
+  { to: '/crm/dashboard', label: i18n.t('crm.dashboard'), icon: LayoutDashboardIcon },
+  { to: '/crm/serving-tables', label: i18n.t('crm.servingTables'), icon: UserGroupIcon },
+  { to: '/crm/feedback', label: i18n.t('crm.recentFeedback'), icon: ChatBubbleLeftRightIcon },
 ])
 
 const isRouteActive = (path: string) => {
@@ -152,7 +152,7 @@ const isRouteActive = (path: string) => {
 
 const headerTitle = computed(() => {
   const currentItem = navItems.value.find(item => isRouteActive(item.to))
-  return currentItem ? currentItem.label : i18n.t('crm.dashboard', 'Dashboard')
+  return currentItem ? currentItem.label : i18n.t('crm.dashboard')
 })
 
 const ROLE_LABELS: Record<string, string> = {

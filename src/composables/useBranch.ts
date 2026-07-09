@@ -46,42 +46,40 @@ export function useBranch() {
     manager_id?: string;
     operating_hours?: Record<string, { open: string; close: string }>;
   }): Promise<Branch> {
-    const { data, error } = await supabase
-      .from('branches')
-      .insert(input)
-      .select()
-      .single()
+    const { data, error } = await supabase.rpc('create_branch', {
+      p_name: input.name,
+      p_address: input.address,
+      p_phone: input.phone,
+      p_capacity: input.capacity,
+      p_manager_id: input.manager_id || null,
+      p_operating_hours: input.operating_hours || null
+    })
     if (error) throw error
     return data as Branch
   }
 
   // UPDATE
   async function updateBranch(id: string, patch: Partial<Branch>): Promise<Branch> {
-    const { data, error } = await supabase
-      .from('branches')
-      .update({ ...patch, updated_at: new Date().toISOString() })
-      .eq('id', id)
-      .select()
-      .single()
+    const { data, error } = await supabase.rpc('update_branch', {
+      p_id: id,
+      p_patch: patch
+    })
     if (error) throw error
     return data as Branch
   }
 
   // TOGGLE ACTIVE STATUS
   async function toggleBranchStatus(id: string, isActive: boolean): Promise<void> {
-    const { error } = await supabase
-      .from('branches')
-      .update({ is_active: isActive })
-      .eq('id', id)
+    const { error } = await supabase.rpc('update_branch', {
+      p_id: id,
+      p_patch: { is_active: isActive }
+    })
     if (error) throw error
   }
 
   // LIST (with manager profile joined, one query)
   async function listBranches(): Promise<Branch[]> {
-    const { data, error } = await supabase
-      .from('branches')
-      .select(`*`)
-      .order('created_at', { ascending: false })
+    const { data, error } = await supabase.rpc('get_branches')
     if (error) throw error
     return (data ?? []) as Branch[]
   }

@@ -54,7 +54,7 @@
         </div>
         <router-link
           to="/crm/serving-tables"
-          class="flex items-center gap-2 text-sm font-semibold text-[#b89722] hover:text-[#9e811d]"
+          class="flex items-center gap-2 text-sm font-semibold text-[#E8772E] hover:text-[#C25B1F]"
         >
           {{ $t('crm.viewAll', 'View all') }} &rarr;
         </router-link>
@@ -67,9 +67,9 @@
       <div class="grid gap-3">
         <router-link
           to="/crm/serving-tables"
-          class="group flex items-center gap-4 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm transition-all hover:border-[#b89722] hover:shadow-md"
+          class="group flex items-center gap-4 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm transition-all hover:border-[#E8772E] hover:shadow-md"
         >
-          <div class="flex h-12 w-12 items-center justify-center rounded-full bg-[#b89722]/10 text-[#b89722] transition-colors group-hover:bg-[#b89722] group-hover:text-white">
+          <div class="flex h-12 w-12 items-center justify-center rounded-full bg-[#E8772E]/10 text-[#E8772E] transition-colors group-hover:bg-[#E8772E] group-hover:text-white">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
             </svg>
@@ -78,7 +78,7 @@
             <h4 class="font-bold text-gray-900">{{ $t('crm.startSurvey', 'Start a Survey') }}</h4>
             <p class="text-sm text-gray-500 mt-0.5">{{ $t('crm.viewTablesToBegin', 'View tables to begin') }}</p>
           </div>
-          <div class="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-[#b89722]/10 group-hover:text-[#b89722] transition-colors">
+          <div class="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-[#E8772E]/10 group-hover:text-[#E8772E] transition-colors">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
               <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
             </svg>

@@ -14,7 +14,7 @@
         class="whitespace-nowrap rounded-full px-5 py-2 text-sm font-semibold transition-all border"
         :class="
           activeFilter === filter.value
-            ? 'bg-[#b89722] border-[#b89722] text-white shadow-md shadow-[#b89722]/20'
+            ? 'bg-[#E8772E] border-[#E8772E] text-white shadow-md shadow-[#E8772E]/20'
             : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
         "
       >
@@ -47,7 +47,7 @@
       <div
         v-for="table in filteredTables"
         :key="table.table_id"
-        class="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition-all hover:border-[#b89722] hover:shadow-md cursor-pointer"
+        class="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition-all hover:border-[#E8772E] hover:shadow-md cursor-pointer"
         @click="openSurvey(table)"
       >
         <div class="flex justify-between items-start mb-3">
@@ -126,7 +126,7 @@
                     <input
                       v-model="surveyForm.customerName"
                       type="text"
-                      class="w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-[#b89722] focus:outline-none focus:ring-4 focus:ring-[#b89722]/10 transition-all placeholder-gray-400 font-medium"
+                      class="w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-[#E8772E] focus:outline-none focus:ring-4 focus:ring-[#E8772E]/10 transition-all placeholder-gray-400 font-medium"
                       :placeholder="$t('crm.namePlaceholder', 'Enter name')"
                     />
                   </div>
@@ -136,7 +136,7 @@
                     <input
                       v-model="surveyForm.customerPhone"
                       type="tel"
-                      class="w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-[#b89722] focus:outline-none focus:ring-4 focus:ring-[#b89722]/10 transition-all placeholder-gray-400 font-medium"
+                      class="w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-[#E8772E] focus:outline-none focus:ring-4 focus:ring-[#E8772E]/10 transition-all placeholder-gray-400 font-medium"
                       :placeholder="$t('crm.phonePlaceholder', 'Enter phone')"
                     />
                   </div>
@@ -145,7 +145,7 @@
                     <label class="block text-xs font-bold text-gray-600 mb-1.5">{{ $t('crm.visitReason', 'Reason for Visit') }}</label>
                     <select
                       v-model="surveyForm.visitReason"
-                      class="w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-[#b89722] focus:outline-none focus:ring-4 focus:ring-[#b89722]/10 transition-all font-medium"
+                      class="w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-[#E8772E] focus:outline-none focus:ring-4 focus:ring-[#E8772E]/10 transition-all font-medium"
                     >
                       <option value="">{{ $t('crm.selectReason', 'Select reason') }}</option>
                       <option value="casual">{{ $t('crm.reason.casual', 'Casual Dining') }}</option>
@@ -164,7 +164,7 @@
                     <textarea
                       v-model="surveyForm.feedback"
                       rows="3"
-                      class="w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-[#b89722] focus:outline-none focus:ring-4 focus:ring-[#b89722]/10 transition-all placeholder-gray-400 font-medium"
+                      class="w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-[#E8772E] focus:outline-none focus:ring-4 focus:ring-[#E8772E]/10 transition-all placeholder-gray-400 font-medium"
                       :placeholder="$t('crm.feedbackPlaceholder', 'How was the experience?')"
                     ></textarea>
                   </div>
@@ -173,7 +173,7 @@
                     <textarea
                       v-model="surveyForm.improvementNote"
                       rows="2"
-                      class="w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-[#b89722] focus:outline-none focus:ring-4 focus:ring-[#b89722]/10 transition-all placeholder-gray-400 font-medium"
+                      class="w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-[#E8772E] focus:outline-none focus:ring-4 focus:ring-[#E8772E]/10 transition-all placeholder-gray-400 font-medium"
                       :placeholder="$t('crm.improvementPlaceholder', 'What can we do better?')"
                     ></textarea>
                   </div>
@@ -183,7 +183,7 @@
                 <div class="pt-4 flex flex-col gap-3 pb-2">
                   <button
                     type="submit"
-                    class="w-full rounded-xl bg-[#b89722] px-4 py-3 text-sm font-bold text-white shadow-md shadow-[#b89722]/30 hover:bg-[#a3851d] transition-all active:scale-[0.98] disabled:opacity-50"
+                    class="w-full rounded-xl bg-[#E8772E] px-4 py-3 text-sm font-bold text-white shadow-md shadow-[#E8772E]/30 hover:bg-[#C25B1F] transition-all active:scale-[0.98] disabled:opacity-50"
                     :disabled="crmStore.loading"
                   >
                     {{ crmStore.loading ? $t('crm.saving', 'Saving...') : $t('crm.submitSurvey', 'Submit Survey') }}

@@ -29,7 +29,7 @@
     </div>
 
     <div v-else class="space-y-6">
-      <div v-for="fb in feedbacks" :key="fb.survey_id" class="flex gap-3">
+      <div v-for="fb in feedbacks" :key="fb.id" class="flex gap-3">
         <!-- Avatar -->
         <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-orange-100 border border-orange-200 text-[#E8772E] font-bold">
           {{ fb.customer_name ? fb.customer_name.substring(0, 1).toUpperCase() : '?' }}
@@ -74,7 +74,7 @@ async function fetchFeedback() {
   try {
     const { data, error: err } = await supabase
       .from('crm_surveys')
-      .select('survey_id, table_id, customer_name, visit_reason, feedback, improvement_note, created_at')
+      .select('id, table_id, customer_name, visit_reason, feedback, improvement_note, created_at')
       .order('created_at', { ascending: false })
       .limit(50)
       

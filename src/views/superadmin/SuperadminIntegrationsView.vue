@@ -21,6 +21,13 @@
       >
         {{ langStore.t('integration.delivery') }}
       </button>
+      <button 
+        class="py-2 px-6 font-medium text-sm border-b-2 transition-colors"
+        :class="activeTab === 'flowchart' ? 'border-[#C9A85C] text-[#C9A85C]' : 'border-transparent text-gray-500 hover:text-gray-700'"
+        @click="activeTab = 'flowchart'"
+      >
+        {{ langStore.t('integration.diagrams') }}
+      </button>
     </div>
 
     <div v-if="isFetching" class="text-gray-500 text-center py-8">
@@ -49,8 +56,60 @@
         </div>
       </template>
 
+      
+      <!-- Flowchart / Diagram Viewer -->
+      <template v-else-if="activeTab === 'flowchart'">
+        <div class="col-span-1 md:col-span-2 flex justify-center mb-4">
+          <div class="bg-gray-100 p-1 rounded-lg inline-flex">
+            <button 
+              @click="diagramType = 'role'" 
+              :class="diagramType === 'role' ? 'bg-white shadow-sm text-gray-800' : 'text-gray-500 hover:text-gray-700'"
+              class="px-4 py-2 text-sm font-medium rounded-md transition-all"
+            >
+              {{ langStore.t('integration.role_diagram') }}
+            </button>
+            <button 
+              @click="diagramType = 'dataflow'" 
+              :class="diagramType === 'dataflow' ? 'bg-white shadow-sm text-gray-800' : 'text-gray-500 hover:text-gray-700'"
+              class="px-4 py-2 text-sm font-medium rounded-md transition-all"
+            >
+              {{ langStore.t('integration.dataflow_diagram') }}
+            </button>
+          </div>
+        </div>
+
+        <div class="col-span-1 md:col-span-2 h-[700px] flex flex-col bg-white border border-gray-100 rounded-xl p-4 shadow-sm relative overflow-hidden">
+          <template v-if="diagramType === 'role'">
+            <div class="flex justify-between items-center mb-4 z-10">
+              <h3 class="font-bold text-lg text-gray-800">{{ DIAGRAMS[currentDiagramId]?.title }}</h3>
+              <button 
+                v-if="currentDiagramId !== 'root'"
+                @click="currentDiagramId = 'root'"
+                class="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors shadow-sm"
+              >
+                {{ langStore.t('integration.back_to_main_diagram') }}
+              </button>
+            </div>
+            <div class="flex-1 w-full relative">
+              <MermaidViewer 
+                v-if="DIAGRAMS[currentDiagramId]"
+                :id="'diagram-' + currentDiagramId"
+                :code="DIAGRAMS[currentDiagramId].code"
+                @node-click="handleNodeClick"
+              />
+            </div>
+          </template>
+          
+          <template v-else>
+            <div class="flex-1 w-full relative">
+              <SvgZoomViewer src="/dataflow.svg" />
+            </div>
+          </template>
+        </div>
+      </template>
+
       <!-- Delivery Providers -->
-      <template v-else>
+      <template v-else-if="activeTab === 'delivery'">
         <div v-for="provider in deliveryProviders" :key="provider" class="kawaii-card bg-white p-6 shadow-sm border border-gray-100 rounded-xl relative overflow-hidden">
           <div class="flex items-start justify-between">
             <div class="flex items-center">
@@ -152,7 +211,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, reactive } from 'vue'
+import { ref, onMounted, reactive, computed } from 'vue'
+import MermaidViewer from '@/components/MermaidViewer.vue'
+import SvgZoomViewer from '@/components/SvgZoomViewer.vue'
 import { useIntegrations } from '@/composables/useIntegrations'
 import { useLanguageStore } from '@/stores/useLanguageStore'
 import { useBranch, throwBranchGuard } from '@/composables/useBranch'
@@ -161,7 +222,125 @@ const langStore = useLanguageStore()
 const { activeBranchId } = useBranch()
 const { isFetching, fetchAllIntegrations, savePaymentConfig, saveDeliveryConfig, testPaymentConnection, toggleIntegration } = useIntegrations()
 
-const activeTab = ref<'payment' | 'delivery'>('payment')
+
+const activeTab = ref<'payment' | 'delivery' | 'flowchart'>('payment')
+
+const currentDiagramId = ref<string>('root')
+const diagramType = ref<'role'|'dataflow'>('role')
+
+const DIAGRAMS: Record<string, { title: string, code: string }> = {
+  root: {
+    title: 'Mindmap Tổng Quát',
+    code: `mindmap
+  root((Hệ Thống Ngưu Cát ERP<br/>システム Ngưu Cát ERP))
+    (Khối Giám Đốc & Quản Trị<br/>役員・管理ブロック)
+      node_bod[BOD - Phân tích chiến lược & KPI<br/>戦略分析・KPI]
+      node_superadmin[Superadmin - Quản trị toàn hệ thống<br/>システム全体管理]
+    (Khối Tiếp Thị & Chăm Sóc<br/>マーケティング・顧客ケア)
+      node_marketing[Marketing - Phân tích chiến dịch & CPA<br/>キャンペーン分析・CPA]
+      node_crm[CRM - Quản lý Voucher & Thành viên<br/>バウチャー・会員管理]
+    (Khối Tiền Sảnh - Hall<br/>ホール・フロント)
+      node_manager[Quản lý Chi nhánh - Điều hành ca<br/>支店長 - シフト運営]
+      node_reception[Lễ Tân - Xếp bàn & Đón khách<br/>受付 - 席割り・接客]
+      node_staff[Phục vụ - Order & Chăm sóc<br/>ホールスタッフ - 注文・ケア]
+      node_tablet[Tablet - Self-order tại bàn<br/>タブレット - セルフオーダー]
+    (Khối Bếp & Cung Ứng<br/>厨房・サプライ)
+      node_kitchen[Bếp - Chế biến & Quản lý món<br/>厨房 - 調理・メニュー管理]
+      node_procurement[Thu Mua - Nhập hàng & Tồn kho<br/>購買 - 仕入れ・在庫]
+    (Khối Tài Chính<br/>財務ブロック)
+      node_accounting[Kế toán - Doanh thu & Chi phí<br/>経理 - 売上・経費]
+`
+  },
+  node_crm: {
+    title: 'Hành trình Khách hàng & CRM',
+    code: `flowchart TD
+        %% --- Định nghĩa Style ---
+        style CustomerFlow fill:#ffffff,stroke:#ff9900,stroke-width:2px,stroke-dasharray:5 5
+        style HALL fill:#fff2cc,stroke:#333,stroke-width:2px
+        style KITCHEN fill:#e2f0d9,stroke:#333,stroke-width:2px
+        style CRM_MKT fill:#f9d0c4,stroke:#333,stroke-width:2px
+        style DEVICES fill:#f2f2f2,stroke:#666,stroke-width:2px
+
+        %% --- 1. KHỐI TIỀN SẢNH (HALL) ---
+        subgraph HALL [Khối Tiền Sảnh - Hall<br/>ホール・フロント]
+            R[Lễ Tân / Thu Ngân<br/>受付・レジ]
+            S[Nhân viên Phục vụ<br/>ホールスタッフ]
+        end
+
+        %% --- 2. HÀNH TRÌNH KHÁCH HÀNG ---
+        subgraph CustomerFlow [Hành trình Khách hàng<br/>カスタマージャーニー]
+            C1([Khách hàng vào quán<br/>お客様が来店])
+            C2(Xem Menu giấy<br/>紙のメニューを見る)
+            C3(Khách ngồi tại bàn<br/>席に着く)
+            C4([Khách đang dùng bữa<br/>食事中])
+            C5([Khách xuống quầy Thanh toán<br/>レジへ支払いに行く])
+        end
+
+        %% --- 3. HỆ THỐNG & THIẾT BỊ ---
+        subgraph DEVICES [Thiết bị & Hệ thống ERP<br/>デバイス・ERPシステム]
+            DB[(Hệ thống Database Ngưu Cát<br/>データベースシステム)]
+            TAB["Máy tính bảng Tablet<br/>タブレット<br/><i>(Đã định danh Account Bàn)</i>"]
+            PRN[[Máy in ZyWell ZY-Q822<br/>プリンター]]
+        end
+
+        %% --- 4. KHỐI BẾP ---
+        subgraph KITCHEN [Khối Bếp<br/>厨房]
+            K[Đầu Bếp / Bếp trưởng<br/>シェフ・料理長]
+        end
+
+        %% --- 5. KHỐI CRM ---
+        subgraph CRM_MKT [Khối CRM<br/>CRMブロック]
+            CRM_STAFF[Nhân viên CRM<br/>CRMスタッフ]
+        end
+
+        %% ==========================================
+        %% CÁC BƯỚC NGHIỆP VỤ (FLOW)
+        %% ==========================================
+
+        %% Bước Đón khách & Chọn hình thức
+        C1 -->|1. Đón khách<br/>1. 接客| R
+        R -->|2. Tư vấn & Đưa menu giấy<br/>2. 案内・紙メニューを渡す| C2
+        C2 -->|3. Chọn Buffet / Alacarte<br/>3. ビュッフェ・アラカルトを選択| R
+
+        %% Bước Mở bàn & Định danh
+        R ==>|4. Mở bàn & Cài đặt thông số<br/>4. テーブルを開く・設定| DB
+        DB -.->|5. Đồng bộ Session<br/>5. セッション同期| TAB
+        R -->|6. Điều phối<br/>6. コーディネート| S
+        S -->|7. Dẫn khách lên bàn<br/>7. お客様を席へ案内| C3
+
+        %% Bước Khách tự Order
+        C3 -->|8. Khách thao tác chạm chọn món<br/>8. お客様が料理を選ぶ| TAB
+        TAB ==>|9. Gửi Data Order lên Cloud<br/>9. クラウドへ注文データを送信| DB
+        DB ==>|10. Truyền lệnh In Server<br/>10. サーバーから印刷コマンドを送信| PRN
+        PRN -.->|11. In phiếu Order giấy<br/>11. 紙の注文票を印刷| K
+
+        %% Bước Phục vụ
+        K -->|12. Nấu xong & Kẹp phiếu In<br/>12. 調理完了・注文票を添付| S
+        S -->|13. Bưng món + Phiếu Order lên bàn<br/>13. 料理と注文票を席へ運ぶ| C4
+
+        %% Bước CRM thu thập data
+        C4 -.->|14. Trong lúc khách ăn<br/>14. お客様が食事中| CRM_STAFF
+        CRM_STAFF -->|15. Trò chuyện & Xin thông tin<br/>15. 会話・情報収集| C4
+        CRM_STAFF ==>|16. Nhập Data Khách - SĐT, Sinh nhật<br/>16. 顧客データを入力| DB
+
+        %% Bước Check-out
+        C4 -->|17. Khách dùng bữa xong<br/>17. 食事終了| C5
+        C5 -->|18. Đi xuống quầy yêu cầu tính tiền<br/>18. レジで支払いを求める| R
+        R ==>|19. Chọn đúng Bàn & Nhấn Check-out<br/>19. テーブルを選び、チェックアウト| DB
+        DB -.->|20. Giải phóng Bàn & Sinh Hóa đơn<br/>20. テーブルを解放し、請求書を発行| R
+        R -->|21. Thu tiền & Đưa hóa đơn<br/>21. 支払いを受け取り、領収書を渡す| C5`
+  }
+}
+
+function handleNodeClick(nodeId: string) {
+  console.log("Clicked node:", nodeId)
+  const cleanId = nodeId.replace(/^mindmap-node-/, '')
+  
+  if (DIAGRAMS[cleanId]) {
+    currentDiagramId.value = cleanId
+  }
+}
+
 const paymentProviders = ['ZALOPAY', 'MOMO', 'VNPAY', 'CARD', 'CASH']
 const deliveryProviders = ['GRAB', 'SHOPEEFOOD', 'BAEMIN', 'MANUAL']
 

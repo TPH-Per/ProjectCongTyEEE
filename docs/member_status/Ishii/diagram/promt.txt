@@ -1,0 +1,33 @@
+# BÁO CÁO CÔNG VIỆC HÔM NAY (09/07/2026)
+
+## 🎯 TỔNG QUAN
+Hôm nay, công việc tập trung vào việc nghiên cứu yêu cầu thiết kế UI "Theo dõi trạng thái món ăn" từ tệp prompt, kiểm tra tính toàn vẹn của mã nguồn hiện tại, xây dựng tài liệu thiết kế hệ thống và sơ đồ hoạt động (Activity Diagram) chuẩn hóa theo quy tắc dự án.
+
+## 🛠️ CHI TIẾT CÁC CÔNG VIỆC ĐÃ HOÀN THÀNH
+
+### 1. Phân tích & Kiểm tra Codebase (Order Status Tracking)
+- Kiểm tra mã nguồn giao diện khách hàng tại bàn:
+  - Tệp [OrderTrackingModal.vue](file:///E:/Công%20ty/Task/260/Product/src/components/customer/OrderTrackingModal.vue) đã được cấu trúc hoàn chỉnh với thiết kế Glassmorphism Dark, hỗ trợ hiển thị 3 trạng thái món ăn (Chờ xử lý, Đang chế biến, Đã phục vụ), các hiệu ứng animation của progress bar, timeline hoạt động, bộ lọc và các nút làm mới/đóng.
+  - Tệp [CustomerLayout.vue](file:///E:/Công%20ty/Task/260/Product/src/layouts/CustomerLayout.vue) đã tích hợp thành công nút bấm theo dõi món ăn 📋 kèm badge đếm số lượng món chưa phục vụ cập nhật thời gian thực.
+- Kiểm tra biên dịch hệ thống: Chạy thử nghiệm thành công quy trình đóng gói sản xuất (`npm run build` kết thúc thành công 100% không có lỗi TypeScript hay Vite).
+
+### 2. Thiết kế Tài liệu & Sơ đồ Hoạt động (Activity Diagram)
+- Tạo tệp tài liệu module [09_theo_doi_mon_an.md](file:///E:/Công%20ty/Task/260/Product/docs/member_status/Ishii/diagram/09_theo_doi_mon_an.md) bao gồm:
+  - Tổng quan mục đích và phạm vi của Module 9.
+  - Các Actors tham gia (Khách hàng, Nhân viên, Hệ thống).
+  - Chi tiết 3 Use Cases chính (UC-017, UC-018, UC-019).
+  - Business Rules về quy trình trạng thái món, cách tính tiến trình % và cơ chế dự phòng kéo dữ liệu.
+  - Cấu trúc dữ liệu đầu vào và đầu ra (`OrderItem`, `OrderSummary`).
+- Tạo tệp sơ đồ hoạt động [Theo dõi món ăn.md](file:///E:/Công%20ty/Task/260/Product/docs/member_status/Ishii/diagram/Theo%20dõi%20món%20ăn.md) bằng ngôn ngữ Mermaid biểu diễn các Swimlanes theo hàng ngang (`flowchart LR`):
+  - Phân chia rõ ràng thành 3 làn hoạt động: Khách hàng (Customer), Nhân viên (Staff), và Hệ thống (System).
+  - Định dạng viền nét đứt màu xám cho các subgraph nhằm giảm nhiễu trực quan.
+  - Các mũi tên nối trực tiếp từ node đến node.
+  - Phân biệt rõ ràng hành động tương tác vật lý của người dùng (`==>`) và cơ chế đồng bộ tự động của hệ thống (`-.->`).
+  - Sử dụng các lớp màu dịu nhẹ phân biệt từng tác nhân trên sơ đồ.
+
+### 3. Đồng bộ hóa mã nguồn
+- Đã thêm mới và commit các tệp tài liệu nghiệp vụ/sơ đồ vào Git trên nhánh `dev`.
+
+## 📈 KẾT QUẢ ĐẠT ĐƯỢC
+- Trạng thái biên dịch: Thành công 100% (`dist` output tạo ra hoàn hảo).
+- Sơ đồ nghiệp vụ & Tài liệu Module 9 được hoàn thành đúng tiêu chuẩn thiết kế khắt khe của dự án.

@@ -11,17 +11,17 @@
     
     <div v-if="loading && !feedbacks.length" class="space-y-4">
       <div v-for="i in 3" :key="i" class="flex gap-4">
-        <div class="h-10 w-10 shrink-0 rounded-full bg-gray-100 animate-pulse"></div>
+        <div class="h-10 w-10 shrink-0 rounded-full bg-gray-200 animate-pulse"></div>
         <div class="space-y-2 flex-1">
-          <div class="h-4 w-1/3 bg-gray-100 rounded animate-pulse"></div>
-          <div class="h-16 w-full bg-gray-100 rounded-2xl rounded-tl-none animate-pulse"></div>
+          <div class="h-4 w-1/3 bg-gray-200 rounded animate-pulse"></div>
+          <div class="h-16 w-full bg-gray-200 rounded-2xl rounded-tl-none animate-pulse"></div>
         </div>
       </div>
     </div>
 
     <div v-else-if="!feedbacks.length" class="flex flex-col items-center justify-center py-16 text-center">
-      <div class="mb-4 rounded-full bg-gray-50 p-5">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <div class="mb-4 rounded-full bg-gray-100 p-5">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
         </svg>
       </div>
@@ -29,9 +29,9 @@
     </div>
 
     <div v-else class="space-y-6">
-      <div v-for="fb in feedbacks" :key="fb.survey_id" class="flex gap-3">
+      <div v-for="fb in feedbacks" :key="fb.id" class="flex gap-3">
         <!-- Avatar -->
-        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary font-bold">
+        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-orange-100 border border-orange-200 text-[#E8772E] font-bold">
           {{ fb.customer_name ? fb.customer_name.substring(0, 1).toUpperCase() : '?' }}
         </div>
         
@@ -42,16 +42,16 @@
             <span class="text-[10px] font-semibold text-gray-400">{{ formatDate(fb.created_at) }}</span>
           </div>
           
-          <div class="rounded-2xl rounded-tl-none bg-gray-50 p-4 border border-gray-100 shadow-sm">
+          <div class="rounded-2xl rounded-tl-none bg-white p-4 border border-gray-100 shadow-sm">
             <p class="text-sm text-gray-700 leading-relaxed">{{ fb.feedback || $t('crm.noComment', 'No comment provided.') }}</p>
-            <div v-if="fb.improvement_note" class="mt-3 pt-3 border-t border-gray-200">
-              <span class="text-xs font-bold text-primary uppercase tracking-wider block mb-1">To Improve</span>
+            <div v-if="fb.improvement_note" class="mt-3 pt-3 border-t border-gray-100">
+              <span class="text-xs font-bold text-orange-500 uppercase tracking-wider block mb-1">To Improve</span>
               <p class="text-xs text-gray-600">{{ fb.improvement_note }}</p>
             </div>
           </div>
           
           <div class="flex gap-2 px-1 pt-1">
-            <span v-if="fb.visit_reason" class="text-[10px] font-bold text-gray-500 uppercase bg-gray-100 px-2 py-0.5 rounded-full">
+            <span v-if="fb.visit_reason" class="text-[10px] font-bold text-gray-500 uppercase bg-gray-100 px-2 py-0.5 rounded-full border border-gray-200">
               {{ fb.visit_reason }}
             </span>
           </div>
@@ -74,7 +74,7 @@ async function fetchFeedback() {
   try {
     const { data, error: err } = await supabase
       .from('crm_surveys')
-      .select('survey_id, table_id, customer_name, visit_reason, feedback, improvement_note, created_at')
+      .select('id, table_id, customer_name, visit_reason, feedback, improvement_note, created_at')
       .order('created_at', { ascending: false })
       .limit(50)
       

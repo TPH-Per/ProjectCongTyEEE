@@ -86,25 +86,13 @@ export function useVoucher() {
     loading.value = true
     error.value = null
     try {
-      let query = supabase
-        .from('vouchers')
-        .select(`
-          id, code, type, value, min_order_value, max_discount_amount,
-          valid_from, valid_until, max_uses, used_count, is_active,
-          usage_limit_per_customer, customer_id, description_vi,
-          description_en, description_ja, created_by, metadata, created_at,
-          customer:customer_id (id, name, phone)
-        `)
-        .eq('branch_id', activeBranchId.value)
-        .eq('is_deleted', false)
-        .order('created_at', { ascending: false })
-
-      if (filters?.onlyActive) query = query.eq('is_active', true).gte('valid_until', new Date().toISOString())
-      if (filters?.onlyExpired) query = query.lt('valid_until', new Date().toISOString())
-      if (filters?.type) query = query.eq('type', filters.type)
-      if (filters?.search) query = query.ilike('code', `%${filters.search}%`)
-
-      const { data, error: err } = await query
+      const { data, error: err } = await supabase.rpc('get_vouchers', {
+        p_branch_id: activeBranchId.value,
+        p_only_active: filters?.onlyActive ?? false,
+        p_only_expired: filters?.onlyExpired ?? false,
+        p_type: filters?.type ?? null,
+        p_search: filters?.search ?? null
+      })
       if (err) throw err
       vouchers.value = data as any[]
     } catch (err: any) {
@@ -118,43 +106,37 @@ export function useVoucher() {
   // CREATE
   async function createVoucher(input: CreateVoucherInput): Promise<Voucher> {
     if (!activeBranchId.value) throw new Error('No active branch selected')
-    // Validate code uniqueness before insert (client-side pre-check for UX)
-    const { data: existing } = await supabase
-      .from('vouchers')
-      .select('id')
-      .eq('branch_id', activeBranchId.value)
-      .ilike('code', input.code)
-      .eq('is_deleted', false)
-      .maybeSingle()
-    
-    if (existing) throw new Error('DUPLICATE_CODE')
+    const { data, error: err } = await supabase.rpc('create_voucher', {
+      p_branch_id: activeBranchId.value,
+      p_code: input.code,
+      p_type: input.type,
+      p_value: input.value,
+      p_min_order_value: input.min_order_value || 0,
+      p_max_discount_amount: input.max_discount_amount || null,
+      p_valid_from: input.valid_from || null,
+      p_valid_until: input.valid_until || null,
+      p_max_uses: input.max_uses || null,
+      p_usage_limit_per_customer: input.usage_limit_per_customer || null,
+      p_customer_id: input.customer_id || null,
+      p_description_vi: input.description_vi || null,
+      p_description_en: input.description_en || null,
+      p_description_ja: input.description_ja || null
+    })
 
-    const { data, error: err } = await supabase
-      .from('vouchers')
-      .insert({
-        branch_id: activeBranchId.value,
-        created_by: profile.value?.id,
-        used_count: 0,
-        is_active: true,
-        ...input,
-        code: input.code.toUpperCase().trim()
-      })
-      .select()
-      .single()
-
-    if (err) throw err
+    if (err) {
+      if (err.message.includes('DUPLICATE_CODE')) throw new Error('DUPLICATE_CODE')
+      throw err
+    }
     vouchers.value.unshift(data as any)
     return data as any
   }
 
   // UPDATE (partial patch)
   async function updateVoucher(id: string, patch: Partial<CreateVoucherInput & { is_active: boolean }>): Promise<Voucher> {
-    const { data, error: err } = await supabase
-      .from('vouchers')
-      .update({ ...patch, updated_at: new Date().toISOString() })
-      .eq('id', id)
-      .select()
-      .single()
+    const { data, error: err } = await supabase.rpc('update_voucher', {
+      p_id: id,
+      p_patch: patch
+    })
 
     if (err) throw err
     const idx = vouchers.value.findIndex(v => v.id === id)
@@ -169,10 +151,10 @@ export function useVoucher() {
 
   // SOFT DELETE
   async function deleteVoucher(id: string): Promise<void> {
-    const { error: err } = await supabase
-      .from('vouchers')
-      .update({ is_deleted: true, is_active: false })
-      .eq('id', id)
+    const { error: err } = await supabase.rpc('update_voucher', {
+      p_id: id,
+      p_patch: { is_deleted: true, is_active: false }
+    })
     if (err) throw err
     vouchers.value = vouchers.value.filter(v => v.id !== id)
   }

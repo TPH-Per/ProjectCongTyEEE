@@ -1,6 +1,6 @@
 import { computed, onBeforeUnmount, watch, type Ref } from 'vue'
 import Swal from 'sweetalert2'
-import { useI18n } from 'vue-i18n'
+import { useI18nStore } from '@/stores/i18n'
 
 /**
  * Composable for modals / drawers that hold editable form state.
@@ -44,7 +44,7 @@ export function useUnsavedGuard<T>(
   form: Ref<T>,
   baseline: Ref<T> | (() => T),
 ) {
-  const { t } = useI18n()
+  const { t } = useI18nStore()
 
   const baselineValue = computed<T>(() =>
     typeof baseline === 'function' ? (baseline as () => T)() : baseline.value,

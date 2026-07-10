@@ -375,19 +375,26 @@
                     >{{ translateStatus(res.status) }}</span>
                   </td>
                   <td class="py-4 px-6 text-center">
-                    <div class="flex items-center justify-center gap-1.5" v-if="res.status === 'Pending'">
+                    <div class="flex items-center justify-center gap-1.5">
+                      <RouterLink
+                        :to="{ name: 'reception-reservation-detail', query: { id: res.id } }"
+                        class="px-2.5 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold transition-all flex items-center gap-1 border border-blue-200"
+                      >
+                        👁️ Chi tiết
+                      </RouterLink>
                       <button
+                        v-if="res.status === 'Pending'"
                         @click="handleConfirmBooking(res)"
                         class="px-2.5 py-1.5 rounded-lg bg-green-50 hover:bg-green-100 text-green-700 text-xs font-bold transition-all flex items-center gap-1 border border-green-200"
                       >
                         <CheckCircle class="w-3.5 h-3.5" />{{ t('reception.confirm') }}</button>
                       <button
+                        v-if="res.status === 'Pending'"
                         @click="handleCancelBooking(res)"
                         class="px-2.5 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-700 text-xs font-bold transition-all flex items-center gap-1 border border-red-200"
                       >
                         <XCircle class="w-3.5 h-3.5" />{{ t('reception.cancel') }}</button>
                     </div>
-                    <div class="text-xs text-gray-400 font-bold" v-else>{{ t('reception.no_action') }}</div>
                   </td>
                 </tr>
                 <tr v-if="reservations.length === 0">

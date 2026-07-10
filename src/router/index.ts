@@ -6,8 +6,9 @@ import {
 import { useAuth } from "@/composables/useAuth";
 import { useBranch } from "@/composables/useBranch";
 import { getFallbackRouteForRole } from "@/utils/route";
+import hallRoutes from "./hall";
 
-// ─── Layouts ──────────────────────────────────────────────────────────────────
+// ─── Layouts ───────────────────────────────────
 import ManagerLayout from "@/layouts/ManagerLayout.vue";
 import AdminLayout from "@/layouts/AdminLayout.vue";
 import TabletLayout from "@/layouts/TabletLayout.vue";
@@ -138,27 +139,7 @@ const routes: RouteRecordRaw[] = [
   },
 
   // 2. HALL
-  {
-    path: "/hall",
-    component: StaffLayout,
-    children: [
-      {
-        path: "floor-plan",
-        name: "hall-floor-plan",
-        component: StaffFloorPlanView,
-      },
-      {
-        path: "table/:id/open",
-        name: "hall-open-table",
-        component: StaffOpenTableView,
-      },
-      {
-        path: "checkout/:id",
-        name: "hall-checkout",
-        component: ReceptionCheckoutView,
-      },
-    ],
-  },
+  ...hallRoutes,
 
   // 3. KITCHEN
   {
@@ -307,6 +288,16 @@ const routes: RouteRecordRaw[] = [
         path: "dashboard",
         name: "reception-dashboard",
         component: ReceptionDashboardView,
+      },
+      {
+        path: "reservation-detail",
+        name: "reception-reservation-detail",
+        component: () => import("@/views/reception/ReservationDetailView.vue"),
+        meta: {
+          requiresAuth: true,
+          title: "Chi tiết đặt bàn",
+          fullscreen: true,
+        }
       },
       {
         path: "checkout/:id",
@@ -497,7 +488,7 @@ const ROUTE_ROLES: Record<string, string[]> = {
   manager: ["superadmin", "admin", "manager"],
   reception: ["superadmin", "admin", "manager", "reception"],
   staff: ["superadmin", "admin", "manager", "staff"],
-  hall: ["superadmin", "admin", "manager", "reception", "staff"],
+  hall: ["superadmin", "admin", "manager", "reception", "staff", "hall"],
   kitchen: ["superadmin", "admin", "manager", "kitchen"],
   purchasing: ["superadmin", "admin", "procurement", "procurement_manager", "procurement_staff", "purchasing"],
   accounting: ["superadmin", "admin", "accounting", "accounting_manager", "manager"],

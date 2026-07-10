@@ -106,11 +106,12 @@ AS $$
     AND (
       public.has_role(ARRAY['admin']::public.user_role[])
       OR mc.branch_id = public.current_branch_id()
+      OR auth.uid() IS NULL
     );
 $$;
 
 REVOKE EXECUTE ON FUNCTION public.customer_list_menu_categories(uuid) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION public.customer_list_menu_categories(uuid) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.customer_list_menu_categories(uuid) TO anon, authenticated;
 
 CREATE OR REPLACE FUNCTION public.customer_list_menu_items(
   p_branch_id uuid DEFAULT NULL,
@@ -157,11 +158,12 @@ AS $$
     AND (
       public.has_role(ARRAY['admin']::public.user_role[])
       OR mi.branch_id = public.current_branch_id()
+      OR auth.uid() IS NULL
     );
 $$;
 
 REVOKE EXECUTE ON FUNCTION public.customer_list_menu_items(uuid, uuid) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION public.customer_list_menu_items(uuid, uuid) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.customer_list_menu_items(uuid, uuid) TO anon, authenticated;
 
 CREATE OR REPLACE FUNCTION public.customer_get_tablet_content(p_branch_id uuid)
 RETURNS jsonb

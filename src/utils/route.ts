@@ -23,7 +23,7 @@ export function getHomeRouteForRole(role: UserRole | string | null | undefined):
     case 'staff':
       return { name: 'staff-floor-plan' }
     case 'hall':
-      return { name: 'hall-floor-plan' }
+      return { name: 'hall.dashboard' }
     case 'kitchen':
       return { name: 'kitchen-kds' }
     case 'procurement':

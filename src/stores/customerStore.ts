@@ -14,6 +14,7 @@ import type {
 } from '@/types/customer';
 import { customerApiImpl } from '@/services/customerApi';
 import { computeTotals } from '@/utils/packageRules';
+import { isValidUUID } from '@/utils/validators';
 
 export interface Notification {
   id: string;
@@ -276,6 +277,12 @@ export const useCustomerStore = defineStore('customer', {
     async confirmOrder(): Promise<Order> {
       if (!this.session || this.cart.length === 0) {
         throw new Error('Giỏ hàng trống hoặc phiên làm việc chưa bắt đầu');
+      }
+
+      // Validate all cart items for UUID format
+      const invalidItems = this.cart.filter(item => !isValidUUID(item.menuItemId));
+      if (invalidItems.length > 0) {
+        throw new Error(`Có món ăn không hợp lệ trong giỏ hàng: ${invalidItems.map(i => i.name).join(', ')}`);
       }
 
       const subtotal = this.cartTotal;

@@ -1,33 +1,828 @@
-# BÁO CÁO CÔNG VIỆC HÔM NAY (09/07/2026)
+# 🎯 FIX UI: KHÔNG SCROLL DỌC - FIT 100VH
 
-## 🎯 TỔNG QUAN
-Hôm nay, công việc tập trung vào việc nghiên cứu yêu cầu thiết kế UI "Theo dõi trạng thái món ăn" từ tệp prompt, kiểm tra tính toàn vẹn của mã nguồn hiện tại, xây dựng tài liệu thiết kế hệ thống và sơ đồ hoạt động (Activity Diagram) chuẩn hóa theo quy tắc dự án.
+## 🔧 CODE HOÀN CHỈNH
 
-## 🛠️ CHI TIẾT CÁC CÔNG VIỆC ĐÃ HOÀN THÀNH
+```vue
+<template>
+  <div class="reservation-app">
+    <!-- Top Header: 56px -->
+    <header class="top-header">
+      <div class="header-left">
+        <div class="logo">🏮</div>
+        <select class="branch-select">
+          <option>NGƯU CÁT</option>
+        </select>
+        <div class="date-picker">
+          <input type="date" value="2026-07-10" class="date-input" />
+          <button class="icon-btn"></button>
+        </div>
+      </div>
+      <div class="header-right">
+        <button class="btn-create">+ Tạo mới</button>
+        <button class="btn-home">← Trang chủ</button>
+      </div>
+    </header>
 
-### 1. Phân tích & Kiểm tra Codebase (Order Status Tracking)
-- Kiểm tra mã nguồn giao diện khách hàng tại bàn:
-  - Tệp [OrderTrackingModal.vue](file:///E:/Công%20ty/Task/260/Product/src/components/customer/OrderTrackingModal.vue) đã được cấu trúc hoàn chỉnh với thiết kế Glassmorphism Dark, hỗ trợ hiển thị 3 trạng thái món ăn (Chờ xử lý, Đang chế biến, Đã phục vụ), các hiệu ứng animation của progress bar, timeline hoạt động, bộ lọc và các nút làm mới/đóng.
-  - Tệp [CustomerLayout.vue](file:///E:/Công%20ty/Task/260/Product/src/layouts/CustomerLayout.vue) đã tích hợp thành công nút bấm theo dõi món ăn 📋 kèm badge đếm số lượng món chưa phục vụ cập nhật thời gian thực.
-- Kiểm tra biên dịch hệ thống: Chạy thử nghiệm thành công quy trình đóng gói sản xuất (`npm run build` kết thúc thành công 100% không có lỗi TypeScript hay Vite).
+    <!-- Main Area: flex: 1 -->
+    <div class="main-area">
+      <!-- Left Panel: 280px -->
+      <aside class="left-panel">
+        <div class="panel-header-row">
+          <span class="header-label">Sắp xếp theo ↑</span>
+          <span class="header-label">Trạng thái ⌃</span>
+        </div>
+        <div class="time-tabs">
+          <button class="time-tab active">Tất cả</button>
+          <button class="time-tab">Sáng</button>
+          <button class="time-tab">Trưa</button>
+          <button class="time-tab">Chiều</button>
+          <button class="time-tab">Tối</button>
+        </div>
+        <div class="empty-state">
+          <div class="empty-icon">📭</div>
+          <p>Không có lượt đặt nào</p>
+        </div>
+      </aside>
 
-### 2. Thiết kế Tài liệu & Sơ đồ Hoạt động (Activity Diagram)
-- Tạo tệp tài liệu module [09_theo_doi_mon_an.md](file:///E:/Công%20ty/Task/260/Product/docs/member_status/Ishii/diagram/09_theo_doi_mon_an.md) bao gồm:
-  - Tổng quan mục đích và phạm vi của Module 9.
-  - Các Actors tham gia (Khách hàng, Nhân viên, Hệ thống).
-  - Chi tiết 3 Use Cases chính (UC-017, UC-018, UC-019).
-  - Business Rules về quy trình trạng thái món, cách tính tiến trình % và cơ chế dự phòng kéo dữ liệu.
-  - Cấu trúc dữ liệu đầu vào và đầu ra (`OrderItem`, `OrderSummary`).
-- Tạo tệp sơ đồ hoạt động [Theo dõi món ăn.md](file:///E:/Công%20ty/Task/260/Product/docs/member_status/Ishii/diagram/Theo%20dõi%20món%20ăn.md) bằng ngôn ngữ Mermaid biểu diễn các Swimlanes theo hàng ngang (`flowchart LR`):
-  - Phân chia rõ ràng thành 3 làn hoạt động: Khách hàng (Customer), Nhân viên (Staff), và Hệ thống (System).
-  - Định dạng viền nét đứt màu xám cho các subgraph nhằm giảm nhiễu trực quan.
-  - Các mũi tên nối trực tiếp từ node đến node.
-  - Phân biệt rõ ràng hành động tương tác vật lý của người dùng (`==>`) và cơ chế đồng bộ tự động của hệ thống (`-.->`).
-  - Sử dụng các lớp màu dịu nhẹ phân biệt từng tác nhân trên sơ đồ.
+      <!-- Right Panel: flex: 1 -->
+      <main class="right-panel">
+        <!-- Customer Info: 130px -->
+        <section class="customer-section">
+          <div class="customer-grid">
+            <div class="avatar-box">
+              <div class="avatar-circle"></div>
+            </div>
+            <div class="customer-fields">
+              <div class="field-row">
+                <label>Điện thoại*</label>
+                <div class="input-with-btn">
+                  <input type="tel" placeholder="Nhập số điện thoại" />
+                  <button class="search-btn">🔍</button>
+                </div>
+              </div>
+              <div class="field-row">
+                <label>Email</label>
+                <input type="email" placeholder="Nhập email" />
+              </div>
+              <div class="field-row">
+                <label>Khách hàng*</label>
+                <input type="text" placeholder="Tên khách hàng" />
+              </div>
+              <div class="field-row checkbox-row">
+                <label>Đã hoàn cọc</label>
+                <input type="checkbox" />
+              </div>
+            </div>
+            <div class="source-box">
+              <label class="source-title">Nguồn khách</label>
+              <div class="source-grid">
+                <button class="source-btn active">Facebook</button>
+                <button class="source-btn">Khách app</button>
+                <button class="source-btn">Mobile App</button>
+                <button class="source-btn">Tel</button>
+              </div>
+            </div>
+          </div>
+        </section>
 
-### 3. Đồng bộ hóa mã nguồn
-- Đã thêm mới và commit các tệp tài liệu nghiệp vụ/sơ đồ vào Git trên nhánh `dev`.
+        <!-- Tabs Content: flex: 1 -->
+        <section class="tabs-content">
+          <div class="tabs-nav">
+            <button class="tab-btn active">TT Đặt Chỗ</button>
+            <button class="tab-btn">TT Mở Rộng</button>
+            <button class="tab-btn">Người Tiếp Nhận</button>
+            <button class="tab-btn">Lịch Sử Tiêu Dùng</button>
+          </div>
 
-## 📈 KẾT QUẢ ĐẠT ĐƯỢC
-- Trạng thái biên dịch: Thành công 100% (`dist` output tạo ra hoàn hảo).
-- Sơ đồ nghiệp vụ & Tài liệu Module 9 được hoàn thành đúng tiêu chuẩn thiết kế khắt khe của dự án.
+          <div class="tab-body">
+            <!-- Form Grid 3 cột -->
+            <div class="form-grid">
+              <div class="form-item">
+                <label>Giờ*</label>
+                <div class="input-row">
+                  <input type="time" value="18:00" />
+                  <button class="icon-btn-sm">🕐</button>
+                  <button class="icon-btn-sm">📅</button>
+                </div>
+              </div>
+
+              <div class="form-item">
+                <label>Ngày*</label>
+                <div class="input-row">
+                  <input type="date" value="2026-07-10" />
+                  <button class="icon-btn-sm">📅</button>
+                </div>
+              </div>
+
+              <div class="form-item">
+                <label>SL Người lớn*</label>
+                <div class="counter">
+                  <button>−</button>
+                  <span>2</span>
+                  <button>+</button>
+                </div>
+              </div>
+
+              <div class="form-item">
+                <label>SL Trẻ em</label>
+                <div class="counter">
+                  <button>−</button>
+                  <span>0</span>
+                  <button>+</button>
+                </div>
+              </div>
+
+              <div class="form-item">
+                <label>SL Bàn</label>
+                <div class="counter">
+                  <button>−</button>
+                  <span>1</span>
+                  <button>+</button>
+                </div>
+              </div>
+
+              <div class="form-item">
+                <label>SL Ghế</label>
+                <div class="counter">
+                  <button>−</button>
+                  <span>2</span>
+                  <button>+</button>
+                </div>
+              </div>
+
+              <div class="form-item full-width">
+                <label>Loại tiệc</label>
+                <div class="party-types">
+                  <button class="type-btn active">Ăn tối</button>
+                  <button class="type-btn">Ăn trưa</button>
+                  <button class="type-btn">Sinh nhật</button>
+                  <button class="type-btn">Kỷ niệm</button>
+                  <button class="type-btn">Liên hoan</button>
+                </div>
+              </div>
+
+              <div class="form-item">
+                <label>Tên tiệc</label>
+                <input type="text" placeholder="Tên tiệc" />
+              </div>
+
+              <div class="form-item">
+                <label>Trạng thái</label>
+                <select class="status-select">
+                  <option>Mới đặt</option>
+                  <option>Đã xác nhận</option>
+                  <option>Hủy</option>
+                </select>
+              </div>
+
+              <div class="form-item full-width">
+                <label>Ghi chú</label>
+                <textarea placeholder="Ghi chú" rows="1"></textarea>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- Footer: 48px -->
+    <footer class="main-footer">
+      <div class="footer-info">
+        <div><span class="label">Bàn:</span> <span class="value">-</span></div>
+        <div><span class="label">Khu:</span> <span class="value">-</span></div>
+      </div>
+      <button class="btn-save">+ Tạo đặt bàn mới</button>
+    </footer>
+
+    <!-- Bottom Nav: 56px -->
+    <nav class="bottom-nav">
+      <button class="nav-item">
+        <span class="nav-icon">📅</span>
+        <span>Lịch</span>
+      </button>
+      <button class="nav-item active">
+        <span class="nav-icon"></span>
+        <span>Chi tiết đặt</span>
+      </button>
+      <button class="nav-item">
+        <span class="nav-icon">🪑</span>
+        <span>Sơ đồ bàn</span>
+      </button>
+      <button class="nav-item">
+        <span class="nav-icon">🍕</span>
+        <span>Chọn món</span>
+      </button>
+    </nav>
+  </div>
+</template>
+
+<style scoped>
+/* ===== ROOT: 100VH, NO SCROLL ===== */
+.reservation-app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+  background: #f5f5f5;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* ===== TOP HEADER: 56px ===== */
+.top-header {
+  height: 56px;
+  flex-shrink: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 16px;
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo {
+  font-size: 24px;
+}
+
+.branch-select {
+  padding: 6px 12px;
+  background: #1f2937;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.date-picker {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.date-input {
+  padding: 6px 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.icon-btn {
+  padding: 6px 10px;
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.header-right {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-create {
+  padding: 8px 16px;
+  background: #f97316;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.btn-home {
+  padding: 8px 16px;
+  background: #fbbf24;
+  color: #1f2937;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+/* ===== MAIN AREA: flex: 1 ===== */
+.main-area {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* ===== LEFT PANEL: 280px ===== */
+.left-panel {
+  width: 280px;
+  flex-shrink: 0;
+  background: white;
+  border-right: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-header-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 12px;
+  background: #1f2937;
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.time-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 8px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.time-tab {
+  flex: 1;
+  padding: 6px 4px;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  background: white;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.time-tab.active {
+  background: #f97316;
+  color: white;
+  border-color: #f97316;
+}
+
+.empty-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #9ca3af;
+  gap: 8px;
+}
+
+.empty-icon {
+  font-size: 48px;
+  opacity: 0.5;
+}
+
+.empty-state p {
+  margin: 0;
+  font-size: 13px;
+}
+
+/* ===== RIGHT PANEL: flex: 1 ===== */
+.right-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* ===== CUSTOMER SECTION: 130px ===== */
+.customer-section {
+  height: 130px;
+  flex-shrink: 0;
+  padding: 12px 16px;
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.customer-grid {
+  display: grid;
+  grid-template-columns: 70px 1fr 240px;
+  gap: 16px;
+  align-items: center;
+  height: 100%;
+}
+
+.avatar-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar-circle {
+  width: 64px;
+  height: 64px;
+  background: #f3f4f6;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+}
+
+.customer-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow: hidden;
+}
+
+.field-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.field-row label {
+  width: 90px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+  flex-shrink: 0;
+}
+
+.field-row input[type="text"],
+.field-row input[type="tel"],
+.field-row input[type="email"] {
+  flex: 1;
+  padding: 5px 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  font-size: 12px;
+  min-width: 0;
+}
+
+.input-with-btn {
+  flex: 1;
+  display: flex;
+  gap: 4px;
+  min-width: 0;
+}
+
+.search-btn {
+  padding: 5px 10px;
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.checkbox-row {
+  gap: 16px;
+}
+
+.checkbox-row input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+}
+
+.source-box {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.source-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.source-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+}
+
+.source-btn {
+  padding: 6px 8px;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  background: white;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.source-btn.active {
+  background: #f97316;
+  color: white;
+  border-color: #f97316;
+}
+
+/* ===== TABS CONTENT: flex: 1 ===== */
+.tabs-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+  background: white;
+  margin: 12px 16px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.tabs-nav {
+  display: flex;
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+  flex-shrink: 0;
+}
+
+.tab-btn {
+  padding: 10px 20px;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  font-size: 13px;
+  font-weight: 600;
+  color: #6b7280;
+  cursor: pointer;
+}
+
+.tab-btn.active {
+  background: white;
+  color: #f97316;
+  border-bottom-color: #f97316;
+}
+
+.tab-body {
+  flex: 1;
+  padding: 12px 16px;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* ===== FORM GRID 3 CỘT ===== */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  height: 100%;
+}
+
+.form-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 0;
+}
+
+.form-item.full-width {
+  grid-column: 1 / -1;
+}
+
+.form-item label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.form-item input,
+.form-item select,
+.form-item textarea {
+  padding: 6px 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  font-size: 12px;
+  background: white;
+}
+
+.form-item textarea {
+  resize: none;
+  flex: 1;
+  min-height: 32px;
+  max-height: 40px;
+}
+
+.input-row {
+  display: flex;
+  gap: 4px;
+}
+
+.input-row input {
+  flex: 1;
+}
+
+.icon-btn-sm {
+  padding: 6px 8px;
+  background: #e0f2fe;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.counter {
+  display: flex;
+  align-items: center;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  overflow: hidden;
+  width: fit-content;
+}
+
+.counter button {
+  width: 32px;
+  height: 32px;
+  background: #f9fafb;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.counter span {
+  width: 50px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.party-types {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.type-btn {
+  padding: 6px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  background: #fed7aa;
+  color: #9a3412;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.type-btn.active {
+  background: #f97316;
+  color: white;
+  border-color: #f97316;
+}
+
+.status-select {
+  padding: 6px 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  background: #b45309;
+  color: white;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+/* ===== FOOTER: 48px ===== */
+.main-footer {
+  height: 48px;
+  flex-shrink: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 16px;
+  background: #1e293b;
+  color: white;
+}
+
+.footer-info {
+  display: flex;
+  gap: 24px;
+  font-size: 12px;
+}
+
+.footer-info .label {
+  opacity: 0.7;
+  margin-right: 4px;
+}
+
+.footer-info .value {
+  font-weight: 600;
+  color: #f97316;
+}
+
+.btn-save {
+  padding: 8px 20px;
+  background: #f97316;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+/* ===== BOTTOM NAV: 56px ===== */
+.bottom-nav {
+  height: 56px;
+  flex-shrink: 0;
+  display: flex;
+  background: white;
+  border-top: 1px solid #e5e7eb;
+}
+
+.nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  background: transparent;
+  border: none;
+  border-top: 3px solid transparent;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 600;
+  color: #6b7280;
+}
+
+.nav-item.active {
+  color: #f97316;
+  border-top-color: #f97316;
+  background: #fff7ed;
+}
+
+.nav-icon {
+  font-size: 18px;
+}
+</style>
+```
+
+---
+
+## 📐 BẢNG PHÂN BỔ CHIỀU CAO
+
+| Section | Height | Fixed/Flex |
+|---------|--------|------------|
+| Top Header | **56px** | Fixed |
+| Main Area | **flex: 1** | Flex |
+| ├ Left Panel | **280px** wide | Fixed width |
+| ├ Right Panel | **flex: 1** | Flex |
+| │ ├ Customer Section | **130px** | Fixed |
+| │ └ Tabs Content | **flex: 1** | Flex (no scroll) |
+| Footer | **48px** | Fixed |
+| Bottom Nav | **56px** | Fixed |
+
+**Tổng:** 56 + 130 + 48 + 56 = **290px fixed** + flex content
+
+---
+
+## 🔑 NGUYÊN TẮC "NO SCROLL"
+
+### **1. Root Container**
+```css
+height: 100vh;
+overflow: hidden;  /* ← CẤM SCROLL TOÀN TRANG */
+```
+
+### **2. Flex Layout**
+```css
+display: flex;
+flex-direction: column;
+```
+
+### **3. Fixed Heights cho sections quan trọng**
+```css
+.top-header { height: 56px; flex-shrink: 0; }
+.customer-section { height: 130px; flex-shrink: 0; }
+.main-footer { height: 48px; flex-shrink: 0; }
+.bottom-nav { height: 56px; flex-shrink: 0; }
+```
+
+### **4. Flex: 1 cho content area**
+```css
+.main-area { flex: 1; overflow: hidden; min-height: 0; }
+.tabs-content { flex: 1; overflow: hidden; min-height: 0; }
+```
+
+### **5. Grid 3 cột cho form**
+```css
+.form-grid {
+  grid-template-columns: repeat(3, 1fr);
+  height: 100%;  /* ← Fit trong container */
+}
+```
+
+### **6. Compact inputs**
+```css
+input { padding: 6px 10px; font-size: 12px; }
+textarea { max-height: 40px; resize: none; }
+```
+
+---
+
+## ✅ KẾT QUẢ
+
+- ✅ **KHÔNG có scroll dọc** trên toàn trang
+- ✅ **Tất cả hiển thị** trong 100vh
+- ✅ **Form grid 3 cột** tiết kiệm chiều cao
+- ✅ **Customer section compact** (130px)
+- ✅ **Tabs content flex: 1** tự động fit
+- ✅ **Footer + Bottom Nav** cố định ở dưới
+- ✅ **Responsive** trên màn hình 1080p
+
+**Test trên màn hình 1080p: UI fit hoàn hảo, không scroll!** 🎯

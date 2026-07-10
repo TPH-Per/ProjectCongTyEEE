@@ -30,6 +30,7 @@ import type {
   ServiceRequest,
   Feedback,
 } from '@/types/customer'
+import { isValidUUID } from '@/utils/validators'
 
 export interface CustomerApi {
   // Authentication
@@ -299,6 +300,14 @@ export const customerApiImpl: CustomerApi = {
   },
 
   async createOrder(order: Order): Promise<Order> {
+    // Pre-flight UUID validation
+    for (const item of order.items) {
+      if (!isValidUUID(item.menuItemId)) {
+        console.error(`[customerApi] Invalid UUID: ${item.menuItemId}`)
+        throw new Error(`Mã món ăn "${item.name}" (${item.menuItemId}) không hợp lệ (yêu cầu UUID)`)
+      }
+    }
+
     // Route through the new SECURITY DEFINER RPC. It:
     //   1. Validates (branch, table)
     //   2. Activates / reuses tablet_session
@@ -348,6 +357,14 @@ export const customerApiImpl: CustomerApi = {
   },
 
   async updateOrder(orderId: string, items: CartItem[]): Promise<Order> {
+    // Pre-flight UUID validation
+    for (const item of items) {
+      if (!isValidUUID(item.menuItemId)) {
+        console.error(`[customerApi] Invalid UUID: ${item.menuItemId}`)
+        throw new Error(`Mã món ăn "${item.name}" (${item.menuItemId}) không hợp lệ (yêu cầu UUID)`)
+      }
+    }
+
     // Append more items to an existing order via the same RPC — the
     // RPC reuses the open order for the table.
     const cartItems = items.map((c) => ({

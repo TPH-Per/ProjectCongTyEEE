@@ -169,6 +169,7 @@ import { useCustomerSession } from "@/composables/useCustomerSession";
 import { useBusinessRules } from "@/composables/useBusinessRules";
 import CartItem from "@/components/customer/CartItem.vue";
 import Swal from "sweetalert2";
+import { isValidUUID } from "@/utils/validators";
 
 const store = useCustomerStore();
 const router = useRouter();
@@ -276,6 +277,20 @@ function backToMenu() {
 
 async function submitOrder() {
   if (cart.value.length === 0) return;
+
+  // Validate all items in the cart for valid UUID
+  const invalidItems = cart.value.filter(item => !isValidUUID(item.menuItemId));
+  if (invalidItems.length > 0) {
+    Swal.fire({
+      title: "Món ăn không hợp lệ",
+      text: `Món ăn "${invalidItems[0].name}" có mã không hợp lệ. Vui lòng tải lại thực đơn hoặc liên hệ nhân viên!`,
+      icon: "error",
+      background: "#1e1e1e",
+      color: "#fff",
+    });
+    return;
+  }
+
   submitting.value = true;
 
   try {

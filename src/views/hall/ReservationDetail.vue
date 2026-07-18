@@ -68,7 +68,7 @@
         <button 
           v-if="reservation.status !== 'dining'" 
           class="btn btn-danger" 
-          @click="handleUpdateStatus('NO_SHOW')"
+          @click="handleUpdateStatus('Cancelled')"
           :disabled="loading"
         >
           Hủy / No Show
@@ -98,7 +98,7 @@ const reservation = computed(() => {
   return hallStore.reservations.find(r => r.id === props.reservationId)
 })
 
-async function handleUpdateStatus(newStatus: 'CONFIRMED' | 'Dining' | 'NO_SHOW') {
+async function handleUpdateStatus(newStatus: 'CONFIRMED' | 'Dining' | 'Cancelled') {
   if (!props.reservationId) return
   loading.value = true
   try {

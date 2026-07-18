@@ -325,134 +325,403 @@
 
           <!-- IF activeMainTab !== 'invoice' (ĐANG ORDER / CHƯA XỬ LÝ / SƠ ĐỒ BÀN) -->
           <template v-if="activeMainTab !== 'invoice'">
-            <!-- 1. Header Info (Fixed) -->
-            <div
-              class="flex-shrink-0 bg-[#2d2d2d] border-b border-[#444] p-2 text-white"
+            <template
+              v-if="
+                activeMainTab === 'table_map' || activeMainTab === 'table_list'
+              "
             >
-              <div class="flex justify-between items-center text-[11px]">
-                <span class="text-[#E8772E] font-bold"
-                  >Vị trí: {{ selectedTableCode || "[Chưa chọn]" }}</span
+              <!-- Left Panel - Khách chờ xếp bàn (List View) -->
+              <div
+                class="unassigned-reservations-panel bg-gray-900 h-full flex flex-col border-r border-gray-700 text-white text-xs"
+              >
+                <!-- Header -->
+                <div
+                  class="p-4 border-b border-gray-700 bg-gradient-to-r from-blue-900 to-blue-800 flex-shrink-0"
                 >
-                <span class="text-gray-400">In: {{ printCount }}</span>
-              </div>
-              <div class="text-[10px] text-gray-500 mt-0.5">
-                TG: {{ currentTime }}
-              </div>
-              <input
-                type="text"
-                :placeholder="t('reception.customer_dots')"
-                v-model="activeOrder.customerName"
-                class="w-full mt-1.5 bg-[#1a1a1a] border border-[#444] rounded px-2 py-1 text-[11px] text-white"
-              />
-            </div>
-
-            <!-- 2. Order Items (Scrollable) -->
-            <div
-              class="flex-1 overflow-y-auto p-2 space-y-1.5 min-h-0 items-list animate-all duration-250"
-              style="scrollbar-width: thin; scrollbar-color: #e8772e #2d2d2d"
-            >
-              <!-- Empty State -->
-              <div
-                v-if="!activeOrder.items || activeOrder.items.length === 0"
-                class="flex flex-col items-center justify-center h-full text-gray-500 py-20"
-              >
-                <span class="text-3xl mb-2">🛒</span>
-                <p class="text-xs font-bold">
-                  {{ t("reception.empty_order") }}
-                </p>
-              </div>
-
-              <!-- Items -->
-              <div
-                v-for="item in activeOrder.items"
-                :key="item.id"
-                class="bg-[#2d2d2d] border border-[#444] rounded-lg p-2 flex-shrink-0 text-white hover:border-[#555] transition-all"
-              >
-                <div class="flex justify-between items-center gap-2">
-                  <h4
-                    class="text-[11px] font-bold text-white flex-1 truncate item-name-truncate"
-                    :title="item.name"
-                  >
-                    {{ item.name }}
-                  </h4>
-                  <div
-                    class="flex items-center gap-1 bg-[#1a1a1a] rounded px-1.5 py-0.5 flex-shrink-0"
-                  >
-                    <button
-                      type="button"
-                      @click="updateQty(item.id, -1)"
-                      class="w-5 h-5 text-xs text-white hover:bg-[#444] rounded flex items-center justify-center"
+                  <div class="flex items-center justify-between">
+                    <h2
+                      class="text-base font-bold text-white flex items-center gap-2"
                     >
-                      -
-                    </button>
+                      <span class="text-xl">⏳</span>
+                      Khách chờ xếp bàn
+                    </h2>
                     <span
-                      class="text-[11px] font-bold text-white w-4 text-center"
-                      >{{ item.quantity }}</span
+                      class="bg-yellow-500 text-black px-2 py-0.5 rounded-full text-xs font-black"
                     >
-                    <button
-                      type="button"
-                      @click="updateQty(item.id, 1)"
-                      class="w-5 h-5 text-xs text-white hover:bg-[#444] rounded flex items-center justify-center"
+                      {{ unassignedReservations.length }}
+                    </span>
+                  </div>
+                  <p class="text-[10px] text-blue-200 mt-1">
+                    Chưa được gán bàn
+                  </p>
+                </div>
+
+                <!-- Scrollable List -->
+                <div
+                  class="flex-1 overflow-y-auto min-h-0 ordering-screen-scrollbar"
+                >
+                  <!-- Empty State -->
+                  <div
+                    v-if="unassignedReservations.length === 0"
+                    class="text-center py-12 text-gray-500"
+                  >
+                    <div class="text-4xl mb-2">🎉</div>
+                    <p class="font-medium text-gray-400 text-xs">
+                      Tất cả khách đã được xếp bàn
+                    </p>
+                  </div>
+
+                  <!-- List Items -->
+                  <VueDraggable
+                    v-else
+                    v-model="draggableReservations"
+                    class="divide-y divide-gray-800"
+                    :group="{ name: 'guest-cards', pull: 'clone', put: false }"
+                    :sort="false"
+                    :animation="200"
+                    :clone="cloneReservation"
+                    :move="onReservationMove"
+                    @start="onDragStart"
+                    @end="onDragEnd"
+                    ghost-class="dragging-ghost"
+                    chosen-class="dragging-chosen"
+                    drag-class="dragging-clone"
+                  >
+                    <div
+                      v-for="reservation in unassignedReservations"
+                      :key="reservation.id"
+                      :data-reservation-id="reservation.id"
+                      class="reservation-item group hover:bg-blue-900/20 transition-all duration-200 cursor-move"
                     >
-                      +
-                    </button>
+                      <!-- Main Row -->
+                      <div class="p-3 flex items-center gap-2.5">
+                        <!-- Drag Handle -->
+                        <div
+                          class="text-gray-600 group-hover:text-blue-400 cursor-grab active:cursor-grabbing flex-shrink-0"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            class="h-4.5 w-4.5"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M4 8h16M4 16h16"
+                            />
+                          </svg>
+                        </div>
+
+                        <!-- Avatar -->
+                        <div
+                          class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center text-white font-bold text-xs flex-shrink-0"
+                        >
+                          {{
+                            getInitials(
+                              reservation.customer_snapshot?.name ||
+                                reservation.customer_name,
+                            )
+                          }}
+                        </div>
+
+                        <!-- Info -->
+                        <div class="flex-1 min-w-0">
+                          <div class="flex items-center gap-2">
+                            <h3
+                              class="font-bold text-white text-xs truncate max-w-[100px]"
+                              :title="
+                                reservation.customer_snapshot?.name ||
+                                reservation.customer_name
+                              "
+                            >
+                              {{
+                                reservation.customer_snapshot?.name ||
+                                reservation.customer_name ||
+                                "Khách vãng lai"
+                              }}
+                            </h3>
+                            <span
+                              :class="getPaxBadgeClass(reservation.guests)"
+                              class="text-[9px] px-1.5 py-0.5 rounded-full font-bold uppercase shrink-0"
+                            >
+                              {{ reservation.guests }} người
+                            </span>
+                          </div>
+                          <div
+                            class="flex items-center gap-3 mt-1 text-[10px] text-gray-400"
+                          >
+                            <span
+                              class="flex items-center gap-1 font-semibold text-blue-200"
+                            >
+                              ⏱️ {{ formatTime(reservation.reservation_time) }}
+                            </span>
+                            <span
+                              v-if="
+                                reservation.customer_snapshot?.phone ||
+                                reservation.phone
+                              "
+                              class="truncate"
+                            >
+                              {{
+                                formatPhone(
+                                  reservation.customer_snapshot?.phone ||
+                                    reservation.phone ||
+                                    "",
+                                )
+                              }}
+                            </span>
+                          </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="flex items-center gap-1 flex-shrink-0">
+                          <!-- Source Icon -->
+                          <span
+                            :title="getSourceText(reservation.source)"
+                            class="text-sm"
+                          >
+                            {{ getSourceIcon(reservation.source) }}
+                          </span>
+
+                          <!-- More Button (3 dots) -->
+                          <button
+                            @click.stop="openDetailPopup(reservation)"
+                            type="button"
+                            class="p-1 hover:bg-gray-800 rounded-lg transition-colors text-gray-400 hover:text-white"
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              class="h-4.5 w-4.5"
+                              viewBox="0 0 20 20"
+                              fill="currentColor"
+                            >
+                              <path
+                                d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"
+                              />
+                            </svg>
+                          </button>
+                        </div>
+                      </div>
+
+                      <!-- Quick Info Bar (shows on hover) -->
+                      <div
+                        class="px-3 pb-2 pl-12 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 text-[10px]"
+                      >
+                        <span class="text-gray-500 font-bold">Ghi chú:</span>
+                        <span
+                          class="text-gray-400 truncate max-w-[180px] italic"
+                        >
+                          {{
+                            reservation.notes?.request ||
+                            reservation.notes?.internal ||
+                            reservation.notes ||
+                            "Không có"
+                          }}
+                        </span>
+                      </div>
+                    </div>
+                  </VueDraggable>
+                </div>
+
+                <!-- Footer Stats -->
+                <div
+                  class="p-3 border-t border-gray-700 bg-gray-800/50 text-[10px] flex-shrink-0"
+                >
+                  <div class="grid grid-cols-3 gap-2 text-center">
+                    <div>
+                      <div
+                        class="text-gray-500 font-bold uppercase tracking-wide"
+                      >
+                        Tổng
+                      </div>
+                      <div class="font-bold text-white mt-0.5">
+                        {{ totalReservations }}
+                      </div>
+                    </div>
+                    <div>
+                      <div
+                        class="text-gray-500 font-bold uppercase tracking-wide"
+                      >
+                        Đã xếp
+                      </div>
+                      <div class="font-bold text-green-400 mt-0.5">
+                        {{ assignedCount }}
+                      </div>
+                    </div>
+                    <div>
+                      <div
+                        class="text-gray-500 font-bold uppercase tracking-wide"
+                      >
+                        Chờ
+                      </div>
+                      <div class="font-bold text-yellow-400 mt-0.5">
+                        {{ unassignedCount }}
+                      </div>
+                    </div>
                   </div>
                 </div>
-                <div
-                  class="flex justify-between items-center text-[10px] pt-1 border-t border-[#444] mt-1"
-                >
-                  <span class="text-gray-400"
-                    >{{ formatVND(item.price) }}/{{ item.unit }}</span
+              </div>
+            </template>
+
+            <!-- TRADITIONAL CART VIEW (Khi đang Order món) -->
+            <template v-else>
+              <!-- 1. Header Info (Fixed) -->
+              <div
+                class="flex-shrink-0 bg-[#2d2d2d] border-b border-[#444] p-2 text-white"
+              >
+                <div class="flex justify-between items-center text-[11px]">
+                  <span class="text-[#E8772E] font-bold"
+                    >Vị trí: {{ selectedTableCode || "[Chưa chọn]" }}</span
                   >
-                  <span class="text-[#E8772E] font-bold font-mono">{{
-                    formatVND(item.price * item.quantity)
-                  }}</span>
+                  <span class="text-gray-400">In: {{ printCount }}</span>
+                </div>
+                <div class="text-[10px] text-gray-500 mt-0.5">
+                  TG: {{ currentTime }}
+                </div>
+                <input
+                  type="text"
+                  :placeholder="t('reception.customer_dots')"
+                  v-model="activeOrder.customerName"
+                  class="w-full mt-1.5 bg-[#1a1a1a] border border-[#444] rounded px-2 py-1 text-[11px] text-white"
+                />
+              </div>
+
+              <!-- 2. Order Items (Scrollable) -->
+              <div
+                class="flex-1 overflow-y-auto p-2 space-y-1.5 min-h-0 items-list animate-all duration-250"
+                style="scrollbar-width: thin; scrollbar-color: #e8772e #2d2d2d"
+              >
+                <!-- Empty State -->
+                <div
+                  v-if="!activeOrder.items || activeOrder.items.length === 0"
+                  class="flex flex-col items-center justify-center h-full text-gray-500 py-20"
+                >
+                  <span class="text-3xl mb-2">🛒</span>
+                  <p class="text-xs font-bold">
+                    {{ t("reception.empty_order") }}
+                  </p>
+                </div>
+
+                <!-- Items -->
+                <div
+                  v-for="item in activeOrder.items"
+                  :key="item.id"
+                  class="bg-[#2d2d2d] border border-[#444] rounded-lg p-2 flex-shrink-0 text-white hover:border-[#555] transition-all"
+                >
+                  <div class="flex justify-between items-center gap-2">
+                    <h4
+                      class="text-[11px] font-bold text-white flex-1 truncate item-name-truncate"
+                      :title="item.name"
+                    >
+                      {{ item.name }}
+                    </h4>
+                    <!-- Hủy / Xóa món -->
+                    <button
+                      type="button"
+                      @click="handleRemoveOrCancelItem(item)"
+                      class="w-5 h-5 text-xs text-red-500 hover:text-red-400 hover:bg-red-500/10 rounded flex items-center justify-center font-bold flex-shrink-0"
+                      title="Xóa / Hủy món"
+                    >
+                      ✖
+                    </button>
+                    <div
+                      class="flex items-center gap-1 bg-[#1a1a1a] rounded px-1.5 py-0.5 flex-shrink-0"
+                    >
+                      <button
+                        type="button"
+                        @click="updateQty(item.id, -1)"
+                        class="w-5 h-5 text-xs text-white hover:bg-[#444] rounded flex items-center justify-center"
+                      >
+                        -
+                      </button>
+                      <span
+                        class="text-[11px] font-bold text-white w-4 text-center"
+                        >{{ item.quantity }}</span
+                      >
+                      <button
+                        type="button"
+                        @click="updateQty(item.id, 1)"
+                        class="w-5 h-5 text-xs text-white hover:bg-[#444] rounded flex items-center justify-center"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                  <div
+                    class="flex justify-between items-center text-[10px] pt-1 border-t border-[#444] mt-1"
+                  >
+                    <span class="text-gray-400"
+                      >{{ formatVND(item.price) }}/{{ item.unit }}</span
+                    >
+                    <span class="text-[#E8772E] font-bold font-mono">{{
+                      formatVND(item.price * item.quantity)
+                    }}</span>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <!-- 3. Billing Summary (Fixed bottom) -->
-            <div
-              class="flex-shrink-0 bg-[#2d2d2d] border-t border-[#444] p-2 text-white"
-            >
-              <div class="flex justify-between text-[11px] mb-1">
-                <span class="text-gray-400">{{
-                  t("reception.goods_amount")
-                }}</span>
-                <span class="text-white font-mono">{{
-                  formatVND(summary.subtotal)
-                }}</span>
-              </div>
-              <div class="flex justify-between text-[11px] mb-1">
-                <span class="text-gray-400">{{ t("reception.discount") }}</span>
-                <span class="text-red-400 font-mono"
-                  >-{{ formatVND(summary.discount) }}</span
-                >
-              </div>
-              <div class="flex justify-between text-[11px] mb-1">
-                <span class="text-gray-400">VAT (8%):</span>
-                <span class="text-green-400 font-mono">{{
-                  formatVND(summary.vat)
-                }}</span>
-              </div>
+              <!-- 3. Billing Summary (Fixed bottom - Waterfall Calculation) -->
               <div
-                class="flex justify-between text-xs font-bold pt-1.5 border-t border-[#444] mt-1.5"
+                class="flex-shrink-0 bg-[#2d2d2d] border-t border-[#444] p-3 text-white space-y-1.5"
               >
-                <span class="text-white">{{ t("reception.total") }}</span>
-                <span class="text-[#E8772E] font-mono text-sm">{{
-                  formatVND(summary.grandTotal)
-                }}</span>
-              </div>
+                <div class="flex justify-between text-[11px]">
+                  <span class="text-gray-400">Tổng tiền món (Subtotal):</span>
+                  <span class="text-white font-mono font-bold">{{
+                    formatVND(summary.rawSubtotal)
+                  }}</span>
+                </div>
+                <div class="flex justify-between text-[11px] text-green-400">
+                  <span>- Ưu đãi (Lunch/Buffet/Voucher):</span>
+                  <span class="font-mono font-bold"
+                    >-{{ formatVND(summary.totalDiscount) }}</span
+                  >
+                </div>
+                <div class="flex justify-between text-[11px]">
+                  <span class="text-gray-400">+ Phí phục vụ (5%):</span>
+                  <span class="text-white font-mono font-bold">{{
+                    formatVND(summary.serviceCharge)
+                  }}</span>
+                </div>
+                <div class="flex justify-between text-[11px]">
+                  <span class="text-gray-400">+ Thuế GTGT (VAT 8%):</span>
+                  <span class="text-white font-mono font-bold">{{
+                    formatVND(summary.vat)
+                  }}</span>
+                </div>
+                <div
+                  class="flex justify-between items-center pt-2 border-t border-[#444] mt-2"
+                >
+                  <span class="text-white text-xs font-bold"
+                    >TỔNG THANH TOÁN:</span
+                  >
+                  <span class="text-[#E8772E] font-mono text-2xl font-black">{{
+                    formatVND(summary.grandTotal)
+                  }}</span>
+                </div>
 
-              <!-- Go to Menu button -->
-              <button
-                class="w-full mt-2.5 py-1.5 bg-[#2980B9] hover:bg-[#1a5276] text-white text-xs font-bold rounded-lg transition-all active:scale-95 shadow font-sans"
-                type="button"
-                @click="activeMainTab = 'menu'"
-              >
-                {{ t("reception.view_menu") }}
-              </button>
-            </div>
+                <!-- Action Buttons (Menu & Hủy bàn) -->
+                <div class="flex gap-2 mt-2.5">
+                  <button
+                    class="flex-1 py-1.5 bg-[#2980B9] hover:bg-[#1a5276] text-white text-xs font-bold rounded-lg transition-all active:scale-95 shadow font-sans"
+                    type="button"
+                    @click="activeMainTab = 'menu'"
+                  >
+                    {{ t("reception.view_menu") }}
+                  </button>
+                  <button
+                    v-if="isSelectedTableOccupied"
+                    class="flex-1 py-1.5 bg-[#F44336] hover:bg-[#d32f2f] text-white text-xs font-bold rounded-lg transition-all active:scale-95 shadow font-sans"
+                    type="button"
+                    @click="triggerCancelTableFlow"
+                  >
+                    ❌ Hủy bàn
+                  </button>
+                </div>
+              </div>
+            </template>
           </template>
 
           <!-- IF activeMainTab === 'invoice' (CHI TIẾT ORDER - BẾP & GIAO HÀNG) -->
@@ -616,12 +885,26 @@
               <span>{{ t("reception.menu") }}</span>
             </button>
             <button
-              :class="['nav-btn', activeMainTab === 'invoice' ? 'active' : '']"
+              :class="[
+                'nav-btn',
+                String(activeMainTab) === 'invoice' ? 'active' : '',
+              ]"
               @click="activeMainTab = 'invoice'"
               type="button"
             >
               <span class="nav-icon">📄</span>
               <span>{{ t("reception.receipt") }}</span>
+            </button>
+            <button
+              :class="[
+                'nav-btn',
+                activeMainTab === 'table_list' ? 'active' : '',
+              ]"
+              @click="activeMainTab = 'table_list'"
+              type="button"
+            >
+              <span class="nav-icon">📋</span>
+              <span>Danh sách bàn</span>
             </button>
             <button
               v-if="
@@ -647,6 +930,79 @@
             v-if="activeMainTab === 'table_map'"
             class="flex-1 flex flex-col justify-between overflow-hidden p-5"
           >
+            <!-- Timeline Slider (Task UI-1.2) -->
+            <div
+              class="timeline-slider-container bg-[#2d2d2d] border border-[#444] p-4 rounded-xl mb-4 text-white"
+            >
+              <div class="flex flex-wrap items-center gap-4">
+                <label
+                  class="text-gray-300 font-bold text-xs uppercase tracking-wider"
+                  >Khung giờ xem trước:</label
+                >
+
+                <!-- Time Range Display -->
+                <div
+                  class="time-display bg-[#1a1a1a] px-3 py-1.5 rounded-lg border border-[#444] font-mono text-sm text-[#E8772E] font-bold"
+                >
+                  ⏱️ {{ formatMinutesToTime(selectedStartTime) }} -
+                  {{ formatMinutesToTime(selectedEndTime) }}
+                </div>
+
+                <!-- Slider -->
+                <input
+                  type="range"
+                  min="660"
+                  max="1320"
+                  step="30"
+                  v-model.number="selectedStartTime"
+                  class="flex-1 h-1.5 bg-[#444] rounded-lg appearance-none cursor-pointer accent-[#E8772E]"
+                />
+
+                <!-- Quick Presets -->
+                <div class="flex gap-2">
+                  <button
+                    type="button"
+                    @click="setPresetTime('lunch')"
+                    class="px-2.5 py-1 bg-[#1a5276] hover:bg-[#2980b9] text-white text-[11px] font-bold rounded transition-all"
+                  >
+                    ☀️ Trưa (11:30 - 13:30)
+                  </button>
+                  <button
+                    type="button"
+                    @click="setPresetTime('dinner')"
+                    class="px-2.5 py-1 bg-[#78281f] hover:bg-[#c0392b] text-white text-[11px] font-bold rounded transition-all"
+                  >
+                    🌙 Tối (18:00 - 21:00)
+                  </button>
+                </div>
+
+                <!-- Refresh Button -->
+                <button
+                  type="button"
+                  @click="refreshTableAvailability"
+                  class="p-1.5 bg-[#444] hover:bg-[#555] rounded-lg transition-all text-xs"
+                  title="Tải lại dữ liệu"
+                >
+                  🔄
+                </button>
+              </div>
+
+              <!-- Progress indicator -->
+              <div class="mt-2 text-[10px] text-gray-400 flex justify-between">
+                <span
+                  >Đang xem: {{ availableTablesCount }} bàn trống /
+                  {{ totalTablesCount }} tổng số bàn</span
+                >
+                <span
+                  class="text-orange-400 font-bold"
+                  v-if="Object.keys(tableConflicts).length > 0"
+                >
+                  ⚠️ Có {{ Object.keys(tableConflicts).length }} bàn bị
+                  trùng/đặt trước trong khung giờ này
+                </span>
+              </div>
+            </div>
+
             <!-- Table Map scrollable grid -->
             <div
               class="flex-1 overflow-y-auto ordering-screen-scrollbar space-y-6 pr-1"
@@ -655,17 +1011,35 @@
               <div
                 class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4"
               >
-                <div
+                <VueDraggable
                   v-for="table in filteredTables"
                   :key="table.code"
+                  :model-value="getTableDropBuffer(table.code)"
+                  @update:model-value="(val: any) => { tableDropBuffers[table.code] = val || [] }"
+                  :group="{ name: 'guest-cards', pull: false, put: true }"
+                  :sort="false"
+                  :animation="200"
+                  :draggable="'.nonexistent'"
+                  :data-table-code="table.code"
+                  @add="onTableDropSortable($event, table)"
                   @click="handleTableClick(table)"
                   @dblclick="handleTableDoubleClick(table, $event)"
+                  :title="getTableTooltip(table)"
                   :class="[
                     'p-3 rounded-xl border-2 transition-all cursor-pointer flex flex-col justify-between min-h-[110px] text-center hover:scale-[1.02] active:scale-[0.98] duration-200 shadow-sm relative',
                     selectedTableCode === table.code
                       ? 'border-orange-500 ring-2 ring-orange-400 bg-orange-50/5'
                       : 'border-transparent',
-                    getTableStatusClass(table),
+                    getTableStatusColorClass(table),
+                    // Drag & drop states
+                    draggedReservation &&
+                    canTableAcceptReservation(table, draggedReservation).valid
+                      ? 'hover:ring-4 hover:ring-blue-500 hover:scale-105 cursor-pointer'
+                      : '',
+                    draggedReservation &&
+                    !canTableAcceptReservation(table, draggedReservation).valid
+                      ? 'opacity-60 cursor-not-allowed'
+                      : '',
                     // Selection Mode styles
                     selectionMode !== 'none' && table.code === sourceTableCode
                       ? 'ring-4 ring-red-500 border-red-500 animate-pulse'
@@ -726,8 +1100,29 @@
                     </div>
                   </div>
                   <div
+                    v-else-if="tableConflicts[table.code]"
+                    class="mt-2 text-[10px] text-orange-300"
+                  >
+                    <div class="font-black truncate">
+                      {{
+                        tableConflicts[table.code].customer_snapshot?.name ||
+                        "Đặt trước"
+                      }}
+                    </div>
+                    <div class="text-[9px] text-gray-400 mt-0.5">
+                      📅
+                      {{
+                        tableConflicts[table.code].reservation_time.substring(
+                          0,
+                          5,
+                        )
+                      }}
+                      — {{ tableConflicts[table.code].guests }} khách
+                    </div>
+                  </div>
+                  <div
                     v-else-if="table.status === 'Reserved'"
-                    class="mt-2 text-[10px] text-red-300"
+                    class="mt-2 text-[10px] text-yellow-300"
                   >
                     <div class="font-black truncate">
                       {{ table.customerName || "Đã đặt" }}
@@ -737,7 +1132,22 @@
                   <div v-else class="mt-2 text-[10px] text-gray-500">
                     {{ t("reception.empty") }}
                   </div>
-                </div>
+
+                  <!-- Drop indicator overlay -->
+                  <div
+                    v-if="
+                      draggedReservation &&
+                      canTableAcceptReservation(table, draggedReservation).valid
+                    "
+                    class="absolute inset-0 flex items-center justify-center bg-blue-500/20 rounded-xl pointer-events-none z-10"
+                  >
+                    <div
+                      class="bg-blue-600 text-white px-3 py-1.5 rounded-lg font-bold shadow-lg animate-pulse text-[10px] uppercase tracking-wide"
+                    >
+                      + Thả vào đây
+                    </div>
+                  </div>
+                </VueDraggable>
               </div>
             </div>
 
@@ -861,6 +1271,182 @@
                     <line x1="6" y1="6" x2="18" y2="18"></line>
                   </svg>
                 </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB D: TABLE LIST VIEW (Danh sách bàn) -->
+          <div
+            v-if="activeMainTab === 'table_list'"
+            class="flex-1 flex flex-col justify-between overflow-hidden p-5"
+          >
+            <!-- Timeline Slider (Task UI-1.2) -->
+            <div
+              class="timeline-slider-container bg-[#2d2d2d] border border-[#444] p-4 rounded-xl mb-4 text-white"
+            >
+              <div class="flex flex-wrap items-center gap-4">
+                <label
+                  class="text-gray-300 font-bold text-xs uppercase tracking-wider"
+                  >Khung giờ xem trước:</label
+                >
+
+                <!-- Time Range Display -->
+                <div
+                  class="time-display bg-[#1a1a1a] px-3 py-1.5 rounded-lg border border-[#444] font-mono text-sm text-[#E8772E] font-bold"
+                >
+                  ⏱️ {{ formatMinutesToTime(selectedStartTime) }} -
+                  {{ formatMinutesToTime(selectedEndTime) }}
+                </div>
+
+                <!-- Slider -->
+                <input
+                  type="range"
+                  min="660"
+                  max="1320"
+                  step="30"
+                  v-model.number="selectedStartTime"
+                  class="flex-1 h-1.5 bg-[#444] rounded-lg appearance-none cursor-pointer accent-[#E8772E]"
+                />
+
+                <!-- Quick Presets -->
+                <div class="flex gap-2">
+                  <button
+                    type="button"
+                    @click="setPresetTime('lunch')"
+                    class="px-2.5 py-1 bg-[#1a5276] hover:bg-[#2980b9] text-white text-[11px] font-bold rounded transition-all"
+                  >
+                    ☀️ Trưa (11:30 - 13:30)
+                  </button>
+                  <button
+                    type="button"
+                    @click="setPresetTime('dinner')"
+                    class="px-2.5 py-1 bg-[#78281f] hover:bg-[#c0392b] text-white text-[11px] font-bold rounded transition-all"
+                  >
+                    🌙 Tối (18:00 - 21:00)
+                  </button>
+                </div>
+
+                <!-- Refresh Button -->
+                <button
+                  type="button"
+                  @click="refreshTableAvailability"
+                  class="p-1.5 bg-[#444] hover:bg-[#555] rounded-lg transition-all text-xs"
+                  title="Tải lại dữ liệu"
+                >
+                  🔄
+                </button>
+              </div>
+
+              <!-- Progress indicator -->
+              <div class="mt-2 text-[10px] text-gray-400 flex justify-between">
+                <span
+                  >Đang xem: {{ availableTablesCount }} bàn trống /
+                  {{ totalTablesCount }} tổng số bàn</span
+                >
+                <span
+                  class="text-orange-400 font-bold"
+                  v-if="Object.keys(tableConflicts).length > 0"
+                >
+                  ⚠️ Có {{ Object.keys(tableConflicts).length }} bàn bị
+                  trùng/đặt trước trong khung giờ này
+                </span>
+              </div>
+            </div>
+
+            <!-- Table List scrollable container -->
+            <div
+              class="flex-1 overflow-y-auto ordering-screen-scrollbar bg-[#2d2d2d] border border-[#444] rounded-xl p-4"
+            >
+              <table
+                class="w-full text-left border-collapse text-white text-xs"
+              >
+                <thead>
+                  <tr
+                    class="border-b border-[#444] text-[#E8772E] font-bold uppercase tracking-wider text-[10px]"
+                  >
+                    <th class="py-2.5 px-3">Số bàn</th>
+                    <th class="py-2.5 px-3">Khu vực</th>
+                    <th class="py-2.5 px-3">Trạng thái</th>
+                    <th class="py-2.5 px-3">Khách hàng</th>
+                    <th class="py-2.5 px-3">Thời gian</th>
+                    <th class="py-2.5 px-3">Số khách</th>
+                    <th class="py-2.5 px-3">Tổng tiền</th>
+                    <th class="py-2.5 px-3 text-center">Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-[#333]">
+                  <VueDraggable
+                    v-for="table in allTablesWithInfo"
+                    :key="table.code"
+                    :tag="'tr'"
+                    :model-value="getTableDropBuffer(table.code)"
+                    @update:model-value="(val: any) => { tableDropBuffers[table.code] = val || [] }"
+                    :group="{ name: 'guest-cards', pull: false, put: true }"
+                    :sort="false"
+                    :animation="200"
+                    :draggable="'.nonexistent'"
+                    :data-table-code="table.code"
+                    @add="onTableDropSortable($event, table)"
+                    :class="[
+                      'transition-colors hover:bg-[#333]/50',
+                      getTableStatusRowClass(table),
+                      draggedReservation &&
+                      canTableAcceptReservation(table, draggedReservation).valid
+                        ? 'hover:ring-2 hover:ring-blue-500 cursor-pointer bg-blue-500/10'
+                        : '',
+                      draggedReservation &&
+                      !canTableAcceptReservation(table, draggedReservation)
+                        .valid
+                        ? 'opacity-40 cursor-not-allowed'
+                        : '',
+                    ]"
+                  >
+                    <td class="py-3 px-3 font-extrabold text-sm text-[#E8772E]">
+                      {{ table.code }}
+                    </td>
+                    <td class="py-3 px-3 font-medium">{{ table.areaName }}</td>
+                    <td class="py-3 px-3">
+                      <span
+                        :class="[
+                          'px-2 py-0.5 rounded text-[9px] font-bold tracking-wide uppercase',
+                          getTableStatusBadgeClass(table),
+                        ]"
+                      >
+                        {{ getTableStatusText(table) }}
+                      </span>
+                    </td>
+                    <td class="py-3 px-3 font-medium">
+                      {{ table.customerName || "-" }}
+                    </td>
+                    <td class="py-3 px-3 font-mono">
+                      {{ table.checkInTime || "-" }}
+                    </td>
+                    <td class="py-3 px-3">{{ getTablePaxCount(table) }}</td>
+                    <td class="py-3 px-3 font-mono font-bold text-orange-400">
+                      {{ table.billAmount || "-" }}
+                    </td>
+                    <td class="py-3 px-3 text-center">
+                      <button
+                        type="button"
+                        @click="handleTableListActionClick(table, $event)"
+                        class="px-2.5 py-1 bg-[#1a1a1a] hover:bg-[#444] text-white border border-[#444] rounded font-bold transition-all text-[11px] active:scale-95 shadow-sm"
+                      >
+                        ⚡ Thao tác
+                      </button>
+                    </td>
+                  </VueDraggable>
+                </tbody>
+              </table>
+
+              <!-- Empty state -->
+              <div
+                v-if="allTablesWithInfo.length === 0"
+                class="flex flex-col items-center justify-center py-20 text-gray-500"
+              >
+                <span class="text-3xl">📭</span>
+                <p class="text-xs font-bold mt-2">
+                  Không tìm thấy bàn nào khớp với điều kiện tìm kiếm.
+                </p>
               </div>
             </div>
           </div>
@@ -1920,18 +2506,11 @@
                   {{ t("reception.print_provisional") }}
                 </button>
                 <button
-                  @click="finishOrder(false)"
+                  @click="triggerPaymentFlow"
                   type="button"
-                  class="px-3 py-1.5 bg-[#F44336] hover:bg-[#d32f2f] active:scale-95 transition-all text-white text-xs font-bold rounded shadow"
+                  class="px-4 py-2 bg-[#4CAF50] hover:bg-[#43A047] active:scale-95 transition-all text-white text-xs font-extrabold rounded-lg shadow flex items-center gap-1.5 uppercase tracking-wider"
                 >
-                  {{ t("reception.end") }}
-                </button>
-                <button
-                  @click="finishOrder(true)"
-                  type="button"
-                  class="px-3 py-2 bg-[#d32f2f] hover:bg-[#c62828] active:scale-95 transition-all text-white text-xs font-bold rounded shadow"
-                >
-                  {{ t("reception.print_and_end") }}
+                  💵 {{ t("reception.checkout_btn", "Thanh toán") }}
                 </button>
               </div>
             </div>
@@ -2003,6 +2582,26 @@
               </div>
             </div>
           </div>
+          <FloorViewFooter
+            v-if="
+              activeMainTab === 'table_map' || activeMainTab === 'table_list'
+            "
+            :selected-zone="selectedZone"
+            :selected-filter="selectedFilter"
+            :view-mode="viewMode"
+            @update:selected-zone="selectedZone = $event"
+            @update:selected-filter="selectedFilter = $event"
+            @update:view-mode="setViewMode($event)"
+            @close-floor-view="closeFloorView"
+          />
+
+          <!-- Spacer to prevent content being hidden under footer -->
+          <div
+            v-if="
+              activeMainTab === 'table_map' || activeMainTab === 'table_list'
+            "
+            class="h-16 shrink-0"
+          ></div>
         </main>
       </div>
 
@@ -2734,6 +3333,230 @@
                 <span>{{ t("reception_order.them_vao_gio_hang") }}</span>
               </button>
             </footer>
+          </div>
+        </div>
+      </transition>
+
+      <!-- Detail Popup Modal for Reservations -->
+      <transition name="fade">
+        <div
+          v-if="selectedReservation"
+          class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          @click.self="closeDetailPopup"
+        >
+          <div
+            class="bg-gray-800 rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-gray-700 animate-fade-in text-white text-xs"
+          >
+            <!-- Header -->
+            <div class="bg-gradient-to-r from-blue-900 to-blue-800 p-5">
+              <div class="flex items-start justify-between">
+                <div class="flex items-center gap-4">
+                  <div
+                    class="w-14 h-14 rounded-full bg-white/20 flex items-center justify-center text-white font-bold text-xl"
+                  >
+                    {{
+                      getInitials(
+                        selectedReservation.customer_snapshot?.name ||
+                          selectedReservation.customer_name,
+                      )
+                    }}
+                  </div>
+                  <div>
+                    <h3 class="text-lg font-bold text-white leading-tight">
+                      {{
+                        selectedReservation.customer_snapshot?.name ||
+                        selectedReservation.customer_name ||
+                        "Khách đặt"
+                      }}
+                    </h3>
+                    <div class="flex items-center gap-2 mt-1.5">
+                      <span
+                        :class="getSourceBadgeClass(selectedReservation.source)"
+                        class="text-[10px] px-2 py-0.5 rounded font-bold uppercase"
+                      >
+                        {{ getSourceText(selectedReservation.source) }}
+                      </span>
+                      <span class="text-blue-200 text-xs font-semibold">
+                        Đặt lúc:
+                        {{ formatDateTime(selectedReservation.created_at) }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <button
+                  @click="closeDetailPopup"
+                  class="text-white/70 hover:text-white transition-colors bg-white/10 hover:bg-white/20 p-1.5 rounded-full"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-4.5 w-4.5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Content -->
+            <div class="p-5 space-y-4 text-xs">
+              <!-- Contact Info -->
+              <div class="grid grid-cols-2 gap-3">
+                <div
+                  class="bg-gray-700/40 rounded-xl p-3 border border-gray-700/60"
+                >
+                  <div
+                    class="text-[10px] text-gray-400 mb-1 font-bold uppercase tracking-wider"
+                  >
+                    Số điện thoại
+                  </div>
+                  <div class="text-white font-bold text-sm">
+                    {{
+                      selectedReservation.customer_snapshot?.phone ||
+                      selectedReservation.phone ||
+                      "Chưa có"
+                    }}
+                  </div>
+                </div>
+                <div
+                  class="bg-gray-700/40 rounded-xl p-3 border border-gray-700/60"
+                >
+                  <div
+                    class="text-[10px] text-gray-400 mb-1 font-bold uppercase tracking-wider"
+                  >
+                    Email
+                  </div>
+                  <div class="text-white font-semibold truncate">
+                    {{
+                      selectedReservation.customer_snapshot?.email ||
+                      selectedReservation.email ||
+                      "Chưa có"
+                    }}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Reservation Info -->
+              <div
+                class="bg-blue-950/20 border border-blue-900/40 rounded-xl p-4"
+              >
+                <h4
+                  class="text-xs font-bold text-blue-300 mb-3 uppercase tracking-wider"
+                >
+                  Thông tin đặt bàn
+                </h4>
+                <div class="grid grid-cols-2 gap-3">
+                  <div>
+                    <div class="text-[10px] text-gray-400">Thời gian</div>
+                    <div class="text-white font-bold mt-0.5">
+                      {{ formatTime(selectedReservation.reservation_time) }}
+                    </div>
+                  </div>
+                  <div>
+                    <div class="text-[10px] text-gray-400">Số người</div>
+                    <div class="text-yellow-400 font-bold mt-0.5">
+                      {{ selectedReservation.guests }} khách
+                    </div>
+                  </div>
+                  <div>
+                    <div class="text-[10px] text-gray-400">Ngày đặt</div>
+                    <div class="text-white font-bold mt-0.5">
+                      {{ formatDate(selectedReservation.date) }}
+                    </div>
+                  </div>
+                  <div>
+                    <div class="text-[10px] text-gray-400">Trạng thái</div>
+                    <div class="mt-0.5">
+                      <span
+                        class="bg-yellow-600/80 text-white text-[10px] px-2 py-0.5 rounded font-bold uppercase"
+                      >
+                        {{ getStatusText(selectedReservation.status) }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Notes -->
+              <div
+                v-if="
+                  selectedReservation.notes?.request ||
+                  selectedReservation.notes?.internal
+                "
+                class="bg-gray-700/40 rounded-xl p-3 border border-gray-700/60"
+              >
+                <div
+                  class="text-[10px] text-gray-400 mb-1 font-bold uppercase tracking-wider"
+                >
+                  Ghi chú
+                </div>
+                <div class="text-gray-300 text-xs leading-relaxed">
+                  {{
+                    selectedReservation.notes.request ||
+                    selectedReservation.notes.internal
+                  }}
+                </div>
+              </div>
+
+              <!-- Preferred Zone -->
+              <div
+                v-if="
+                  selectedReservation.preferred_zone ||
+                  selectedReservation.preferredZone
+                "
+                class="bg-gray-700/40 rounded-xl p-3 border border-gray-700/60"
+              >
+                <div
+                  class="text-[10px] text-gray-400 mb-1 font-bold uppercase tracking-wider"
+                >
+                  Khu vực yêu thích
+                </div>
+                <div class="text-white font-bold text-sm">
+                  Khu
+                  {{
+                    selectedReservation.preferred_zone ||
+                    selectedReservation.preferredZone
+                  }}
+                </div>
+              </div>
+
+              <!-- Actions -->
+              <div class="flex gap-3 pt-3 border-t border-gray-700/60">
+                <button
+                  @click="assignQuickTable(selectedReservation)"
+                  class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2.5 px-4 rounded-xl font-bold transition-all flex items-center justify-center gap-2 active:scale-95 shadow-md shadow-blue-500/10"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-4 w-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
+                  </svg>
+                  Xếp bàn nhanh
+                </button>
+                <button
+                  @click="handleCancelReservation(selectedReservation.id)"
+                  class="bg-red-900/25 hover:bg-red-800/45 text-red-300 border border-red-950 py-2.5 px-4 rounded-xl font-bold transition-all active:scale-95"
+                >
+                  Hủy đặt chỗ
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </transition>
@@ -3520,11 +4343,11 @@
             :key="action.id"
             @click="handleTableAction(action.id)"
             class="w-full flex items-center gap-3 p-3 rounded-xl transition-all group"
-            :class="[
+            :class="
               action.isPrimary
                 ? 'primary-action bg-gradient-to-r from-green-50 to-green-100/80 border-2 border-green-500 p-4 mb-3'
-                : 'hover:bg-gray-50',
-            ]"
+                : 'hover:bg-gray-50'
+            "
             type="button"
           >
             <div
@@ -3561,6 +4384,17 @@
               :class="[action.isPrimary ? 'text-green-600' : '']"
               >➡️</span
             >
+          </button>
+        </div>
+
+        <!-- Footer / Cancel Button -->
+        <div class="p-3 bg-gray-50 border-t border-gray-100 flex justify-end">
+          <button
+            @click="showTableContextMenu = false"
+            class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-sm rounded-lg transition-colors active:scale-95"
+            type="button"
+          >
+            Hủy
           </button>
         </div>
       </div>
@@ -3751,6 +4585,169 @@
       </div>
     </Transition>
 
+    <!-- Modal 6: HỦY MÓN & NHẬP PIN -->
+    <Transition name="fade">
+      <div
+        v-if="showCancelItemModal"
+        class="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs text-gray-800"
+      >
+        <div
+          class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden text-gray-800"
+        >
+          <div
+            class="bg-gradient-to-r from-red-600 to-orange-600 text-white px-6 py-4"
+          >
+            <h3 class="text-lg font-bold flex items-center gap-2">
+              <span>🗑️</span> Hủy món: {{ selectedItemToCancel?.name }}
+            </h3>
+            <p class="text-xs text-red-100 mt-1">
+              Bàn: {{ selectedTableCode }}
+            </p>
+          </div>
+
+          <div class="p-6 space-y-4">
+            <!-- Loading Indicator -->
+            <div
+              v-if="cancelItemLoading"
+              class="flex flex-col items-center justify-center py-6 gap-2"
+            >
+              <span class="animate-spin text-2xl">⏳</span>
+              <p class="text-xs font-bold text-gray-500">
+                Đang xử lý đơn hàng...
+              </p>
+            </div>
+
+            <template v-else>
+              <!-- Qty & Reason selection -->
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label
+                    class="block text-xs font-bold text-gray-500 uppercase mb-1"
+                    >Số lượng hủy</label
+                  >
+                  <div
+                    class="flex items-center border border-gray-300 rounded-lg overflow-hidden h-10 w-fit"
+                  >
+                    <button
+                      type="button"
+                      @click="cancelItemQty > 1 ? cancelItemQty-- : null"
+                      class="px-3 h-full hover:bg-gray-100 font-bold border-r text-gray-500"
+                    >
+                      -
+                    </button>
+                    <span class="px-4 font-bold text-gray-800 text-sm">{{
+                      cancelItemQty
+                    }}</span>
+                    <button
+                      type="button"
+                      @click="
+                        cancelItemQty < (selectedItemToCancel?.quantity || 1)
+                          ? cancelItemQty++
+                          : null
+                      "
+                      class="px-3 h-full hover:bg-gray-100 font-bold border-l text-gray-500"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label
+                    class="block text-xs font-bold text-gray-500 uppercase mb-1"
+                    >Lý do hủy</label
+                  >
+                  <select
+                    v-model="cancelItemReason"
+                    class="w-full h-10 px-3 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:border-red-500 font-semibold"
+                  >
+                    <option value="Khách đổi ý">Khách đổi ý</option>
+                    <option value="Hết nguyên liệu">Hết nguyên liệu</option>
+                    <option value="Bếp làm sai">Bếp làm sai</option>
+                    <option value="Khác...">Khác...</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Pin indicator -->
+              <div class="flex flex-col items-center gap-3">
+                <span class="text-xs font-bold text-gray-500 uppercase"
+                  >Mã PIN xác thực của Quản lý</span
+                >
+                <div class="flex gap-3 justify-center">
+                  <div
+                    v-for="i in 4"
+                    :key="i"
+                    class="w-3.5 h-3.5 rounded-full border-2 transition-all duration-150"
+                    :class="[
+                      cancelItemPin.length >= i
+                        ? 'bg-red-500 border-red-500 scale-110 shadow-md'
+                        : 'bg-transparent border-gray-305',
+                    ]"
+                  ></div>
+                </div>
+              </div>
+
+              <!-- Pin Numpad -->
+              <div class="grid grid-cols-3 gap-2 w-full max-w-[240px] mx-auto">
+                <button
+                  v-for="num in [1, 2, 3, 4, 5, 6, 7, 8, 9]"
+                  :key="num"
+                  type="button"
+                  @click="pressCancelPinDigit(String(num))"
+                  class="h-10 rounded-xl bg-gray-100 hover:bg-gray-200 active:scale-95 text-sm font-bold text-gray-800 transition-all flex items-center justify-center select-none"
+                >
+                  {{ num }}
+                </button>
+                <button
+                  type="button"
+                  @click="backspaceCancelPin"
+                  class="h-10 rounded-xl bg-gray-100 hover:bg-gray-200 active:scale-95 text-xs font-bold text-red-500 transition-all flex items-center justify-center select-none"
+                >
+                  Xóa
+                </button>
+                <button
+                  type="button"
+                  @click="pressCancelPinDigit('0')"
+                  class="h-10 rounded-xl bg-gray-100 hover:bg-gray-200 active:scale-95 text-sm font-bold text-gray-800 transition-all flex items-center justify-center select-none"
+                >
+                  0
+                </button>
+                <button
+                  type="button"
+                  @click="cancelItemPin = ''"
+                  class="h-10 rounded-xl bg-gray-100 hover:bg-gray-200 active:scale-95 text-xs font-bold text-gray-500 transition-all flex items-center justify-center select-none"
+                >
+                  Clear
+                </button>
+              </div>
+            </template>
+          </div>
+
+          <div
+            class="bg-gray-50 px-6 py-4 flex justify-end gap-3 border-t border-gray-200"
+          >
+            <button
+              @click="showCancelItemModal = false"
+              class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg font-bold text-sm"
+              type="button"
+            >
+              Quay lại
+            </button>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
+    <!-- Manager Authorization Modal -->
+    <ManagerAuthModal
+      v-if="showAuthModal"
+      :actionType="authActionType"
+      :targetName="authTargetName"
+      @confirm="handleAuthConfirm"
+      @close="handleAuthClose"
+    />
+
     <!-- Selection Mode Info Bar -->
     <div
       v-if="selectionMode !== 'none'"
@@ -3777,11 +4774,14 @@
 </template>
 
 <script setup lang="ts">
+import Swal from "sweetalert2";
+import ManagerAuthModal from "@/components/reception/ManagerAuthModal.vue";
+import FloorViewFooter from "@/components/reception/FloorViewFooter.vue";
 import { useLanguageStore } from "@/stores/useLanguageStore";
 const langStore = useLanguageStore();
 const t = langStore.t;
 
-import { ref, computed, onMounted, onUnmounted, watch } from "vue";
+import { ref, computed, onMounted, onUnmounted, watch, reactive } from "vue";
 import { useRouter } from "vue-router";
 import { useRestaurantStore } from "@/stores/restaurantStore";
 import { storeToRefs } from "pinia";
@@ -3790,24 +4790,8 @@ import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/composables/useAuth";
 import { useTable } from "@/composables/useTable";
 import { useMenu } from "@/composables/useMenu";
-import Swal from "sweetalert2";
-import {
-  Utensils,
-  Grid,
-  Store,
-  Clock,
-  Calendar,
-  CreditCard,
-  Briefcase,
-  BadgePlus,
-  BadgeMinus,
-  Receipt,
-  BarChart3,
-  LogOut,
-  CheckCircle,
-  XCircle,
-  Eye,
-} from "lucide-vue-next";
+import { useReservation } from "@/composables/useReservation";
+import { VueDraggable } from "vue-draggable-plus";
 
 const router = useRouter();
 const restaurantStore = useRestaurantStore();
@@ -3817,40 +4801,52 @@ const { getItems } = useMenu();
 const { profile } = useAuth();
 
 // ===== CONTEXT MENU STATE =====
-const showTableContextMenu = ref(false)
-const selectedTableForAction = ref<any>(null)
-const contextMenuPosition = ref({ x: 0, y: 0 })
+const showTableContextMenu = ref(false);
+const selectedTableForAction = ref<any>(null);
+const contextMenuPosition = ref({ x: 0, y: 0 });
 
 // Selection Mode state
-const selectionMode = ref<'none' | 'transfer' | 'merge' | 'split-order' | 'split-item'>('none')
-const sourceTableCode = ref<string>('')
-const selectedItemsToSplit = ref<string[]>([])
+const selectionMode = ref<
+  "none" | "transfer" | "merge" | "split-order" | "split-item"
+>("none");
+const sourceTableCode = ref<string>("");
+const selectedItemsToSplit = ref<string[]>([]);
 
 // Modal states
-const showTransferModal = ref(false)
-const showMergeModal = ref(false)
-const showSplitOrderModal = ref(false)
-const showSplitItemModal = ref(false)
-const showCancelModal = ref(false)
+const showTransferModal = ref(false);
+const showMergeModal = ref(false);
+const showSplitOrderModal = ref(false);
+const showSplitItemModal = ref(false);
+const showCancelModal = ref(false);
+
+// Cancel item states
+const showCancelItemModal = ref(false);
+const selectedItemToCancel = ref<any>(null);
+const cancelItemQty = ref(1);
+const cancelItemReason = ref("Khách đổi ý");
+const cancelItemPin = ref("");
+const cancelItemLoading = ref(false);
+const dbOrderInfo = ref<any>(null);
+const dbOrderItems = ref<any[]>([]);
 
 // Transfer state
-const transferTargetTable = ref('')
-const transferLoading = ref(false)
+const transferTargetTable = ref("");
+const transferLoading = ref(false);
 
 // Merge state
-const mergeTargetTable = ref('')
-const mergeLoading = ref(false)
+const mergeTargetTable = ref("");
+const mergeLoading = ref(false);
 
 // Split order state
-const splitOrderCount = ref(2)
-const splitOrderLoading = ref(false)
+const splitOrderCount = ref(2);
+const splitOrderLoading = ref(false);
 
 // Split item state
-const splitItemLoading = ref(false)
+const splitItemLoading = ref(false);
 
 // Cancel state
-const cancelConfirmText = ref('')
-const cancelLoading = ref(false)
+const cancelConfirmText = ref("");
+const cancelLoading = ref(false);
 
 // Tính toán vị trí menu tự động
 // FIX: Auto placement cho context menu
@@ -3867,9 +4863,10 @@ const contextMenuStyle = computed(() => {
   const viewportHeight = window.innerHeight;
 
   // Check overflow RIGHT
-  const adjustedX = (x + menuWidth > viewportWidth)
-    ? viewportWidth - menuWidth - 10
-    : Math.max(10, x);
+  const adjustedX =
+    x + menuWidth > viewportWidth
+      ? viewportWidth - menuWidth - 10
+      : Math.max(10, x);
 
   // Check overflow BOTTOM -> FLIP UP
   const spaceBelow = viewportHeight - y;
@@ -3882,18 +4879,12 @@ const contextMenuStyle = computed(() => {
   return {
     left: `${adjustedX}px`,
     top: `${adjustedY}px`,
-    transformOrigin: shouldFlipUp ? 'bottom left' : 'top left',
+    transformOrigin: shouldFlipUp ? "bottom left" : "top left",
   };
 });
 
 // Double-click handler
 function handleTableDoubleClick(table: any, event: MouseEvent) {
-  if (table.status === 'Available') {
-    selectTable(table.code);
-    activeMainTab.value = 'menu';
-    triggerToast('success', `Đã chọn bàn ${table.code} - Vui lòng chọn món`);
-    return;
-  }
   selectedTableForAction.value = table;
   contextMenuPosition.value = { x: event.clientX, y: event.clientY };
   showTableContextMenu.value = true;
@@ -3902,62 +4893,73 @@ function handleTableDoubleClick(table: any, event: MouseEvent) {
 // Helper: Lấy class màu cho icon
 const getIconColorClass = (actionId: string): string => {
   const colorMap: Record<string, string> = {
-    'select_items': 'icon-green',
-    'transfer': 'icon-blue',
-    'merge': 'icon-purple',
-    'split-order': 'icon-orange',
-    'split-item': 'icon-pink',
-    'cancel': 'icon-red',
+    select_items: "icon-green",
+    transfer: "icon-blue",
+    merge: "icon-purple",
+    "split-order": "icon-orange",
+    "split-item": "icon-pink",
+    cancel: "icon-red",
   };
-  return colorMap[actionId] || 'icon-blue';
+  return colorMap[actionId] || "icon-blue";
 };
 
-// Context menu actions config
-const tableActions = ref([
+// Context menu actions config — all 6 actions for tables with customers,
+// only "Chọn món" for empty tables.
+const allTableActions = [
   {
-    id: 'select_items',
-    label: 'Chọn món',
-    icon: '📝',
-    colorClass: 'bg-green-500 text-white',
-    description: 'Thêm món vào bàn',
-    isPrimary: true
+    id: "select_items",
+    label: "Chọn món",
+    icon: "📝",
+    colorClass: "bg-green-500 text-white",
+    description: "Thêm món vào bàn",
+    isPrimary: true,
   },
   {
-    id: 'transfer',
-    label: 'Chuyển bàn',
-    icon: '🔁',
-    colorClass: 'bg-blue-500 text-white',
-    description: 'Di chuyển order sang bàn khác'
+    id: "transfer",
+    label: "Chuyển bàn",
+    icon: "🔁",
+    colorClass: "bg-blue-500 text-white",
+    description: "Di chuyển order sang bàn khác",
   },
   {
-    id: 'merge',
-    label: 'Ghép phiếu',
-    icon: '🔗',
-    colorClass: 'bg-purple-500 text-white',
-    description: 'Gộp order từ 2 bàn thành 1'
+    id: "merge",
+    label: "Ghép phiếu",
+    icon: "🔗",
+    colorClass: "bg-purple-500 text-white",
+    description: "Gộp order từ 2 bàn thành 1",
   },
   {
-    id: 'split-order',
-    label: 'Tách phiếu',
-    icon: '✂️',
-    colorClass: 'bg-orange-500 text-white',
-    description: 'Chia order thành nhiều phiếu'
+    id: "split-order",
+    label: "Tách phiếu",
+    icon: "✂️",
+    colorClass: "bg-orange-500 text-white",
+    description: "Chia order thành nhiều phiếu",
   },
   {
-    id: 'split-item',
-    label: 'Tách món',
-    icon: '🍽️',
-    colorClass: 'bg-pink-500 text-white',
-    description: 'Tách riêng một số món'
+    id: "split-item",
+    label: "Tách món",
+    icon: "🍽️",
+    colorClass: "bg-pink-500 text-white",
+    description: "Tách riêng một số món",
   },
   {
-    id: 'cancel',
-    label: 'Hủy phiếu',
-    icon: '❌',
-    colorClass: 'bg-red-500 text-white',
-    description: 'Xóa toàn bộ order'
+    id: "cancel",
+    label: "Hủy phiếu",
+    icon: "❌",
+    colorClass: "bg-red-500 text-white",
+    description: "Xóa toàn bộ order",
+  },
+];
+
+const tableActions = computed(() => {
+  const isEmpty =
+    !selectedTableForAction.value ||
+    selectedTableForAction.value.status === "Available";
+  if (isEmpty) {
+    return allTableActions.filter((a) => a.id === "select_items");
   }
-]);
+  return allTableActions;
+});
 
 const getTablesWithStatus = () => {
   const list: any[] = [];
@@ -3976,37 +4978,37 @@ function handleTableAction(actionId: string) {
   const table = selectedTableForAction.value;
   if (!table) return;
 
-  switch(actionId) {
-    case 'select_items':
-      activeMainTab.value = 'menu';
+  switch (actionId) {
+    case "select_items":
+      activeMainTab.value = "menu";
       selectedTableCode.value = table.code;
-      triggerToast('success', `Đã chọn bàn ${table.code} - Vui lòng chọn món`);
+      triggerToast("success", `Đã chọn bàn ${table.code} - Vui lòng chọn món`);
       break;
-    case 'transfer':
+    case "transfer":
       sourceTableCode.value = table.code;
-      selectionMode.value = 'transfer';
-      triggerToast('info', `Chọn bàn đích để chuyển từ bàn ${table.code}`);
+      selectionMode.value = "transfer";
+      triggerToast("info", `Chọn bàn đích để chuyển từ bàn ${table.code}`);
       break;
 
-    case 'merge':
+    case "merge":
       sourceTableCode.value = table.code;
-      selectionMode.value = 'merge';
-      triggerToast('info', `Chọn bàn để ghép với bàn ${table.code}`);
+      selectionMode.value = "merge";
+      triggerToast("info", `Chọn bàn để ghép với bàn ${table.code}`);
       break;
 
-    case 'split-order':
+    case "split-order":
       sourceTableCode.value = table.code;
-      selectionMode.value = 'split-order';
-      triggerToast('info', `Chọn bàn đích để tách phiếu từ bàn ${table.code}`);
+      selectionMode.value = "split-order";
+      triggerToast("info", `Chọn bàn đích để tách phiếu từ bàn ${table.code}`);
       break;
 
-    case 'split-item':
+    case "split-item":
       sourceTableCode.value = table.code;
-      selectionMode.value = 'split-item';
-      triggerToast('info', `Chọn bàn đích để tách món từ bàn ${table.code}`);
+      selectionMode.value = "split-item";
+      triggerToast("info", `Chọn bàn đích để tách món từ bàn ${table.code}`);
       break;
 
-    case 'cancel':
+    case "cancel":
       showCancelModal.value = true;
       break;
   }
@@ -4014,26 +5016,32 @@ function handleTableAction(actionId: string) {
 
 // Computed: Valid target tables
 const validTargetTables = computed(() => {
-  if (selectionMode.value === 'none') return [];
+  if (selectionMode.value === "none") return [];
 
-  const allTables = restaurantStore.areas.flatMap(a => a.tables);
+  const allTables = restaurantStore.areas.flatMap((a) => a.tables);
 
-  switch(selectionMode.value) {
-    case 'transfer':
+  switch (selectionMode.value) {
+    case "transfer":
       // Only empty tables
-      return allTables.filter(t => t.status === 'Available' && t.code !== sourceTableCode.value);
-    case 'merge':
+      return allTables.filter(
+        (t) => t.status === "Available" && t.code !== sourceTableCode.value,
+      );
+    case "merge":
       // Tables with orders (not empty)
-      return allTables.filter(t => {
+      return allTables.filter((t) => {
         const order = restaurantStore.tableOrders[t.code];
-        return t.status !== 'Available' &&
-               t.code !== sourceTableCode.value &&
-               order && order.items && order.items.length > 0;
+        return (
+          t.status !== "Available" &&
+          t.code !== sourceTableCode.value &&
+          order &&
+          order.items &&
+          order.items.length > 0
+        );
       });
-    case 'split-order':
-    case 'split-item':
+    case "split-order":
+    case "split-item":
       // Empty tables or tables with orders
-      return allTables.filter(t => t.code !== sourceTableCode.value);
+      return allTables.filter((t) => t.code !== sourceTableCode.value);
     default:
       return [];
   }
@@ -4041,32 +5049,32 @@ const validTargetTables = computed(() => {
 
 // Check if table is valid target
 function isValidTargetTable(tableCode: string): boolean {
-  return validTargetTables.value.some(t => t.code === tableCode);
+  return validTargetTables.value.some((t) => t.code === tableCode);
 }
 
 // Handle table click in Selection Mode
 const handleTableClickInSelectionMode = async (targetTable: any) => {
-  if (selectionMode.value === 'none') return;
+  if (selectionMode.value === "none") return;
 
   // Check if valid target
   if (!isValidTargetTable(targetTable.code)) {
-    triggerToast('warning', 'Bàn chọn không hợp lệ!');
+    triggerToast("warning", "Bàn chọn không hợp lệ!");
     return;
   }
 
   const sourceTable = restaurantStore.getTableByCode(sourceTableCode.value);
   if (!sourceTable) return;
 
-  switch(selectionMode.value) {
-    case 'transfer':
+  switch (selectionMode.value) {
+    case "transfer":
       Swal.fire({
-        title: 'Xác nhận chuyển bàn?',
+        title: "Xác nhận chuyển bàn?",
         text: `Chuyển toàn bộ order từ bàn ${sourceTable.code} sang bàn ${targetTable.code}?`,
-        icon: 'question',
+        icon: "question",
         showCancelButton: true,
-        confirmButtonText: 'Đồng ý',
-        cancelButtonText: 'Hủy',
-        confirmButtonColor: '#3b82f6'
+        confirmButtonText: "Đồng ý",
+        cancelButtonText: "Hủy",
+        confirmButtonColor: "#3b82f6",
       }).then(async (result) => {
         if (result.isConfirmed) {
           await executeTransfer(sourceTable, targetTable);
@@ -4075,15 +5083,15 @@ const handleTableClickInSelectionMode = async (targetTable: any) => {
       });
       break;
 
-    case 'merge':
+    case "merge":
       Swal.fire({
-        title: 'Xác nhận ghép phiếu?',
+        title: "Xác nhận ghép phiếu?",
         text: `Ghép phiếu bàn ${sourceTable.code} vào bàn ${targetTable.code}?`,
-        icon: 'question',
+        icon: "question",
         showCancelButton: true,
-        confirmButtonText: 'Đồng ý',
-        cancelButtonText: 'Hủy',
-        confirmButtonColor: '#8b5cf6'
+        confirmButtonText: "Đồng ý",
+        cancelButtonText: "Hủy",
+        confirmButtonColor: "#8b5cf6",
       }).then(async (result) => {
         if (result.isConfirmed) {
           await executeMerge(sourceTable, targetTable);
@@ -4092,18 +5100,18 @@ const handleTableClickInSelectionMode = async (targetTable: any) => {
       });
       break;
 
-    case 'split-order':
+    case "split-order":
       // Ask split count
       Swal.fire({
         title: `Tách phiếu bàn ${sourceTable.code}`,
-        text: 'Tách thành bao nhiêu phiếu?',
-        input: 'number',
-        inputValue: '2',
-        inputAttributes: { min: '2', max: '10' },
+        text: "Tách thành bao nhiêu phiếu?",
+        input: "number",
+        inputValue: "2",
+        inputAttributes: { min: "2", max: "10" },
         showCancelButton: true,
-        confirmButtonText: 'Tách',
-        cancelButtonText: 'Hủy',
-        confirmButtonColor: '#f97316'
+        confirmButtonText: "Tách",
+        cancelButtonText: "Hủy",
+        confirmButtonColor: "#f97316",
       }).then(async (result) => {
         if (result.isConfirmed && result.value) {
           splitOrderCount.value = parseInt(result.value) || 2;
@@ -4113,7 +5121,7 @@ const handleTableClickInSelectionMode = async (targetTable: any) => {
       });
       break;
 
-    case 'split-item':
+    case "split-item":
       // Open multi-select split item modal targeting this selected targetTable
       selectedTableForAction.value = sourceTable;
       transferTargetTable.value = targetTable.code;
@@ -4126,7 +5134,7 @@ async function executeTransfer(sourceTable: any, targetTable: any) {
   try {
     const sourceOrder = restaurantStore.getOrCreateOrder(sourceTable.code);
     if (!sourceOrder.items || sourceOrder.items.length === 0) {
-      throw new Error('Bàn nguồn không có order!');
+      throw new Error("Bàn nguồn không có order!");
     }
 
     const targetOrder = restaurantStore.getOrCreateOrder(targetTable.code);
@@ -4135,22 +5143,31 @@ async function executeTransfer(sourceTable: any, targetTable: any) {
     targetOrder.openedTime = sourceOrder.openedTime;
 
     sourceOrder.items = [];
-    sourceOrder.customerName = '';
+    sourceOrder.customerName = "";
 
-    sourceTable.status = 'Available';
-    sourceTable.customerName = '';
-    sourceTable.billAmount = '';
+    sourceTable.status = "Available";
+    sourceTable.customerName = "";
+    sourceTable.billAmount = "";
 
-    targetTable.status = 'Serving';
+    targetTable.status = "Serving";
     targetTable.customerName = targetOrder.customerName;
 
-    const total = targetOrder.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const total = targetOrder.items.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0,
+    );
     targetTable.billAmount = formatVND(total);
 
-    triggerToast('success', `Đã chuyển bàn ${sourceTable.code} sang bàn ${targetTable.code}`);
+    triggerToast(
+      "success",
+      `Đã chuyển bàn ${sourceTable.code} sang bàn ${targetTable.code}`,
+    );
     selectedTableCode.value = targetTable.code;
   } catch (error) {
-    triggerToast('error', error instanceof Error ? error.message : 'Chuyển bàn thất bại!');
+    triggerToast(
+      "error",
+      error instanceof Error ? error.message : "Chuyển bàn thất bại!",
+    );
   }
 }
 
@@ -4160,32 +5177,38 @@ async function executeMerge(sourceTable: any, targetTable: any) {
     const targetOrder = restaurantStore.getOrCreateOrder(targetTable.code);
 
     if (!sourceOrder.items || sourceOrder.items.length === 0) {
-      throw new Error('Bàn nguồn không có order!');
+      throw new Error("Bàn nguồn không có order!");
     }
 
-    targetOrder.items = [
-      ...targetOrder.items,
-      ...sourceOrder.items
-    ];
+    targetOrder.items = [...targetOrder.items, ...sourceOrder.items];
 
     if (!targetOrder.customerName) {
       targetOrder.customerName = sourceOrder.customerName;
     }
 
     sourceOrder.items = [];
-    sourceOrder.customerName = '';
+    sourceOrder.customerName = "";
 
-    sourceTable.status = 'Available';
-    sourceTable.customerName = '';
-    sourceTable.billAmount = '';
+    sourceTable.status = "Available";
+    sourceTable.customerName = "";
+    sourceTable.billAmount = "";
 
-    const targetTotal = targetOrder.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const targetTotal = targetOrder.items.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0,
+    );
     targetTable.billAmount = formatVND(targetTotal);
 
-    triggerToast('success', `Đã ghép phiếu bàn ${sourceTable.code} vào bàn ${targetTable.code}`);
+    triggerToast(
+      "success",
+      `Đã ghép phiếu bàn ${sourceTable.code} vào bàn ${targetTable.code}`,
+    );
     selectedTableCode.value = targetTable.code;
   } catch (error) {
-    triggerToast('error', error instanceof Error ? error.message : 'Ghép phiếu thất bại!');
+    triggerToast(
+      "error",
+      error instanceof Error ? error.message : "Ghép phiếu thất bại!",
+    );
   }
 }
 
@@ -4194,7 +5217,7 @@ async function executeSplitOrder(sourceTable: any, targetTable: any) {
     const sourceOrder = restaurantStore.getOrCreateOrder(sourceTable.code);
 
     if (!sourceOrder.items || sourceOrder.items.length === 0) {
-      throw new Error('Bàn không có order!');
+      throw new Error("Bàn không có order!");
     }
 
     const items = sourceOrder.items;
@@ -4203,33 +5226,42 @@ async function executeSplitOrder(sourceTable: any, targetTable: any) {
 
     // Create split orders
     for (let i = 1; i < splitOrderCount.value; i++) {
-      const splitItems = items.slice(i * itemsPerSplit, (i + 1) * itemsPerSplit);
+      const splitItems = items.slice(
+        i * itemsPerSplit,
+        (i + 1) * itemsPerSplit,
+      );
 
       if (splitItems.length > 0) {
         let availableTable = null;
         if (i === 1) {
           availableTable = targetTable;
         } else {
-          availableTable = filteredTables.value.find(t =>
-            t.status === 'Available' &&
-            t.code !== sourceTable.code &&
-            t.code !== targetTable.code &&
-            !assignedCodes.has(t.code)
+          availableTable = filteredTables.value.find(
+            (t) =>
+              t.status === "Available" &&
+              t.code !== sourceTable.code &&
+              t.code !== targetTable.code &&
+              !assignedCodes.has(t.code),
           );
         }
 
         if (availableTable) {
           assignedCodes.add(availableTable.code);
-          const splitOrder = restaurantStore.getOrCreateOrder(availableTable.code);
+          const splitOrder = restaurantStore.getOrCreateOrder(
+            availableTable.code,
+          );
           splitOrder.items = splitItems;
           splitOrder.customerName = sourceOrder.customerName;
           splitOrder.openedTime = sourceOrder.openedTime;
 
           const table = restaurantStore.getTableByCode(availableTable.code);
           if (table) {
-            table.status = 'Serving';
+            table.status = "Serving";
             table.customerName = splitOrder.customerName;
-            const total = splitItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+            const total = splitItems.reduce(
+              (sum, item) => sum + item.price * item.quantity,
+              0,
+            );
             table.billAmount = formatVND(total);
           }
         }
@@ -4239,14 +5271,20 @@ async function executeSplitOrder(sourceTable: any, targetTable: any) {
     // Keep remaining items in source
     sourceOrder.items = items.slice(0, itemsPerSplit);
     if (sourceTable) {
-      const sourceTotal = sourceOrder.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+      const sourceTotal = sourceOrder.items.reduce(
+        (sum, item) => sum + item.price * item.quantity,
+        0,
+      );
       sourceTable.billAmount = formatVND(sourceTotal);
     }
 
-    triggerToast('success', `Đã tách thành ${splitOrderCount.value} phiếu!`);
+    triggerToast("success", `Đã tách thành ${splitOrderCount.value} phiếu!`);
     splitOrderCount.value = 2;
   } catch (error) {
-    triggerToast('error', error instanceof Error ? error.message : 'Tách phiếu thất bại!');
+    triggerToast(
+      "error",
+      error instanceof Error ? error.message : "Tách phiếu thất bại!",
+    );
   }
 }
 
@@ -4261,27 +5299,29 @@ function toggleItemForSplit(itemId: string) {
 
 async function executeSplitItem() {
   if (selectedItemsToSplit.value.length === 0) {
-    triggerToast('warning', 'Vui lòng chọn ít nhất 1 món!');
+    triggerToast("warning", "Vui lòng chọn ít nhất 1 món!");
     return;
   }
 
   splitItemLoading.value = true;
 
   try {
-    const sourceOrder = restaurantStore.getOrCreateOrder(selectedTableForAction.value.code);
+    const sourceOrder = restaurantStore.getOrCreateOrder(
+      selectedTableForAction.value.code,
+    );
 
     // Get items to split
-    const itemsToSplit = sourceOrder.items.filter(item =>
-      selectedItemsToSplit.value.includes(item.id)
+    const itemsToSplit = sourceOrder.items.filter((item) =>
+      selectedItemsToSplit.value.includes(item.id),
     );
 
     if (itemsToSplit.length === 0) {
-      throw new Error('Không tìm thấy món cần tách!');
+      throw new Error("Không tìm thấy món cần tách!");
     }
 
     const targetCode = transferTargetTable.value;
     if (!targetCode) {
-      throw new Error('Không có bàn trống để tách!');
+      throw new Error("Không có bàn trống để tách!");
     }
 
     // Create new order
@@ -4291,98 +5331,383 @@ async function executeSplitItem() {
     newOrder.openedTime = sourceOrder.openedTime;
 
     // Remove from source
-    sourceOrder.items = sourceOrder.items.filter(item =>
-      !selectedItemsToSplit.value.includes(item.id)
+    sourceOrder.items = sourceOrder.items.filter(
+      (item) => !selectedItemsToSplit.value.includes(item.id),
     );
 
     // Update table status
     const targetTable = restaurantStore.getTableByCode(targetCode);
     if (targetTable) {
-      targetTable.status = 'Serving';
+      targetTable.status = "Serving";
       targetTable.customerName = newOrder.customerName;
-      const targetTotal = newOrder.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+      const targetTotal = newOrder.items.reduce(
+        (sum, item) => sum + item.price * item.quantity,
+        0,
+      );
       targetTable.billAmount = formatVND(targetTotal);
     }
 
-    const sourceTable = restaurantStore.getTableByCode(selectedTableForAction.value.code);
+    const sourceTable = restaurantStore.getTableByCode(
+      selectedTableForAction.value.code,
+    );
     if (sourceTable) {
-      const sourceTotal = sourceOrder.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+      const sourceTotal = sourceOrder.items.reduce(
+        (sum, item) => sum + item.price * item.quantity,
+        0,
+      );
       sourceTable.billAmount = formatVND(sourceTotal);
     }
 
-    triggerToast('success', `Đã tách ${itemsToSplit.length} món sang bàn ${targetCode}`);
+    triggerToast(
+      "success",
+      `Đã tách ${itemsToSplit.length} món sang bàn ${targetCode}`,
+    );
     showSplitItemModal.value = false;
     selectedItemsToSplit.value = [];
     exitSelectionMode();
   } catch (error) {
-    triggerToast('error', error instanceof Error ? error.message : 'Tách món thất bại!');
+    triggerToast(
+      "error",
+      error instanceof Error ? error.message : "Tách món thất bại!",
+    );
   } finally {
     splitItemLoading.value = false;
   }
 }
 
 async function executeCancel() {
-  if (cancelConfirmText.value !== 'HỦY') {
-    triggerToast('warning', 'Vui lòng nhập "HỦY" để xác nhận!');
+  if (cancelConfirmText.value !== "HỦY") {
+    triggerToast("warning", 'Vui lòng nhập "HỦY" để xác nhận!');
+    return;
+  }
+
+  // Yêu cầu nhập mã PIN quản lý
+  const { value: pin } = await Swal.fire({
+    title: "Xác thực Quản lý",
+    text: "Vui lòng nhập mã PIN của Quản lý để hủy đơn hàng:",
+    input: "password",
+    inputPlaceholder: "Nhập mã PIN",
+    inputAttributes: {
+      maxlength: "4",
+      autocapitalize: "off",
+      autocorrect: "off",
+    },
+    showCancelButton: true,
+    cancelButtonText: "Quay lại",
+    confirmButtonText: "Xác thực",
+    confirmButtonColor: "#F44336",
+  });
+
+  if (pin === undefined) return;
+
+  if (pin !== "1234") {
+    Swal.fire("Lỗi", "Mã PIN xác thực không chính xác!", "error");
     return;
   }
 
   cancelLoading.value = true;
 
   try {
-    const order = restaurantStore.getOrCreateOrder(selectedTableForAction.value.code);
+    const code = selectedTableForAction.value.code;
+    const tableRow = (await listTables()).find((t: any) => t.code === code);
+    if (tableRow && tableRow.status === "occupied") {
+      const { branchId } = useAuth();
+      const { data: checkoutData, error: getErr } = await supabase.rpc(
+        "hall_get_checkout_totals",
+        {
+          p_branch_id: branchId.value,
+          p_table_id: tableRow.id,
+          p_order_id: null,
+        },
+      );
+      if (getErr) throw getErr;
 
-    order.items = [];
-    order.customerName = '';
-    order.openedTime = '';
-
-    const table = restaurantStore.getTableByCode(selectedTableForAction.value.code);
-    if (table) {
-      table.status = 'Available';
-      table.customerName = '';
-      table.billAmount = '';
-      table.checkInTime = '';
-      table.occupiedDuration = '';
+      if (checkoutData && checkoutData.order) {
+        const { error: cancelErr } = await supabase.rpc(
+          "hall_cancel_order_or_item",
+          {
+            p_branch_id: branchId.value,
+            p_order_id: checkoutData.order.id,
+            p_order_item_id: null,
+            p_manager_pin: pin,
+            p_reason: "Cashier cancelled entire order",
+          },
+        );
+        if (cancelErr) throw cancelErr;
+      }
     }
 
-    triggerToast('success', `Đã hủy phiếu bàn ${selectedTableForAction.value.code}`);
-    showCancelModal.value = false;
-    cancelConfirmText.value = '';
+    const order = restaurantStore.getOrCreateOrder(code);
+    order.items = [];
+    order.customerName = "";
+    order.openedTime = "";
 
-    selectedTableCode.value = '';
-  } catch (error) {
-    triggerToast('error', error instanceof Error ? error.message : 'Hủy phiếu thất bại!');
+    const table = restaurantStore.getTableByCode(code);
+    if (table) {
+      table.status = "Available";
+      table.customerName = "";
+      table.billAmount = "";
+      table.checkInTime = "";
+      table.occupiedDuration = "";
+    }
+
+    triggerToast("success", `Đã hủy phiếu bàn ${code}`);
+    showCancelModal.value = false;
+    cancelConfirmText.value = "";
+    selectedTableCode.value = "";
+  } catch (error: any) {
+    triggerToast(
+      "error",
+      error instanceof Error ? error.message : "Hủy phiếu thất bại!",
+    );
   } finally {
     cancelLoading.value = false;
   }
 }
 
+async function handleRemoveOrCancelItem(item: any) {
+  if (!selectedTableCode.value) return;
+  const table = restaurantStore.getTableByCode(selectedTableCode.value);
+  if (table && table.status === "Serving") {
+    openCancelItemModal(item);
+  } else {
+    removeItem(item.id);
+  }
+}
+
+async function openCancelItemModal(item: any) {
+  selectedItemToCancel.value = item;
+  cancelItemQty.value = item.quantity;
+  cancelItemReason.value = "Khách đổi ý";
+  cancelItemPin.value = "";
+  showCancelItemModal.value = true;
+  cancelItemLoading.value = true;
+  dbOrderInfo.value = null;
+  dbOrderItems.value = [];
+  try {
+    const { branchId } = useAuth();
+    if (!branchId.value) throw new Error("Chưa chọn chi nhánh.");
+
+    const tableRow = (await listTables()).find(
+      (t: any) => t.code === selectedTableCode.value,
+    );
+    if (!tableRow) throw new Error("Bàn không tồn tại trên hệ thống");
+
+    const { data, error: rpcErr } = await supabase.rpc(
+      "hall_get_checkout_totals",
+      {
+        p_branch_id: branchId.value,
+        p_table_id: tableRow.id,
+        p_order_id: null,
+      },
+    );
+    if (rpcErr) throw rpcErr;
+
+    dbOrderInfo.value = data?.order;
+    dbOrderItems.value = data?.items || [];
+  } catch (err: any) {
+    triggerToast("error", "Không thể tải đơn hàng từ server: " + err.message);
+  } finally {
+    cancelItemLoading.value = false;
+  }
+}
+
+function pressCancelPinDigit(digit: string) {
+  if (cancelItemPin.value.length < 4) {
+    cancelItemPin.value += digit;
+  }
+  if (cancelItemPin.value.length === 4) {
+    executeCancelItem();
+  }
+}
+
+function backspaceCancelPin() {
+  cancelItemPin.value = cancelItemPin.value.slice(0, -1);
+}
+
+async function executeCancelItem() {
+  const code = selectedTableCode.value;
+  if (!code) {
+    triggerToast("error", "Chưa chọn bàn!");
+    return;
+  }
+
+  if (cancelItemPin.value !== "1234") {
+    triggerToast("error", "Mã PIN xác thực sai!");
+    cancelItemPin.value = "";
+    return;
+  }
+
+  if (!dbOrderInfo.value) {
+    triggerToast("error", "Không tìm thấy thông tin đơn hàng trên server!");
+    cancelItemPin.value = "";
+    return;
+  }
+
+  const localItem = selectedItemToCancel.value;
+  const dbItem = dbOrderItems.value.find((i: any) => {
+    return (
+      i.name_snapshot === localItem.name || i.menu_item_id === localItem.id
+    );
+  });
+
+  if (!dbItem) {
+    triggerToast("error", "Không tìm thấy món ăn này trên đơn hàng ở server!");
+    cancelItemPin.value = "";
+    return;
+  }
+
+  cancelItemLoading.value = true;
+  try {
+    const { branchId } = useAuth();
+    if (!branchId.value) throw new Error("Chưa chọn chi nhánh.");
+
+    const { data: cancelResult, error: cancelErr } = await supabase.rpc(
+      "hall_cancel_order_or_item",
+      {
+        p_branch_id: branchId.value,
+        p_order_id: dbOrderInfo.value.id,
+        p_order_item_id: dbItem.id,
+        p_manager_pin: cancelItemPin.value,
+        p_reason: `${cancelItemReason.value} (Hủy ${cancelItemQty.value} ${localItem.unit})`,
+      },
+    );
+
+    if (cancelErr) throw cancelErr;
+
+    const newQty = localItem.quantity - cancelItemQty.value;
+    if (newQty <= 0) {
+      restaurantStore.removeOrderItem(code, localItem.id);
+    } else {
+      restaurantStore.updateItemQuantity(
+        code,
+        localItem.id,
+        -cancelItemQty.value,
+      );
+    }
+
+    const table = restaurantStore.getTableByCode(code);
+    if (table) {
+      const updatedOrder = restaurantStore.getOrCreateOrder(code);
+      const totalAmount = updatedOrder.items.reduce(
+        (sum, i) => sum + i.price * i.quantity,
+        0,
+      );
+      const vatAmount = totalAmount * 0.08;
+      table.billAmount = formatVND(Math.round(totalAmount + vatAmount));
+
+      if (updatedOrder.items.length === 0) {
+        table.status = "Available";
+        table.customerName = "";
+        table.billAmount = "";
+        table.checkInTime = "";
+        table.occupiedDuration = "";
+      }
+    }
+
+    const escPosHex = generateCancelItemEscPos(
+      localItem.name,
+      cancelItemQty.value,
+      cancelItemReason.value,
+      code,
+    );
+
+    showCancelItemModal.value = false;
+
+    await Swal.fire({
+      icon: "success",
+      title: "Đã hủy món thành công!",
+      html: `
+        <div class="text-left space-y-2 text-xs font-mono bg-gray-50 p-3 rounded border mt-2">
+          <div class="font-bold border-b pb-1 mb-1 text-center">🖨️ MÁY IN NHIỆT (MOCKUP ESC/POS)</div>
+          <div><b>Bàn:</b> ${code}</div>
+          <div><b>Món:</b> ${localItem.name}</div>
+          <div><b>Số lượng hủy:</b> ${cancelItemQty.value}</div>
+          <div><b>Lý do:</b> ${cancelItemReason.value}</div>
+          <div class="border-t pt-1 mt-1 text-[10px] text-gray-500">
+            <b>Chuỗi lệnh ESC/POS (Hex):</b><br/>
+            <code class="break-all">${escPosHex.substring(0, 120)}...</code>
+          </div>
+        </div>
+      `,
+      confirmButtonText: "Đóng",
+    });
+  } catch (err: any) {
+    Swal.fire("Lỗi", err.message || String(err), "error");
+  } finally {
+    cancelItemLoading.value = false;
+    cancelItemPin.value = "";
+  }
+}
+
+function generateCancelItemEscPos(
+  itemName: string,
+  qty: number,
+  reason: string,
+  tableCode: string,
+): string {
+  const init = [0x1b, 0x40];
+  const alignCenter = [0x1b, 0x61, 0x01];
+  const largeText = [0x1d, 0x21, 0x11];
+  const normalText = [0x1d, 0x21, 0x00];
+  const alignLeft = [0x1b, 0x61, 0x00];
+  const cutPaper = [0x1d, 0x56, 0x42, 0x00];
+  const toBytes = (str: string) => Array.from(str).map((c) => c.charCodeAt(0));
+  const nowStr = new Date().toLocaleString("vi-VN");
+  const buffer: number[] = [
+    ...init,
+    ...alignCenter,
+    ...largeText,
+    ...toBytes("TEM HUY MON\n"),
+    ...toBytes("=============\n\n"),
+    ...normalText,
+    ...alignLeft,
+    ...toBytes(`Ban: ${tableCode}\n`),
+    ...toBytes(`Mon: ${itemName}\n`),
+    ...toBytes(`SL Huy: ${qty}\n`),
+    ...toBytes(`Ly do: ${reason}\n`),
+    ...toBytes("Duyet boi: Quan ly (PIN)\n"),
+    ...toBytes(`Thoi gian: ${nowStr}\n\n\n`),
+    ...alignCenter,
+    ...toBytes("* Cam on quy khach *\n\n\n"),
+    ...cutPaper,
+  ];
+  return buffer
+    .map((b) => b.toString(16).padStart(2, "0").toUpperCase())
+    .join(" ");
+}
+
 // Exit Selection Mode
 const exitSelectionMode = () => {
-  selectionMode.value = 'none';
-  sourceTableCode.value = '';
+  selectionMode.value = "none";
+  sourceTableCode.value = "";
 };
 
 // Cancel Selection Mode
 const cancelSelectionMode = () => {
-  if (selectionMode.value !== 'none') {
-    triggerToast('info', 'Đã hủy thao tác');
+  if (selectionMode.value !== "none") {
+    triggerToast("info", "Đã hủy thao tác");
     exitSelectionMode();
   }
 };
 
 function getSelectionModeTitle(): string {
-  switch(selectionMode.value) {
-    case 'transfer': return `Chuyển bàn từ ${sourceTableCode.value}`;
-    case 'merge': return `Ghép phiếu với bàn ${sourceTableCode.value}`;
-    case 'split-order': return `Tách phiếu từ bàn ${sourceTableCode.value}`;
-    case 'split-item': return `Tách món từ bàn ${sourceTableCode.value}`;
-    default: return '';
+  switch (selectionMode.value) {
+    case "transfer":
+      return `Chuyển bàn từ ${sourceTableCode.value}`;
+    case "merge":
+      return `Ghép phiếu với bàn ${sourceTableCode.value}`;
+    case "split-order":
+      return `Tách phiếu từ bàn ${sourceTableCode.value}`;
+    case "split-item":
+      return `Tách món từ bàn ${sourceTableCode.value}`;
+    default:
+      return "";
   }
 }
 
 function handleTableClick(table: any) {
-  if (selectionMode.value !== 'none') {
+  if (selectionMode.value !== "none") {
     handleTableClickInSelectionMode(table);
     return;
   }
@@ -4393,9 +5718,9 @@ const closeContextMenu = () => {
   showTableContextMenu.value = false;
 };
 
-const activeMainTab = ref<"table_map" | "menu" | "invoice" | "pending">(
-  selectedTableCode.value ? "menu" : "table_map",
-);
+const activeMainTab = ref<
+  "table_map" | "table_list" | "menu" | "invoice" | "pending"
+>(selectedTableCode.value ? "menu" : "table_map");
 const selectedArea = ref("Tất cả");
 
 const showOtherIncomeModal = ref(false);
@@ -4462,7 +5787,10 @@ function handleCustomerPaidInput(e: Event) {
 
 function handleAcceptPayment() {
   customerPaid.value = summary.value.grandTotal;
-  triggerToast("success", `Đã chấp nhận số tiền thanh toán: ${formatVND(customerPaid.value)}`);
+  triggerToast(
+    "success",
+    `Đã chấp nhận số tiền thanh toán: ${formatVND(customerPaid.value)}`,
+  );
 }
 
 function printKitchenCheck() {
@@ -4497,14 +5825,14 @@ function finishOrder(printReceipt = false) {
   if (activeOrder.value.items && activeOrder.value.items.length > 0) {
     const amount = summary.value.grandTotal;
     const now = new Date();
-    const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+    const timeStr = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}:${String(now.getSeconds()).padStart(2, "0")}`;
     activities.value.unshift({
       id: String(activities.value.length + 1),
       time: timeStr,
       action: printReceipt ? "Thanh toán & In hóa đơn" : "Thanh toán tiền mặt",
       staff: profile.value?.full_name || "Dương Thị Mộng Mơ",
       amount: amount,
-      posId: 29
+      posId: 29,
     });
 
     // Clear items
@@ -4522,7 +5850,9 @@ function finishOrder(printReceipt = false) {
 
     Swal.fire({
       title: "Thành công",
-      text: printReceipt ? "Đã in hóa đơn và hoàn tất thanh toán!" : "Đã hoàn tất thanh toán thành công!",
+      text: printReceipt
+        ? "Đã in hóa đơn và hoàn tất thanh toán!"
+        : "Đã hoàn tất thanh toán thành công!",
       icon: "success",
       confirmButtonColor: "#4CAF50",
     }).then(() => {
@@ -4606,11 +5936,25 @@ function handleKeypad(key: string) {
     }
   } else if (key === "OK") {
     customerPaid.value = summary.value.grandTotal;
-    triggerToast("success", `Đã xác nhận khách đưa: ${formatVND(customerPaid.value)}`);
+    triggerToast(
+      "success",
+      `Đã xác nhận khách đưa: ${formatVND(customerPaid.value)}`,
+    );
   } else if (key === ".") {
     // Ignore decimal for VND
   } else if (
-    ["500", "1.000", "2.000", "5.000", "10.000", "20.000", "50.000", "100.000", "200.000", "500.000"].includes(key)
+    [
+      "500",
+      "1.000",
+      "2.000",
+      "5.000",
+      "10.000",
+      "20.000",
+      "50.000",
+      "100.000",
+      "200.000",
+      "500.000",
+    ].includes(key)
   ) {
     const val = parseInt(key.replace(/\./g, ""), 10);
     customerPaid.value += val;
@@ -4933,7 +6277,9 @@ const formattedDate = computed(() => {
 });
 
 const printCount = ref(3);
-const currentTime = computed(() => activeOrder.value.openedTime || "02/07/2026 14:09");
+const currentTime = computed(
+  () => activeOrder.value.openedTime || "02/07/2026 14:09",
+);
 
 const pendingCount = ref(3);
 const pendingOrders = ref([
@@ -5247,9 +6593,11 @@ const filteredTables = computed(() => {
 
         let filterMatches = true;
         switch (filter) {
+          case "available":
           case "empty":
             filterMatches = table.status === "Available";
             break;
+          case "serving":
           case "occupied":
             filterMatches =
               table.status === "Serving" || table.status === "Arrived";
@@ -5263,6 +6611,7 @@ const filteredTables = computed(() => {
           case "multi-print":
             filterMatches = table.status === "Serving" && table.capacity !== 4;
             break;
+          case "reserved":
           case "multi-bill":
             filterMatches = table.status === "Reserved";
             break;
@@ -5561,7 +6910,7 @@ let toastIdCounter = 0;
 // Track every pending auto-dismiss timer so we can clear them on unmount;
 // otherwise a router push right after `triggerToast` would leave the toast
 // mutating `toasts.value` after the component is gone.
-const toastTimers = new Set<number>()
+const toastTimers = new Set<number>();
 
 function triggerToast(
   type: "success" | "warning" | "error" | "info",
@@ -5576,8 +6925,8 @@ function triggerToast(
 }
 
 function clearToastTimers() {
-  for (const h of toastTimers) clearTimeout(h)
-  toastTimers.clear()
+  for (const h of toastTimers) clearTimeout(h);
+  toastTimers.clear();
 }
 
 // Left cart collapsing triggers
@@ -5867,49 +7216,64 @@ const activeTableStatus = computed(() => {
 // clearing — otherwise a cashier mid-order could lose an entire ticket by
 // accidentally clicking a different table. Items stay on the source table
 // until the cashier confirms the discard.
-watch(selectedTableCode, async (newCode, oldCode) => {
-  if (newCode && oldCode && newCode !== oldCode) {
-    const prev = activeOrder.value
-    const hasItems = prev && Array.isArray(prev.items) && prev.items.length > 0
-    if (hasItems) {
-      const r = await Swal.fire({
-        icon: 'warning',
-        title: t('reception_order.switch_table_prompt_title', 'Đổi bàn?'),
-        text: t(
-          'reception_order.switch_table_prompt_text',
-          `Giỏ hàng hiện tại có ${prev!.items.length} món. Nếu đổi bàn mà KHÔNG gửi bếp, các món sẽ bị hủy.`,
-        ),
-        showCancelButton: true,
-        confirmButtonText: t('reception_order.discard_cart', 'Hủy giỏ & đổi bàn'),
-        cancelButtonText: t('common.keep_editing', 'Ở lại'),
-        reverseButtons: true,
-      })
-      if (!r.isConfirmed) {
-        // Restore the old code so state matches user intent.
-        selectedTableCode.value = oldCode
-        return
+watch(
+  selectedTableCode,
+  async (newCode, oldCode) => {
+    if (newCode && oldCode && newCode !== oldCode) {
+      const prevTable = restaurantStore.getTableByCode(oldCode);
+      const isOldTableOccupied = prevTable
+        ? prevTable.status !== "Available"
+        : false;
+
+      // Only prompt to discard draft cart if the old table is NOT occupied/Serving
+      if (!isOldTableOccupied) {
+        const prev = restaurantStore.tableOrders[oldCode];
+        const hasItems =
+          prev && Array.isArray(prev.items) && prev.items.length > 0;
+        if (hasItems) {
+          const r = await Swal.fire({
+            icon: "warning",
+            title: t("reception_order.switch_table_prompt_title", "Đổi bàn?"),
+            text: t(
+              "reception_order.switch_table_prompt_text",
+              `Giỏ hàng hiện tại có ${prev!.items.length} món. Nếu đổi bàn mà KHÔNG gửi bếp, các món sẽ bị hủy.`,
+            ),
+            showCancelButton: true,
+            confirmButtonText: t(
+              "reception_order.discard_cart",
+              "Hủy giỏ & đổi bàn",
+            ),
+            cancelButtonText: t("common.keep_editing", "Ở lại"),
+            reverseButtons: true,
+          });
+          if (!r.isConfirmed) {
+            // Restore the old code so state matches user intent.
+            selectedTableCode.value = oldCode;
+            return;
+          }
+          prev!.items = [];
+        }
       }
-      prev!.items = []
-    } else if (prev) {
-      prev.items = []
     }
-  }
-  if (newCode) {
-    // Reset timer
-    updateTimer();
-    startSessionTimer();
+    if (newCode) {
+      // Reset timer
+      updateTimer();
+      startSessionTimer();
 
-    // Seed default settings for this table (lazy, no side-effects inside
-    // the `activeSettings` computed).
-    ensureTableSettings(newCode)
+      // Seed default settings for this table (lazy, no side-effects inside
+      // the `activeSettings` computed).
+      ensureTableSettings(newCode);
 
-    // If table settings aren't set, auto-open the package selector
-    if (!tableSettings.value[newCode] || !tableSettings.value[newCode].package) {
-      // openSettingsConfig(); // Disabled automatic popup configurator
+      // If table settings aren't set, auto-open the package selector
+      if (
+        !tableSettings.value[newCode] ||
+        !tableSettings.value[newCode].package
+      ) {
+        // openSettingsConfig(); // Disabled automatic popup configurator
+      }
     }
-  }
-},
-{ immediate: true }
+  },
+  { immediate: true },
 );
 
 // Session timer tick updates. We tick every 2 s (not 1 s) because the
@@ -6204,33 +7568,59 @@ function getEnrichedItem(item: {
 const summary = computed(() => {
   const guestCount = activeOrder.value.guestCount || 2;
   const ticketSubtotal = guestCount * selectedPackagePrice.value;
-  // Take HEAD: matches the DB `process_checkout` math (5% service + 10% VAT).
-  // origin/main's variant dropped service_charge entirely (was a quality-bar
-  // regression) so the cashier preview disagreed with the bill.
   const pkg = activeSettings.value.package;
-
   const items = activeOrder.value.items || [];
-  let itemsSubtotal = 0;
+
+  let rawSubtotal = ticketSubtotal;
+  let buffetDiscount = 0;
+  let lunchDiscount = 0;
+
   for (let i = 0; i < items.length; i++) {
     const item = items[i];
-    const charge = isItemInPackage(item, pkg) ? 0 : item.price;
-    itemsSubtotal += charge * item.quantity;
+    const isBuffetItem = isItemInPackage(item, pkg);
+
+    // Raw item cost
+    rawSubtotal += item.price * item.quantity;
+
+    if (isBuffetItem) {
+      // Buffet item is free
+      buffetDiscount += item.price * item.quantity;
+    } else {
+      // Check lunch discount (50% for item containing 'lunch' in name)
+      const isLunch = item.name.toLowerCase().includes("lunch");
+      if (isLunch) {
+        lunchDiscount += Math.round(item.price * 0.5) * item.quantity;
+      }
+    }
   }
 
-  const subtotal = ticketSubtotal + itemsSubtotal;
-  const serviceCharge = Math.round(subtotal * 0.05); // 5% Service Charge
-  // Ishii spec (02/07/2026): VAT = 8%, NOT 10%. This is the cashier-side
-  // preview only; the authoritative number comes from `hall_get_checkout_totals`
-  // RPC at checkout time (which the DB-side `process_checkout` also computes).
-  const vat = Math.round((subtotal + serviceCharge) * 0.08); // 8% VAT
-  const grandTotal = subtotal + serviceCharge + vat;
-  // `discount` is exposed (currently 0) so the cashier-side preview matches
-  // the template layout from origin/main. The real discount path is wired
-  // through `process_checkout` (voucher + manual) — see Phase A in the
-  // quality-bar plan.
-  const discount = 0;
+  const voucherDiscount = discountBill.value || 0;
+  const totalDiscount = buffetDiscount + lunchDiscount + voucherDiscount;
 
-  return { subtotal, serviceCharge, vat, grandTotal, discount };
+  // Net subtotal after all discounts
+  const subtotal = Math.max(0, rawSubtotal - totalDiscount);
+
+  // 5% Service Charge based on net subtotal
+  const serviceCharge = Math.round(subtotal * 0.05);
+
+  // 8% VAT based on net subtotal + service charge
+  const vat = Math.round((subtotal + serviceCharge) * 0.08);
+
+  // Grand total
+  const grandTotal = subtotal + serviceCharge + vat;
+
+  return {
+    rawSubtotal,
+    buffetDiscount,
+    lunchDiscount,
+    voucherDiscount,
+    totalDiscount,
+    subtotal, // net subtotal
+    serviceCharge,
+    vat,
+    grandTotal,
+    discount: totalDiscount, // Keep for compatibility with older code
+  };
 });
 
 // Parsed Japanese and Vietnamese Names extractor helper
@@ -6389,28 +7779,28 @@ const activeSubcategoriesList = computed(() => {
 // Stale-token cancellation — rapid category clicks fire overlapping timers;
 // we only honour the most recent one so the spinner finishes when the user
 // settles on a category.
-let gridLoadingToken = 0
-let gridLoadingHandle: number | null = null
+let gridLoadingToken = 0;
+let gridLoadingHandle: number | null = null;
 function clearGridLoadingTimer() {
   if (gridLoadingHandle != null) {
-    clearTimeout(gridLoadingHandle)
-    gridLoadingHandle = null
+    clearTimeout(gridLoadingHandle);
+    gridLoadingHandle = null;
   }
 }
 
 function selectCategory(catId: string) {
   activeCategoryId.value = catId;
-  activeSubCategoryId.value = 'all';
+  activeSubCategoryId.value = "all";
 
-  clearGridLoadingTimer()
-  const myToken = ++gridLoadingToken
-  isGridLoading.value = true
+  clearGridLoadingTimer();
+  const myToken = ++gridLoadingToken;
+  isGridLoading.value = true;
   gridLoadingHandle = window.setTimeout(() => {
     if (myToken === gridLoadingToken) {
-      isGridLoading.value = false
+      isGridLoading.value = false;
     }
-    gridLoadingHandle = null
-  }, 350)
+    gridLoadingHandle = null;
+  }, 350);
 }
 
 function getEligibleBuffetGroups(product: MenuItem) {
@@ -6630,19 +8020,30 @@ function updateQty(itemId: string, change: number) {
 }
 
 function removeItem(itemId: string) {
-  if (!selectedTableCode.value) return;
-  if (confirm(t("reception_order.xoa_mon_nay_khoi_don"))) {
-    restaurantStore.removeOrderItem(selectedTableCode.value, itemId);
-    triggerToast("info", t("reception_order.da_xoa_mon_khoi_gio"));
-  }
+  const tableCode = selectedTableCode.value;
+  if (!tableCode) return;
+  const item = activeOrder.value.items.find((i: any) => i.id === itemId);
+  const itemName = item ? item.name : "Món ăn";
+
+  requestManagerAuth("VOID_ITEM", itemName, (authPayload) => {
+    restaurantStore.removeOrderItem(tableCode, itemId);
+    triggerToast(
+      "info",
+      `Đã xóa món "${itemName}" (Lý do: ${authPayload.reason})`,
+    );
+  });
 }
 
 function clearCart() {
-  if (!selectedTableCode.value) return;
-  if (confirm(t("reception_order.ban_co_chac_muon_xoa_toan_bo_mon"))) {
+  const tableCode = selectedTableCode.value;
+  if (!tableCode) return;
+  requestManagerAuth("CANCEL_TABLE", `Bàn ${tableCode}`, (authPayload) => {
     activeOrder.value.items = [];
-    triggerToast("success", t("reception_order.da_xoa_toan_bo_mon"));
-  }
+    triggerToast(
+      "success",
+      `Đã xóa toàn bộ món (Lý do: ${authPayload.reason})`,
+    );
+  });
 }
 
 // Option group control modifiers helpers
@@ -6965,10 +8366,17 @@ async function checkoutTable() {
 }
 
 function cancelChanges() {
-  if (confirm(t("reception_order.huy_bo_toan_bo_mon_an"))) {
-    activeOrder.value.items = [];
-    triggerToast("warning", t("reception_order.da_lam_trong_gio_hang"));
-  }
+  requestManagerAuth(
+    "CANCEL_TABLE",
+    `Bàn ${selectedTableCode.value || ""}`,
+    (authPayload) => {
+      activeOrder.value.items = [];
+      triggerToast(
+        "warning",
+        `Đã hủy bỏ toàn bộ món ăn (Lý do: ${authPayload.reason})`,
+      );
+    },
+  );
 }
 
 function holdOrder() {
@@ -7039,10 +8447,14 @@ async function sendToKitchen() {
     //    status — if the table is still `available` we have to open it first
     //    or hall_submit_table_order will 400 with "Hall can submit orders
     //    only for occupied tables".
-    const tableRow = (await listTables()).find((table: any) => table.code === code)
-    if (!tableRow) throw new Error(t('reception_order.khong_tim_thay_ban', { code }))
-    const tableId: string = (tableRow as { id: string }).id
-    const tableStatus: string = (tableRow as { status?: string }).status ?? 'available'
+    const tableRow = (await listTables()).find(
+      (table: any) => table.code === code,
+    );
+    if (!tableRow)
+      throw new Error(t("reception_order.khong_tim_thay_ban", { code }));
+    const tableId: string = (tableRow as { id: string }).id;
+    const tableStatus: string =
+      (tableRow as { status?: string }).status ?? "available";
 
     // 2. If the table isn't yet `occupied`, flip it with the lightweight
     //    `hall_open_table` RPC. We deliberately do NOT call the heavy
@@ -7051,21 +8463,21 @@ async function sendToKitchen() {
     //    400 on duplicate customers / cross-branch tables. The dedicated
     //    Reservation / Quick-Open modals in AdminFloorsView still go
     //    through check-in for the full ceremonial flow.
-    if (tableStatus !== 'occupied') {
+    if (tableStatus !== "occupied") {
       const { data: openData, error: openErr } = await supabase.rpc(
-        'hall_open_table',
+        "hall_open_table",
         { p_branch_id: branchId.value, p_table_id: tableId },
-      )
+      );
       if (openErr) {
         throw new Error(
           `Không thể mở bàn trước khi gửi bếp: ${(openErr as any).message ?? String(openErr)}`,
-        )
+        );
       }
       // Surface the actual server reason in console so 400s are debuggable.
       if (openData && (openData as any).ok === false) {
         throw new Error(
-          `Bàn ${code} mở thất bại: ${(openData as any).reason ?? 'unknown'}`,
-        )
+          `Bàn ${code} mở thất bại: ${(openData as any).reason ?? "unknown"}`,
+        );
       }
     }
 
@@ -7141,17 +8553,20 @@ async function sendToKitchen() {
     // collapsed it into a generic "send to kitchen failed" toast, hiding the
     // real cause (table not occupied, item unavailable, etc.). We pop a
     // modal Swal so the cashier actually has time to read the message.
-    const msg = err instanceof Error ? err.message : String(err)
+    const msg = err instanceof Error ? err.message : String(err);
     // Postgres RPC errors embed JSON-like text inside the .message field;
     // try to extract the human `message`/`detail`/`hint` lines so the cashier
     // sees the cause, not `{"code":"P0001","message":"..."}`.
-    const pretty = extractReadableDbError(msg)
+    const pretty = extractReadableDbError(msg);
     Swal.fire({
-      icon: 'error',
-      title: t('reception_order.gui_bep_that_bai_title', 'Gửi bếp thất bại'),
+      icon: "error",
+      title: t("reception_order.gui_bep_that_bai_title", "Gửi bếp thất bại"),
       text: pretty,
-      footer: msg !== pretty ? `<pre class="text-left text-xs whitespace-pre-wrap">${msg}</pre>` : undefined,
-    })
+      footer:
+        msg !== pretty
+          ? `<pre class="text-left text-xs whitespace-pre-wrap">${msg}</pre>`
+          : undefined,
+    });
   } finally {
     kitchenLoading.value = false;
   }
@@ -7165,22 +8580,23 @@ async function sendToKitchen() {
  * Returns the input unchanged when no JSON is detected.
  */
 function extractReadableDbError(raw: string): string {
-  if (!raw) return raw
-  const jsonStart = raw.indexOf('{')
-  const jsonEnd = raw.lastIndexOf('}')
+  if (!raw) return raw;
+  const jsonStart = raw.indexOf("{");
+  const jsonEnd = raw.lastIndexOf("}");
   if (jsonStart >= 0 && jsonEnd > jsonStart) {
     try {
-      const obj = JSON.parse(raw.slice(jsonStart, jsonEnd + 1))
-      const parts: string[] = []
-      if (obj.message) parts.push(String(obj.message))
-      if (obj.detail && obj.detail !== obj.message) parts.push(String(obj.detail))
-      if (obj.hint && obj.hint !== obj.message) parts.push(`Hint: ${obj.hint}`)
-      if (parts.length) return parts.join('\n')
+      const obj = JSON.parse(raw.slice(jsonStart, jsonEnd + 1));
+      const parts: string[] = [];
+      if (obj.message) parts.push(String(obj.message));
+      if (obj.detail && obj.detail !== obj.message)
+        parts.push(String(obj.detail));
+      if (obj.hint && obj.hint !== obj.message) parts.push(`Hint: ${obj.hint}`);
+      if (parts.length) return parts.join("\n");
     } catch {
       // not valid JSON — fall through to returning the raw string
     }
   }
-  return raw
+  return raw;
 }
 
 function saveOrder() {
@@ -7263,7 +8679,10 @@ function goBack() {
 
 function handleKeyDown(e: KeyboardEvent) {
   if (e.key === "Escape") {
-    if (selectionMode.value !== 'none') {
+    if (draggedReservation.value) {
+      handleDragEnd();
+      triggerToast("info", "Đã hủy thao tác xếp bàn");
+    } else if (selectionMode.value !== "none") {
       cancelSelectionMode();
     } else if (showTableContextMenu.value) {
       showTableContextMenu.value = false;
@@ -7285,27 +8704,1260 @@ function handleKeyDown(e: KeyboardEvent) {
   }
 }
 
+// ==========================================
+// MANAGER AUTH & PAYMENT METHOD SELECTOR FLOW
+// ==========================================
+
+// Manager Auth Modal State
+const showAuthModal = ref(false);
+const authActionType = ref("VOID_ITEM");
+const authTargetName = ref("");
+const authCallback = ref<
+  ((payload: { pin: string; reason: string }) => void) | null
+>(null);
+
+function requestManagerAuth(
+  actionType: string,
+  targetName: string,
+  callback: (payload: { pin: string; reason: string }) => void,
+) {
+  authActionType.value = actionType;
+  authTargetName.value = targetName;
+  authCallback.value = callback;
+  showAuthModal.value = true;
+}
+
+function handleAuthConfirm(payload: { pin: string; reason: string }) {
+  showAuthModal.value = false;
+  if (authCallback.value) {
+    authCallback.value(payload);
+    authCallback.value = null;
+  }
+}
+
+function handleAuthClose() {
+  showAuthModal.value = false;
+  authCallback.value = null;
+}
+
+function triggerPaymentFlow() {
+  if (!activeOrder.value.items || activeOrder.value.items.length === 0) {
+    triggerToast("warning", "Đơn hàng trống, không thể thanh toán!");
+    return;
+  }
+
+  try {
+    const amount = summary.value.grandTotal;
+    const now = new Date();
+    const timeStr = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}:${String(now.getSeconds()).padStart(2, "0")}`;
+
+    activities.value.unshift({
+      id: String(activities.value.length + 1),
+      time: timeStr,
+      action: "Thanh toán tiền mặt",
+      staff: profile.value?.full_name || "Dương Thị Mộng Mơ",
+      amount,
+      posId: 29,
+    });
+
+    activeOrder.value.items = [];
+
+    if (selectedTableCode.value) {
+      const table = restaurantStore.getTableByCode(selectedTableCode.value);
+      if (table) {
+        table.status = "Available";
+        table.billAmount = "";
+        table.customerName = "";
+      }
+    }
+
+    Swal.fire({
+      title: "Thành công",
+      text: `Đã hoàn tất thanh toán ${formatVND(amount)} thành công!`,
+      icon: "success",
+      confirmButtonColor: "#4CAF50",
+    }).then(() => {
+      closePanel();
+    });
+  } catch (error) {
+    console.error("[ReceptionOrderView] Payment flow failed:", error);
+    triggerToast("error", "Thanh toán thất bại. Vui lòng thử lại!");
+  }
+}
+
+// Cancel Table Flow (Task UI-2.2 integration)
+const isSelectedTableOccupied = computed(() => {
+  if (!selectedTableCode.value) return false;
+  const table = restaurantStore.getTableByCode(selectedTableCode.value);
+  return table ? table.status !== "Available" : false;
+});
+
+async function triggerCancelTableFlow() {
+  const code = selectedTableCode.value;
+  if (!code) return;
+
+  const table = restaurantStore.getTableByCode(code);
+  if (!table) return;
+
+  requestManagerAuth("CANCEL_TABLE", `Bàn ${code}`, async (authPayload) => {
+    try {
+      // Find table in DB to cancel if it is occupied
+      const tableRow = (await listTables()).find((t: any) => t.code === code);
+      if (tableRow && tableRow.status === "occupied") {
+        const { branchId } = useAuth();
+        const { data: checkoutData, error: getErr } = await supabase.rpc(
+          "hall_get_checkout_totals",
+          {
+            p_branch_id: branchId.value,
+            p_table_id: tableRow.id,
+            p_order_id: null,
+          },
+        );
+        if (getErr) throw getErr;
+
+        if (checkoutData && checkoutData.order) {
+          const { error: cancelErr } = await supabase.rpc(
+            "hall_cancel_order_or_item",
+            {
+              p_branch_id: branchId.value,
+              p_order_id: checkoutData.order.id,
+              p_order_item_id: null,
+              p_manager_pin: authPayload.pin,
+              p_reason: authPayload.reason || "Cashier cancelled entire order",
+            },
+          );
+          if (cancelErr) throw cancelErr;
+        }
+      }
+
+      // Clear local store cart and reset table status
+      const order = restaurantStore.getOrCreateOrder(code);
+      order.items = [];
+      order.customerName = "";
+      order.openedTime = "";
+
+      table.status = "Available";
+      table.customerName = "";
+      table.billAmount = "";
+      table.checkInTime = "";
+      table.occupiedDuration = "";
+
+      triggerToast(
+        "success",
+        `Đã hủy phiếu và trả bàn ${code} về trống (Lý do: ${authPayload.reason})`,
+      );
+      selectedTableCode.value = "";
+      activeMainTab.value = "table_map";
+    } catch (error: any) {
+      triggerToast(
+        "error",
+        error instanceof Error ? error.message : "Hủy bàn thất bại!",
+      );
+    }
+  });
+}
+
+// ==========================================
+// TIMELINE SLIDER, RESERVATION DRAG & DROP, & TABLE LIST VIEW
+// ==========================================
+const { listReservations, seatReservation, cancelReservation } =
+  useReservation();
+const todayReservations = ref<any[]>([]);
+const dbTablesList = ref<any[]>([]);
+const selectedStartTime = ref(1020); // 17:00 default
+const selectedEndTime = computed(() => selectedStartTime.value + 120); // 2 hours duration
+const leftPanelActiveTab = ref<"cart" | "reservations">("cart");
+const draggedReservation = ref<any>(null);
+
+const selectedZone = ref("all");
+const getInitialFloorViewMode = (): "grid" | "list" => {
+  if (typeof window === "undefined") return "grid";
+  const savedMode = window.localStorage.getItem("floorViewMode");
+  if (savedMode === "grid" || savedMode === "list") {
+    return savedMode;
+  }
+  return "grid";
+};
+const viewMode = ref<"grid" | "list">(getInitialFloorViewMode());
+
+const setViewMode = (mode: "grid" | "list") => {
+  viewMode.value = mode;
+
+  if (mode === "list") {
+    activeMainTab.value = "table_list";
+  } else {
+    activeMainTab.value = "table_map";
+  }
+
+  if (typeof window !== "undefined") {
+    window.localStorage.setItem("floorViewMode", mode);
+  }
+};
+
+const closeFloorView = () => {
+  goBack();
+};
+
+watch(selectedZone, (newZone) => {
+  if (newZone === "all") {
+    selectedArea.value = "Tất cả";
+  } else {
+    selectedArea.value = "Khu " + newZone;
+  }
+});
+
+watch(selectedArea, (newArea) => {
+  if (newArea === "Tất cả") {
+    selectedZone.value = "all";
+  } else {
+    selectedZone.value = newArea.replace("Khu ", "");
+  }
+});
+
+watch(activeMainTab, (newVal) => {
+  if (newVal === "table_list") {
+    viewMode.value = "list";
+  } else if (newVal === "table_map") {
+    viewMode.value = "grid";
+  }
+});
+
+const mockUnassignedReservations = [
+  {
+    id: "RES-001",
+    customer_name: "Nguyễn Văn Minh",
+    phone: "0909 123 456",
+    guests: 4,
+    reservation_time: "11:00:00",
+    date: new Date().toISOString().split("T")[0],
+    status: "Pending",
+    table_id: null,
+    notes: { request: "Sinh nhật, cần trang trí bàn" },
+    source: "PHONE",
+    created_at: new Date().toISOString(),
+  },
+  {
+    id: "RES-002",
+    customer_name: "Trần Thị Lan",
+    phone: "0912 345 678",
+    guests: 2,
+    reservation_time: "18:00:00",
+    date: new Date().toISOString().split("T")[0],
+    status: "Pending",
+    table_id: null,
+    notes: { request: "Hẹn đối tác, cần bàn yên tĩnh" },
+    source: "WEBSITE",
+    created_at: new Date().toISOString(),
+  },
+  {
+    id: "RES-003",
+    customer_name: "Lê Hoàng Nam",
+    phone: "0938 765 432",
+    guests: 8,
+    reservation_time: "18:00:00",
+    date: new Date().toISOString().split("T")[0],
+    status: "Pending",
+    table_id: null,
+    notes: { request: "Tiệc gia đình, cần bàn lớn" },
+    source: "FACEBOOK",
+    created_at: new Date().toISOString(),
+  },
+  {
+    id: "RES-004",
+    customer_name: "Phạm Thị Hương",
+    phone: "0977 654 321",
+    guests: 6,
+    reservation_time: "11:30:00",
+    date: new Date().toISOString().split("T")[0],
+    status: "Pending",
+    table_id: null,
+    notes: { request: "Ăn trưa business lunch" },
+    source: "MOBILE_APP",
+    created_at: new Date().toISOString(),
+  },
+  {
+    id: "RES-005",
+    customer_name: "Hoàng Đức Tuấn",
+    phone: "0966 111 222",
+    guests: 10,
+    reservation_time: "18:00:00",
+    date: new Date().toISOString().split("T")[0],
+    status: "Pending",
+    table_id: null,
+    notes: { request: "Tiệc công ty, cần ghép bàn" },
+    source: "PHONE",
+    created_at: new Date().toISOString(),
+  },
+];
+
+function handleTableListActionClick(table: any, event: MouseEvent) {
+  selectedTableForAction.value = table;
+  selectTable(table.code);
+  contextMenuPosition.value = { x: event.clientX, y: event.clientY };
+  showTableContextMenu.value = true;
+}
+
+function debounce(fn: Function, delay: number) {
+  let timeoutId: any = null;
+  return (...args: any[]) => {
+    if (timeoutId) clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => {
+      fn(...args);
+    }, delay);
+  };
+}
+
+function parseTimeToMinutes(timeStr: string): number {
+  if (!timeStr) return 0;
+  const parts = timeStr.split(":");
+  const h = parseInt(parts[0], 10) || 0;
+  const m = parseInt(parts[1], 10) || 0;
+  return h * 60 + m;
+}
+
+function formatMinutesToTime(minutes: number): string {
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`;
+}
+
+const getTableCodeFromId = (tableId: string): string => {
+  const tbl = dbTablesList.value.find((t) => t.id === tableId);
+  return tbl ? tbl.code : "";
+};
+
+const tableConflicts = computed(() => {
+  const conflictsMap: Record<string, any> = {};
+  todayReservations.value.forEach((res) => {
+    if (
+      res.status !== "Confirmed" &&
+      res.status !== "Pending" &&
+      res.status !== "Arrived"
+    )
+      return;
+    if (!res.table_id) return;
+
+    const tableCode = getTableCodeFromId(res.table_id);
+    if (!tableCode) return;
+
+    const resTime = parseTimeToMinutes(res.reservation_time);
+    const resEndTime = resTime + 120; // 2 hours duration
+
+    const overlap =
+      resTime < selectedEndTime.value && resEndTime > selectedStartTime.value;
+    if (overlap) {
+      conflictsMap[tableCode] = res;
+    }
+  });
+  return conflictsMap;
+});
+
+const totalTablesCount = computed(() => {
+  let count = 0;
+  restaurantStore.areas.forEach((area) => {
+    count += area.tables.length;
+  });
+  return count;
+});
+
+const availableTablesCount = computed(() => {
+  let count = 0;
+  restaurantStore.areas.forEach((area) => {
+    area.tables.forEach((table) => {
+      if (table.status === "Available" && !tableConflicts.value[table.code]) {
+        count++;
+      }
+    });
+  });
+  return count;
+});
+
+const unassignedReservations = computed(() => {
+  return todayReservations.value.filter(
+    (res) =>
+      (res.status === "Confirmed" || res.status === "Pending") && !res.table_id,
+  );
+});
+
+const allTablesWithInfo = computed(() => {
+  const list: any[] = [];
+  const query = tableSearchQuery.value.trim().toLowerCase();
+
+  restaurantStore.areas.forEach((area) => {
+    area.tables.forEach((table) => {
+      const codeMatch = table.code.toLowerCase().includes(query);
+      const nameMatch = (table.customerName || "")
+        .toLowerCase()
+        .includes(query);
+      const billMatch = (table.billAmount || "").toLowerCase().includes(query);
+      const matchesSearch = !query || codeMatch || nameMatch || billMatch;
+
+      if (matchesSearch) {
+        list.push(table);
+      }
+    });
+  });
+  list.sort((a, b) => a.code.localeCompare(b.code));
+  return list;
+});
+
+async function fetchTodayReservations() {
+  try {
+    const res = await listReservations({
+      date: new Date().toISOString().split("T")[0],
+    });
+    const dbRes = res.reservations || [];
+    todayReservations.value = [...mockUnassignedReservations, ...dbRes];
+  } catch (err) {
+    console.error("Error loading today reservations:", err);
+    todayReservations.value = [...mockUnassignedReservations];
+  }
+}
+
+async function fetchDbTables() {
+  try {
+    dbTablesList.value = await listTables();
+    // Sync restaurantStore.areas from DB data so the UI and table lookups
+    // use the same source of truth (replaces the hardcoded mock fallback).
+    if (dbTablesList.value.length > 0) {
+      const byZone = new Map<string, any[]>();
+      for (const t of dbTablesList.value as any[]) {
+        const zoneName = t.zone || "Main";
+        if (!byZone.has(zoneName)) byZone.set(zoneName, []);
+        let uiStatus: any;
+        if (t.active_order) {
+          uiStatus = "Serving";
+        } else {
+          uiStatus =
+            t.status === "available"
+              ? "Available"
+              : t.status === "reserved"
+                ? "Reserved"
+                : t.status === "occupied"
+                  ? "Serving"
+                  : "Available";
+        }
+        byZone.get(zoneName)!.push({
+          code: t.code,
+          status: uiStatus,
+          capacity: t.capacity || 4,
+        });
+      }
+      restaurantStore.areas = Array.from(byZone.entries())
+        .sort((a, b) => a[0].localeCompare(b[0], "vi"))
+        .map(([name, tables]) => ({
+          name,
+          description: name,
+          tables,
+        }));
+    }
+  } catch (err) {
+    console.error("Error loading tables:", err);
+  }
+}
+
+const debouncedFetchTodayReservations = debounce(async () => {
+  await fetchTodayReservations();
+}, 300);
+
+watch(selectedStartTime, () => {
+  debouncedFetchTodayReservations();
+});
+
+function setPresetTime(preset: "lunch" | "dinner") {
+  if (preset === "lunch") {
+    selectedStartTime.value = 690;
+  } else if (preset === "dinner") {
+    selectedStartTime.value = 1080;
+  }
+}
+
+async function refreshTableAvailability() {
+  await fetchDbTables();
+  await fetchTodayReservations();
+  triggerToast("success", "Đã cập nhật sơ đồ bàn & danh sách đặt trước");
+}
+
+function getTableStatusColorClass(table: any) {
+  if (table.status === "Serving" || table.status === "Arrived") {
+    return "bg-[#78281f]/40 border-[#c0392b] text-white hover:bg-[#78281f]/60";
+  }
+  if (tableConflicts.value[table.code]) {
+    return "bg-[#7e5109]/40 border-[#d35400] text-white hover:bg-[#7e5109]/60";
+  }
+  if (table.status === "Reserved") {
+    return "bg-[#7d6608]/40 border-[#f1c40f] text-white hover:bg-[#7d6608]/60";
+  }
+  return "bg-[#145a32]/30 border-[#27ae60] text-white hover:bg-[#145a32]/50";
+}
+
+function getTableTooltip(table: any) {
+  if (table.status === "Serving" || table.status === "Arrived") {
+    return `Bàn ${table.code} - Đang phục vụ\nKhách: ${table.customerName || "Khách vãng lai"}\nGiờ vào: ${table.checkInTime || "Vừa vào"}`;
+  }
+  if (tableConflicts.value[table.code]) {
+    const conflict = tableConflicts.value[table.code];
+    const snap = conflict.customer_snapshot || {};
+    return `Bàn ${table.code} - Đã đặt trước\nKhách: ${snap.name || "Khách đặt trước"}\nGiờ đặt: ${conflict.reservation_time.substring(0, 5)} (${conflict.guests} người)`;
+  }
+  if (table.status === "Reserved") {
+    return `Bàn ${table.code} - Đặt trước\nKhách: ${table.customerName || "Chưa có tên"}`;
+  }
+  return `Bàn ${table.code} - Trống\nSức chứa: ${table.capacity || 4} người`;
+}
+
+function getTableStatusRowClass(table: any) {
+  if (table.status === "Serving" || table.status === "Arrived") {
+    return "bg-[#78281f]/10";
+  }
+  if (tableConflicts.value[table.code]) {
+    return "bg-[#7e5109]/10";
+  }
+  if (table.status === "Reserved") {
+    return "bg-[#7d6608]/10";
+  }
+  return "bg-[#145a32]/10";
+}
+
+function getTableStatusBadgeClass(table: any) {
+  if (table.status === "Serving" || table.status === "Arrived") {
+    return "bg-red-500/20 text-red-400 border border-red-500/30";
+  }
+  if (tableConflicts.value[table.code]) {
+    return "bg-orange-500/20 text-orange-400 border border-orange-500/30";
+  }
+  if (table.status === "Reserved") {
+    return "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30";
+  }
+  return "bg-green-500/20 text-green-400 border border-green-500/30";
+}
+
+function getTableStatusText(table: any) {
+  if (table.status === "Serving" || table.status === "Arrived") {
+    return "Đang phục vụ";
+  }
+  if (tableConflicts.value[table.code]) {
+    const conflict = tableConflicts.value[table.code];
+    return `Đã đặt (${conflict.reservation_time.substring(0, 5)})`;
+  }
+  if (table.status === "Reserved") {
+    return "Đặt trước";
+  }
+  return "Trống";
+}
+
+function getTablePaxCount(table: any) {
+  if (table.status === "Serving" || table.status === "Arrived") {
+    return restaurantStore.getOrCreateOrder(table.code).guestCount || 2;
+  }
+  if (tableConflicts.value[table.code]) {
+    return tableConflicts.value[table.code].guests || 2;
+  }
+  return "-";
+}
+
+const draggedElement = ref<any>(null);
+const selectedReservation = ref<any>(null);
+
+// ===== DRAG & DROP (vue-draggable-plus / SortableJS) =====
+const wasValidDrop = ref(false);
+const lastInvalidReason = ref<string>("");
+
+// Per-table drop buffers (empty arrays; clones removed immediately in onAdd)
+const tableDropBuffers = reactive<Record<string, any[]>>({});
+const getTableDropBuffer = (code: string): any[] => {
+  if (!tableDropBuffers[code]) {
+    tableDropBuffers[code] = [];
+  }
+  return tableDropBuffers[code];
+};
+
+// Writable computed for VueDraggable v-model (source list is read-only)
+const draggableReservations = computed({
+  get: () => unassignedReservations.value,
+  set: () => {},
+});
+
+const findTableByCode = (code: string) => {
+  for (const area of restaurantStore.areas) {
+    const found = area.tables.find((t) => t.code === code);
+    if (found) return found;
+  }
+  return null;
+};
+
+const cloneReservation = (original: any) => {
+  return { ...original, _cloneId: `clone-${original.id}-${Date.now()}` };
+};
+
+const totalReservations = computed(() => todayReservations.value.length);
+const totalReservationsToday = totalReservations;
+
+const assignedCount = computed(() => {
+  return todayReservations.value.filter((r) => r.table_id).length;
+});
+
+const unassignedCount = computed(() => {
+  return unassignedReservations.value.length;
+});
+
+const openDetailPopup = (reservation: any) => {
+  selectedReservation.value = reservation;
+};
+
+const closeDetailPopup = () => {
+  selectedReservation.value = null;
+};
+
+const formatDate = (dateStr: string) => {
+  if (!dateStr) return "-";
+  try {
+    const date = new Date(dateStr);
+    return `${date.getDate().toString().padStart(2, "0")}/${(date.getMonth() + 1).toString().padStart(2, "0")}/${date.getFullYear()}`;
+  } catch {
+    return dateStr;
+  }
+};
+
+const formatPhone = (phone: string) => {
+  if (!phone) return "";
+  const num = phone.replace(/\s+/g, "");
+  if (num.length === 10) {
+    return num.replace(/(\d{4})(\d{3})(\d{3})/, "$1 $2 $3");
+  }
+  return phone;
+};
+
+const getPaxBadgeClass = (pax: number) => {
+  if (pax <= 2)
+    return "bg-green-950/60 text-green-300 border border-green-800/30";
+  if (pax <= 4) return "bg-blue-950/60 text-blue-300 border border-blue-800/30";
+  if (pax <= 6)
+    return "bg-yellow-950/60 text-yellow-300 border border-yellow-800/30";
+  return "bg-red-950/60 text-red-300 border border-red-800/30";
+};
+
+const getSourceIcon = (source: string) => {
+  const icons: Record<string, string> = {
+    WEBSITE: "🌐",
+    MOBILE_APP: "📱",
+    PHONE: "📞",
+    WALK_IN: "🚶",
+    FACEBOOK: "👥",
+  };
+  return icons[source?.toUpperCase()] || "📅";
+};
+
+const getStatusText = (status: string) => {
+  const texts: Record<string, string> = {
+    PENDING: "Chờ gán bàn",
+    CONFIRMED: "Đã xác nhận",
+    CANCELLED: "Đã hủy",
+    DINING: "Đang ăn",
+  };
+  return texts[status?.toUpperCase()] || status || "Chờ gán";
+};
+
+const assignQuickTable = async (res: any) => {
+  closeDetailPopup();
+
+  // Find matching table using best-fit strategy
+  let bestTable: any = null;
+  let minDiff = Infinity;
+
+  for (const area of restaurantStore.areas) {
+    for (const table of area.tables) {
+      const validation = canTableAcceptReservation(table, res);
+      if (validation.valid) {
+        const diff = (table.capacity || 4) - res.guests;
+        if (diff >= 0 && diff < minDiff) {
+          minDiff = diff;
+          bestTable = table;
+        }
+      }
+    }
+  }
+
+  if (bestTable) {
+    // Confirm assignment
+    const confirmResult = await Swal.fire({
+      title: "Xếp bàn nhanh?",
+      text: `Đã tìm thấy bàn trống phù hợp nhất: Bàn ${bestTable.code} (Sức chứa: ${bestTable.capacity} người). Xác nhận xếp Khách "${res.customer_snapshot?.name || res.customer_name}" vào bàn này?`,
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Đồng ý",
+      cancelButtonText: "Hủy bỏ",
+      confirmButtonColor: "#4CAF50",
+      cancelButtonColor: "#F44336",
+    });
+
+    if (confirmResult.isConfirmed) {
+      try {
+        const tableRow = dbTablesList.value.find(
+          (t: any) => t.code === bestTable.code,
+        );
+        if (!tableRow)
+          throw new Error(`Không tìm thấy bàn ${bestTable.code} trên hệ thống`);
+
+        if (res.id.startsWith("RES-")) {
+          res.table_id = tableRow.id;
+        } else {
+          await seatReservation(res.id, tableRow.id);
+        }
+
+        bestTable.status = "Serving";
+        bestTable.customerName =
+          res.customer_snapshot?.name || res.customer_name || "Khách đặt trước";
+        bestTable.billAmount = "0 đ";
+
+        const order = restaurantStore.getOrCreateOrder(bestTable.code);
+        order.guestCount = res.guests;
+
+        triggerToast(
+          "success",
+          `Đã tự động xếp bàn ${bestTable.code} cho khách ${bestTable.customerName}`,
+        );
+        await fetchTodayReservations();
+      } catch (err: any) {
+        Swal.fire({
+          icon: "error",
+          title: "Xếp bàn thất bại",
+          text: err.message || String(err),
+          confirmButtonColor: "#F44336",
+        });
+      }
+    }
+  } else {
+    Swal.fire({
+      icon: "warning",
+      title: "Không tìm thấy bàn",
+      text: `Hiện không có bàn trống nào đủ chứa ${res.guests} người và không bị trùng lịch.`,
+      confirmButtonColor: "#E8772E",
+    });
+  }
+};
+
+// ===== SortableJS Drag Handlers (vue-draggable-plus) =====
+
+const onDragStart = (evt: any) => {
+  const reservation = unassignedReservations.value[evt.oldIndex];
+  draggedReservation.value = reservation;
+  wasValidDrop.value = false;
+  lastInvalidReason.value = "";
+};
+
+const onReservationMove = (evt: any) => {
+  const targetEl = evt.to as HTMLElement;
+  const tableCode = targetEl?.dataset?.tableCode;
+  if (!tableCode) return false;
+
+  const table = findTableByCode(tableCode);
+  if (!table) return false;
+
+  const validation = canTableAcceptReservation(table, draggedReservation.value);
+
+  clearAllDropZoneHighlights();
+  targetEl.classList.add(
+    validation.valid ? "drop-zone-valid" : "drop-zone-invalid",
+  );
+
+  if (!validation.valid) {
+    lastInvalidReason.value = validation.reason || "Bàn không hợp lệ";
+  }
+
+  return validation.valid;
+};
+
+const onDragEnd = (evt: any) => {
+  if (!wasValidDrop.value && draggedReservation.value) {
+    const originalEl = evt.item as HTMLElement;
+    if (originalEl) {
+      triggerBounceAnimation(originalEl);
+    }
+    if (lastInvalidReason.value) {
+      triggerToast("error", lastInvalidReason.value);
+    }
+  }
+
+  clearAllDropZoneHighlights();
+  draggedReservation.value = null;
+  draggedElement.value = null;
+  lastInvalidReason.value = "";
+  wasValidDrop.value = false;
+};
+
+const onTableDropSortable = async (evt: any, table: any) => {
+  wasValidDrop.value = true;
+
+  // Remove the dropped clone from the table's DOM immediately
+  const cloneEl = evt.item as HTMLElement;
+  if (cloneEl && cloneEl.parentNode) {
+    cloneEl.parentNode.removeChild(cloneEl);
+  }
+
+  // Clear the table's drop buffer
+  if (tableDropBuffers[table.code]) {
+    tableDropBuffers[table.code] = [];
+  }
+
+  clearAllDropZoneHighlights();
+
+  const reservation = draggedReservation.value;
+  draggedReservation.value = null;
+  draggedElement.value = null;
+
+  if (!reservation) return;
+
+  const confirmResult = await Swal.fire({
+    title: "Xếp bàn?",
+    text: `Bạn có muốn xếp Khách "${reservation.customer_snapshot?.name || reservation.customer_name || "Đặt trước"}" (${reservation.guests} khách) vào Bàn ${table.code}?`,
+    icon: "question",
+    showCancelButton: true,
+    confirmButtonText: "Đồng ý",
+    cancelButtonText: "Hủy bỏ",
+    confirmButtonColor: "#4CAF50",
+    cancelButtonColor: "#F44336",
+  });
+
+  if (!confirmResult.isConfirmed) return;
+
+  try {
+    const tableRow = dbTablesList.value.find((t: any) => t.code === table.code);
+    if (!tableRow)
+      throw new Error(`Không tìm thấy bàn ${table.code} trên hệ thống`);
+
+    if (reservation.id.startsWith("RES-")) {
+      reservation.table_id = tableRow.id;
+    } else {
+      await seatReservation(reservation.id, tableRow.id);
+    }
+
+    table.status = "Serving";
+    table.customerName =
+      reservation.customer_snapshot?.name ||
+      reservation.customer_name ||
+      "Khách đặt trước";
+    table.billAmount = "0 đ";
+
+    const order = restaurantStore.getOrCreateOrder(table.code);
+    order.guestCount = reservation.guests;
+
+    triggerToast(
+      "success",
+      `Đã xếp bàn ${table.code} cho khách ${table.customerName}`,
+    );
+    await fetchTodayReservations();
+  } catch (err: any) {
+    Swal.fire({
+      icon: "error",
+      title: "Xếp bàn thất bại",
+      text: err.message || String(err),
+      confirmButtonColor: "#F44336",
+    });
+  }
+};
+
+// Drag Handlers
+const handleReservationDragStart = (event: DragEvent, reservation: any) => {
+  draggedReservation.value = reservation;
+  draggedElement.value = event.target;
+
+  if (event.dataTransfer) {
+    event.dataTransfer.effectAllowed = "move";
+    event.dataTransfer.setData("application/json", JSON.stringify(reservation));
+  }
+
+  setTimeout(() => {
+    if (event.target && (event.target as HTMLElement).classList) {
+      (event.target as HTMLElement).classList.add("opacity-50", "scale-95");
+    }
+    document.body.classList.add("cursor-move");
+  }, 0);
+
+  highlightValidDropZones(reservation);
+};
+
+const handleDragEnd = () => {
+  if (draggedElement.value && draggedElement.value.classList) {
+    draggedElement.value.classList.remove("opacity-50", "scale-95");
+  }
+  clearAllDropZoneHighlights();
+  draggedReservation.value = null;
+  draggedElement.value = null;
+  document.body.classList.remove("cursor-move");
+};
+
+// Validation: Check if table can accept this reservation
+const canTableAcceptReservation = (table: any, reservation: any) => {
+  if (table.status !== "Available") {
+    return { valid: false, reason: "Bàn đang có khách" };
+  }
+
+  if (table.capacity && reservation.guests > table.capacity) {
+    return {
+      valid: false,
+      reason: `Bàn chỉ chứa được ${table.capacity} người (khách đặt ${reservation.guests} người)`,
+    };
+  }
+
+  if (tableConflicts.value[table.code]) {
+    const conflict = tableConflicts.value[table.code];
+    return {
+      valid: false,
+      reason: `Bàn đã được đặt từ ${conflict.reservation_time.substring(0, 5)}`,
+    };
+  }
+
+  return { valid: true };
+};
+
+// Highlight valid drop zones
+const highlightValidDropZones = (reservation: any) => {
+  const queryAll = document.querySelectorAll(`[data-table-code]`);
+  queryAll.forEach((element: any) => {
+    const code = element.getAttribute("data-table-code");
+    let table = null;
+    for (const area of restaurantStore.areas) {
+      const found = area.tables.find((t) => t.code === code);
+      if (found) {
+        table = found;
+        break;
+      }
+    }
+    if (table) {
+      const validation = canTableAcceptReservation(table, reservation);
+      if (validation.valid) {
+        element.classList.add("drop-zone-valid");
+      } else {
+        element.classList.add("drop-zone-invalid");
+      }
+    }
+  });
+};
+
+const clearAllDropZoneHighlights = () => {
+  const queryAll = document.querySelectorAll(`[data-table-code]`);
+  queryAll.forEach((element: any) => {
+    element.classList.remove("drop-zone-valid", "drop-zone-invalid");
+  });
+};
+
+// Handle drop on table
+const handleTableDrop = async (event: DragEvent, table: any) => {
+  event.preventDefault();
+  clearAllDropZoneHighlights();
+
+  if (!draggedReservation.value) return;
+  const reservation = draggedReservation.value;
+
+  // Validate
+  const validation = canTableAcceptReservation(table, reservation);
+  if (!validation.valid) {
+    const targetCard = event.currentTarget as HTMLElement;
+    if (targetCard) {
+      triggerBounceAnimation(targetCard);
+    }
+    triggerToast("error", validation.reason || "Bàn không hợp lệ");
+    draggedReservation.value = null;
+    draggedElement.value = null;
+    document.body.classList.remove("cursor-move");
+    return;
+  }
+
+  draggedReservation.value = null;
+  draggedElement.value = null;
+  document.body.classList.remove("cursor-move");
+
+  const confirmResult = await Swal.fire({
+    title: "Xếp bàn?",
+    text: `Bạn có muốn xếp Khách "${reservation.customer_snapshot?.name || reservation.customer_name || "Đặt trước"}" (${reservation.guests} khách) vào Bàn ${table.code}?`,
+    icon: "question",
+    showCancelButton: true,
+    confirmButtonText: "Đồng ý",
+    cancelButtonText: "Hủy bỏ",
+    confirmButtonColor: "#4CAF50",
+    cancelButtonColor: "#F44336",
+  });
+
+  if (!confirmResult.isConfirmed) return;
+
+  try {
+    const tableRow = dbTablesList.value.find((t: any) => t.code === table.code);
+    if (!tableRow)
+      throw new Error(`Không tìm thấy bàn ${table.code} trên hệ thống`);
+
+    if (reservation.id.startsWith("RES-")) {
+      reservation.table_id = tableRow.id;
+    } else {
+      await seatReservation(reservation.id, tableRow.id);
+    }
+
+    table.status = "Serving";
+    table.customerName =
+      reservation.customer_snapshot?.name ||
+      reservation.customer_name ||
+      "Khách đặt trước";
+    table.billAmount = "0 đ";
+
+    const order = restaurantStore.getOrCreateOrder(table.code);
+    order.guestCount = reservation.guests;
+
+    triggerToast(
+      "success",
+      `Đã xếp bàn ${table.code} cho khách ${table.customerName}`,
+    );
+    await fetchTodayReservations();
+  } catch (err: any) {
+    Swal.fire({
+      icon: "error",
+      title: "Xếp bàn thất bại",
+      text: err.message || String(err),
+      confirmButtonColor: "#F44336",
+    });
+  }
+};
+
+const triggerBounceAnimation = (element: HTMLElement) => {
+  element.classList.add("animate-reject-bounce");
+  setTimeout(() => {
+    element.classList.remove("animate-reject-bounce");
+  }, 600);
+};
+
+const getInitials = (name?: string) => {
+  if (!name) return "?";
+  return name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+};
+
+const formatTime = (timeValue?: string | number) => {
+  if (!timeValue) return "--:--";
+  if (typeof timeValue === "string" && timeValue.includes(":")) {
+    return timeValue.slice(0, 5);
+  }
+
+  const minutes = Number(timeValue) || 0;
+  const hour = Math.floor(minutes / 60);
+  const minute = minutes % 60;
+  return `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+};
+
+const truncateText = (text: any, length: number) => {
+  if (!text) return "";
+  const str = typeof text === "string" ? text : JSON.stringify(text);
+  return str.length > length ? str.slice(0, length) + "..." : str;
+};
+
+const getSourceBadgeClass = (source: string) => {
+  const classes: Record<string, string> = {
+    WEBSITE:
+      "bg-purple-900 text-purple-200 border border-purple-800 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider",
+    MOBILE_APP:
+      "bg-blue-900 text-blue-200 border border-blue-800 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider",
+    PHONE:
+      "bg-green-900 text-green-200 border border-green-800 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider",
+    WALK_IN:
+      "bg-orange-900 text-orange-200 border border-orange-800 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider",
+    FACEBOOK:
+      "bg-pink-900 text-pink-200 border border-pink-800 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider",
+  };
+  return (
+    classes[source?.toUpperCase()] ||
+    "bg-gray-700 text-gray-200 border border-gray-600 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider"
+  );
+};
+
+const getSourceText = (source: string) => {
+  const texts: Record<string, string> = {
+    WEBSITE: "Website",
+    MOBILE_APP: "App",
+    PHONE: "Điện thoại",
+    WALK_IN: "Vãng lai",
+    FACEBOOK: "Facebook",
+  };
+  return texts[source?.toUpperCase()] || source || "Khác";
+};
+
+const formatDateTime = (dateTimeStr: string) => {
+  if (!dateTimeStr) return "";
+  try {
+    const d = new Date(dateTimeStr);
+    return (
+      d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) +
+      " " +
+      d.toLocaleDateString([], { day: "2-digit", month: "2-digit" })
+    );
+  } catch {
+    return dateTimeStr;
+  }
+};
+
+const viewReservationDetail = (res: any) => {
+  const snap = res.customer_snapshot || {};
+  const notesStr =
+    res.notes?.request ||
+    res.notes?.internal ||
+    res.notes ||
+    "Không có ghi chú";
+  Swal.fire({
+    title: `Chi tiết đặt chỗ: ${res.booking_code}`,
+    html: `
+      <div class="text-left space-y-2 text-sm text-gray-300">
+        <div><strong>Khách hàng:</strong> ${snap.name || res.customer_name || "Khách đặt"}</div>
+        <div><strong>Số điện thoại:</strong> ${snap.phone || res.phone || "Chưa có SĐT"}</div>
+        <div><strong>Giờ đặt:</strong> ${res.reservation_time.substring(0, 5)}</div>
+        <div><strong>Số lượng:</strong> ${res.guests} khách</div>
+        <div><strong>Nguồn:</strong> ${res.source || "Trực tiếp"}</div>
+        <div><strong>Ghi chú:</strong> ${notesStr}</div>
+      </div>
+    `,
+    icon: "info",
+    confirmButtonText: "Đóng",
+    confirmButtonColor: "#E8772E",
+    background: "#2d2d2d",
+    color: "#fff",
+  });
+};
+
+const handleCancelReservation = async (id: string) => {
+  const confirmResult = await Swal.fire({
+    title: "Hủy đặt chỗ?",
+    text: "Bạn có chắc chắn muốn hủy đặt chỗ này không?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Đồng ý hủy",
+    cancelButtonText: "Bỏ qua",
+    confirmButtonColor: "#d33",
+    cancelButtonColor: "#3085d6",
+  });
+  if (!confirmResult.isConfirmed) return;
+
+  try {
+    await cancelReservation(id, "Hủy từ sơ đồ quầy tiếp đón");
+    triggerToast("success", "Đã hủy đặt chỗ thành công");
+    await fetchTodayReservations();
+  } catch (err: any) {
+    Swal.fire({
+      icon: "error",
+      title: "Hủy thất bại",
+      text: err.message || String(err),
+      confirmButtonColor: "#d33",
+    });
+  }
+};
+
 onMounted(() => {
   startSessionTimer();
   window.addEventListener("keydown", handleKeyDown);
   clockInterval = setInterval(() => {
     currentClock.value = new Date();
   }, 1000);
+  fetchDbTables();
+  fetchTodayReservations();
 });
 
 onUnmounted(() => {
   stopSessionTimer();
-  window.removeEventListener('keydown', handleKeyDown);
-  clearToastTimers()
-  clearGridLoadingTimer()
-  if (typeof clockInterval !== 'undefined' && clockInterval != null) {
-    clearInterval(clockInterval)
+  window.removeEventListener("keydown", handleKeyDown);
+  clearToastTimers();
+  clearGridLoadingTimer();
+  if (typeof clockInterval !== "undefined" && clockInterval != null) {
+    clearInterval(clockInterval);
   }
 });
 </script>
 
 <style scoped>
 @import "@/styles/orderingScreen.css";
+
+/* Drop zone valid/invalid states and animations */
+.drop-zone-valid {
+  border-color: #27ae60 !important;
+  background-color: rgba(39, 174, 96, 0.15) !important;
+  box-shadow: 0 0 12px rgba(39, 174, 96, 0.4) !important;
+  transform: scale(1.03);
+}
+
+.drop-zone-invalid {
+  opacity: 0.4 !important;
+  border-color: #c0392b !important;
+  background-color: rgba(192, 57, 43, 0.05) !important;
+  cursor: not-allowed !important;
+}
+
+@keyframes rejectBounce {
+  0% {
+    transform: translateX(0) scale(1);
+  }
+  15% {
+    transform: translateX(-10px) scale(1.05);
+  }
+  30% {
+    transform: translateX(10px) scale(1.05);
+  }
+  45% {
+    transform: translateX(-7px) scale(1.02);
+  }
+  60% {
+    transform: translateX(7px) scale(1.02);
+  }
+  75% {
+    transform: translateX(-4px) scale(1);
+  }
+  100% {
+    transform: translateX(0) scale(1);
+  }
+}
+
+.animate-reject-bounce {
+  animation: rejectBounce 0.6s cubic-bezier(0.36, 0.07, 0.19, 0.97) !important;
+  border-color: #c0392b !important;
+  box-shadow: 0 0 16px rgba(192, 57, 43, 0.5) !important;
+}
+
+/* SortableJS drag visual states */
+.dragging-ghost {
+  opacity: 0.3;
+}
+.dragging-chosen {
+  cursor: grabbing !important;
+}
+.dragging-clone {
+  opacity: 0.85;
+  transform: scale(1.03);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.cursor-move {
+  cursor: move !important;
+}
+
+/* Card hover glow and reflections */
+.reservation-card {
+  position: relative;
+}
+.reservation-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.08),
+    transparent
+  );
+  transition: left 0.5s;
+}
+.reservation-card:hover::before {
+  left: 100%;
+}
 
 /* Payment Methods Bar - Compact */
 .payment-methods-bar {

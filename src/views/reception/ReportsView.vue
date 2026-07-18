@@ -66,7 +66,7 @@
     </div>
 
     <!-- 3. MAIN CONTENT: flex-1 + overflow-hidden (CHIẾM PHẦN CÒN LẠI) -->
-    <div class="main-content flex-1 overflow-hidden flex flex-col mx-6 mb-6">
+    <div class="main-content flex-1 overflow-hidden flex flex-col min-h-0 mx-6 mb-6">
       <!-- 3.1 TABS + ACTIONS: flex-shrink-0 -->
       <div class="tabs-row flex-shrink-0">
         <div class="tabs-left">
@@ -1927,15 +1927,13 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-/* KEY FIX: Toàn bộ trang KHÔNG scroll */
-/* ===== CONTAINER CHÍNH: Scroll lớn ===== */
+/* ===== CONTAINER CHÍNH: Fill viewport, NO page scroll ===== */
 .reports-page.scrollable {
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #f5f5f5;
-  overflow-y: auto; /* SCROLL LỚN BÊN PHẢI */
-  overflow-x: hidden;
+  background: #f0f2f5;
+  overflow: hidden;
   padding: 8px;
   gap: 8px;
   box-sizing: border-box;
@@ -1943,51 +1941,17 @@ onUnmounted(() => {
   position: relative;
 }
 
-/* Custom scrollbar lớn */
-.reports-page.scrollable::-webkit-scrollbar {
-  width: 12px; /* LỚN HƠN */
-}
-
-.reports-page.scrollable::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 6px;
-}
-
-.reports-page.scrollable::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, #10b981, #059669);
-  border-radius: 6px;
-  border: 2px solid #f1f1f1;
-}
-
-.reports-page.scrollable::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, #059669, #047857);
-}
-
-/* ===== STICKY ELEMENTS ===== */
-.reports-header.sticky,
-.filters-section.sticky,
-.tabs-row.sticky,
-.pagination-footer.sticky,
-.summary-footer.sticky {
-  position: sticky;
-  z-index: 100;
-}
-
-.reports-header.sticky {
-  top: 0;
-}
-
 /* 1. HEADER - Cố định */
 .reports-header {
-  background: white;
-  padding: 10px 16px 10px 76px; /* Keep left padding for hamburger menu */
+  background: linear-gradient(135deg, #1e3a5f 0%, #1a5276 100%);
+  padding: 10px 16px 10px 76px;
   height: 56px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   border-radius: 8px;
   flex-shrink: 0;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 8px rgba(30, 58, 95, 0.3);
 }
 
 .header-left {
@@ -1997,10 +1961,10 @@ onUnmounted(() => {
 }
 
 .logo-icon {
-  font-size: 32px;
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  width: 56px;
-  height: 56px;
+  font-size: 28px;
+  background: rgba(255,255,255,0.15);
+  width: 48px;
+  height: 48px;
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -2010,13 +1974,13 @@ onUnmounted(() => {
 .page-title {
   font-size: 20px;
   font-weight: 700;
-  color: #1a1a1a;
+  color: #ffffff;
   margin: 0;
 }
 
 .page-subtitle {
   font-size: 12px;
-  color: #666;
+  color: rgba(255,255,255,0.7);
   margin: 4px 0 0 0;
 }
 
@@ -2039,43 +2003,60 @@ onUnmounted(() => {
 }
 
 .btn-refresh {
-  background: #10b981;
+  background: rgba(255,255,255,0.15);
   color: white;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+.btn-refresh:hover {
+  background: rgba(255,255,255,0.25);
 }
 .btn-bill-list {
-  background: #8b5cf6;
+  background: rgba(255,255,255,0.15);
   color: white;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+.btn-bill-list:hover {
+  background: rgba(255,255,255,0.25);
 }
 .btn-lock {
-  background: #f59e0b;
+  background: rgba(255,255,255,0.15);
   color: white;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+.btn-lock:hover {
+  background: rgba(255,255,255,0.25);
 }
 .btn-back {
-  background: #ef4444;
+  background: rgba(255,255,255,0.15);
   color: white;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+.btn-back:hover {
+  background: rgba(255,255,255,0.25);
 }
 .btn-export {
-  background: #10b981;
+  background: #1e3a5f;
   color: white;
+}
+.btn-export:hover {
+  background: #1a5276;
 }
 .btn-print {
-  background: #3b82f6;
+  background: #1e3a5f;
   color: white;
 }
+.btn-print:hover {
+  background: #1a5276;
+}
 
-/* 2. FILTERS - Cố định */
+/* 2. FILTERS */
 .filters-section {
   background: white;
   padding: 10px 16px;
   border-radius: 8px;
   flex-shrink: 0;
-  height: 52px;
   align-items: flex-end;
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
-
-.filters-section.sticky {
-  top: 64px;
 }
 
 .filter-row {
@@ -2135,16 +2116,17 @@ onUnmounted(() => {
   width: 90px;
 }
 
-/* 3. MAIN CONTENT - Chiếm phần còn lại, KHÔNG scroll */
+/* 3. MAIN CONTENT - Fill remaining viewport */
 .main-content {
   flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   gap: 8px;
 }
 
-/* 3.1 TABS - Cố định */
+/* 3.1 TABS */
 .tabs-row {
   display: flex;
   justify-content: space-between;
@@ -2153,12 +2135,7 @@ onUnmounted(() => {
   background: white;
   border-radius: 8px;
   flex-shrink: 0;
-  height: 44px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
-
-.tabs-row.sticky {
-  top: 124px;
 }
 
 .tabs-left {
@@ -2175,10 +2152,15 @@ onUnmounted(() => {
   font-size: 12px;
   color: #666;
   cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tab-btn:hover {
+  background: #e2e8f0;
 }
 
 .tab-btn.active {
-  background: #10b981;
+  background: #1e3a5f;
   color: white;
 }
 
@@ -2262,12 +2244,12 @@ onUnmounted(() => {
   font-weight: 800;
 }
 
-/* 3.2 DATA TABLE - CHỈ PHẦN NÀY SCROLL DỌC */
-/* ===== BẢNG TRÊN: Giới hạn chiều cao + Scroll riêng ===== */
+/* 3.2 DATA TABLE - Flexible height, internal scroll only */
 .main-table-wrapper {
   background: white;
   border-radius: 8px;
-  height: 340px; /* CHIỀU CAO CỐ ĐỊNH */
+  flex: 1;
+  min-height: 0;
   overflow: hidden;
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
@@ -2290,12 +2272,12 @@ onUnmounted(() => {
 }
 
 .table-scroll-container.small-scroll::-webkit-scrollbar-thumb {
-  background: #10b981;
+  background: #1e3a5f;
   border-radius: 3px;
 }
 
 .table-scroll-container.small-scroll::-webkit-scrollbar-thumb:hover {
-  background: #059669;
+  background: #1a5276;
 }
 
 .data-table {
@@ -2305,7 +2287,7 @@ onUnmounted(() => {
 }
 
 .data-table th {
-  background: #10b981;
+  background: #1e3a5f;
   color: white;
   padding: 8px 10px;
   text-align: left;
@@ -2315,7 +2297,8 @@ onUnmounted(() => {
   position: sticky;
   top: 0;
   z-index: 10;
-  border-right: 1px solid rgba(255, 255, 255, 0.2);
+  border-right: 1px solid rgba(255, 255, 255, 0.15);
+  white-space: nowrap;
 }
 
 .data-table td {
@@ -2331,7 +2314,7 @@ onUnmounted(() => {
 }
 
 .data-table tbody tr:hover {
-  background: #e3f2fd !important;
+  background: #e8f0fe !important;
 }
 
 .row-paid {
@@ -2574,7 +2557,7 @@ onUnmounted(() => {
   min-width: 140px;
 }
 
-/* 3.3 PAGINATION - Cố định */
+/* 3.3 PAGINATION */
 .pagination-footer {
   display: flex;
   justify-content: space-between;
@@ -2583,8 +2566,8 @@ onUnmounted(() => {
   background: white;
   border-radius: 8px;
   flex-shrink: 0;
-  height: 40px;
   font-size: 12px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
 .record-count {
@@ -2614,14 +2597,14 @@ onUnmounted(() => {
 }
 
 .page-current {
-  background: #3b82f6;
+  background: #1e3a5f;
   color: white;
   padding: 4px 10px;
   border-radius: 4px;
   font-weight: 600;
 }
 
-/* 3.4 SUMMARY FOOTER - Cố định */
+/* 3.4 SUMMARY FOOTER */
 .summary-footer {
   display: flex;
   justify-content: flex-end;
@@ -2631,8 +2614,8 @@ onUnmounted(() => {
   color: white;
   border-radius: 8px;
   flex-shrink: 0;
-  height: 44px;
   align-items: center;
+  box-shadow: 0 2px 8px rgba(30, 41, 59, 0.3);
 }
 
 .summary-item {
@@ -2652,11 +2635,13 @@ onUnmounted(() => {
   font-size: 13px;
 }
 
-/* ===== BẢNG DƯỚI: Scroll tự do ===== */
+/* ===== DETAIL SECTION - Flexible height ===== */
 .detail-section {
   background: white;
   border-radius: 8px;
-  height: 420px; /* CHIỀU CAO CỐ ĐỊNH */
+  flex: 0 0 38%;
+  min-height: 180px;
+  max-height: 45%;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -2667,14 +2652,13 @@ onUnmounted(() => {
   display: flex;
   background: #1e3a5f;
   flex-shrink: 0;
-  height: 38px;
 }
 
 .sub-tab-btn {
   padding: 10px 18px;
   background: transparent;
   border: none;
-  color: #94a3b8;
+  color: rgba(255,255,255,0.6);
   font-weight: 600;
   font-size: 12px;
   cursor: pointer;
@@ -2684,10 +2668,11 @@ onUnmounted(() => {
 
 .sub-tab-btn:hover {
   background: rgba(255, 255, 255, 0.1);
+  color: rgba(255,255,255,0.9);
 }
 
 .sub-tab-btn.active {
-  background: #3b82f6;
+  background: #1a5276;
   color: white;
 }
 
@@ -2709,12 +2694,12 @@ onUnmounted(() => {
 }
 
 .detail-content-scroll.small-scroll::-webkit-scrollbar-thumb {
-  background: #3b82f6;
+  background: #1e3a5f;
   border-radius: 3px;
 }
 
 .detail-content-scroll.small-scroll::-webkit-scrollbar-thumb:hover {
-  background: #2563eb;
+  background: #1a5276;
 }
 
 .items-table-wrapper {
@@ -2734,9 +2719,11 @@ onUnmounted(() => {
   text-align: left;
   font-weight: 600;
   font-size: 10px;
+  text-transform: uppercase;
   position: sticky;
   top: 0;
   border-right: 1px solid rgba(255, 255, 255, 0.1);
+  white-space: nowrap;
 }
 
 .items-table th:last-child {
@@ -2766,14 +2753,13 @@ onUnmounted(() => {
 
 /* ===== ROW SELECTED STATE ===== */
 .row-selected {
-  background: #e3f2fd !important;
-  outline: 2px solid #1976d2;
+  background: #e8f0fe !important;
+  outline: 2px solid #1e3a5f;
   outline-offset: -2px;
-  position: relative;
 }
 
 .row-selected td {
-  color: #0d47a1 !important;
+  color: #1e3a5f !important;
   font-weight: 600;
 }
 
@@ -2861,7 +2847,7 @@ onUnmounted(() => {
   display: block;
   font-size: 13px;
   font-weight: 700;
-  color: #1a5276;
+  color: #1e3a5f;
   margin-top: 2px;
   font-family: "Courier New", monospace;
 }
@@ -3075,7 +3061,7 @@ onUnmounted(() => {
 }
 
 thead th.sticky-col {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+  background: #1e3a5f !important;
   z-index: 20 !important;
 }
 

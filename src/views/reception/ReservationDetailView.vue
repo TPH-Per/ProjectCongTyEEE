@@ -512,7 +512,7 @@ async function fetchReservations() {
         customerName: snap?.name || 'Khách vãng lai',
         phone: snap?.phone || '',
         email: snap?.email || '',
-        status: r.status === 'CONFIRMED' ? 'confirmed' : r.status === 'Dining' ? 'completed' : r.status === 'NO_SHOW' ? 'cancelled' : 'new',
+        status: (r.status === 'CONFIRMED' || r.status === 'Arrived') ? 'confirmed' : r.status === 'Dining' ? 'completed' : (r.status === 'Cancelled' || r.status === 'NO_SHOW') ? 'cancelled' : 'new',
         timeSlot: getTimeSlot(r.reservation_time),
         notes: r.booking_info?.notes || '',
         partyName: r.booking_info?.occasion || '',
@@ -650,7 +650,7 @@ async function handleUpdate() {
     let newDbStatus = 'PENDING'
     if (formData.status === 'confirmed') newDbStatus = 'CONFIRMED'
     else if (formData.status === 'completed') newDbStatus = 'Dining'
-    else if (formData.status === 'cancelled') newDbStatus = 'NO_SHOW'
+    else if (formData.status === 'cancelled') newDbStatus = 'Cancelled'
 
     await updateStatus(
       selectedReservation.value.id,

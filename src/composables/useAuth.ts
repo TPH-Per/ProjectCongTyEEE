@@ -63,6 +63,20 @@ function isMockAuthAllowed(): boolean {
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
+/** Default email domain for short usernames (e.g. "admin" → "admin@nguucat.vn"). */
+const DEFAULT_EMAIL_DOMAIN = 'nguucat.vn'
+
+/**
+ * Normalise the login input: if it already contains "@", leave it as-is;
+ * otherwise append "@nguucat.vn" so users can type short usernames like
+ * "admin" or "manager.q1" instead of the full email address.
+ */
+function normaliseLoginEmail(input: string): string {
+  const trimmed = input.trim().toLowerCase()
+  if (trimmed.includes('@')) return trimmed
+  return `${trimmed}@${DEFAULT_EMAIL_DOMAIN}`
+}
+
 function clearMockStorage() {
   localStorage.removeItem('ngu-cat.mock-session')
   localStorage.removeItem('ngu-cat.mock-profile')
@@ -127,9 +141,10 @@ function normaliseRole(raw: unknown): UserRole | undefined {
 function performMockLogin(email: string) {
   const cleanEmail = email.trim().toLowerCase()
   let detectedRole: UserRole = 'staff'
-  if (cleanEmail.startsWith('superadmin')) detectedRole = 'superadmin'
+  if (cleanEmail.startsWith('superadmin') || cleanEmail.startsWith('admin')) detectedRole = 'superadmin'
   else if (cleanEmail.startsWith('manager')) detectedRole = 'manager'
   else if (cleanEmail.startsWith('reception')) detectedRole = 'reception'
+  else if (cleanEmail.startsWith('kitchen')) detectedRole = 'kitchen'
   else if (cleanEmail.startsWith('procurement_manager')) detectedRole = 'procurement_manager'
   else if (cleanEmail.startsWith('accounting_manager')) detectedRole = 'accounting_manager'
   else if (cleanEmail.startsWith('accounting')) detectedRole = 'accounting'
@@ -297,12 +312,15 @@ export function useAuth() {
    * without a profile (that would let them hit RLS walls later).
    */
   async function signIn(email: string, password: string): Promise<void> {
+    // Normalise: "admin" → "admin@nguucat.vn" so users can type short usernames
+    const normalisedEmail = normaliseLoginEmail(email)
+
     if (isMockAuthAllowed()) {
-      performMockLogin(email)
+      performMockLogin(normalisedEmail)
       return
     }
 
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+    const { data, error } = await supabase.auth.signInWithPassword({ email: normalisedEmail, password })
     if (error) throw error
 
     const user = data.user

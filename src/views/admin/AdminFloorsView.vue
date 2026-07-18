@@ -1916,7 +1916,15 @@ const isReceptionMode = computed(() => route.path.startsWith('/reception'))
 const router = useRouter();
 const restaurantStore = useRestaurantStore();
 const { bookings } = storeToRefs(restaurantStore);
-const areas = ref<AreaInfo[]>([]);
+// Start with the store's static floor data as fallback; loadTables()
+// will overwrite with live DB rows when available.
+const areas = ref<AreaInfo[]>(
+  restaurantStore.areas.map((a) => ({
+    name: a.name,
+    description: a.description,
+    tables: a.tables.map((t) => ({ ...t })),
+  })),
+);
 
 interface TableInfo {
   code: string;

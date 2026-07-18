@@ -146,14 +146,11 @@ export function useReservation() {
   }
 
   async function cancelReservation(id: string, reason?: string) {
-    // Actually the status for canceled is typically NO_SHOW or we can add CANCELLED, wait...
-    // The type says: 'PENDING' | 'CONFIRMED' | 'Dining' | 'COMPLETED' | 'NO_SHOW'
-    // We can use NO_SHOW or we can update the type. Let's use NO_SHOW.
-    // Also we might want to save reason to notes.
+    // Use the database enum 'Cancelled' for cancelled reservations
     loading.value = true
     error.value = null
     try {
-      const updates: any = { status: 'NO_SHOW', updated_at: new Date().toISOString() }
+      const updates: any = { status: 'Cancelled', updated_at: new Date().toISOString() }
       if (reason) updates.notes = reason
       const { error: err } = await supabase.from('reservations').update(updates).eq('id', id)
       if (err) throw err

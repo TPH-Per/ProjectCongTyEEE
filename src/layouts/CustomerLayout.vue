@@ -188,6 +188,7 @@ import { useRouter, useRoute } from 'vue-router';
 import Swal from 'sweetalert2';
 import { useCustomerStore } from '@/stores/customerStore';
 import { useCustomerSession } from '@/composables/useCustomerSession';
+import { isSupabaseConfigured } from '@/lib/supabase';
 import OrderTrackingModal from '@/components/customer/OrderTrackingModal.vue';
 
 const store = useCustomerStore();
@@ -243,8 +244,11 @@ const pendingItemsCount = computed(() => {
 restoreSessionFromLocalStorage();
 
 onMounted(() => {
-  // If not authenticated or no session, redirect to the customer home page (passcode screen)
-  if (!store.session && route.name !== 'CustomerHome' && route.path.startsWith('/customer')) {
+  // If not authenticated or no session, redirect to the customer home page (passcode screen).
+  // Khi chưa cấu hình Supabase (offline mode), cho phép truy cập trực tiếp
+  // trang cart để test UI tĩnh.
+  const allowDirectAccess = !isSupabaseConfigured && route.name === 'CustomerCart';
+  if (!store.session && route.name !== 'CustomerHome' && route.path.startsWith('/customer') && !allowDirectAccess) {
     router.push({ name: 'CustomerHome' });
   } else if (store.session) {
     store.loadOrderHistory();

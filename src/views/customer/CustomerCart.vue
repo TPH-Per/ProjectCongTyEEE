@@ -57,6 +57,14 @@
         <button @click="backToMenu" class="btn-add-food" type="button">
           Thêm món ăn
         </button>
+
+        <!-- Dev: Seed test data khi chưa có backend -->
+        <button @click="seedTestData" class="btn-seed-test" type="button">
+          🧪 Nạp dữ liệu test (mock)
+        </button>
+        <p v-if="!isSupabaseConfigured" class="mock-mode-hint">
+          ⚠ Đang chạy chế độ offline — Supabase chưa cấu hình
+        </p>
       </div>
 
       <!-- Non-empty Cart State -->
@@ -167,13 +175,15 @@ import { useRouter } from "vue-router";
 import { useCustomerStore } from "@/stores/customerStore";
 import { useCustomerSession } from "@/composables/useCustomerSession";
 import { useBusinessRules } from "@/composables/useBusinessRules";
+import { isSupabaseConfigured } from "@/lib/supabase";
+import { mockCartItems, mockSession } from "@/data/mockCartData";
 import CartItem from "@/components/customer/CartItem.vue";
 import Swal from "sweetalert2";
 import { isValidUUID } from "@/utils/validators";
 
 const store = useCustomerStore();
 const router = useRouter();
-const { syncCart } = useCustomerSession();
+const { syncCart, saveSessionToLocalStorage } = useCustomerSession();
 const { BR23, BR27, BR28 } = useBusinessRules();
 
 const submitting = ref(false);
@@ -275,6 +285,33 @@ function backToMenu() {
   router.push({ name: "CustomerMenu" });
 }
 
+/**
+ * Nạp dữ liệu test tĩnh vào store để test UI cart mà không cần backend.
+ * Tạo mock session + thêm cart items với UUID hợp lệ.
+ */
+function seedTestData() {
+  // Tạo mock session nếu chưa có (để CustomerLayout không redirect)
+  if (!store.session) {
+    store.session = mockSession;
+    store.isAuthenticated = true;
+    store.currentView = "cart";
+    saveSessionToLocalStorage();
+  }
+  // Thêm mock items vào cart (deep clone để tránh tham chiếu)
+  store.cart = JSON.parse(JSON.stringify(mockCartItems));
+  syncCart();
+
+  Swal.fire({
+    title: "Đã nạp dữ liệu test!",
+    text: `Đã thêm ${mockCartItems.length} món ăn vào giỏ hàng. Giờ bạn có thể test các chức năng: tăng/giảm số lượng, ghi chú, chọn/xóa, và đặt món (mock).`,
+    icon: "success",
+    timer: 2500,
+    showConfirmButton: false,
+    background: "#1e1e1e",
+    color: "#fff",
+  });
+}
+
 async function submitOrder() {
   if (cart.value.length === 0) return;
 
@@ -294,8 +331,32 @@ async function submitOrder() {
   submitting.value = true;
 
   try {
-    const order = await store.confirmOrder();
-    syncCart();
+    let order;
+
+    if (!isSupabaseConfigured) {
+      // ── Mock mode: simulate order locally ──
+      await new Promise((resolve) => setTimeout(resolve, 800));
+      order = {
+        id: `ord-mock-${Date.now()}`,
+        sessionId: store.session?.id ?? "sess-mock",
+        tableNumber: store.session?.tableNumber ?? "A05",
+        items: [...store.cart],
+        subtotal: store.cartTotal,
+        serviceCharge: store.serviceCharge,
+        vat: store.vat,
+        discount: 0,
+        total: store.grandTotal,
+        status: "confirmed" as const,
+        createdAt: new Date(),
+      };
+      store.orders.push(order);
+      store.clearCart();
+      syncCart();
+    } else {
+      // ── Live mode: gọi API thật ──
+      order = await store.confirmOrder();
+      syncCart();
+    }
 
     // BR-23: Group by kitchen station (meat, salad, hot)
     const tickets = BR23(order);
@@ -505,6 +566,32 @@ function formatPrice(val: number): string {
 .btn-add-food:hover {
   background: #e68a00;
   transform: translateY(-1px);
+}
+
+.btn-seed-test {
+  height: 44px;
+  padding: 0 24px;
+  border-radius: 12px;
+  background: transparent;
+  border: 2px dashed #555;
+  color: #a0a0a0;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-seed-test:hover {
+  border-color: #ff9800;
+  color: #ff9800;
+  background: rgba(255, 152, 0, 0.05);
+}
+
+.mock-mode-hint {
+  font-size: 12px;
+  color: #f59e0b;
+  margin: 0;
+  font-weight: 600;
 }
 
 /* Select All Row */

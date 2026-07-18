@@ -118,13 +118,13 @@ void t
 
       <form @submit.prevent="onSubmit" class="login-form">
         <label class="login-field">
-          <span>Email</span>
+          <span>Email / Tài khoản</span>
           <input
             v-model="form.email"
-            type="email"
-            autocomplete="email"
+            type="text"
+            autocomplete="username"
             required
-            placeholder="admin@nguucat.vn"
+            placeholder="admin"
           />
         </label>
 

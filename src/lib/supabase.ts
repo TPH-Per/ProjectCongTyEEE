@@ -6,30 +6,37 @@ const supabaseAnonKey =
   import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ??
   import.meta.env.VITE_SUPABASE_ANON_KEY
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error(
-    'Missing VITE_SUPABASE_URL or VITE_SUPABASE_PUBLISHABLE_KEY in .env.local',
+const isConfigured = !!(
+  supabaseUrl &&
+  supabaseAnonKey &&
+  /^https:\/\/[a-z0-9-]+\.supabase\.co\/?$/.test(supabaseUrl)
+)
+
+if (!isConfigured) {
+  console.warn(
+    '[supabase] VITE_SUPABASE_URL / VITE_SUPABASE_PUBLISHABLE_KEY chưa cấu hình hoặc sai định dạng. ' +
+      'App sẽ chạy ở chế độ offline (mock data). Tạo .env.local để kết nối Supabase thật.',
   )
 }
 
-// Guard against the common typo where someone copies the PostgREST URL
-// (https://<ref>.supabase.co/rest/v1/) instead of the project URL. The JS
-// SDK appends `/auth/v1/...` and `/rest/v1/...` internally, so any suffix
-// would make every API call return 404. Fail fast on import.
-if (!/^https:\/\/[a-z0-9-]+\.supabase\.co\/?$/.test(supabaseUrl)) {
-  throw new Error(
-    `Invalid VITE_SUPABASE_URL "${supabaseUrl}". ` +
-      'Expected format: https://<project-ref>.supabase.co (no /rest/v1/ or /auth/v1/ suffix).',
-  )
-}
+/**
+ * Khi chưa cấu hình Supabase, tạo một client placeholder với URL/key giả.
+ * Mọi gọi API sẽ fail gracefully (trả error) thay vì crash toàn bộ app.
+ * Điều này cho phép UI tĩnh hoạt động để test frontend mà không cần backend.
+ */
+export const supabase = createClient<any>(
+  supabaseUrl || 'https://placeholder.supabase.co',
+  supabaseAnonKey || 'placeholder-anon-key',
+  {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true,
+    },
+    realtime: {
+      params: { eventsPerSecond: 10 },
+    },
+  },
+)
 
-export const supabase = createClient<any>(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-    detectSessionInUrl: true,
-  },
-  realtime: {
-    params: { eventsPerSecond: 10 },
-  },
-})
+export const isSupabaseConfigured = isConfigured

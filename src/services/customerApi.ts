@@ -17,7 +17,7 @@
 // `supabase/migrations/20260704000000_customer_self_service_order.sql`
 // and `supabase/migrations/20260702083325_hall_customer_rpc.sql`.
 
-import { supabase } from '@/lib/supabase'
+import { supabase, isSupabaseConfigured } from '@/lib/supabase'
 import { menuData as menuTemplate } from '@/data/menuData'
 import type {
   CustomerSession,
@@ -143,6 +143,16 @@ export const customerApiImpl: CustomerApi = {
   },
 
   async getAreas(): Promise<Area[]> {
+    if (!isSupabaseConfigured) {
+      // Mock fallback: return the zones from restaurantStore structure
+      return [
+        { id: 'zone-a', name: 'Khu A', tables: [] },
+        { id: 'zone-b', name: 'Khu B', tables: [] },
+        { id: 'zone-c', name: 'Khu C', tables: [] },
+        { id: 'zone-r', name: 'Khu R', tables: [] },
+        { id: 'zone-t', name: 'Khu T', tables: [] },
+      ]
+    }
     // Read live zones from Supabase. `zones` has columns
     // `id, branch_id, name, color, sort_order, is_active, metadata, …`
     // — no `code` column. We surface the zone by uuid and stash the
@@ -166,6 +176,25 @@ export const customerApiImpl: CustomerApi = {
   },
 
   async getTables(areaId: string): Promise<Table[]> {
+    if (!isSupabaseConfigured) {
+      // Mock fallback: map zone name to tables from restaurantStore
+      const zoneTableMap: Record<string, string[]> = {
+        'zone-a': ['A01','A02','A03','A04','A05','A06','A07','A08','A09'],
+        'zone-b': ['B01','B02','B03'],
+        'zone-c': ['C01','C02','C03','C04','C05','C06','C07','C08'],
+        'zone-r': ['R01','R02','R03','R04','R05','R06','R07','R08'],
+        'zone-t': ['T01','T02','T03','T04','T05','T06','T07','T08'],
+      }
+      const codes = zoneTableMap[areaId] || []
+      if (codes.length === 0) return []
+      return codes.map((code, i) => ({
+        id: `${areaId}-table-${i}`,
+        number: code,
+        areaId,
+        status: code === 'A03' || code === 'A04' || code === 'A05' ? 'occupied' : 'available',
+        capacity: code === 'B01' ? 2 : code === 'B03' ? 10 : code.startsWith('R') ? 6 : 4,
+      }))
+    }
     // `areaId` is now the zone UUID (see `getAreas`). The tables
     // table doesn't have a `current_session_id` column either — only
     // `metadata->>'current_session_id'` — so we don't expose that.
@@ -190,6 +219,10 @@ export const customerApiImpl: CustomerApi = {
   },
 
   async selectTable(tableId: string): Promise<{ success: boolean }> {
+    if (!isSupabaseConfigured) {
+      // Mock fallback: allow selection if tableId contains 'table' (from mock getTables)
+      return { success: tableId.includes('table') }
+    }
     // Read-only check against the live DB. The actual flip-to-occupied
     // happens later in `confirmTable` (or when the first order lands
     // via `customer_create_self_service_order`).
@@ -203,6 +236,12 @@ export const customerApiImpl: CustomerApi = {
   },
 
   async confirmTable(session: CustomerSession): Promise<CustomerSession> {
+    if (!isSupabaseConfigured) {
+      // Mock fallback: return a local session immediately
+      session.id = `sess-mock-${Date.now()}`
+      session.staffId = 'staff-uuid-001'
+      return session
+    }
     // Persist the session by activating a `tablet_sessions` row. The
     // RPC requires the table to already be `occupied`/`reserved` — the
     // staff check-in flow handles that. For the customer self-service
@@ -254,6 +293,10 @@ export const customerApiImpl: CustomerApi = {
   },
 
   async releaseTable(sessionId: string): Promise<void> {
+    if (!isSupabaseConfigured) {
+      // Mock fallback: no-op
+      return
+    }
     // End the tablet_session. If the sessionId is a real uuid, mark it
     // ENDED. If it's a `sess-local-…` placeholder (used when the
     // Only PATCH when the session id is a real uuid. The customer's
@@ -281,6 +324,27 @@ export const customerApiImpl: CustomerApi = {
   async getRawMenuItems(): Promise<
     Array<{ id: string; name: string; price: number; price_display?: string }>
   > {
+    if (!isSupabaseConfigured) {
+      // Mock fallback: generate stable UUIDs for the mock menu items
+      // so isValidUUID passes in cart validation.
+      const allItems: Array<{ id: string; name: string; price: number; price_display?: string }> = []
+      let counter = 0
+      const walk = (items?: MenuItem[]) => {
+        if (!items) return
+        for (const it of items) {
+          counter++
+          const uuid = `00000000-0000-4000-8000-${String(counter).padStart(12, '0')}`
+          allItems.push({ id: uuid, name: it.name, price: it.price, price_display: it.price_display })
+        }
+      }
+      for (const cat of menuTemplate.categories) {
+        walk(cat.items)
+        if (cat.subcategories) {
+          for (const sub of cat.subcategories) walk(sub.items)
+        }
+      }
+      return allItems
+    }
     const branchId = await resolveBranchIdByCode(DEFAULT_BRANCH_CODE)
     if (!branchId) return []
     const { data, error } = await supabase.rpc('customer_list_menu_items', {
@@ -300,7 +364,16 @@ export const customerApiImpl: CustomerApi = {
   },
 
   async createOrder(order: Order): Promise<Order> {
-    // Pre-flight UUID validation
+    if (!isSupabaseConfigured) {
+      // Mock fallback: return order with local id
+      console.log('[MOCK] createOrder:', order)
+      await new Promise(r => setTimeout(r, 800))
+      return {
+        ...order,
+        id: `ord-mock-${Date.now()}`,
+        status: 'confirmed',
+      }
+    }
     for (const item of order.items) {
       if (!isValidUUID(item.menuItemId)) {
         console.error(`[customerApi] Invalid UUID: ${item.menuItemId}`)
@@ -404,6 +477,9 @@ export const customerApiImpl: CustomerApi = {
   },
 
   async getOrderHistory(sessionId: string): Promise<Order[]> {
+    if (!isSupabaseConfigured) {
+      return []
+    }
     // Read orders for the active tablet_session (or for the table when
     // no sessionId is provided).
     const { data, error } = await supabase
@@ -421,6 +497,15 @@ export const customerApiImpl: CustomerApi = {
   },
 
   async submitServiceRequest(request: ServiceRequest): Promise<ServiceRequest> {
+    if (!isSupabaseConfigured) {
+      // Mock fallback: return the request with a fake id
+      return {
+        ...request,
+        id: `sr-mock-${Date.now()}`,
+        status: 'created',
+        createdAt: new Date(),
+      }
+    }
     const tableNumber = request.tableNumber
     const branchId = await resolveBranchIdByCode(DEFAULT_BRANCH_CODE)
     const tableId = branchId
@@ -459,6 +544,9 @@ export const customerApiImpl: CustomerApi = {
   },
 
   async getServiceRequests(sessionId: string): Promise<ServiceRequest[]> {
+    if (!isSupabaseConfigured) {
+      return []
+    }
     // No direct session_id column on service_requests — filter by
     // table. The customer UI mostly uses this to show pending
     // requests; we return recent rows scoped to the branch.
@@ -480,6 +568,9 @@ export const customerApiImpl: CustomerApi = {
   },
 
   async updateServiceRequest(requestId: string, status: string): Promise<void> {
+    if (!isSupabaseConfigured) {
+      return
+    }
     // service_requests.status enum is OPEN / IN_PROGRESS / RESOLVED.
     // Map the customer's UI vocabulary onto that.
     const dbStatus =
@@ -541,6 +632,14 @@ export const customerApiImpl: CustomerApi = {
   },
 
   async submitFeedback(feedback: Feedback): Promise<Feedback> {
+    if (!isSupabaseConfigured) {
+      // Mock fallback
+      return {
+        ...feedback,
+        id: `fb-mock-${Date.now()}`,
+        createdAt: new Date(),
+      }
+    }
     const branchId = await resolveBranchIdByCode(DEFAULT_BRANCH_CODE)
     if (!branchId) {
       throw new Error('Cannot submit feedback: branch unresolved')
@@ -578,6 +677,10 @@ export const customerApiImpl: CustomerApi = {
 
   // -------- realtime --------
   subscribeToTableUpdates(tableId: string, callback: (payload: any) => void): () => void {
+    if (!isSupabaseConfigured) {
+      // Mock fallback: no-op subscription
+      return () => {}
+    }
     const channel = supabase
       .channel(`customer-table-${tableId}`)
       .on(

@@ -10,9 +10,9 @@
           <line x1="19" y1="12" x2="5" y2="12"></line>
           <polyline points="12 19 5 12 12 5"></polyline>
         </svg>
-        Quay lại
+        {{ $t('customer.selectArea.back') }}
       </button>
-      <h3 class="text-xl font-black text-white absolute left-1/2 transform -translate-x-1/2 tracking-wider select-none">Chọn khu vực</h3>
+      <h3 class="text-xl font-black text-white absolute left-1/2 transform -translate-x-1/2 tracking-wider select-none">{{ $t('customer.selectArea.title') }}</h3>
       <div class="w-20"></div> <!-- Placeholder spacer for header layout centering -->
     </div>
 

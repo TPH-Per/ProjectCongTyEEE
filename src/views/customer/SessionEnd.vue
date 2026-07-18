@@ -11,19 +11,19 @@
         🌸
       </div>
       <h1 class="text-xl font-black text-amber-500 uppercase tracking-widest font-serif mb-1">NGƯU CÁT</h1>
-      <h3 class="text-2xl font-black text-white font-serif tracking-wide">Cảm ơn bạn đã dùng bữa!</h3>
-      <p class="text-gray-400 text-xs mt-1">Hẹn gặp lại bạn lần sau</p>
+      <h3 class="text-2xl font-black text-white font-serif tracking-wide">{{ $t('customer.sessionEnd.thankYou') }}</h3>
+      <p class="text-gray-400 text-xs mt-1">{{ $t('customer.sessionEnd.seeYouAgain') }}</p>
     </div>
 
     <!-- Invoice summary box (White Panel) -->
     <div class="bg-white border border-gray-200 rounded-2xl p-5 w-full shadow-lg text-[#333333] flex flex-col gap-3 font-sans">
       <div class="flex justify-between items-center text-xs font-bold text-[#666666] border-b border-gray-150 pb-2">
-        <span>MÃ HÓA ĐƠN</span>
+        <span>{{ $t('customer.sessionEnd.invoiceCode') }}</span>
         <span class="text-[#333333] font-black uppercase">{{ finalInvoiceNumber }}</span>
       </div>
 
       <div class="flex justify-between items-center text-sm font-black text-[#333333] pt-1">
-        <span>Tổng thanh toán:</span>
+        <span>{{ $t('customer.sessionEnd.grandTotal') }}</span>
         <span class="text-[#C62828] text-base font-black">{{ finalTotalDisplay }}</span>
       </div>
     </div>
@@ -51,19 +51,19 @@
         <rect x="80" y="75" width="15" height="5" />
         <rect x="75" y="85" width="5" height="10" />
       </svg>
-      <span class="text-[9px] font-black text-[#666666] tracking-widest uppercase">Quét QR đánh giá Google</span>
+      <span class="text-[9px] font-black text-[#666666] tracking-widest uppercase">{{ $t('customer.sessionEnd.scanQR') }}</span>
     </div>
 
     <!-- Timer Countdown indicator -->
     <div class="text-[11px] text-gray-400 bg-[#1a110a] border border-[#2d1e12] rounded-full px-4.5 py-2.5 flex items-center justify-center gap-2 w-full max-w-xs">
       <span class="w-2 h-2 rounded-full bg-amber-500 animate-ping shrink-0"></span>
-      <span>Màn hình sẽ tự động reset sau <span class="font-black text-amber-500">{{ countdown }} giây...</span></span>
+      <span>{{ $t('customer.sessionEnd.autoReset', { count: countdown }) }}</span>
     </div>
 
     <!-- Staff override button -->
     <button @click="endSessionNow"
             class="text-[11px] font-black text-gray-500 hover:text-white transition-colors py-2 border-b border-transparent hover:border-gray-500 uppercase tracking-widest active:scale-95">
-      Quay về chính (Nhân viên)
+      {{ $t('customer.sessionEnd.backToMain') }}
     </button>
 
   </div>
@@ -71,6 +71,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useCustomerStore } from '@/stores/customerStore';
 import { useCustomerSession } from '@/composables/useCustomerSession';
 
@@ -79,8 +80,10 @@ const emit = defineEmits<{
 }>();
 
 const store = useCustomerStore();
+const { locale } = useI18n();
 const { clearSession } = useCustomerSession();
 const countdown = ref(30);
+const priceLocale = computed(() => locale.value === 'ja' ? 'ja-JP' : locale.value === 'en' ? 'en-US' : 'vi-VN');
 let timerId: any = null;
 
 // Dynamic Invoice computation
@@ -97,7 +100,7 @@ const finalTotalDisplay = computed(() => {
   const vat = Math.round((subtotal + serviceCharge) * 0.08);
   const total = subtotal + serviceCharge + vat;
   if (total === 0) return '0đ';
-  return total.toLocaleString('vi-VN') + 'đ';
+  return total.toLocaleString(priceLocale.value) + 'đ';
 });
 
 onMounted(() => {

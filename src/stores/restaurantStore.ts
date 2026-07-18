@@ -192,7 +192,7 @@ export const useRestaurantStore = defineStore('restaurant', () => {
       assignedTable: 'A02',
       notes: 'Khách hàng thân thiết, cần bàn thoáng rộng rãi.',
       status: 'Waiting',
-      date: '2026-06-24'
+      date: '2026-07-18'
     },
     {
       id: 'b2',
@@ -205,7 +205,7 @@ export const useRestaurantStore = defineStore('restaurant', () => {
       assignedTable: 'C03',
       notes: 'Đặt tiệc sinh nhật nhẹ cho bé gái.',
       status: 'Arrived',
-      date: '2026-06-24'
+      date: '2026-07-18'
     },
     {
       id: 'b3',
@@ -218,7 +218,7 @@ export const useRestaurantStore = defineStore('restaurant', () => {
       assignedTable: 'A08',
       notes: 'Khách gia đình dùng bữa tối.',
       status: 'Seated',
-      date: '2026-06-24'
+      date: '2026-07-18'
     },
     {
       id: 'b4',
@@ -231,7 +231,7 @@ export const useRestaurantStore = defineStore('restaurant', () => {
       assignedTable: 'R05',
       notes: 'Đặt phòng VIP ăn tối gặp gỡ đối tác.',
       status: 'Waiting',
-      date: '2026-06-24'
+      date: '2026-07-18'
     },
     {
       id: 'b5',
@@ -244,7 +244,7 @@ export const useRestaurantStore = defineStore('restaurant', () => {
       assignedTable: 'T02',
       notes: 'Khách ngắm cảnh sân thượng đẹp.',
       status: 'Waiting',
-      date: '2026-06-24'
+      date: '2026-07-18'
     },
     {
       id: 'b6',
@@ -257,7 +257,7 @@ export const useRestaurantStore = defineStore('restaurant', () => {
       assignedTable: 'C01',
       notes: 'Khách đặt ăn trưa nhẹ.',
       status: 'Waiting',
-      date: '2026-06-25'
+      date: '2026-07-18'
     },
     {
       id: 'b7',
@@ -270,7 +270,7 @@ export const useRestaurantStore = defineStore('restaurant', () => {
       assignedTable: 'R02',
       notes: 'Khách họp gia đình liên hoan.',
       status: 'Waiting',
-      date: '2026-06-25'
+      date: '2026-07-18'
     },
     {
       id: 'b8',
@@ -283,7 +283,7 @@ export const useRestaurantStore = defineStore('restaurant', () => {
       assignedTable: 'B02',
       notes: 'Lịch tiệc tối hôm qua.',
       status: 'Completed',
-      date: '2026-06-23'
+      date: '2026-07-18'
     },
     {
       id: 'b9',
@@ -296,7 +296,7 @@ export const useRestaurantStore = defineStore('restaurant', () => {
       assignedTable: 'A01',
       notes: 'Đặt bàn ăn sáng họp nhóm.',
       status: 'Waiting',
-      date: '2026-06-24'
+      date: '2026-07-18'
     },
     {
       id: 'b10',
@@ -309,7 +309,7 @@ export const useRestaurantStore = defineStore('restaurant', () => {
       assignedTable: 'A05',
       notes: 'Khách họp bàn công việc.',
       status: 'Waiting',
-      date: '2026-06-24'
+      date: '2026-07-18'
     },
     {
       id: 'b11',
@@ -322,7 +322,7 @@ export const useRestaurantStore = defineStore('restaurant', () => {
       assignedTable: 'A06',
       notes: 'Ăn nhẹ buổi chiều.',
       status: 'Waiting',
-      date: '2026-06-24'
+      date: '2026-07-18'
     },
     {
       id: 'b12',
@@ -335,7 +335,7 @@ export const useRestaurantStore = defineStore('restaurant', () => {
       assignedTable: 'B01',
       notes: 'Họp trà chiều.',
       status: 'Waiting',
-      date: '2026-06-24'
+      date: '2026-07-18'
     }
   ]);
 
@@ -349,7 +349,7 @@ export const useRestaurantStore = defineStore('restaurant', () => {
       tableCode: 'A03',
       customerName: 'Phạm Hùng',
       guestCount: 2,
-      openedTime: '17:45 04/07/2026',
+      openedTime: '17:45 18/07/2026',
       items: [
         {
           id: 'bf-tiec-1',
@@ -367,7 +367,7 @@ export const useRestaurantStore = defineStore('restaurant', () => {
       tableCode: 'A08',
       customerName: 'Lê Văn C',
       guestCount: 4,
-      openedTime: '16:55 04/07/2026',
+      openedTime: '16:55 18/07/2026',
       items: [
         {
           id: 'bf680-1',
@@ -403,7 +403,7 @@ export const useRestaurantStore = defineStore('restaurant', () => {
       tableCode: 'B03',
       customerName: 'Công ty ABC',
       guestCount: 10,
-      openedTime: '16:05 04/07/2026',
+      openedTime: '16:05 18/07/2026',
       items: [
         {
           id: 'bf1390-1',
@@ -430,7 +430,7 @@ export const useRestaurantStore = defineStore('restaurant', () => {
       tableCode: 'C06',
       customerName: 'Đức Huy',
       guestCount: 4,
-      openedTime: '17:25 04/07/2026',
+      openedTime: '17:25 18/07/2026',
       items: [
         {
           id: 'bf-tiec-3',
@@ -457,7 +457,7 @@ export const useRestaurantStore = defineStore('restaurant', () => {
       tableCode: 'R03',
       customerName: 'Gia đình chị Vy',
       guestCount: 6,
-      openedTime: '17:05 04/07/2026',
+      openedTime: '17:05 18/07/2026',
       items: [
         {
           id: 'bf-tiec-1',
@@ -484,7 +484,7 @@ export const useRestaurantStore = defineStore('restaurant', () => {
       tableCode: 'R08',
       customerName: 'Sinh nhật Minh',
       guestCount: 12,
-      openedTime: '16:30 04/07/2026',
+      openedTime: '16:30 18/07/2026',
       items: [
         {
           id: 'bf1390-1',
@@ -511,7 +511,7 @@ export const useRestaurantStore = defineStore('restaurant', () => {
       tableCode: 'T04',
       customerName: 'Anh Trung',
       guestCount: 4,
-      openedTime: '17:30 04/07/2026',
+      openedTime: '17:30 18/07/2026',
       items: [
         {
           id: 'bf-tiec-2',
@@ -538,7 +538,7 @@ export const useRestaurantStore = defineStore('restaurant', () => {
       tableCode: 'CP02',
       customerName: 'Capichi Order #1',
       guestCount: 1,
-      openedTime: '17:50 04/07/2026',
+      openedTime: '17:50 18/07/2026',
       items: [
         {
           id: 'lunch-4',
@@ -565,7 +565,7 @@ export const useRestaurantStore = defineStore('restaurant', () => {
       tableCode: 'Shopee03',
       customerName: 'Shopee #452',
       guestCount: 1,
-      openedTime: '17:53 04/07/2026',
+      openedTime: '17:53 18/07/2026',
       items: [
         {
           id: 'lunch-8',

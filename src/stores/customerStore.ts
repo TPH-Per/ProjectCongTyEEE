@@ -162,6 +162,10 @@ export const useCustomerStore = defineStore('customer', {
             it.id = real.id
             it.price = real.price
             if (real.price_display) it.price_display = real.price_display
+          } else {
+            // No DB match found — mark as unavailable so it cannot be
+            // added to cart (its mock id is not a valid UUID).
+            it.is_available = false
           }
         }
       }
@@ -204,7 +208,9 @@ export const useCustomerStore = defineStore('customer', {
     },
 
     addToCart(item: MenuItem, quantity: number = 1): void {
-      const existing = this.cart.find(c => c.menuItemId === item.id);
+      const existing = this.cart.find(
+        c => c.menuItemId === item.id && (c.note ?? '') === '',
+      );
       if (existing) {
         existing.quantity += quantity;
       } else {
@@ -244,6 +250,14 @@ export const useCustomerStore = defineStore('customer', {
     clearCart(): void {
       this.cart = [];
     },
+
+    // Remove all cart items whose menuItemId is not a valid UUID.
+    // Returns the names of removed items so the caller can notify the user.
+    removeInvalidCartItems(): string[] {
+      const invalid = this.cart.filter(c => !isValidUUID(c.menuItemId));
+      this.cart = this.cart.filter(c => isValidUUID(c.menuItemId));
+      return invalid.map(c => c.name);
+    },
     
     // NV3: Service Request
     async submitServiceRequest(requestType: string, content?: string): Promise<void> {
@@ -282,7 +296,8 @@ export const useCustomerStore = defineStore('customer', {
       // Validate all cart items for UUID format
       const invalidItems = this.cart.filter(item => !isValidUUID(item.menuItemId));
       if (invalidItems.length > 0) {
-        throw new Error(`Có món ăn không hợp lệ trong giỏ hàng: ${invalidItems.map(i => i.name).join(', ')}`);
+        const names = invalidItems.map(i => i.name).join(', ');
+        throw new Error(`Có ${invalidItems.length} món không hợp lệ trong giỏ hàng: ${names}`);
       }
 
       const subtotal = this.cartTotal;

@@ -21,9 +21,9 @@
           </svg>
         </button>
         <div>
-          <h1 class="header-title">Giỏ hàng của bạn</h1>
+          <h1 class="header-title">{{ $t('customer.cart.title') }}</h1>
           <p class="header-subtitle">
-            Rà soát lại số lượng và ghi chú trước khi chuyển vào bếp
+            {{ $t('customer.cart.subtitle') }}
           </p>
         </div>
       </div>
@@ -36,11 +36,11 @@
           class="btn-bulk-delete"
           type="button"
         >
-          Xóa đã chọn ({{ selectedIds.size }})
+          {{ $t('customer.cart.deleteSelected', { count: selectedIds.size }) }}
         </button>
 
         <button @click="clearAllCart" class="btn-clear-all" type="button">
-          Xóa toàn bộ
+          {{ $t('customer.cart.clearAll') }}
         </button>
       </div>
     </div>
@@ -51,19 +51,19 @@
       <div v-if="cart.length === 0" class="empty-cart-state">
         <div class="empty-icon-wrapper">🧺</div>
         <div>
-          <h3 class="empty-title">Giỏ hàng của bạn đang trống</h3>
-          <p class="empty-subtitle">Hãy thêm món từ thực đơn nhé!</p>
+          <h3 class="empty-title">{{ $t('customer.cart.emptyTitle') }}</h3>
+          <p class="empty-subtitle">{{ $t('customer.cart.emptySubtitle') }}</p>
         </div>
         <button @click="backToMenu" class="btn-add-food" type="button">
-          Thêm món ăn
+          {{ $t('customer.cart.addFood') }}
         </button>
 
-        <!-- Dev: Seed test data khi chưa có backend -->
+        <!-- Dev: Nạp dữ liệu test tĩnh để test UI cart -->
         <button @click="seedTestData" class="btn-seed-test" type="button">
-          🧪 Nạp dữ liệu test (mock)
+          {{ $t('customer.cart.seedTest') }}
         </button>
-        <p v-if="!isSupabaseConfigured" class="mock-mode-hint">
-          ⚠ Đang chạy chế độ offline — Supabase chưa cấu hình
+        <p v-if="!hasSession" class="mock-mode-hint">
+          {{ $t('customer.cart.mockHint') }}
         </p>
       </div>
 
@@ -81,7 +81,7 @@
               class="custom-checkbox"
             />
             <label for="select-all" class="select-all-label">
-              Chọn tất cả ({{ cart.length }} món)
+              {{ $t('customer.cart.selectAll', { count: cart.length }) }}
             </label>
           </div>
 
@@ -105,37 +105,37 @@
           <!-- Billing Summary Section at the bottom of the list (Matching UI-07 specs) -->
           <div class="billing-summary-card">
             <h3 class="summary-title">
-              <span>📊</span> Chi tiết thanh toán tạm tính
+              <span>📊</span> {{ $t('customer.cart.summaryTitle') }}
             </h3>
 
             <div class="summary-details">
               <div class="summary-row">
-                <span>Tổng số món:</span>
-                <span class="value-highlight">{{ cart.length }} món</span>
+                <span>{{ $t('customer.cart.totalItems') }}</span>
+                <span class="value-highlight">{{ $t('customer.cart.totalItemsValue', { count: cart.length }) }}</span>
               </div>
               <div class="summary-row">
-                <span>Tổng số lượng:</span>
-                <span class="value-highlight">{{ totalQtyCount }} phần</span>
+                <span>{{ $t('customer.cart.totalQty') }}</span>
+                <span class="value-highlight">{{ $t('customer.cart.totalQtyValue', { count: totalQtyCount }) }}</span>
               </div>
               <div class="summary-row">
-                <span>Tiền món tạm tính:</span>
+                <span>{{ $t('customer.cart.subtotal') }}</span>
                 <span class="value-highlight">{{ formatPrice(cartTotal) }}</span>
               </div>
               <div class="summary-row">
-                <span>Phí dịch vụ (5%):</span>
+                <span>{{ $t('customer.cart.serviceFee') }}</span>
                 <span class="value-highlight">{{
                   formatPrice(serviceCharge)
                 }}</span>
               </div>
               <div class="summary-row">
-                <span>Thuế VAT (8%):</span>
+                <span>{{ $t('customer.cart.vat') }}</span>
                 <span class="value-highlight">{{ formatPrice(vat) }}</span>
               </div>
 
               <div class="divider"></div>
 
               <div class="summary-row grand-total-row">
-                <span>Tạm tính (gồm VAT + phí dịch vụ):</span>
+                <span>{{ $t('customer.cart.grandTotal') }}</span>
                 <span class="grand-total-price">{{
                   formatPrice(grandTotal)
                 }}</span>
@@ -150,7 +150,7 @@
               class="btn-continue-shopping"
               type="button"
             >
-              Thêm món
+              {{ $t('customer.cart.addMore') }}
             </button>
 
             <button
@@ -160,7 +160,7 @@
               type="button"
             >
               <span v-if="submitting" class="spinner"></span>
-              {{ submitting ? "Đang gửi..." : "Đặt món" }}
+              {{ submitting ? $t('customer.cart.placingOrder') : $t('customer.cart.placeOrder') }}
             </button>
           </div>
         </div>
@@ -180,8 +180,10 @@ import { mockCartItems, mockSession } from "@/data/mockCartData";
 import CartItem from "@/components/customer/CartItem.vue";
 import Swal from "sweetalert2";
 import { isValidUUID } from "@/utils/validators";
+import { useI18n } from "vue-i18n";
 
 const store = useCustomerStore();
+const { t, locale } = useI18n();
 const router = useRouter();
 const { syncCart, saveSessionToLocalStorage } = useCustomerSession();
 const { BR23, BR27, BR28 } = useBusinessRules();
@@ -194,6 +196,7 @@ const cartTotal = computed(() => store.cartTotal);
 const serviceCharge = computed(() => store.serviceCharge);
 const vat = computed(() => store.vat);
 const grandTotal = computed(() => store.grandTotal);
+const hasSession = computed(() => !!store.session);
 
 // Total quantity count (total parts/items sum)
 const totalQtyCount = computed(() => {
@@ -223,13 +226,13 @@ function toggleSelectAll() {
 
 function deleteSelectedItems() {
   Swal.fire({
-    title: "Xác nhận xóa món đã chọn?",
-    text: `Bạn có muốn xóa ${selectedIds.size} món ăn đang chọn khỏi giỏ hàng?`,
+    title: t('customer.cart.confirmDeleteSelectedTitle'),
+    text: t('customer.cart.confirmDeleteSelectedText', { count: selectedIds.size }),
     icon: "warning",
     showCancelButton: true,
     confirmButtonColor: "#C62828",
-    confirmButtonText: "Xóa ngay",
-    cancelButtonText: "Hủy",
+    confirmButtonText: t('customer.cart.confirmDeleteButton'),
+    cancelButtonText: t('customer.exitTable.cancelButton'),
     background: "#1e1e1e",
     color: "#fff",
   }).then((result) => {
@@ -262,14 +265,14 @@ function onRemoveItem(itemId: string) {
 
 function clearAllCart() {
   Swal.fire({
-    title: "Xác nhận xóa?",
-    text: "Bạn có chắc chắn muốn xóa toàn bộ món ăn trong giỏ?",
+    title: t('customer.cart.confirmClearTitle'),
+    text: t('customer.cart.confirmClearText'),
     icon: "warning",
     showCancelButton: true,
     confirmButtonColor: "#C62828",
     cancelButtonColor: "#3085d6",
-    confirmButtonText: "Có, xóa hết!",
-    cancelButtonText: "Hủy",
+    confirmButtonText: t('customer.cart.confirmClearButton'),
+    cancelButtonText: t('customer.exitTable.cancelButton'),
     background: "#1e1e1e",
     color: "#fff",
   }).then((result) => {
@@ -302,8 +305,8 @@ function seedTestData() {
   syncCart();
 
   Swal.fire({
-    title: "Đã nạp dữ liệu test!",
-    text: `Đã thêm ${mockCartItems.length} món ăn vào giỏ hàng. Giờ bạn có thể test các chức năng: tăng/giảm số lượng, ghi chú, chọn/xóa, và đặt món (mock).`,
+    title: t('customer.cart.seedSuccessTitle'),
+    text: t('customer.cart.seedSuccessText', { count: mockCartItems.length }),
     icon: "success",
     timer: 2500,
     showConfirmButton: false,
@@ -315,17 +318,72 @@ function seedTestData() {
 async function submitOrder() {
   if (cart.value.length === 0) return;
 
-  // Validate all items in the cart for valid UUID
-  const invalidItems = cart.value.filter(item => !isValidUUID(item.menuItemId));
-  if (invalidItems.length > 0) {
-    Swal.fire({
-      title: "Món ăn không hợp lệ",
-      text: `Món ăn "${invalidItems[0].name}" có mã không hợp lệ. Vui lòng tải lại thực đơn hoặc liên hệ nhân viên!`,
-      icon: "error",
-      background: "#1e1e1e",
-      color: "#fff",
-    });
-    return;
+  // Mock mode bypasses UUID validation — mock IDs like "bf1390-1" are
+  // expected when Supabase is not configured or the session is a mock.
+  const isMockMode = !isSupabaseConfigured || (store.session?.id ?? '').startsWith('sess-mock-');
+
+  if (!isMockMode) {
+    const invalidItems = cart.value.filter(item => !isValidUUID(item.menuItemId));
+    if (invalidItems.length > 0) {
+      const itemList = invalidItems.map(i => `• ${i.name}`).join('\n');
+      const result = await Swal.fire({
+        title: t('customer.cart.invalidItemsTitle', { count: invalidItems.length }),
+        html: `<p style="margin-bottom:12px">${t('customer.cart.invalidItemsHtml')}</p><pre style="text-align:left;font-family:inherit;font-size:14px;color:#f87171;white-space:pre-wrap">${itemList}</pre>`,
+        icon: "warning",
+        showDenyButton: true,
+        showCancelButton: true,
+        confirmButtonText: t('customer.cart.invalidItemsDelete'),
+        denyButtonText: t('customer.cart.invalidItemsReload'),
+        cancelButtonText: t('customer.exitTable.cancelButton'),
+        confirmButtonColor: "#ef4444",
+        denyButtonColor: "#3b82f6",
+        cancelButtonColor: "#6b7280",
+        background: "#1e1e1e",
+        color: "#fff",
+      });
+
+      if (result.isConfirmed) {
+        // Remove invalid items and continue
+        const removed = store.removeInvalidCartItems();
+        syncCart();
+        if (store.cart.length === 0) {
+          Swal.fire({
+            title: t('customer.cart.cartEmptyTitle'),
+            text: t('customer.cart.cartEmptyText'),
+            icon: "info",
+            background: "#1e1e1e",
+            color: "#fff",
+          });
+          return;
+        }
+        Swal.fire({
+          toast: true,
+          position: "top-end",
+          icon: "success",
+          title: t('customer.cart.removedInvalid', { count: removed.length }),
+          showConfirmButton: false,
+          timer: 2000,
+          background: "#1e1e1e",
+          color: "#fff",
+        });
+      } else if (result.isDenied) {
+        // Reload menu then retry
+        await store.loadMenu();
+        Swal.fire({
+          toast: true,
+          position: "top-end",
+          icon: "info",
+          title: t('customer.cart.reloadedMenu'),
+          showConfirmButton: false,
+          timer: 2500,
+          background: "#1e1e1e",
+          color: "#fff",
+        });
+        return;
+      } else {
+        return;
+      }
+    }
   }
 
   submitting.value = true;
@@ -333,7 +391,7 @@ async function submitOrder() {
   try {
     let order;
 
-    if (!isSupabaseConfigured) {
+    if (isMockMode) {
       // ── Mock mode: simulate order locally ──
       await new Promise((resolve) => setTimeout(resolve, 800));
       order = {
@@ -372,8 +430,8 @@ async function submitOrder() {
     });
 
     Swal.fire({
-      title: "Đặt món thành công!",
-      text: "Bếp đang chuẩn bị món ăn của bạn. Vui lòng chờ trong ít phút.",
+      title: t('customer.cart.orderSuccessTitle'),
+      text: t('customer.cart.orderSuccessText'),
       icon: "success",
       confirmButtonColor: "#E8772E",
       background: "#1e1e1e",
@@ -384,8 +442,8 @@ async function submitOrder() {
   } catch (err: any) {
     console.error(err);
     Swal.fire({
-      title: "Lỗi đặt món",
-      text: err.message || "Có lỗi xảy ra trong quá trình gửi bếp.",
+      title: t('customer.cart.orderErrorTitle'),
+      text: err.message || t('customer.cart.orderErrorText'),
       icon: "error",
       background: "#1e1e1e",
       color: "#fff",

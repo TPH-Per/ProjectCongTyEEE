@@ -7,7 +7,7 @@
          class="absolute top-8 left-8 flex items-center gap-2">
       <span class="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"></span>
       <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">
-        Thiết lập thiết bị (Nhân viên)
+        {{ $t('customer.passcode.deviceSetup') }}
       </span>
     </div>
 
@@ -45,7 +45,7 @@
     <button v-if="step === 'area' || step === 'table'" 
             @click="resetSetup" 
             class="absolute top-6 right-6 p-2 rounded-xl bg-gray-900 border border-gray-800 text-gray-400 hover:text-white hover:border-gray-700 transition-all text-xs font-bold flex items-center gap-1.5 active:scale-95">
-      🔒 Khóa lại
+      {{ $t('customer.passcode.lock') }}
     </button>
   </div>
 </template>

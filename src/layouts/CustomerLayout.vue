@@ -19,7 +19,7 @@
         <div class="relative w-64 md:w-80 mx-4 hidden sm:block">
           <input type="text" 
                  v-model="store.searchQuery" 
-                 placeholder="Tìm kiếm..." 
+                 :placeholder="$t('customer.header.search')" 
                  class="w-full bg-[#2a1b10] border border-[#442c19] focus:border-[#E8772E]/50 rounded-lg py-1.5 pl-9 pr-4 text-xs text-gray-200 placeholder-gray-550 focus:outline-none transition-colors" />
           <svg xmlns="http://www.w3.org/2000/svg" class="absolute left-3 top-2.5 w-3.5 h-3.5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
             <circle cx="11" cy="11" r="8"></circle>
@@ -44,7 +44,7 @@
                         ? 'bg-[#E8772E] border-[#E8772E] text-black' 
                         : 'bg-[#2a1b10] border-[#442c19] text-gray-400 hover:text-white'
                     ]"
-                    title="Giỏ hàng">
+                    :title="$t('customer.cart.title')">
               <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="9" cy="21" r="1"></circle>
                 <circle cx="20" cy="21" r="1"></circle>
@@ -65,7 +65,7 @@
                         ? 'bg-[#E8772E] border-[#E8772E] text-black' 
                         : 'bg-[#2a1b10] border-[#442c19] text-gray-400 hover:text-white'
                     ]"
-                    title="Theo dõi món ăn">
+                    :title="$t('customer.tracking.title')">
               <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
                 <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
@@ -85,7 +85,7 @@
                         ? 'bg-[#E8772E] border-[#E8772E] text-black'
                         : 'bg-[#2a1b10] border-[#442c19] text-gray-400 hover:text-white'
                     ]"
-                    title="Gọi phục vụ">
+                    :title="$t('customer.serviceRequest.title')">
               <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
                 <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
@@ -105,7 +105,7 @@
                         ? 'bg-[#E8772E] border-[#E8772E] text-black'
                         : 'bg-[#2a1b10] border-[#442c19] text-gray-400 hover:text-white'
                     ]"
-                    title="Lịch sử gọi món">
+                    :title="$t('customer.orderHistory.title')">
               <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                 <circle cx="12" cy="7" r="4"></circle>
@@ -115,7 +115,7 @@
             <!-- 4. Exit Table button -->
             <button @click="handleExitTable"
                     class="w-9 h-9 rounded-lg flex items-center justify-center border border-rose-950 bg-rose-950/30 text-rose-400 hover:bg-rose-600 hover:text-white transition-all active:scale-90"
-                    title="Thoát bàn">
+                    :title="$t('customer.exitTable.confirmTitle')">
               <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
                 <polyline points="16 17 21 12 16 7"></polyline>
@@ -127,13 +127,13 @@
           <!-- Language flags selector -->
           <div class="flex items-center gap-1.5 bg-[#2a1b10] border border-[#442c19] px-2 py-1 rounded-lg shrink-0">
             <button @click="setLanguage('vi')" 
-                    :class="['text-sm transition-all grayscale active:scale-90', store.currentLanguage === 'vi' ? 'grayscale-0 scale-110 font-bold' : 'opacity-60']" 
+                    :class="['text-sm transition-all grayscale active:scale-90', locale === 'vi' ? 'grayscale-0 scale-110 font-bold' : 'opacity-60']" 
                     title="Tiếng Việt">🇻🇳</button>
             <button @click="setLanguage('en')" 
-                    :class="['text-sm transition-all grayscale active:scale-90', store.currentLanguage === 'en' ? 'grayscale-0 scale-110 font-bold' : 'opacity-60']" 
+                    :class="['text-sm transition-all grayscale active:scale-90', locale === 'en' ? 'grayscale-0 scale-110 font-bold' : 'opacity-60']" 
                     title="English">🇬🇧</button>
             <button @click="setLanguage('ja')" 
-                    :class="['text-sm transition-all grayscale active:scale-90', store.currentLanguage === 'ja' ? 'grayscale-0 scale-110 font-bold' : 'opacity-60']" 
+                    :class="['text-sm transition-all grayscale active:scale-90', locale === 'ja' ? 'grayscale-0 scale-110 font-bold' : 'opacity-60']" 
                     title="日本語">🇯🇵</button>
           </div>
         </div>
@@ -190,8 +190,11 @@ import { useCustomerStore } from '@/stores/customerStore';
 import { useCustomerSession } from '@/composables/useCustomerSession';
 import { isSupabaseConfigured } from '@/lib/supabase';
 import OrderTrackingModal from '@/components/customer/OrderTrackingModal.vue';
+import { setApplicationLanguage } from '@/helpers/i18n';
+import { useI18n } from 'vue-i18n';
 
 const store = useCustomerStore();
+const { locale, t } = useI18n();
 const router = useRouter();
 const route = useRoute();
 const { restoreSessionFromLocalStorage, clearSession } = useCustomerSession();
@@ -202,6 +205,8 @@ const activeServiceRequests = computed(() => store.activeServiceRequests);
 const notifications = computed(() => store.notifications);
 
 const showOrderTracking = ref(false);
+
+const timeLocale = computed(() => locale.value === 'ja' ? 'ja-JP' : locale.value === 'en' ? 'en-US' : 'vi-VN');
 
 const trackingItems = computed(() => {
   const list: any[] = [];
@@ -214,12 +219,12 @@ const trackingItems = computed(() => {
     }
     
     const date = new Date(order.createdAt);
-    const orderedTime = date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+    const orderedTime = date.toLocaleTimeString(timeLocale.value, { hour: '2-digit', minute: '2-digit' });
     
     let servedTime: string | null = null;
     if (trackingStatus === 'served') {
       const servedDate = new Date(date.getTime() + 10 * 60000);
-      servedTime = servedDate.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+      servedTime = servedDate.toLocaleTimeString(timeLocale.value, { hour: '2-digit', minute: '2-digit' });
     }
 
     for (const item of order.items) {
@@ -245,9 +250,8 @@ restoreSessionFromLocalStorage();
 
 onMounted(() => {
   // If not authenticated or no session, redirect to the customer home page (passcode screen).
-  // Khi chưa cấu hình Supabase (offline mode), cho phép truy cập trực tiếp
-  // trang cart để test UI tĩnh.
-  const allowDirectAccess = !isSupabaseConfigured && route.name === 'CustomerCart';
+  // Cho phép truy cập trực tiếp trang cart để test UI (nút seed data sẽ tạo session).
+  const allowDirectAccess = route.name === 'CustomerCart';
   if (!store.session && route.name !== 'CustomerHome' && route.path.startsWith('/customer') && !allowDirectAccess) {
     router.push({ name: 'CustomerHome' });
   } else if (store.session) {
@@ -257,7 +261,7 @@ onMounted(() => {
 
 // Watch session state to redirect home on session termination
 watch(session, (newVal) => {
-  if (!newVal && route.path.startsWith('/customer') && route.name !== 'CustomerHome' && route.name !== 'SessionEnd') {
+  if (!newVal && route.path.startsWith('/customer') && route.name !== 'CustomerHome' && route.name !== 'SessionEnd' && route.name !== 'CustomerCart') {
     router.push({ name: 'CustomerHome' });
   } else if (newVal) {
     store.loadOrderHistory();
@@ -273,27 +277,28 @@ function goToView(routeName: string) {
 }
 
 function setLanguage(lang: 'vi' | 'en' | 'ja') {
-  store.currentLanguage = lang;
-  store.addNotification(`Đã chuyển sang ngôn ngữ: ${lang === 'vi' ? 'Tiếng Việt' : lang === 'en' ? 'English' : '日本語'}`, 'info');
+  setApplicationLanguage(lang);
+  const langName = lang === 'vi' ? 'Tiếng Việt' : lang === 'en' ? 'English' : '日本語';
+  store.addNotification(t('customer.languageChanged', { lang: langName }), 'info');
 }
 
 async function handleExitTable() {
   const result = await Swal.fire({
-    title: 'Xác nhận thoát bàn?',
-    text: 'Bạn có chắc chắn muốn thoát phiên làm việc của bàn này không?',
+    title: t('customer.exitTable.confirmTitle'),
+    text: t('customer.exitTable.confirmText'),
     icon: 'warning',
     showCancelButton: true,
     confirmButtonColor: '#E8772E',
     cancelButtonColor: '#d33',
-    confirmButtonText: 'Đồng ý',
-    cancelButtonText: 'Hủy'
+    confirmButtonText: t('customer.exitTable.confirmButton'),
+    cancelButtonText: t('customer.exitTable.cancelButton')
   });
 
   if (result.isConfirmed) {
     clearSession();
     Swal.fire({
-      title: 'Đã thoát bàn!',
-      text: 'Đã giải phóng phiên làm việc thành công.',
+      title: t('customer.exitTable.successTitle'),
+      text: t('customer.exitTable.successText'),
       icon: 'success',
       timer: 1500,
       showConfirmButton: false

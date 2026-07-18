@@ -1,5 +1,6 @@
 <template>
   <div id="app" :lang="currentLang">
+    <MockModeNotice />
     <RouterView />
   </div>
 </template>
@@ -9,6 +10,7 @@ import { computed, onMounted } from 'vue'
 import { RouterView } from 'vue-router'
 import { useLanguageStore } from '@/stores/useLanguageStore'
 import { setApplicationLanguage } from '@/helpers/i18n'
+import MockModeNotice from '@/components/MockModeNotice.vue'
 
 const store = useLanguageStore()
 const currentLang = computed(() => store.lang)

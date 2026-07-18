@@ -10,12 +10,12 @@
           <line x1="19" y1="12" x2="5" y2="12"></line>
           <polyline points="12 19 5 12 12 5"></polyline>
         </svg>
-        Quay lại
+        {{ $t('customer.selectTable.back') }}
       </button>
       
       <!-- Dynamic Title based on selected area -->
       <h3 class="text-xl font-black text-white absolute left-1/2 transform -translate-x-1/2 tracking-wider select-none">
-        Chọn bàn - {{ areaName }}
+        {{ $t('customer.selectTable.title', { area: areaName }) }}
       </h3>
       
       <div class="w-20"></div> <!-- Placeholder spacer for header layout centering -->
@@ -31,7 +31,7 @@
       <button @click="emit('confirm')" 
               :disabled="!selectedTableId"
               class="w-full h-14 rounded-2xl bg-amber-500 hover:bg-amber-600 disabled:bg-gray-800 disabled:text-gray-500 disabled:border-transparent text-black border border-transparent font-black text-base transition-all active:scale-95 shadow-lg shadow-amber-500/10 disabled:shadow-none select-none uppercase tracking-widest">
-        Xác nhận
+        {{ $t('customer.selectTable.confirm') }}
       </button>
     </div>
   </div>

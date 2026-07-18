@@ -26,11 +26,11 @@
 
         <!-- Cooking Note Input -->
         <div class="note-box">
-          <span class="note-label">Ghi chú:</span>
+          <span class="note-label">{{ $t('customer.cartItem.noteLabel') }}</span>
           <input type="text" 
                  :value="item.note"
                  @input="updateNote(($event.target as HTMLInputElement).value)"
-                 placeholder="Không hành, chín kỹ..." 
+                 :placeholder="$t('customer.cartItem.notePlaceholder')"
                  class="note-input" />
         </div>
       </div>

@@ -6,9 +6,9 @@
       <div class="header-content">
         <div class="header-icon">🔔</div>
         <div class="header-text">
-          <h1 class="header-title">Yêu cầu phục vụ</h1>
+          <h1 class="header-title">{{ $t('customer.serviceRequest.title') }}</h1>
           <p class="header-subtitle">
-            Chọn loại dịch vụ hoặc thiết bị cần hỗ trợ tại bàn
+            {{ $t('customer.serviceRequest.subtitle') }}
           </p>
         </div>
       </div>
@@ -36,7 +36,7 @@
       <div class="sr-requests-panel">
         <div class="requests-header">
           <div class="requests-header-icon">📋</div>
-          <h3 class="requests-header-title">Nhật ký yêu cầu</h3>
+          <h3 class="requests-header-title">{{ $t('customer.serviceRequest.logTitle') }}</h3>
           <span class="requests-count">{{ requests.length }}</span>
         </div>
 
@@ -45,8 +45,8 @@
           <!-- Empty State -->
           <div v-if="requests.length === 0" class="empty-state">
             <div class="empty-icon">📭</div>
-            <h4 class="empty-title">Chưa có yêu cầu nào</h4>
-            <p class="empty-subtitle">Các yêu cầu hỗ trợ sẽ hiển thị tại đây</p>
+            <h4 class="empty-title">{{ $t('customer.serviceRequest.emptyTitle') }}</h4>
+            <p class="empty-subtitle">{{ $t('customer.serviceRequest.emptyText') }}</p>
           </div>
 
           <!-- Request items - Max 5 cards -->
@@ -76,7 +76,7 @@
 
             <!-- Content if any -->
             <p v-if="req.content" class="request-content">
-              <span class="content-label">Nội dung:</span>
+              <span class="content-label">{{ $t('customer.serviceRequest.contentLabel') }}</span>
               {{ req.content }}
             </p>
 
@@ -86,14 +86,14 @@
               class="request-actions"
             >
               <button @click="cancelRequest(req.id)" class="btn-cancel">
-                ✕ Hủy yêu cầu
+                {{ $t('customer.serviceRequest.cancelRequest') }}
               </button>
             </div>
           </div>
 
           <!-- Show more indicator -->
           <div v-if="requests.length > 5" class="more-indicator">
-            + {{ requests.length - 5 }} yêu cầu khác
+            {{ $t('customer.serviceRequest.moreRequests', { count: requests.length - 5 }) }}
           </div>
         </div>
       </div>
@@ -106,9 +106,11 @@ import { computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useCustomerStore } from "@/stores/customerStore";
 import type { ServiceRequestType } from "@/types/customer";
+import { useI18n } from 'vue-i18n';
 
 const store = useCustomerStore();
 const router = useRouter();
+const { t, locale } = useI18n();
 
 const requests = computed(() => store.serviceRequests);
 
@@ -119,29 +121,29 @@ const visibleRequests = computed(() => {
 
 // ✅ 9 loại yêu cầu (3x3 grid)
 const requestOptions = [
-  { type: "tissue" as ServiceRequestType, emoji: "🧻", label: "Khăn giấy" },
-  { type: "bowl" as ServiceRequestType, emoji: "🥣", label: "Chén bát" },
-  { type: "sauce" as ServiceRequestType, emoji: "🧂", label: "Gia vị" },
-  { type: "ice" as ServiceRequestType, emoji: "🧊", label: "Thêm đá" },
-  { type: "grill_change" as ServiceRequestType, emoji: "🍳", label: "Thay vỉ" },
+  { type: "tissue" as ServiceRequestType, emoji: "🧻", label: t('customer.serviceRequest.tissue') },
+  { type: "bowl" as ServiceRequestType, emoji: "🥣", label: t('customer.serviceRequest.bowl') },
+  { type: "sauce" as ServiceRequestType, emoji: "🧂", label: t('customer.serviceRequest.sauce') },
+  { type: "ice" as ServiceRequestType, emoji: "🧊", label: t('customer.serviceRequest.ice') },
+  { type: "grill_change" as ServiceRequestType, emoji: "🍳", label: t('customer.serviceRequest.grillChange') },
   {
     type: "charcoal_change" as ServiceRequestType,
     emoji: "🪵",
-    label: "Thay than",
+    label: t('customer.serviceRequest.charcoalChange'),
   },
   {
     type: "request_bill" as ServiceRequestType,
     emoji: "💵",
-    label: "Tính tiền",
+    label: t('customer.serviceRequest.requestBill'),
     highlight: true,
   },
   {
     type: "call_waiter" as ServiceRequestType,
     emoji: "🙋‍♂️",
-    label: "Gọi NV",
+    label: t('customer.serviceRequest.callWaiter'),
     highlight: true,
   },
-  { type: "other" as ServiceRequestType, emoji: "✍️", label: "Khác" },
+  { type: "other" as ServiceRequestType, emoji: "✍️", label: t('customer.serviceRequest.other') },
 ];
 
 onMounted(() => {
@@ -179,19 +181,21 @@ function getRequestEmoji(type: string): string {
 
 function getStatusLabel(status: string): string {
   const labels: Record<string, string> = {
-    created: "Đã gửi",
-    waiting: "Chờ nhận",
-    accepted: "Đã nhận",
-    processing: "Đang xử lý",
-    completed: "Hoàn thành",
-    cancelled: "Đã hủy",
+    created: t('customer.serviceRequest.statusCreated'),
+    waiting: t('customer.serviceRequest.statusWaiting'),
+    accepted: t('customer.serviceRequest.statusAccepted'),
+    processing: t('customer.serviceRequest.statusProcessing'),
+    completed: t('customer.serviceRequest.statusCompleted'),
+    cancelled: t('customer.serviceRequest.statusCancelled'),
   };
   return labels[status] || status;
 }
 
+const timeLocale = computed(() => locale.value === 'ja' ? 'ja-JP' : locale.value === 'en' ? 'en-US' : 'vi-VN');
+
 function formatTime(date: any): string {
   const d = new Date(date);
-  return d.toLocaleTimeString("vi-VN", {
+  return d.toLocaleTimeString(timeLocale.value, {
     hour: "2-digit",
     minute: "2-digit",
     second: "2-digit",

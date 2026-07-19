@@ -48,6 +48,7 @@ import ReceptionCheckoutView from "@/views/reception/ReceptionCheckoutView.vue";
 import ReceptionDashboardView from "@/views/reception/ReceptionDashboardView.vue";
 import ReceptionCloseShiftView from "@/views/reception/ReceptionCloseShiftView.vue";
 import ReceptionOrderView from "@/views/reception/ReceptionOrderView.vue";
+import MenuManagementView from "@/views/reception/MenuManagementView.vue";
 
 // ─── Manager Views ────────────────────────────────────────────────────────────
 import ManagerDashboardView from "@/views/manager/ManagerDashboardView.vue";

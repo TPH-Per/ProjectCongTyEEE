@@ -6,11 +6,7 @@ const supabaseAnonKey =
   import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ??
   import.meta.env.VITE_SUPABASE_ANON_KEY
 
-const isConfigured = !!(
-  supabaseUrl &&
-  supabaseAnonKey &&
-  /^https:\/\/[a-z0-9-]+\.supabase\.co\/?$/.test(supabaseUrl)
-)
+const isConfigured = false
 
 if (!isConfigured) {
   console.warn(

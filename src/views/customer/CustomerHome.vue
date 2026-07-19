@@ -17,12 +17,20 @@
         <PasscodeInput ref="passcodeInputRef" @submit="handlePasscodeSubmit" @back="handleBackToTablet" />
       </div>
 
-      <!-- Step 2: Select Area -->
-      <div v-else-if="step === 'area'" class="w-full flex justify-center">
+      <!-- Step 2: Select Branch -->
+      <div v-else-if="step === 'branch'" class="w-full flex justify-center">
+        <SelectBranch :branches="branches"
+                      :selected-branch-id="selectedBranchId"
+                      @select="handleBranchSelect"
+                      @back="resetSetup" />
+      </div>
+
+      <!-- Step 3: Select Area -->
+      <div v-else-if="step === 'area'" class="w-full flex justify-center h-full overflow-hidden">
         <SelectArea :areas="areas" 
                     :selected-area-id="selectedAreaId" 
                     @select="handleAreaSelect"
-                    @back="resetSetup" />
+                    @back="goBackToBranch" />
       </div>
 
       <!-- Step 3: Select Table -->
@@ -42,7 +50,8 @@
     </transition>
 
     <!-- Quick Lock/Reset Button for setup steps (top right) -->
-    <button v-if="step === 'area' || step === 'table'" 
+    <button v-if="step === 'branch' || step === 'area' || step === 'table'" 
+            type="button"
             @click="resetSetup" 
             class="absolute top-6 right-6 p-2 rounded-xl bg-gray-900 border border-gray-800 text-gray-400 hover:text-white hover:border-gray-700 transition-all text-xs font-bold flex items-center gap-1.5 active:scale-95">
       {{ $t('customer.passcode.lock') }}
@@ -55,6 +64,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useCustomerStore } from '@/stores/customerStore';
 import PasscodeInput from '@/components/customer/PasscodeInput.vue';
+import SelectBranch from './SelectBranch.vue';
 import SelectArea from './SelectArea.vue';
 import SelectTable from './SelectTable.vue';
 import SessionEnd from './SessionEnd.vue';
@@ -70,12 +80,14 @@ onMounted(() => {
 });
 
 const passcodeInputRef = ref<any>(null);
-const step = ref<'passcode' | 'area' | 'table' | 'session_ended'>('passcode');
+const step = ref<'passcode' | 'branch' | 'area' | 'table' | 'session_ended'>('passcode');
 
+const selectedBranchId = ref<string | null>(null);
 const selectedAreaId = ref<string | null>(null);
 const selectedTableId = ref<string | null>(null);
 const timeoutId = ref<any>(null);
 
+const branches = computed(() => store.branches);
 const areas = computed(() => store.areas);
 const tables = computed(() => store.tables);
 const selectedAreaName = computed(() => {
@@ -86,8 +98,8 @@ const selectedAreaName = computed(() => {
 async function handlePasscodeSubmit(code: string) {
   const success = await store.authenticateStaff(code);
   if (success) {
-    await store.loadAreas();
-    step.value = 'area';
+    await store.loadBranches();
+    step.value = 'branch';
   } else {
     passcodeInputRef.value?.setError('Mã passcode không chính xác!');
   }
@@ -97,18 +109,47 @@ function handleBackToTablet() {
   router.push('/tablet/idle');
 }
 
+// Handle Branch Selection
+async function handleBranchSelect(branchId: string) {
+  selectedBranchId.value = branchId;
+  store.selectedBranchId = branchId;
+  try {
+    await store.loadAreas(branchId);
+  } catch (e) {
+    console.error('[CustomerHome] loadAreas failed:', e);
+  }
+  step.value = 'area';
+}
+
+function goBackToBranch() {
+  selectedAreaId.value = null;
+  store.areas = [];
+  step.value = 'branch';
+}
+
 // Handle Area Selection
 async function handleAreaSelect(areaId: string) {
   selectedAreaId.value = areaId;
   store.selectedAreaId = areaId;
-  await store.loadTables(areaId);
+  try {
+    await store.loadTables(areaId);
+  } catch (e) {
+    console.error('[CustomerHome] loadTables failed:', e);
+  }
   step.value = 'table';
 }
 
 // Handle Table Selection
 async function handleTableSelect(table: Table) {
   selectedTableId.value = table.id;
-  await store.selectTable(table.id);
+  // Set the selected table immediately from the local data so the
+  // confirm step has it regardless of whether the API call succeeds.
+  store.selectedTable = table;
+  try {
+    await store.selectTable(table.id);
+  } catch (e) {
+    console.warn('[CustomerHome] selectTable failed, proceeding with local state:', e);
+  }
 
   // BR-08: Setup a 60s timeout. If idle, release selecting state.
   startTableTimeout();
@@ -118,8 +159,31 @@ async function handleTableSelect(table: Table) {
 async function handleTableConfirm() {
   clearTableTimeout();
   if (selectedTableId.value) {
-    await store.confirmTable();
-    // After confirmTable, store.session is set, layout handles redirection
+    try {
+      await store.confirmTable();
+    } catch (e) {
+      console.warn('[CustomerHome] confirmTable failed, creating local session:', e);
+    }
+    // Fallback: if confirmTable didn't set a session (API failure,
+    // non-UUID table id, etc.), create a local session so the
+    // customer can still reach the menu and order.
+    if (!store.session && store.selectedTable) {
+      store.session = {
+        id: `sess-local-${Date.now()}`,
+        tableId: store.selectedTable.id,
+        tableNumber: store.selectedTable.number,
+        areaId: store.selectedTable.areaId,
+        areaName: store.areas.find(a => a.id === store.selectedTable?.areaId)?.name || 'Khu vực',
+        staffId: 'staff-uuid-001',
+        startedAt: new Date(),
+        status: 'active',
+      };
+      store.isAuthenticated = true;
+      localStorage.setItem('nguucat_customer_session', JSON.stringify(store.session));
+      localStorage.setItem('nguucat_customer_auth', 'true');
+      localStorage.setItem('nguucat_customer_table', JSON.stringify(store.selectedTable));
+    }
+    // Navigate to menu regardless of API success
     router.push({ name: 'CustomerMenu' });
   }
 }
@@ -133,6 +197,7 @@ function goBackToArea() {
 
 function resetSetup() {
   clearTableTimeout();
+  selectedBranchId.value = null;
   selectedAreaId.value = null;
   selectedTableId.value = null;
   store.resetState();

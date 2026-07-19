@@ -4,6 +4,7 @@
     
     <!-- Top-left Back Button -->
     <button @click="emit('back')" 
+            type="button"
             class="absolute top-6 left-6 flex items-center gap-1.5 text-xs font-bold text-gray-500 hover:text-white bg-gray-900 border border-gray-800 hover:border-gray-700 px-3.5 py-2 rounded-xl transition-all active:scale-95 select-none">
       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <line x1="19" y1="12" x2="5" y2="12"></line>
@@ -40,6 +41,7 @@
     <!-- Virtual Numpad Grid -->
     <div class="grid grid-cols-3 gap-4 w-full mt-2">
       <button v-for="num in [1, 2, 3, 4, 5, 6, 7, 8, 9]" :key="num"
+              type="button"
               @click="pressKey(String(num))"
               class="h-14 rounded-2xl bg-[#1d1d1d] active:bg-[#282828] border border-gray-805 active:scale-95 text-xl font-bold text-white transition-all flex items-center justify-center select-none">
         {{ num }}
@@ -47,16 +49,19 @@
 
       <!-- Bottom Row: Xóa, 0, Xác nhận -->
       <button @click="backspace"
+              type="button"
               class="h-14 rounded-2xl bg-[#1d1d1d] active:bg-[#282828] border border-gray-805 active:scale-95 text-xs font-black text-rose-400 active:text-rose-300 transition-all flex items-center justify-center select-none uppercase tracking-wider">
         {{ $t('customer.passcode.delete') }}
       </button>
 
       <button @click="pressKey('0')"
+              type="button"
               class="h-14 rounded-2xl bg-[#1d1d1d] active:bg-[#282828] border border-gray-805 active:scale-95 text-xl font-bold text-white transition-all flex items-center justify-center select-none">
         0
       </button>
 
       <button @click="confirm"
+              type="button"
               :class="[
                 'h-14 rounded-2xl border active:scale-95 text-xs font-black transition-all flex items-center justify-center select-none uppercase tracking-wider',
                 passcode.length === 6

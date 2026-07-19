@@ -17,7 +17,7 @@
 
     <!-- Main Content Split -->
     <div class="flex-1 flex flex-col lg:flex-row overflow-hidden">
-      <!-- Ordered Items list (Wood background, scrollable) -->
+      <!-- Aggregated Items list (all items from all orders in one bill) -->
       <div class="flex-1 overflow-y-auto p-6 md:p-8 flex flex-col gap-4">
         <div v-if="orders.length === 0" 
              class="flex-1 flex flex-col items-center justify-center text-center p-12 gap-4">
@@ -31,35 +31,24 @@
         </div>
 
         <template v-else>
-          <!-- Loop through orders (rendered in White cards) -->
-          <div v-for="order in orders" :key="order.id" 
-               class="bg-white border border-gray-200 rounded-2xl p-5 flex flex-col gap-3.5 shadow-sm">
-            <!-- Order Header -->
+          <!-- Aggregated Bill: all items merged into one list -->
+          <div class="bg-white border border-gray-200 rounded-2xl p-5 flex flex-col gap-3.5 shadow-sm">
+            <!-- Bill Header -->
             <div class="flex items-center justify-between border-b border-gray-100 pb-2.5">
               <div>
-                <span class="text-[10px] text-gray-500 font-bold uppercase">{{ $t('customer.orderHistory.orderId') }}</span>
-                <span class="text-xs font-black text-[#E8772E] ml-1.5">{{ order.id.slice(-8).toUpperCase() }}</span>
+                <span class="text-[10px] text-gray-500 font-bold uppercase">{{ $t('customer.orderHistory.billTitle') }}</span>
+                <span class="text-xs font-black text-[#E8772E] ml-1.5">{{ orders.length }} {{ $t('customer.orderHistory.totalOrdered') }}</span>
               </div>
               <div class="flex items-center gap-3">
                 <span class="text-[10px] text-[#666666] font-bold">
-                  {{ formatTime(order.createdAt) }}
-                </span>
-                <!-- Order Status -->
-                <span :class="[
-                  'text-[9px] font-black px-2.5 py-1 rounded-full border uppercase tracking-wider',
-                  order.status === 'confirmed' ? 'bg-amber-500/10 text-amber-600 border-amber-500/20' :
-                  order.status === 'cooking' ? 'bg-blue-500/10 text-blue-500 border-blue-500/20 animate-pulse' :
-                  order.status === 'served' ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' :
-                  'bg-purple-500/10 text-purple-600 border-purple-500/20'
-                ]">
-                  {{ getStatusLabel(order.status) }}
+                  {{ formatTime(orders[0].createdAt) }}
                 </span>
               </div>
             </div>
 
-            <!-- Ordered Dishes inside this Order -->
+            <!-- All ordered dishes aggregated -->
             <div class="flex flex-col gap-2.5">
-              <div v-for="item in order.items" :key="item.menuItemId"
+              <div v-for="item in aggregatedItems" :key="item.key"
                    class="flex items-center justify-between text-xs text-[#333333]">
                 <div class="flex items-start gap-2.5">
                   <span class="w-5.5 h-5.5 bg-gray-105 rounded flex items-center justify-center text-[10px] text-gray-600 font-bold border border-gray-200">
@@ -171,6 +160,34 @@ const totalItemsCount = computed(() => {
   return orders.value.reduce((total, order) => {
     return total + order.items.reduce((sum, item) => sum + item.quantity, 0);
   }, 0);
+});
+
+// Aggregate all items from all orders into a single flat bill.
+// Items with the same name (and same price) are merged and quantities summed.
+const aggregatedItems = computed(() => {
+  const map = new Map<string, { key: string; name: string; price: number; quantity: number; note: string }>();
+  for (const order of orders.value) {
+    for (const item of order.items) {
+      const key = `${item.name}__${item.price}`;
+      const existing = map.get(key);
+      if (existing) {
+        existing.quantity += item.quantity;
+        // Append note if different
+        if (item.note && !existing.note.includes(item.note)) {
+          existing.note = existing.note ? `${existing.note}; ${item.note}` : item.note;
+        }
+      } else {
+        map.set(key, {
+          key,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+          note: item.note || '',
+        });
+      }
+    }
+  }
+  return Array.from(map.values());
 });
 
 // Calculate accumulated bill totals

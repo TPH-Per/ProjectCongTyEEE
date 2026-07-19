@@ -19,10 +19,12 @@
 
 import { supabase, isSupabaseConfigured } from '@/lib/supabase'
 import { menuData as menuTemplate } from '@/data/menuData'
+import { customerAreas } from '@/data/customerAreaData'
 import type {
   CustomerSession,
   Table,
   Area,
+  Branch,
   MenuItem,
   MenuCategory,
   CartItem,
@@ -36,8 +38,11 @@ export interface CustomerApi {
   // Authentication
   authenticateStaff(passcode: string): Promise<{ success: boolean; staffId: string }>
 
+  // Branch Management
+  getBranches(): Promise<Branch[]>
+
   // Table Management
-  getAreas(): Promise<Area[]>
+  getAreas(branchId?: string): Promise<Area[]>
   getTables(areaId: string): Promise<Table[]>
   selectTable(tableId: string): Promise<{ success: boolean }>
   confirmTable(session: CustomerSession): Promise<CustomerSession>
@@ -91,6 +96,29 @@ export interface CustomerApi {
 // URL `?branch=B001` query param once multi-branch QR labels exist.
 const DEFAULT_BRANCH_CODE = 'B001'
 
+// Mock branches for the customer self-service flow. When Supabase is
+// configured, `getBranches()` reads from the `branches` table instead.
+const MOCK_BRANCHES: Branch[] = [
+  {
+    id: 'branch_1',
+    code: 'B001',
+    name: 'Ngưu Cát 1',
+    name_en: 'Nguu Cat 1',
+    address: '123 Nguyễn Văn A, Quận 1, TP.HCM',
+    phone: '028 1234 5678',
+    isActive: true,
+  },
+  {
+    id: 'branch_2',
+    code: 'B002',
+    name: 'Ngưu Cát 2',
+    name_en: 'Nguu Cat 2',
+    address: '456 Lê Văn B, Quận 3, TP.HCM',
+    phone: '028 8765 4321',
+    isActive: true,
+  },
+]
+
 async function resolveBranchIdByCode(code: string): Promise<string | null> {
   const { data, error } = await supabase
     .from('branches')
@@ -142,16 +170,36 @@ export const customerApiImpl: CustomerApi = {
     return { success: false, staffId: '' }
   },
 
-  async getAreas(): Promise<Area[]> {
+  async getBranches(): Promise<Branch[]> {
     if (!isSupabaseConfigured) {
-      // Mock fallback: return the zones from restaurantStore structure
-      return [
-        { id: 'zone-a', name: 'Khu A', tables: [] },
-        { id: 'zone-b', name: 'Khu B', tables: [] },
-        { id: 'zone-c', name: 'Khu C', tables: [] },
-        { id: 'zone-r', name: 'Khu R', tables: [] },
-        { id: 'zone-t', name: 'Khu T', tables: [] },
-      ]
+      return MOCK_BRANCHES
+    }
+    const { data, error } = await supabase
+      .from('branches')
+      .select('id, code, name, address, phone, is_active')
+      .eq('is_active', true)
+      .order('name', { ascending: true })
+    if (error || !data || data.length === 0) {
+      // Fall back to mock data when Supabase returns an error or no
+      // active branches are configured yet.
+      if (error) console.warn('[customerApi] getBranches failed, using mock:', error.message)
+      return MOCK_BRANCHES
+    }
+    return data.map((b: any) => ({
+      id: b.id,
+      code: b.code,
+      name: b.name,
+      address: b.address,
+      phone: b.phone,
+      isActive: b.is_active,
+    }))
+  },
+
+  async getAreas(branchId?: string): Promise<Area[]> {
+    if (!isSupabaseConfigured) {
+      // Mock fallback: return all 10 areas with embedded tables so the
+      // area selection grid can show table counts and previews.
+      return JSON.parse(JSON.stringify(customerAreas))
     }
     // Read live zones from Supabase. `zones` has columns
     // `id, branch_id, name, color, sort_order, is_active, metadata, …`
@@ -159,55 +207,81 @@ export const customerApiImpl: CustomerApi = {
     // display name in `metadata->>'zone_code'` when present, falling
     // back to a derived slug. The customer's UI keys areas by uuid
     // (see `getTables`).
-    const { data, error } = await supabase
+    let query = supabase
       .from('zones')
       .select('id, name, sort_order, metadata')
       .eq('is_active', true)
-      .order('sort_order', { ascending: true })
-    if (error) {
-      console.error('[customerApi] getAreas failed:', error)
-      return []
+    if (branchId) {
+      query = query.eq('branch_id', branchId)
     }
-    return (data ?? []).map((z: any) => ({
-      id: z.id as string,
-      name: (z.name as string) ?? 'Khu vực',
-      tables: [],
-    }))
+    const { data, error } = await query.order('sort_order', { ascending: true })
+    if (error || !data || data.length === 0) {
+      // Fall back to mock data when Supabase returns an error or no
+      // zones are configured yet. This keeps the UI functional during
+      // development / before DB seeding.
+      if (error) console.warn('[customerApi] getAreas failed, using mock:', error.message)
+      return JSON.parse(JSON.stringify(customerAreas))
+    }
+    // Supabase returns zones without embedded tables. The customer UI
+    // (AreaGrid) needs tables embedded in each area for stats and
+    // previews. Fetch table counts per zone so we can populate them.
+    const zonesWithData = await Promise.all(
+      (data ?? []).map(async (z: any) => {
+        const { data: zoneTables } = await supabase
+          .from('tables')
+          .select('id, code, capacity, status')
+          .eq('zone_id', z.id)
+          .eq('is_active', true)
+          .order('code', { ascending: true })
+        return {
+          id: z.id as string,
+          name: (z.name as string) ?? 'Khu vực',
+          tables: (zoneTables ?? []).map((t: any) => ({
+            id: t.id,
+            number: t.code,
+            areaId: z.id,
+            status: mapDbStatus(t.status),
+            capacity: t.capacity,
+          })),
+        }
+      }),
+    )
+    // If none of the zones have any tables, fall back to mock data.
+    const totalTablesFromDb = zonesWithData.reduce((s, a) => s + a.tables.length, 0)
+    if (totalTablesFromDb === 0) {
+      console.warn('[customerApi] getAreas: no tables found in any zone, using mock data')
+      return JSON.parse(JSON.stringify(customerAreas))
+    }
+    return zonesWithData
   },
 
   async getTables(areaId: string): Promise<Table[]> {
     if (!isSupabaseConfigured) {
-      // Mock fallback: map zone name to tables from restaurantStore
-      const zoneTableMap: Record<string, string[]> = {
-        'zone-a': ['A01','A02','A03','A04','A05','A06','A07','A08','A09'],
-        'zone-b': ['B01','B02','B03'],
-        'zone-c': ['C01','C02','C03','C04','C05','C06','C07','C08'],
-        'zone-r': ['R01','R02','R03','R04','R05','R06','R07','R08'],
-        'zone-t': ['T01','T02','T03','T04','T05','T06','T07','T08'],
-      }
-      const codes = zoneTableMap[areaId] || []
-      if (codes.length === 0) return []
-      return codes.map((code, i) => ({
-        id: `${areaId}-table-${i}`,
-        number: code,
-        areaId,
-        status: code === 'A03' || code === 'A04' || code === 'A05' ? 'occupied' : 'available',
-        capacity: code === 'B01' ? 2 : code === 'B03' ? 10 : code.startsWith('R') ? 6 : 4,
-      }))
+      // Mock fallback: look up tables from the customerAreaData by area id
+      const area = customerAreas.find(a => a.id === areaId)
+      return area ? JSON.parse(JSON.stringify(area.tables)) : []
     }
     // `areaId` is now the zone UUID (see `getAreas`). The tables
     // table doesn't have a `current_session_id` column either — only
     // `metadata->>'current_session_id'` — so we don't expose that.
-    if (!areaId || !/^[0-9a-f-]{36}$/i.test(areaId)) return []
+    if (!areaId || !/^[0-9a-f-]{36}$/i.test(areaId)) {
+      // Not a valid UUID — likely a mock area id (e.g. "area_a").
+      // Fall back to mock data so the UI still works.
+      const area = customerAreas.find(a => a.id === areaId)
+      return area ? JSON.parse(JSON.stringify(area.tables)) : []
+    }
     const { data, error } = await supabase
       .from('tables')
       .select('id, code, capacity, status, zone_id')
       .eq('zone_id', areaId)
       .eq('is_active', true)
       .order('code', { ascending: true })
-    if (error) {
-      console.error('[customerApi] getTables failed:', error)
-      return []
+    if (error || !data || data.length === 0) {
+      // Fall back to mock data when Supabase returns an error or no
+      // tables are found for this zone.
+      if (error) console.warn('[customerApi] getTables failed, using mock:', error.message)
+      const area = customerAreas.find(a => a.id === areaId)
+      return area ? JSON.parse(JSON.stringify(area.tables)) : []
     }
     return (data ?? []).map((t: any) => ({
       id: t.id,
@@ -220,8 +294,9 @@ export const customerApiImpl: CustomerApi = {
 
   async selectTable(tableId: string): Promise<{ success: boolean }> {
     if (!isSupabaseConfigured) {
-      // Mock fallback: allow selection if tableId contains 'table' (from mock getTables)
-      return { success: tableId.includes('table') }
+      // Mock fallback: allow selection if the table exists and is available
+      const table = customerAreas.flatMap(a => a.tables).find(t => t.id === tableId)
+      return { success: !!table && table.status === 'available' }
     }
     // Read-only check against the live DB. The actual flip-to-occupied
     // happens later in `confirmTable` (or when the first order lands

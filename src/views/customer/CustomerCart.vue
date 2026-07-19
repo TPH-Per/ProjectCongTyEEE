@@ -437,7 +437,9 @@ async function submitOrder() {
       background: "#1e1e1e",
       color: "#fff",
     }).then(() => {
-      router.push({ name: "OrderHistory" });
+      // Send customer back to the menu so they can continue ordering.
+      // They can navigate to OrderHistory when ready to pay.
+      router.push({ name: "CustomerMenu" });
     });
   } catch (err: any) {
     console.error(err);

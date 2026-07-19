@@ -4,6 +4,7 @@ import type {
   CustomerSession,
   Table,
   Area,
+  Branch,
   MenuItem,
   MenuCategory,
   CartItem,
@@ -27,6 +28,10 @@ export const useCustomerStore = defineStore('customer', {
     // Session
     session: null as CustomerSession | null,
     isAuthenticated: false, // unlocked by staff passcode
+    
+    // Branch
+    branches: [] as Branch[],
+    selectedBranchId: null as string | null,
     
     // Area & Table
     areas: [] as Area[],
@@ -68,8 +73,14 @@ export const useCustomerStore = defineStore('customer', {
       return res.success;
     },
 
-    async loadAreas(): Promise<Area[]> {
-      const areas = await customerApiImpl.getAreas();
+    async loadBranches(): Promise<Branch[]> {
+      const branches = await customerApiImpl.getBranches();
+      this.branches = branches;
+      return branches;
+    },
+
+    async loadAreas(branchId?: string): Promise<Area[]> {
+      const areas = await customerApiImpl.getAreas(branchId ?? this.selectedBranchId ?? undefined);
       this.areas = areas;
       return areas;
     },
@@ -383,6 +394,7 @@ export const useCustomerStore = defineStore('customer', {
     resetState(): void {
       this.session = null;
       this.isAuthenticated = false;
+      this.selectedBranchId = null;
       this.selectedAreaId = null;
       this.selectedTable = null;
       this.cart = [];

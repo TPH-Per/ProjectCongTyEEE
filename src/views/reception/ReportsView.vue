@@ -627,6 +627,15 @@
         @click="closeFloatingMenu"
       ></div>
     </Transition>
+
+    <!-- Manager Authorization Modal -->
+    <ManagerAuthModal
+      v-if="showAuthModal"
+      :actionType="authActionType"
+      :targetName="authTargetName"
+      @confirm="handleAuthConfirm"
+      @close="handleAuthClose"
+    />
   </div>
 </template>
 
@@ -640,6 +649,7 @@ import { useRouter } from "vue-router";
 import Swal from "sweetalert2";
 import HamburgerMenu from "@/components/reception/HamburgerMenu.vue";
 import SidebarNavigation from "@/components/reception/SidebarNavigation.vue";
+import ManagerAuthModal from "@/components/reception/ManagerAuthModal.vue";
 
 const router = useRouter();
 
@@ -744,6 +754,38 @@ const filters = ref({
 const selectedRowId = ref<number | null>(null);
 const menuPosition = ref({ top: 0, left: 0 });
 const showFloatingMenu = ref(false);
+
+// ===== MANAGER AUTH MODAL STATE =====
+const showAuthModal = ref(false);
+const authActionType = ref("CANCEL_BILL");
+const authTargetName = ref("");
+const authCallback = ref<
+  ((payload: { pin: string; reason: string }) => void) | null
+>(null);
+
+function requestManagerAuth(
+  actionType: string,
+  targetName: string,
+  callback: (payload: { pin: string; reason: string }) => void,
+) {
+  authActionType.value = actionType;
+  authTargetName.value = targetName;
+  authCallback.value = callback;
+  showAuthModal.value = true;
+}
+
+function handleAuthConfirm(payload: { pin: string; reason: string }) {
+  showAuthModal.value = false;
+  if (authCallback.value) {
+    authCallback.value(payload);
+    authCallback.value = null;
+  }
+}
+
+function handleAuthClose() {
+  showAuthModal.value = false;
+  authCallback.value = null;
+}
 
 // Action handlers
 const menuActions = [
@@ -2038,22 +2080,31 @@ function handleMenuAction(actionId: string) {
       triggerToast("info", `In lại phiếu ${row.soPhieu}`);
       break;
     case "edit-info":
-      Swal.fire({
-        title: "Đổi thông tin phiếu",
-        text: `Thay đổi thông tin cho phiếu ${row.soPhieu}`,
-        input: "text",
-        inputValue: row.mstKhachHang,
-        inputPlaceholder: "Nhập MST mới...",
-        showCancelButton: true,
-        confirmButtonText: "Lưu",
-        cancelButtonText: "Hủy",
-        confirmButtonColor: "#1a5276",
-      }).then((result) => {
-        if (result.isConfirmed) {
-          row.mstKhachHang = result.value;
-          triggerToast("success", "Đã đổi mã số thuế thành công!");
-        }
-      });
+      requestManagerAuth(
+        "EDIT_BILL",
+        `Phiếu ${row.soPhieu} - Bàn ${row.ban}`,
+        (authPayload) => {
+          Swal.fire({
+            title: "Đổi thông tin phiếu",
+            text: `Thay đổi thông tin cho phiếu ${row.soPhieu}`,
+            input: "text",
+            inputValue: row.mstKhachHang,
+            inputPlaceholder: "Nhập MST mới...",
+            showCancelButton: true,
+            confirmButtonText: "Lưu",
+            cancelButtonText: "Hủy",
+            confirmButtonColor: "#1a5276",
+          }).then((result) => {
+            if (result.isConfirmed) {
+              row.mstKhachHang = result.value;
+              triggerToast(
+                "success",
+                `Đã đổi thông tin phiếu (Lý do: ${authPayload.reason})`,
+              );
+            }
+          });
+        },
+      );
       break;
     case "edit-payment":
       triggerToast("info", `Mở chỉnh sửa thanh toán cho phiếu ${row.soPhieu}`);
@@ -2076,24 +2127,21 @@ function handleMenuAction(actionId: string) {
       });
       break;
     case "cancel":
-      Swal.fire({
-        title: "Xác nhận hủy phiếu?",
-        text: `Hủy hoàn toàn phiếu ${row.soPhieu}?`,
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonText: "Hủy phiếu",
-        cancelButtonText: "Bỏ qua",
-        confirmButtonColor: "#d33",
-      }).then((result) => {
-        if (result.isConfirmed) {
+      requestManagerAuth(
+        "CANCEL_BILL",
+        `Phiếu ${row.soPhieu} - Bàn ${row.ban}`,
+        (authPayload) => {
           row.status = "cancelled";
           row.trangThai = "Đã hủy";
           row.tongTien = 0;
           row.daTra = 0;
           row.conLai = 0;
-          triggerToast("success", `Đã hủy phiếu ${row.soPhieu}`);
-        }
-      });
+          triggerToast(
+            "success",
+            `Đã hủy phiếu ${row.soPhieu} (Lý do: ${authPayload.reason})`,
+          );
+        },
+      );
       break;
   }
 }

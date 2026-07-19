@@ -5,6 +5,7 @@
     <!-- Table Grid (4-5 columns) -->
     <div class="grid grid-cols-4 sm:grid-cols-5 gap-3 w-full">
       <button v-for="table in tables" :key="table.id"
+              type="button"
               @click="selectTable(table)"
               :disabled="table.status === 'occupied'"
               :class="[

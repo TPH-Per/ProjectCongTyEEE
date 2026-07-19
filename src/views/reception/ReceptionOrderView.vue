@@ -146,6 +146,7 @@
           <div v-if="showSearch" class="relative flex items-center mr-1">
             <input
               v-model="tableSearchQuery"
+              ref="searchInputRef"
               type="text"
               :placeholder="t('reception.search_table_guest')"
               class="bg-[#3a3a3a] border border-[#ff8f00] text-xs text-white rounded-lg px-3 py-1.5 focus:outline-none w-48 font-bold"
@@ -665,7 +666,7 @@
 
               <!-- 3. Billing Summary (Fixed bottom - Waterfall Calculation) -->
               <div
-                class="flex-shrink-0 bg-[#2d2d2d] border-t border-[#444] p-3 text-white space-y-1.5"
+                class="flex-shrink-0 bg-[#2d2d2d] border-t-2 border-[#E8772E]/30 p-3 text-white space-y-1.5 shadow-[0_-4px_12px_rgba(0,0,0,0.3)]"
               >
                 <div class="flex justify-between text-[11px]">
                   <span class="text-gray-400">Tổng tiền món (Subtotal):</span>
@@ -692,13 +693,24 @@
                   }}</span>
                 </div>
                 <div
-                  class="flex justify-between items-center pt-2 border-t border-[#444] mt-2"
+                  class="flex justify-between items-center pt-2.5 border-t border-[#444] mt-1"
                 >
-                  <span class="text-white text-xs font-bold"
+                  <span class="text-white text-sm font-bold tracking-wide"
                     >TỔNG THANH TOÁN:</span
                   >
-                  <span class="text-[#E8772E] font-mono text-2xl font-black">{{
+                  <span class="text-[#E8772E] font-mono text-3xl font-black tracking-tight">{{
                     formatVND(summary.grandTotal)
+                  }}</span>
+                </div>
+
+                <!-- Prominent Change Display -->
+                <div
+                  v-if="customerPaid > 0 && changePaid > 0"
+                  class="flex justify-between items-center bg-green-900/40 border border-green-500/30 rounded-lg px-3 py-2 mt-2"
+                >
+                  <span class="text-green-300 text-xs font-bold">💰 TIỀN THỌI:</span>
+                  <span class="text-green-400 font-mono text-2xl font-black">{{
+                    formatVND(changePaid)
                   }}</span>
                 </div>
 
@@ -1026,7 +1038,7 @@
                   @dblclick="handleTableDoubleClick(table, $event)"
                   :title="getTableTooltip(table)"
                   :class="[
-                    'p-3 rounded-xl border-2 transition-all cursor-pointer flex flex-col justify-between min-h-[110px] text-center hover:scale-[1.02] active:scale-[0.98] duration-200 shadow-sm relative',
+                    'p-3.5 rounded-xl border-2 transition-all cursor-pointer flex flex-col justify-between min-h-[120px] text-center hover:scale-[1.03] active:scale-[0.97] duration-200 shadow-sm relative',
                     selectedTableCode === table.code
                       ? 'border-orange-500 ring-2 ring-orange-400 bg-orange-50/5'
                       : 'border-transparent',
@@ -1071,14 +1083,14 @@
                     >
                   </div>
                   <div class="flex justify-between items-center select-none">
-                    <span class="font-extrabold text-sm">{{ table.code }}</span>
+                    <span class="font-extrabold text-base">{{ table.code }}</span>
                     <span
                       v-if="
                         table.status === 'Serving' || table.status === 'Arrived'
                       "
-                      class="bg-black/20 px-1.5 py-0.5 rounded text-[9px] font-black"
+                      class="bg-black/20 px-2 py-0.5 rounded text-[10px] font-black"
                     >
-                      {{ table.capacity }}
+                      👥 {{ table.capacity }}
                     </span>
                   </div>
 
@@ -1086,22 +1098,22 @@
                     v-if="
                       table.status === 'Serving' || table.status === 'Arrived'
                     "
-                    class="mt-2 text-[10px] space-y-0.5"
+                    class="mt-2 text-[11px] space-y-1"
                   >
                     <div class="font-extrabold text-gray-200 truncate">
                       {{ table.customerName || "Khách" }}
                     </div>
-                    <div class="text-gray-400">
-                      {{ table.checkInTime || "17:00" }} —
-                      {{ table.occupiedDuration || "0ph" }}
+                    <div class="flex items-center justify-between text-gray-400">
+                      <span>{{ table.checkInTime || "17:00" }}</span>
+                      <span class="font-bold text-gray-300">{{ table.occupiedDuration || "0ph" }}</span>
                     </div>
-                    <div class="font-black text-[#ff8f00] mt-1">
+                    <div class="font-black text-[#ff8f00] text-sm font-mono mt-0.5">
                       {{ table.billAmount || "[69.660]" }}
                     </div>
                   </div>
                   <div
                     v-else-if="tableConflicts[table.code]"
-                    class="mt-2 text-[10px] text-orange-300"
+                    class="mt-2 text-[11px] text-orange-300"
                   >
                     <div class="font-black truncate">
                       {{
@@ -1109,7 +1121,7 @@
                         "Đặt trước"
                       }}
                     </div>
-                    <div class="text-[9px] text-gray-400 mt-0.5">
+                    <div class="text-[10px] text-gray-400 mt-0.5">
                       📅
                       {{
                         tableConflicts[table.code].reservation_time.substring(
@@ -1122,14 +1134,14 @@
                   </div>
                   <div
                     v-else-if="table.status === 'Reserved'"
-                    class="mt-2 text-[10px] text-yellow-300"
+                    class="mt-2 text-[11px] text-yellow-300"
                   >
                     <div class="font-black truncate">
                       {{ table.customerName || "Đã đặt" }}
                     </div>
                     <div class="text-xs mt-1">🔒</div>
                   </div>
-                  <div v-else class="mt-2 text-[10px] text-gray-500">
+                  <div v-else class="mt-2 text-[11px] text-gray-500">
                     {{ t("reception.empty") }}
                   </div>
 
@@ -1488,35 +1500,48 @@
                   </div>
 
                   <div
-                    class="flex items-center gap-2 border-l border-[#4a4a4a] pl-3"
+                    class="flex items-center gap-1.5 border-l border-[#4a4a4a] pl-3"
                   >
-                    <select
-                      v-model="activeStatusFilter"
-                      class="bg-[#3a3a3a] text-xs text-gray-200 border border-[#4a4a4a] rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-[#ff8f00] cursor-pointer font-bold"
+                    <!-- Status filter chips -->
+                    <button
+                      v-for="sf in [
+                        { id: 'all', label: t('reception.all_items') },
+                        { id: 'available', label: t('reception.available') },
+                        { id: 'unavailable', label: t('reception.out_of_stock') },
+                      ]"
+                      :key="sf.id"
+                      @click="activeStatusFilter = sf.id"
+                      :class="[
+                        'px-2.5 py-1.5 rounded-full text-xs font-bold transition-all border shrink-0 active:scale-95',
+                        activeStatusFilter === sf.id
+                          ? 'bg-[#ff8f00] border-[#ff8f00] text-white shadow'
+                          : 'bg-[#3a3a3a] border-[#4a4a4a] text-gray-400 hover:bg-[#4a4a4a] hover:text-white',
+                      ]"
                     >
-                      <option value="all">
-                        {{ t("reception.all_items") }}
-                      </option>
-                      <option value="available">
-                        {{ t("reception.available") }}
-                      </option>
-                      <option value="unavailable">
-                        {{ t("reception.out_of_stock") }}
-                      </option>
-                    </select>
+                      {{ sf.label }}
+                    </button>
 
-                    <select
-                      v-model="priceSort"
-                      class="bg-[#3a3a3a] text-xs text-gray-200 border border-[#4a4a4a] rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-[#ff8f00] cursor-pointer font-bold"
+                    <!-- Separator -->
+                    <div class="w-px h-5 bg-[#4a4a4a] mx-1"></div>
+
+                    <!-- Price sort chips -->
+                    <button
+                      v-for="ps in [
+                        { id: '', label: t('reception.no_sort') },
+                        { id: 'asc', label: '↑ Giá' },
+                        { id: 'desc', label: '↓ Giá' },
+                      ]"
+                      :key="ps.id || 'default'"
+                      @click="priceSort = ps.id"
+                      :class="[
+                        'px-2.5 py-1.5 rounded-full text-xs font-bold transition-all border shrink-0 active:scale-95',
+                        priceSort === ps.id
+                          ? 'bg-[#ff8f00] border-[#ff8f00] text-white shadow'
+                          : 'bg-[#3a3a3a] border-[#4a4a4a] text-gray-400 hover:bg-[#4a4a4a] hover:text-white',
+                      ]"
                     >
-                      <option value="">{{ t("reception.no_sort") }}</option>
-                      <option value="asc">
-                        {{ t("reception.price_asc") }}
-                      </option>
-                      <option value="desc">
-                        {{ t("reception.price_desc") }}
-                      </option>
-                    </select>
+                      {{ ps.label }}
+                    </button>
                   </div>
                 </div>
 
@@ -2504,6 +2529,13 @@
                   class="px-3 py-1.5 bg-[#00BCD4] hover:bg-[#00acc1] active:scale-95 transition-all text-white text-xs font-bold rounded shadow"
                 >
                   {{ t("reception.print_provisional") }}
+                </button>
+                <button
+                  @click="printInvoice"
+                  type="button"
+                  class="px-3 py-1.5 bg-[#E91E63] hover:bg-[#d81b60] active:scale-95 transition-all text-white text-xs font-bold rounded shadow"
+                >
+                  {{ t("reception.print_invoice") }}
                 </button>
                 <button
                   @click="triggerPaymentFlow"
@@ -4337,54 +4369,62 @@
         </div>
 
         <!-- Menu Items -->
-        <div class="p-3 space-y-2">
-          <button
-            v-for="action in tableActions"
-            :key="action.id"
-            @click="handleTableAction(action.id)"
-            class="w-full flex items-center gap-3 p-3 rounded-xl transition-all group"
-            :class="
-              action.isPrimary
-                ? 'primary-action bg-gradient-to-r from-green-50 to-green-100/80 border-2 border-green-500 p-4 mb-3'
-                : 'hover:bg-gray-50'
-            "
-            type="button"
-          >
-            <div
-              class="w-11 h-11 rounded-xl flex items-center justify-center text-xl shadow-sm group-hover:scale-110 transition-transform shrink-0"
-              :class="action.colorClass"
+        <div class="p-3">
+          <template v-for="(action, idx) in tableActions" :key="action.id">
+            <!-- Separator before new group (not on first item) -->
+            <hr
+              v-if="idx > 0 && action.group !== tableActions[idx - 1].group"
+              class="border-gray-100 my-1.5"
+            />
+            <button
+              @click="handleTableAction(action.id)"
+              :class="[
+                'w-full flex items-center gap-3 p-3 rounded-xl transition-all group min-h-[44px]',
+                action.isPrimary
+                  ? 'primary-action bg-gradient-to-r from-green-50 to-green-100/80 border-2 border-green-500 p-4 mb-2'
+                  : action.group === 'danger'
+                    ? 'hover:bg-red-50'
+                    : 'hover:bg-gray-50',
+              ]"
+              type="button"
             >
-              {{ action.icon }}
-            </div>
-            <div class="flex-1 text-left">
               <div
-                class="font-bold text-gray-800 text-sm"
-                :class="[
-                  action.isPrimary
-                    ? 'text-green-800 font-extrabold text-base'
-                    : '',
-                ]"
+                class="w-11 h-11 rounded-xl flex items-center justify-center text-xl shadow-sm group-hover:scale-110 transition-transform shrink-0"
+                :class="action.colorClass"
               >
-                {{ action.label }}
+                {{ action.icon }}
               </div>
-              <div
-                class="text-xs text-gray-500"
-                :class="[action.isPrimary ? 'text-green-700 font-medium' : '']"
-              >
-                {{ action.description }}
-                {{
-                  action.id === "select_items"
-                    ? selectedTableForAction?.code
-                    : ""
-                }}
+              <div class="flex-1 text-left">
+                <div
+                  class="font-bold text-sm"
+                  :class="[
+                    action.isPrimary
+                      ? 'text-green-800 font-extrabold text-base'
+                      : action.group === 'danger'
+                        ? 'text-red-700'
+                        : 'text-gray-800',
+                  ]"
+                >
+                  {{ action.label }}
+                </div>
+                <div
+                  class="text-xs"
+                  :class="[
+                    action.isPrimary
+                      ? 'text-green-700 font-medium'
+                      : 'text-gray-500',
+                  ]"
+                >
+                  {{ action.description }}
+                  {{
+                    action.id === "select_items"
+                      ? selectedTableForAction?.code
+                      : ""
+                  }}
+                </div>
               </div>
-            </div>
-            <span
-              class="text-gray-400 text-lg group-hover:translate-x-1 transition-transform"
-              :class="[action.isPrimary ? 'text-green-600' : '']"
-              >➡️</span
-            >
-          </button>
+            </button>
+          </template>
         </div>
 
         <!-- Footer / Cancel Button -->
@@ -4414,6 +4454,9 @@
           >
             <h3 class="text-lg font-bold flex items-center gap-2">
               <span>🍽️</span> Tách món bàn {{ selectedTableForAction?.code }}
+              <span class="text-pink-200 text-sm font-normal"
+                >→ bàn {{ transferTargetTable || "?" }}</span
+              >
             </h3>
             <p class="text-xs text-pink-100 mt-1">
               {{ t("reception.select_split_items") }}
@@ -4425,39 +4468,126 @@
               {{ t("reception.select_at_least_one") }}
             </div>
 
-            <div class="space-y-2 max-h-80 overflow-y-auto">
+            <!-- Empty state -->
+            <div
+              v-if="
+                !restaurantStore.tableOrders[selectedTableForAction?.code]
+                  ?.items?.length
+              "
+              class="text-center py-8 text-gray-400"
+            >
+              <span class="text-3xl block mb-2">📭</span>
+              <p class="text-sm">Bàn này chưa có món nào để tách</p>
+            </div>
+
+            <div v-else class="space-y-2 max-h-80 overflow-y-auto">
               <div
                 v-for="item in restaurantStore.tableOrders[
                   selectedTableForAction?.code
                 ]?.items || []"
                 :key="item.id"
-                @click="toggleItemForSplit(item.id)"
                 :class="[
-                  'p-3 rounded-lg border-2 cursor-pointer transition-all flex items-center gap-3',
+                  'p-3 rounded-lg border-2 transition-all',
                   selectedItemsToSplit.includes(item.id)
                     ? 'border-pink-500 bg-pink-50'
                     : 'border-gray-200 hover:border-gray-300',
                 ]"
               >
-                <input
-                  type="checkbox"
-                  :checked="selectedItemsToSplit.includes(item.id)"
-                  class="w-5 h-5 accent-pink-500"
-                />
-                <div class="flex-1">
-                  <div class="font-bold text-sm text-gray-800">
-                    {{ item.name }}
+                <div
+                  class="flex items-center gap-3 cursor-pointer"
+                  @click="toggleItemForSplit(item)"
+                >
+                  <input
+                    type="checkbox"
+                    :checked="selectedItemsToSplit.includes(item.id)"
+                    class="w-5 h-5 accent-pink-500 pointer-events-none"
+                  />
+                  <div class="flex-1">
+                    <div class="font-bold text-sm text-gray-800">
+                      {{ item.name }}
+                    </div>
+                    <div class="text-xs text-gray-500">
+                      x{{ item.quantity }} {{ item.unit }} -
+                      {{ formatVND(item.price * item.quantity) }}
+                    </div>
                   </div>
-                  <div class="text-xs text-gray-500">
-                    x{{ item.quantity }} {{ item.unit }} -
-                    {{ formatVND(item.price * item.quantity) }}
-                  </div>
+                </div>
+                <!-- Quantity selector (visible when selected) -->
+                <div
+                  v-if="selectedItemsToSplit.includes(item.id)"
+                  class="flex items-center gap-2 mt-2 pt-2 border-t border-pink-200"
+                >
+                  <span class="text-xs text-gray-600 font-semibold"
+                    >SL tách:</span
+                  >
+                  <button
+                    type="button"
+                    @click.stop="
+                      changeSplitQty(
+                        item.id,
+                        (splitItemQuantities[item.id] || 1) - 1,
+                        item.quantity,
+                      )
+                    "
+                    class="w-7 h-7 rounded bg-red-100 hover:bg-red-200 text-red-600 font-bold text-sm flex items-center justify-center"
+                  >
+                    −
+                  </button>
+                  <input
+                    :value="splitItemQuantities[item.id] || 1"
+                    type="number"
+                    min="1"
+                    :max="item.quantity"
+                    @input.stop="
+                      changeSplitQty(
+                        item.id,
+                        parseInt(($event.target as HTMLInputElement).value) ||
+                          1,
+                        item.quantity,
+                      )
+                    "
+                    @click.stop
+                    class="w-14 text-center border border-gray-300 rounded px-1 py-0.5 text-sm font-bold"
+                  />
+                  <button
+                    type="button"
+                    @click.stop="
+                      changeSplitQty(
+                        item.id,
+                        (splitItemQuantities[item.id] || 1) + 1,
+                        item.quantity,
+                      )
+                    "
+                    class="w-7 h-7 rounded bg-green-100 hover:bg-green-200 text-green-600 font-bold text-sm flex items-center justify-center"
+                  >
+                    +
+                  </button>
+                  <span class="text-xs text-gray-400 ml-1"
+                    >/ {{ item.quantity }}</span
+                  >
                 </div>
               </div>
             </div>
 
+            <!-- Summary -->
             <div
-              v-if="selectedItemsToSplit.length === 0"
+              v-if="selectedItemsToSplit.length > 0"
+              class="mt-3 flex items-center justify-between bg-pink-50 border border-pink-200 rounded-lg px-3 py-2"
+            >
+              <span class="text-xs font-semibold text-pink-700"
+                >{{ selectedItemsToSplit.length }} món được chọn</span
+              >
+              <span class="text-sm font-bold text-pink-600 font-mono">{{
+                formatVND(splitItemTotal)
+              }}</span>
+            </div>
+
+            <div
+              v-if="
+                selectedItemsToSplit.length === 0 &&
+                restaurantStore.tableOrders[selectedTableForAction?.code]?.items
+                  ?.length
+              "
               class="mt-3 text-xs text-orange-600 bg-orange-50 p-2 rounded"
             >
               {{ t("reception.please_select_one") }}
@@ -4468,15 +4598,17 @@
             class="bg-gray-50 px-6 py-4 flex justify-end gap-3 border-t border-gray-200"
           >
             <button
-              @click="showSplitItemModal = false"
+              @click="closeSplitItemModal"
               class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg font-bold text-sm"
               type="button"
             >
-              {{ t("reception.cancel") }}
+              {{ t("reception.cancel") }} (ESC)
             </button>
             <button
               @click="executeSplitItem"
-              :disabled="selectedItemsToSplit.length === 0 || splitItemLoading"
+              :disabled="
+                selectedItemsToSplit.length === 0 || splitItemLoading
+              "
               class="px-4 py-2 bg-pink-500 hover:bg-pink-600 disabled:bg-gray-300 text-white rounded-lg font-bold text-sm flex items-center gap-2"
               type="button"
             >
@@ -4781,7 +4913,7 @@ import { useLanguageStore } from "@/stores/useLanguageStore";
 const langStore = useLanguageStore();
 const t = langStore.t;
 
-import { ref, computed, onMounted, onUnmounted, watch, reactive } from "vue";
+import { ref, computed, onMounted, onUnmounted, watch, reactive, nextTick } from "vue";
 import { useRouter } from "vue-router";
 import { useRestaurantStore } from "@/stores/restaurantStore";
 import { storeToRefs } from "pinia";
@@ -4791,35 +4923,80 @@ import { useAuth } from "@/composables/useAuth";
 import { useTable } from "@/composables/useTable";
 import { useMenu } from "@/composables/useMenu";
 import { useReservation } from "@/composables/useReservation";
+import { useReceptionSync } from "@/composables/useReceptionSync";
 import { VueDraggable } from "vue-draggable-plus";
+import TableOperationsMenu from "@/components/reception/TableOperationsMenu.vue";
+import { useTableOperations } from "@/composables/useTableOperations";
 
 const router = useRouter();
 const restaurantStore = useRestaurantStore();
 const { selectedTableCode } = storeToRefs(restaurantStore);
 const { listTables } = useTable();
+
+// ===== Reception Store (shared reservation data) =====
+const {
+  waitingReservations: storeWaitingReservations,
+  loadReservations: storeLoadReservations,
+  assignTable: storeAssignTable,
+} = useReceptionSync();
 const { getItems } = useMenu();
 const { profile } = useAuth();
 
-// ===== CONTEXT MENU STATE =====
-const showTableContextMenu = ref(false);
-const selectedTableForAction = ref<any>(null);
-const contextMenuPosition = ref({ x: 0, y: 0 });
+// ===== TABLE OPERATIONS (extracted to composable) =====
+const {
+  // Context menu
+  showTableContextMenu,
+  selectedTableForAction,
+  contextMenuPosition,
+  tableActions,
+  handleTableDoubleClick,
+  handleTableListActionClick,
+  handleTableAction,
+  closeContextMenu,
+  // Selection mode
+  selectionMode,
+  sourceTableCode,
+  validTargetTables,
+  isValidTargetTable,
+  handleTableClick,
+  handleTableClickInSelectionMode,
+  exitSelectionMode,
+  cancelSelectionMode,
+  getSelectionModeTitle,
+  // Split item modal
+  showSplitItemModal,
+  selectedItemsToSplit,
+  splitItemQuantities,
+  splitItemTotal,
+  splitItemLoading,
+  transferTargetTable,
+  toggleItemForSplit,
+  changeSplitQty,
+  closeSplitItemModal,
+  executeSplitItem,
+  // Cancel modal
+  showCancelModal,
+  cancelConfirmText,
+  cancelLoading,
+  executeCancel,
+  // Keyboard handler compatibility
+  showTransferModal,
+  showMergeModal,
+  showSplitOrderModal,
+  splitOrderCount,
+} = useTableOperations({
+  triggerToast,
+  formatVND,
+  getActiveMainTab: () => activeMainTab.value,
+  setActiveMainTab: (val: string) => {
+    activeMainTab.value = val as any;
+  },
+  getFilteredTables: () => filteredTables.value,
+  getDbTablesList: () => dbTablesList.value,
+  getSummary: () => summary.value,
+});
 
-// Selection Mode state
-const selectionMode = ref<
-  "none" | "transfer" | "merge" | "split-order" | "split-item"
->("none");
-const sourceTableCode = ref<string>("");
-const selectedItemsToSplit = ref<string[]>([]);
-
-// Modal states
-const showTransferModal = ref(false);
-const showMergeModal = ref(false);
-const showSplitOrderModal = ref(false);
-const showSplitItemModal = ref(false);
-const showCancelModal = ref(false);
-
-// Cancel item states
+// Cancel item states (managed by view)
 const showCancelItemModal = ref(false);
 const selectedItemToCancel = ref<any>(null);
 const cancelItemQty = ref(1);
@@ -4828,27 +5005,6 @@ const cancelItemPin = ref("");
 const cancelItemLoading = ref(false);
 const dbOrderInfo = ref<any>(null);
 const dbOrderItems = ref<any[]>([]);
-
-// Transfer state
-const transferTargetTable = ref("");
-const transferLoading = ref(false);
-
-// Merge state
-const mergeTargetTable = ref("");
-const mergeLoading = ref(false);
-
-// Split order state
-const splitOrderCount = ref(2);
-const splitOrderLoading = ref(false);
-
-// Split item state
-const splitItemLoading = ref(false);
-
-// Cancel state
-const cancelConfirmText = ref("");
-const cancelLoading = ref(false);
-
-// Tính toán vị trí menu tự động
 // FIX: Auto placement cho context menu
 const contextMenuStyle = computed(() => {
   const x = contextMenuPosition.value.x;
@@ -4883,13 +5039,6 @@ const contextMenuStyle = computed(() => {
   };
 });
 
-// Double-click handler
-function handleTableDoubleClick(table: any, event: MouseEvent) {
-  selectedTableForAction.value = table;
-  contextMenuPosition.value = { x: event.clientX, y: event.clientY };
-  showTableContextMenu.value = true;
-}
-
 // Helper: Lấy class màu cho icon
 const getIconColorClass = (actionId: string): string => {
   const colorMap: Record<string, string> = {
@@ -4902,568 +5051,6 @@ const getIconColorClass = (actionId: string): string => {
   };
   return colorMap[actionId] || "icon-blue";
 };
-
-// Context menu actions config — all 6 actions for tables with customers,
-// only "Chọn món" for empty tables.
-const allTableActions = [
-  {
-    id: "select_items",
-    label: "Chọn món",
-    icon: "📝",
-    colorClass: "bg-green-500 text-white",
-    description: "Thêm món vào bàn",
-    isPrimary: true,
-  },
-  {
-    id: "transfer",
-    label: "Chuyển bàn",
-    icon: "🔁",
-    colorClass: "bg-blue-500 text-white",
-    description: "Di chuyển order sang bàn khác",
-  },
-  {
-    id: "merge",
-    label: "Ghép phiếu",
-    icon: "🔗",
-    colorClass: "bg-purple-500 text-white",
-    description: "Gộp order từ 2 bàn thành 1",
-  },
-  {
-    id: "split-order",
-    label: "Tách phiếu",
-    icon: "✂️",
-    colorClass: "bg-orange-500 text-white",
-    description: "Chia order thành nhiều phiếu",
-  },
-  {
-    id: "split-item",
-    label: "Tách món",
-    icon: "🍽️",
-    colorClass: "bg-pink-500 text-white",
-    description: "Tách riêng một số món",
-  },
-  {
-    id: "cancel",
-    label: "Hủy phiếu",
-    icon: "❌",
-    colorClass: "bg-red-500 text-white",
-    description: "Xóa toàn bộ order",
-  },
-];
-
-const tableActions = computed(() => {
-  const isEmpty =
-    !selectedTableForAction.value ||
-    selectedTableForAction.value.status === "Available";
-  if (isEmpty) {
-    return allTableActions.filter((a) => a.id === "select_items");
-  }
-  return allTableActions;
-});
-
-const getTablesWithStatus = () => {
-  const list: any[] = [];
-  restaurantStore.areas.forEach((area) => {
-    area.tables.forEach((table) => {
-      list.push(table);
-    });
-  });
-  return list;
-};
-
-// Handle table action
-function handleTableAction(actionId: string) {
-  showTableContextMenu.value = false;
-
-  const table = selectedTableForAction.value;
-  if (!table) return;
-
-  switch (actionId) {
-    case "select_items":
-      activeMainTab.value = "menu";
-      selectedTableCode.value = table.code;
-      triggerToast("success", `Đã chọn bàn ${table.code} - Vui lòng chọn món`);
-      break;
-    case "transfer":
-      sourceTableCode.value = table.code;
-      selectionMode.value = "transfer";
-      triggerToast("info", `Chọn bàn đích để chuyển từ bàn ${table.code}`);
-      break;
-
-    case "merge":
-      sourceTableCode.value = table.code;
-      selectionMode.value = "merge";
-      triggerToast("info", `Chọn bàn để ghép với bàn ${table.code}`);
-      break;
-
-    case "split-order":
-      sourceTableCode.value = table.code;
-      selectionMode.value = "split-order";
-      triggerToast("info", `Chọn bàn đích để tách phiếu từ bàn ${table.code}`);
-      break;
-
-    case "split-item":
-      sourceTableCode.value = table.code;
-      selectionMode.value = "split-item";
-      triggerToast("info", `Chọn bàn đích để tách món từ bàn ${table.code}`);
-      break;
-
-    case "cancel":
-      showCancelModal.value = true;
-      break;
-  }
-}
-
-// Computed: Valid target tables
-const validTargetTables = computed(() => {
-  if (selectionMode.value === "none") return [];
-
-  const allTables = restaurantStore.areas.flatMap((a) => a.tables);
-
-  switch (selectionMode.value) {
-    case "transfer":
-      // Only empty tables
-      return allTables.filter(
-        (t) => t.status === "Available" && t.code !== sourceTableCode.value,
-      );
-    case "merge":
-      // Tables with orders (not empty)
-      return allTables.filter((t) => {
-        const order = restaurantStore.tableOrders[t.code];
-        return (
-          t.status !== "Available" &&
-          t.code !== sourceTableCode.value &&
-          order &&
-          order.items &&
-          order.items.length > 0
-        );
-      });
-    case "split-order":
-    case "split-item":
-      // Empty tables or tables with orders
-      return allTables.filter((t) => t.code !== sourceTableCode.value);
-    default:
-      return [];
-  }
-});
-
-// Check if table is valid target
-function isValidTargetTable(tableCode: string): boolean {
-  return validTargetTables.value.some((t) => t.code === tableCode);
-}
-
-// Handle table click in Selection Mode
-const handleTableClickInSelectionMode = async (targetTable: any) => {
-  if (selectionMode.value === "none") return;
-
-  // Check if valid target
-  if (!isValidTargetTable(targetTable.code)) {
-    triggerToast("warning", "Bàn chọn không hợp lệ!");
-    return;
-  }
-
-  const sourceTable = restaurantStore.getTableByCode(sourceTableCode.value);
-  if (!sourceTable) return;
-
-  switch (selectionMode.value) {
-    case "transfer":
-      Swal.fire({
-        title: "Xác nhận chuyển bàn?",
-        text: `Chuyển toàn bộ order từ bàn ${sourceTable.code} sang bàn ${targetTable.code}?`,
-        icon: "question",
-        showCancelButton: true,
-        confirmButtonText: "Đồng ý",
-        cancelButtonText: "Hủy",
-        confirmButtonColor: "#3b82f6",
-      }).then(async (result) => {
-        if (result.isConfirmed) {
-          await executeTransfer(sourceTable, targetTable);
-          exitSelectionMode();
-        }
-      });
-      break;
-
-    case "merge":
-      Swal.fire({
-        title: "Xác nhận ghép phiếu?",
-        text: `Ghép phiếu bàn ${sourceTable.code} vào bàn ${targetTable.code}?`,
-        icon: "question",
-        showCancelButton: true,
-        confirmButtonText: "Đồng ý",
-        cancelButtonText: "Hủy",
-        confirmButtonColor: "#8b5cf6",
-      }).then(async (result) => {
-        if (result.isConfirmed) {
-          await executeMerge(sourceTable, targetTable);
-          exitSelectionMode();
-        }
-      });
-      break;
-
-    case "split-order":
-      // Ask split count
-      Swal.fire({
-        title: `Tách phiếu bàn ${sourceTable.code}`,
-        text: "Tách thành bao nhiêu phiếu?",
-        input: "number",
-        inputValue: "2",
-        inputAttributes: { min: "2", max: "10" },
-        showCancelButton: true,
-        confirmButtonText: "Tách",
-        cancelButtonText: "Hủy",
-        confirmButtonColor: "#f97316",
-      }).then(async (result) => {
-        if (result.isConfirmed && result.value) {
-          splitOrderCount.value = parseInt(result.value) || 2;
-          await executeSplitOrder(sourceTable, targetTable);
-          exitSelectionMode();
-        }
-      });
-      break;
-
-    case "split-item":
-      // Open multi-select split item modal targeting this selected targetTable
-      selectedTableForAction.value = sourceTable;
-      transferTargetTable.value = targetTable.code;
-      showSplitItemModal.value = true;
-      break;
-  }
-};
-
-async function executeTransfer(sourceTable: any, targetTable: any) {
-  try {
-    const sourceOrder = restaurantStore.getOrCreateOrder(sourceTable.code);
-    if (!sourceOrder.items || sourceOrder.items.length === 0) {
-      throw new Error("Bàn nguồn không có order!");
-    }
-
-    const targetOrder = restaurantStore.getOrCreateOrder(targetTable.code);
-    targetOrder.items = [...sourceOrder.items];
-    targetOrder.customerName = sourceOrder.customerName;
-    targetOrder.openedTime = sourceOrder.openedTime;
-
-    sourceOrder.items = [];
-    sourceOrder.customerName = "";
-
-    sourceTable.status = "Available";
-    sourceTable.customerName = "";
-    sourceTable.billAmount = "";
-
-    targetTable.status = "Serving";
-    targetTable.customerName = targetOrder.customerName;
-
-    const total = targetOrder.items.reduce(
-      (sum, item) => sum + item.price * item.quantity,
-      0,
-    );
-    targetTable.billAmount = formatVND(total);
-
-    triggerToast(
-      "success",
-      `Đã chuyển bàn ${sourceTable.code} sang bàn ${targetTable.code}`,
-    );
-    selectedTableCode.value = targetTable.code;
-  } catch (error) {
-    triggerToast(
-      "error",
-      error instanceof Error ? error.message : "Chuyển bàn thất bại!",
-    );
-  }
-}
-
-async function executeMerge(sourceTable: any, targetTable: any) {
-  try {
-    const sourceOrder = restaurantStore.getOrCreateOrder(sourceTable.code);
-    const targetOrder = restaurantStore.getOrCreateOrder(targetTable.code);
-
-    if (!sourceOrder.items || sourceOrder.items.length === 0) {
-      throw new Error("Bàn nguồn không có order!");
-    }
-
-    targetOrder.items = [...targetOrder.items, ...sourceOrder.items];
-
-    if (!targetOrder.customerName) {
-      targetOrder.customerName = sourceOrder.customerName;
-    }
-
-    sourceOrder.items = [];
-    sourceOrder.customerName = "";
-
-    sourceTable.status = "Available";
-    sourceTable.customerName = "";
-    sourceTable.billAmount = "";
-
-    const targetTotal = targetOrder.items.reduce(
-      (sum, item) => sum + item.price * item.quantity,
-      0,
-    );
-    targetTable.billAmount = formatVND(targetTotal);
-
-    triggerToast(
-      "success",
-      `Đã ghép phiếu bàn ${sourceTable.code} vào bàn ${targetTable.code}`,
-    );
-    selectedTableCode.value = targetTable.code;
-  } catch (error) {
-    triggerToast(
-      "error",
-      error instanceof Error ? error.message : "Ghép phiếu thất bại!",
-    );
-  }
-}
-
-async function executeSplitOrder(sourceTable: any, targetTable: any) {
-  try {
-    const sourceOrder = restaurantStore.getOrCreateOrder(sourceTable.code);
-
-    if (!sourceOrder.items || sourceOrder.items.length === 0) {
-      throw new Error("Bàn không có order!");
-    }
-
-    const items = sourceOrder.items;
-    const itemsPerSplit = Math.ceil(items.length / splitOrderCount.value);
-    const assignedCodes = new Set<string>();
-
-    // Create split orders
-    for (let i = 1; i < splitOrderCount.value; i++) {
-      const splitItems = items.slice(
-        i * itemsPerSplit,
-        (i + 1) * itemsPerSplit,
-      );
-
-      if (splitItems.length > 0) {
-        let availableTable = null;
-        if (i === 1) {
-          availableTable = targetTable;
-        } else {
-          availableTable = filteredTables.value.find(
-            (t) =>
-              t.status === "Available" &&
-              t.code !== sourceTable.code &&
-              t.code !== targetTable.code &&
-              !assignedCodes.has(t.code),
-          );
-        }
-
-        if (availableTable) {
-          assignedCodes.add(availableTable.code);
-          const splitOrder = restaurantStore.getOrCreateOrder(
-            availableTable.code,
-          );
-          splitOrder.items = splitItems;
-          splitOrder.customerName = sourceOrder.customerName;
-          splitOrder.openedTime = sourceOrder.openedTime;
-
-          const table = restaurantStore.getTableByCode(availableTable.code);
-          if (table) {
-            table.status = "Serving";
-            table.customerName = splitOrder.customerName;
-            const total = splitItems.reduce(
-              (sum, item) => sum + item.price * item.quantity,
-              0,
-            );
-            table.billAmount = formatVND(total);
-          }
-        }
-      }
-    }
-
-    // Keep remaining items in source
-    sourceOrder.items = items.slice(0, itemsPerSplit);
-    if (sourceTable) {
-      const sourceTotal = sourceOrder.items.reduce(
-        (sum, item) => sum + item.price * item.quantity,
-        0,
-      );
-      sourceTable.billAmount = formatVND(sourceTotal);
-    }
-
-    triggerToast("success", `Đã tách thành ${splitOrderCount.value} phiếu!`);
-    splitOrderCount.value = 2;
-  } catch (error) {
-    triggerToast(
-      "error",
-      error instanceof Error ? error.message : "Tách phiếu thất bại!",
-    );
-  }
-}
-
-function toggleItemForSplit(itemId: string) {
-  const index = selectedItemsToSplit.value.indexOf(itemId);
-  if (index > -1) {
-    selectedItemsToSplit.value.splice(index, 1);
-  } else {
-    selectedItemsToSplit.value.push(itemId);
-  }
-}
-
-async function executeSplitItem() {
-  if (selectedItemsToSplit.value.length === 0) {
-    triggerToast("warning", "Vui lòng chọn ít nhất 1 món!");
-    return;
-  }
-
-  splitItemLoading.value = true;
-
-  try {
-    const sourceOrder = restaurantStore.getOrCreateOrder(
-      selectedTableForAction.value.code,
-    );
-
-    // Get items to split
-    const itemsToSplit = sourceOrder.items.filter((item) =>
-      selectedItemsToSplit.value.includes(item.id),
-    );
-
-    if (itemsToSplit.length === 0) {
-      throw new Error("Không tìm thấy món cần tách!");
-    }
-
-    const targetCode = transferTargetTable.value;
-    if (!targetCode) {
-      throw new Error("Không có bàn trống để tách!");
-    }
-
-    // Create new order
-    const newOrder = restaurantStore.getOrCreateOrder(targetCode);
-    newOrder.items = [...newOrder.items, ...itemsToSplit];
-    newOrder.customerName = sourceOrder.customerName;
-    newOrder.openedTime = sourceOrder.openedTime;
-
-    // Remove from source
-    sourceOrder.items = sourceOrder.items.filter(
-      (item) => !selectedItemsToSplit.value.includes(item.id),
-    );
-
-    // Update table status
-    const targetTable = restaurantStore.getTableByCode(targetCode);
-    if (targetTable) {
-      targetTable.status = "Serving";
-      targetTable.customerName = newOrder.customerName;
-      const targetTotal = newOrder.items.reduce(
-        (sum, item) => sum + item.price * item.quantity,
-        0,
-      );
-      targetTable.billAmount = formatVND(targetTotal);
-    }
-
-    const sourceTable = restaurantStore.getTableByCode(
-      selectedTableForAction.value.code,
-    );
-    if (sourceTable) {
-      const sourceTotal = sourceOrder.items.reduce(
-        (sum, item) => sum + item.price * item.quantity,
-        0,
-      );
-      sourceTable.billAmount = formatVND(sourceTotal);
-    }
-
-    triggerToast(
-      "success",
-      `Đã tách ${itemsToSplit.length} món sang bàn ${targetCode}`,
-    );
-    showSplitItemModal.value = false;
-    selectedItemsToSplit.value = [];
-    exitSelectionMode();
-  } catch (error) {
-    triggerToast(
-      "error",
-      error instanceof Error ? error.message : "Tách món thất bại!",
-    );
-  } finally {
-    splitItemLoading.value = false;
-  }
-}
-
-async function executeCancel() {
-  if (cancelConfirmText.value !== "HỦY") {
-    triggerToast("warning", 'Vui lòng nhập "HỦY" để xác nhận!');
-    return;
-  }
-
-  // Yêu cầu nhập mã PIN quản lý
-  const { value: pin } = await Swal.fire({
-    title: "Xác thực Quản lý",
-    text: "Vui lòng nhập mã PIN của Quản lý để hủy đơn hàng:",
-    input: "password",
-    inputPlaceholder: "Nhập mã PIN",
-    inputAttributes: {
-      maxlength: "4",
-      autocapitalize: "off",
-      autocorrect: "off",
-    },
-    showCancelButton: true,
-    cancelButtonText: "Quay lại",
-    confirmButtonText: "Xác thực",
-    confirmButtonColor: "#F44336",
-  });
-
-  if (pin === undefined) return;
-
-  if (pin !== "1234") {
-    Swal.fire("Lỗi", "Mã PIN xác thực không chính xác!", "error");
-    return;
-  }
-
-  cancelLoading.value = true;
-
-  try {
-    const code = selectedTableForAction.value.code;
-    const tableRow = (await listTables()).find((t: any) => t.code === code);
-    if (tableRow && tableRow.status === "occupied") {
-      const { branchId } = useAuth();
-      const { data: checkoutData, error: getErr } = await supabase.rpc(
-        "hall_get_checkout_totals",
-        {
-          p_branch_id: branchId.value,
-          p_table_id: tableRow.id,
-          p_order_id: null,
-        },
-      );
-      if (getErr) throw getErr;
-
-      if (checkoutData && checkoutData.order) {
-        const { error: cancelErr } = await supabase.rpc(
-          "hall_cancel_order_or_item",
-          {
-            p_branch_id: branchId.value,
-            p_order_id: checkoutData.order.id,
-            p_order_item_id: null,
-            p_manager_pin: pin,
-            p_reason: "Cashier cancelled entire order",
-          },
-        );
-        if (cancelErr) throw cancelErr;
-      }
-    }
-
-    const order = restaurantStore.getOrCreateOrder(code);
-    order.items = [];
-    order.customerName = "";
-    order.openedTime = "";
-
-    const table = restaurantStore.getTableByCode(code);
-    if (table) {
-      table.status = "Available";
-      table.customerName = "";
-      table.billAmount = "";
-      table.checkInTime = "";
-      table.occupiedDuration = "";
-    }
-
-    triggerToast("success", `Đã hủy phiếu bàn ${code}`);
-    showCancelModal.value = false;
-    cancelConfirmText.value = "";
-    selectedTableCode.value = "";
-  } catch (error: any) {
-    triggerToast(
-      "error",
-      error instanceof Error ? error.message : "Hủy phiếu thất bại!",
-    );
-  } finally {
-    cancelLoading.value = false;
-  }
-}
 
 async function handleRemoveOrCancelItem(item: any) {
   if (!selectedTableCode.value) return;
@@ -5488,10 +5075,22 @@ async function openCancelItemModal(item: any) {
     const { branchId } = useAuth();
     if (!branchId.value) throw new Error("Chưa chọn chi nhánh.");
 
-    const tableRow = (await listTables()).find(
+    let tableRow = (await listTables()).find(
       (t: any) => t.code === selectedTableCode.value,
     );
+    if (!tableRow) {
+      tableRow = dbTablesList.value.find(
+        (t: any) => t.code === selectedTableCode.value,
+      );
+    }
     if (!tableRow) throw new Error("Bàn không tồn tại trên hệ thống");
+
+    // Skip RPC for mock tables (offline demo mode)
+    if (String(tableRow.id).startsWith("mock-")) {
+      dbOrderInfo.value = null;
+      dbOrderItems.value = [];
+      return;
+    }
 
     const { data, error: rpcErr } = await supabase.rpc(
       "hall_get_checkout_totals",
@@ -5676,47 +5275,6 @@ function generateCancelItemEscPos(
     .map((b) => b.toString(16).padStart(2, "0").toUpperCase())
     .join(" ");
 }
-
-// Exit Selection Mode
-const exitSelectionMode = () => {
-  selectionMode.value = "none";
-  sourceTableCode.value = "";
-};
-
-// Cancel Selection Mode
-const cancelSelectionMode = () => {
-  if (selectionMode.value !== "none") {
-    triggerToast("info", "Đã hủy thao tác");
-    exitSelectionMode();
-  }
-};
-
-function getSelectionModeTitle(): string {
-  switch (selectionMode.value) {
-    case "transfer":
-      return `Chuyển bàn từ ${sourceTableCode.value}`;
-    case "merge":
-      return `Ghép phiếu với bàn ${sourceTableCode.value}`;
-    case "split-order":
-      return `Tách phiếu từ bàn ${sourceTableCode.value}`;
-    case "split-item":
-      return `Tách món từ bàn ${sourceTableCode.value}`;
-    default:
-      return "";
-  }
-}
-
-function handleTableClick(table: any) {
-  if (selectionMode.value !== "none") {
-    handleTableClickInSelectionMode(table);
-    return;
-  }
-  selectTable(table.code);
-}
-
-const closeContextMenu = () => {
-  showTableContextMenu.value = false;
-};
 
 const activeMainTab = ref<
   "table_map" | "table_list" | "menu" | "invoice" | "pending"
@@ -6316,6 +5874,7 @@ const handleProcessPending = (order: any) => {
 
 const showSearch = ref(false);
 const tableSearchQuery = ref("");
+const searchInputRef = ref<HTMLInputElement | null>(null);
 const showMoreMenu = ref(false);
 
 const orderGroups = ref([
@@ -8333,6 +7892,87 @@ function printDraftBill() {
   triggerToast("info", t("reception_order.da_gui_lenh_in_tam_tinh"));
 }
 
+function printInvoice() {
+  const items = activeOrder.value.items || [];
+  const now = new Date();
+  const dateStr = `${now.getDate()}/${now.getMonth() + 1}/${now.getFullYear()} ${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}:${String(now.getSeconds()).padStart(2, "0")}`;
+  const cashier = profile.value?.full_name || "Reception User";
+  const table = selectedTableCode.value || "-";
+  const s = summary.value;
+
+  const itemsHTML = items
+    .map((item: any) => {
+      const lineTotal = item.price * item.quantity;
+      return `<tr>
+        <td style="padding:4px 0;">${item.name}</td>
+        <td style="padding:4px 8px;text-align:center;">${item.quantity}</td>
+        <td style="padding:4px 8px;text-align:right;">${item.price.toLocaleString("vi-VN")}</td>
+        <td style="padding:4px 0;text-align:right;">${lineTotal.toLocaleString("vi-VN")}đ</td>
+      </tr>`;
+    })
+    .join("");
+
+  const html = `<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>Hóa đơn</title>
+<style>
+  @media print { body { margin:0; padding:20px; } .no-print { display:none; } }
+  body { max-width:80mm; margin:0 auto; font-family:'Courier New',monospace; font-size:12px; line-height:1.5; }
+  .header { text-align:center; border-bottom:2px dashed #000; padding-bottom:10px; margin-bottom:10px; }
+  .header h1 { margin:0; font-size:16px; }
+  .header p { margin:2px 0; font-size:11px; }
+  .info { margin-bottom:10px; font-size:11px; }
+  .info-row { display:flex; justify-content:space-between; margin:2px 0; }
+  table { width:100%; border-collapse:collapse; border-top:1px dashed #000; border-bottom:1px dashed #000; padding:8px 0; margin-bottom:10px; }
+  th { text-align:left; font-size:10px; padding:4px 0; border-bottom:1px solid #ccc; }
+  .totals { margin-bottom:10px; }
+  .total-row { display:flex; justify-content:space-between; margin:2px 0; font-size:11px; }
+  .grand-total { font-size:14px; font-weight:bold; border-top:2px solid #000; padding-top:5px; margin-top:5px; }
+  .footer { text-align:center; margin-top:20px; font-size:11px; }
+</style></head><body>
+  <div class="header">
+    <h1>NGƯU CÁT</h1>
+    <p>Nhà hàng Buffet cao cấp</p>
+    <p>ĐT: 028 1234 5678 — MST: 0312345678</p>
+  </div>
+  <div class="info">
+    <div class="info-row"><span>HÓA ĐƠN BÁN HÀNG</span><span>${table}</span></div>
+    <div class="info-row"><span>Bàn: ${table}</span><span>${dateStr}</span></div>
+    <div class="info-row"><span>Thu ngân: ${cashier}</span></div>
+    <div class="info-row"><span>Số khách: ${activeOrder.value.guestCount || 0}</span></div>
+  </div>
+  <table>
+    <thead><tr><th>Tên món</th><th style="text-align:center;">SL</th><th style="text-align:right;">Đơn giá</th><th style="text-align:right;">T.tiền</th></tr></thead>
+    <tbody>${itemsHTML || '<tr><td colspan="4" style="text:center;">(trống)</td></tr>'}</tbody>
+  </table>
+  <div class="totals">
+    <div class="total-row"><span>Tiền hàng:</span><span>${s.rawSubtotal.toLocaleString("vi-VN")}đ</span></div>
+    ${s.totalDiscount > 0 ? `<div class="total-row"><span>Giảm giá:</span><span>-${s.totalDiscount.toLocaleString("vi-VN")}đ</span></div>` : ""}
+    <div class="total-row"><span>Tạm tính:</span><span>${s.subtotal.toLocaleString("vi-VN")}đ</span></div>
+    ${s.serviceCharge > 0 ? `<div class="total-row"><span>Phí phục vụ (5%):</span><span>${s.serviceCharge.toLocaleString("vi-VN")}đ</span></div>` : ""}
+    <div class="total-row"><span>VAT (8%):</span><span>${s.vat.toLocaleString("vi-VN")}đ</span></div>
+    <div class="total-row grand-total"><span>TỔNG CỘNG:</span><span>${s.grandTotal.toLocaleString("vi-VN")}đ</span></div>
+  </div>
+  <div class="footer">
+    <p>Cảm ơn quý khách! Hẹn gặp lại!</p>
+    <p style="font-size:10px;letter-spacing:2px;">${table}-${now.getTime()}</p>
+  </div>
+  <div class="no-print" style="margin-top:20px;text-align:center;">
+    <button onclick="window.print()" style="padding:10px 20px;cursor:pointer;">🖨️ In lại</button>
+    <button onclick="window.close()" style="padding:10px 20px;cursor:pointer;margin-left:10px;">❌ Đóng</button>
+  </div>
+</body></html>`;
+
+  const printWindow = window.open("", "_blank");
+  if (!printWindow) {
+    triggerToast("error", "Vui lòng cho phép cửa sổ pop-up để in hóa đơn.");
+    return;
+  }
+  printWindow.document.write(html);
+  printWindow.document.close();
+  printWindow.focus();
+  triggerToast("success", "Đã gửi lệnh in hóa đơn.");
+}
+
 async function checkoutTable() {
   const code = selectedTableCode.value;
   if (!code) return;
@@ -8442,28 +8082,25 @@ async function sendToKitchen() {
     const { branchId } = useAuth();
     if (!branchId.value)
       throw new Error(t("reception_order.tai_khoan_chua_gan_chi_nhanh"));
-    // 1. Resolve the real `tables.id` from the mock table code through Hall RPC.
-    //    Always re-fetch (not cached) so we see the server's authoritative
-    //    status — if the table is still `available` we have to open it first
-    //    or hall_submit_table_order will 400 with "Hall can submit orders
-    //    only for occupied tables".
-    const tableRow = (await listTables()).find(
+    // 1. Resolve the table row. Try the live RPC first; fall back to
+    //    dbTablesList (populated by fetchDbTables, which includes mock
+    //    data when the backend is unreachable) so send-to-kitchen still
+    //    works in offline demo mode.
+    let tableRow: any = (await listTables()).find(
       (table: any) => table.code === code,
     );
+    if (!tableRow) {
+      tableRow = dbTablesList.value.find((t: any) => t.code === code);
+    }
     if (!tableRow)
       throw new Error(t("reception_order.khong_tim_thay_ban", { code }));
-    const tableId: string = (tableRow as { id: string }).id;
-    const tableStatus: string =
-      (tableRow as { status?: string }).status ?? "available";
+    const tableId: string = tableRow.id;
+    const tableStatus: string = tableRow.status ?? "available";
+    const isMockTable = String(tableId).startsWith("mock-");
 
     // 2. If the table isn't yet `occupied`, flip it with the lightweight
-    //    `hall_open_table` RPC. We deliberately do NOT call the heavy
-    //    `check-in` Edge Function here — that path creates a fresh walk-in
-    //    reservation on every click and (after a previous checkout) can
-    //    400 on duplicate customers / cross-branch tables. The dedicated
-    //    Reservation / Quick-Open modals in AdminFloorsView still go
-    //    through check-in for the full ceremonial flow.
-    if (tableStatus !== "occupied") {
+    //    `hall_open_table` RPC. Skip for mock tables (offline demo mode).
+    if (!isMockTable && tableStatus !== "occupied") {
       const { data: openData, error: openErr } = await supabase.rpc(
         "hall_open_table",
         { p_branch_id: branchId.value, p_table_id: tableId },
@@ -8479,6 +8116,30 @@ async function sendToKitchen() {
           `Bàn ${code} mở thất bại: ${(openData as any).reason ?? "unknown"}`,
         );
       }
+    }
+
+    // 3. For mock tables (offline demo), skip the RPC — just update the
+    //    local store and show success.
+    if (isMockTable) {
+      const table = restaurantStore.getTableByCode(code);
+      if (table) {
+        table.status = "Serving";
+        table.customerName = activeOrder.value.customerName || "Khách vãng lai";
+        table.billAmount = formatVND(summary.value.grandTotal);
+        const now = new Date();
+        table.checkInTime = now.toLocaleTimeString("vi-VN", {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+        table.occupiedDuration = "0 phút";
+      }
+
+      triggerToast(
+        "success",
+        `[Mock] Đã gửi ${activeOrder.value.items.length} món đến bếp (bàn ${code})`,
+      );
+      kitchenLoading.value = false;
+      return;
     }
 
     await ensureMenuDbIds(
@@ -8678,6 +8339,66 @@ function goBack() {
 }
 
 function handleKeyDown(e: KeyboardEvent) {
+  // F1 = Table Map
+  if (e.key === "F1") {
+    e.preventDefault();
+    activeMainTab.value = "table_map";
+    return;
+  }
+  // F2 = Menu
+  if (e.key === "F2") {
+    e.preventDefault();
+    activeMainTab.value = "menu";
+    return;
+  }
+  // F3 = Invoice
+  if (e.key === "F3") {
+    e.preventDefault();
+    activeMainTab.value = "invoice";
+    return;
+  }
+  // Ctrl+F = Focus search
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "f") {
+    e.preventDefault();
+    showSearch.value = true;
+    nextTick(() => searchInputRef.value?.focus());
+    return;
+  }
+  // Enter = Send to Kitchen (when table selected + items exist)
+  if (
+    e.key === "Enter" &&
+    !showSearch.value &&
+    selectedTableCode.value &&
+    activeOrder.value.items &&
+    activeOrder.value.items.length > 0 &&
+    activeMainTab.value !== "invoice"
+  ) {
+    // Don't intercept if user is typing in an input
+    const tag = (e.target as HTMLElement)?.tagName;
+    if (tag !== "INPUT" && tag !== "TEXTAREA" && tag !== "SELECT") {
+      e.preventDefault();
+      sendToKitchen();
+      return;
+    }
+  }
+  // Delete = Remove last cart item (when in menu tab)
+  if (
+    e.key === "Delete" &&
+    activeMainTab.value === "menu" &&
+    activeOrder.value.items &&
+    activeOrder.value.items.length > 0
+  ) {
+    const tag = (e.target as HTMLElement)?.tagName;
+    if (tag !== "INPUT" && tag !== "TEXTAREA" && tag !== "SELECT") {
+      e.preventDefault();
+      const lastItem =
+        activeOrder.value.items[activeOrder.value.items.length - 1];
+      if (lastItem) updateQty(lastItem.id, -1);
+      return;
+    }
+  }
+
+  // Escape (existing cascading close)
   if (e.key === "Escape") {
     if (draggedReservation.value) {
       handleDragEnd();
@@ -8693,7 +8414,7 @@ function handleKeyDown(e: KeyboardEvent) {
     } else if (showSplitOrderModal.value) {
       showSplitOrderModal.value = false;
     } else if (showSplitItemModal.value) {
-      showSplitItemModal.value = false;
+      closeSplitItemModal();
     } else if (showCancelModal.value) {
       showCancelModal.value = false;
     } else if (selectedTableCode.value) {
@@ -8862,7 +8583,22 @@ async function triggerCancelTableFlow() {
 // ==========================================
 const { listReservations, seatReservation, cancelReservation } =
   useReservation();
-const todayReservations = ref<any[]>([]);
+const todayReservations = computed(() =>
+  storeWaitingReservations.value.map((r) => ({
+    id: r.id,
+    customer_name: r.customerName,
+    customer_snapshot: { name: r.customerName, phone: r.customerPhone },
+    phone: r.customerPhone,
+    guests: r.guests,
+    reservation_time: r.reservationTime,
+    date: r.reservationDate,
+    status: r.status,
+    table_id: r.tableCode,
+    notes: { request: r.notes || "" },
+    source: r.source,
+    created_at: r.createdAt,
+  }))
+);
 const dbTablesList = ref<any[]>([]);
 const selectedStartTime = ref(1020); // 17:00 default
 const selectedEndTime = computed(() => selectedStartTime.value + 120); // 2 hours duration
@@ -8922,79 +8658,14 @@ watch(activeMainTab, (newVal) => {
   }
 });
 
-const mockUnassignedReservations = [
-  {
-    id: "RES-001",
-    customer_name: "Nguyễn Văn Minh",
-    phone: "0909 123 456",
-    guests: 4,
-    reservation_time: "11:00:00",
-    date: new Date().toISOString().split("T")[0],
-    status: "Pending",
-    table_id: null,
-    notes: { request: "Sinh nhật, cần trang trí bàn" },
-    source: "PHONE",
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: "RES-002",
-    customer_name: "Trần Thị Lan",
-    phone: "0912 345 678",
-    guests: 2,
-    reservation_time: "18:00:00",
-    date: new Date().toISOString().split("T")[0],
-    status: "Pending",
-    table_id: null,
-    notes: { request: "Hẹn đối tác, cần bàn yên tĩnh" },
-    source: "WEBSITE",
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: "RES-003",
-    customer_name: "Lê Hoàng Nam",
-    phone: "0938 765 432",
-    guests: 8,
-    reservation_time: "18:00:00",
-    date: new Date().toISOString().split("T")[0],
-    status: "Pending",
-    table_id: null,
-    notes: { request: "Tiệc gia đình, cần bàn lớn" },
-    source: "FACEBOOK",
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: "RES-004",
-    customer_name: "Phạm Thị Hương",
-    phone: "0977 654 321",
-    guests: 6,
-    reservation_time: "11:30:00",
-    date: new Date().toISOString().split("T")[0],
-    status: "Pending",
-    table_id: null,
-    notes: { request: "Ăn trưa business lunch" },
-    source: "MOBILE_APP",
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: "RES-005",
-    customer_name: "Hoàng Đức Tuấn",
-    phone: "0966 111 222",
-    guests: 10,
-    reservation_time: "18:00:00",
-    date: new Date().toISOString().split("T")[0],
-    status: "Pending",
-    table_id: null,
-    notes: { request: "Tiệc công ty, cần ghép bàn" },
-    source: "PHONE",
-    created_at: new Date().toISOString(),
-  },
-];
+// Mock data has been moved to the shared receptionStore.
+// The `todayReservations` computed above is now derived from
+// `storeWaitingReservations` and stays in sync across all views.
 
-function handleTableListActionClick(table: any, event: MouseEvent) {
-  selectedTableForAction.value = table;
-  selectTable(table.code);
-  contextMenuPosition.value = { x: event.clientX, y: event.clientY };
-  showTableContextMenu.value = true;
+async function fetchTodayReservations() {
+  // Delegate to the shared store — when Supabase is configured it
+  // loads from DB, otherwise falls back to localStorage + mock data.
+  await storeLoadReservations();
 }
 
 function debounce(fn: Function, delay: number) {
@@ -9101,19 +8772,6 @@ const allTablesWithInfo = computed(() => {
   return list;
 });
 
-async function fetchTodayReservations() {
-  try {
-    const res = await listReservations({
-      date: new Date().toISOString().split("T")[0],
-    });
-    const dbRes = res.reservations || [];
-    todayReservations.value = [...mockUnassignedReservations, ...dbRes];
-  } catch (err) {
-    console.error("Error loading today reservations:", err);
-    todayReservations.value = [...mockUnassignedReservations];
-  }
-}
-
 async function fetchDbTables() {
   try {
     dbTablesList.value = await listTables();
@@ -9150,10 +8808,45 @@ async function fetchDbTables() {
           description: name,
           tables,
         }));
+    } else {
+      // Backend returned empty — populate mock DB tables from restaurantStore
+      populateMockDbTables();
     }
   } catch (err) {
     console.error("Error loading tables:", err);
+    // Backend unreachable — populate mock DB tables from restaurantStore
+    populateMockDbTables();
   }
+}
+
+// Generate mock DB table rows (with synthetic UUIDs) from restaurantStore.areas
+// so all table operations (seatReservation, split, transfer, etc.) work offline.
+function populateMockDbTables() {
+  const mockRows: any[] = [];
+  let idx = 0;
+  for (const area of restaurantStore.areas) {
+    for (const table of area.tables) {
+      const hex = (idx++).toString(16).padStart(4, "0");
+      const dbStatus =
+        table.status === "Serving" || table.status === "Arrived"
+          ? "occupied"
+          : table.status === "Reserved"
+            ? "reserved"
+            : "available";
+      mockRows.push({
+        id: `mock-${hex}-0000-0000-0000-00000000${hex}`,
+        code: table.code,
+        zone: area.name,
+        capacity: table.capacity || 4,
+        status: dbStatus,
+        active_order:
+          table.status === "Serving" || table.status === "Arrived"
+            ? { id: `ord-${hex}` }
+            : null,
+      });
+    }
+  }
+  dbTablesList.value = mockRows;
 }
 
 const debouncedFetchTodayReservations = debounce(async () => {
@@ -9399,7 +9092,7 @@ const assignQuickTable = async (res: any) => {
         if (!tableRow)
           throw new Error(`Không tìm thấy bàn ${bestTable.code} trên hệ thống`);
 
-        if (res.id.startsWith("RES-")) {
+        if (res.id.startsWith("RES-") || String(tableRow.id).startsWith("mock-")) {
           res.table_id = tableRow.id;
         } else {
           await seatReservation(res.id, tableRow.id);
@@ -9526,7 +9219,7 @@ const onTableDropSortable = async (evt: any, table: any) => {
     if (!tableRow)
       throw new Error(`Không tìm thấy bàn ${table.code} trên hệ thống`);
 
-    if (reservation.id.startsWith("RES-")) {
+    if (reservation.id.startsWith("RES-") || String(tableRow.id).startsWith("mock-")) {
       reservation.table_id = tableRow.id;
     } else {
       await seatReservation(reservation.id, tableRow.id);
@@ -9546,6 +9239,9 @@ const onTableDropSortable = async (evt: any, table: any) => {
       "success",
       `Đã xếp bàn ${table.code} cho khách ${table.customerName}`,
     );
+    // Sync the shared reception store so ReservationDetailView,
+    // Dashboard, and Floors all see the update immediately.
+    storeAssignTable(reservation.id, table.code, tableRow.id);
     await fetchTodayReservations();
   } catch (err: any) {
     Swal.fire({
@@ -9686,7 +9382,7 @@ const handleTableDrop = async (event: DragEvent, table: any) => {
     if (!tableRow)
       throw new Error(`Không tìm thấy bàn ${table.code} trên hệ thống`);
 
-    if (reservation.id.startsWith("RES-")) {
+    if (reservation.id.startsWith("RES-") || String(tableRow.id).startsWith("mock-")) {
       reservation.table_id = tableRow.id;
     } else {
       await seatReservation(reservation.id, tableRow.id);
@@ -9706,6 +9402,9 @@ const handleTableDrop = async (event: DragEvent, table: any) => {
       "success",
       `Đã xếp bàn ${table.code} cho khách ${table.customerName}`,
     );
+    // Sync the shared reception store so ReservationDetailView,
+    // Dashboard, and Floors all see the update immediately.
+    storeAssignTable(reservation.id, table.code, tableRow.id);
     await fetchTodayReservations();
   } catch (err: any) {
     Swal.fire({

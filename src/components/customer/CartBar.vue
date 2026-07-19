@@ -3,20 +3,20 @@
     <div class="cart-info">
       <span class="cart-icon">🛒</span>
       <span class="cart-text">
-        Giỏ hàng của bạn
+        {{ $t('customer.cartBar.text') }}
       </span>
       <span class="cart-divider">|</span>
       <span class="cart-count">
-        {{ cartCount }} món
+        {{ $t('customer.cartBar.items', { count: cartCount }) }}
       </span>
       <span class="cart-divider">|</span>
       <span class="cart-total">
-        Tổng: {{ formatTotal }}
+        {{ $t('customer.cartBar.total') }} {{ formatTotal }}
       </span>
     </div>
     
     <button class="btn-view-cart" @click="handleViewCart">
-      Xem giỏ hàng 
+      {{ $t('customer.cartBar.viewCart') }}
     </button>
   </div>
 </template>

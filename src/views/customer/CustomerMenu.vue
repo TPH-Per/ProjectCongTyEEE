@@ -5,7 +5,7 @@
     <aside class="sidebar scrollbar-hide">
       <!-- Section: Danh Mục Món -->
       <div class="sidebar-section full-height">
-        <h3 class="section-title pink-text">DANH MỤC MÓN</h3>
+        <h3 class="section-title pink-text">{{ $t('customer.menu.categories') }}</h3>
         
         <button
           v-for="cat in menuCategories"
@@ -29,8 +29,8 @@
           <div class="flex items-center gap-4">
             <div class="text-4xl">👑</div>
             <div>
-              <h3 class="text-base font-bold text-white">Bạn đang xem thực đơn của gói: {{ selectedCategory.name }}</h3>
-              <p class="text-xs text-amber-200/70 mt-1">Hãy thêm vé buffet này vào giỏ hàng để chọn các món ăn kèm giá 0đ nhé!</p>
+              <h3 class="text-base font-bold text-white">{{ $t('customer.menu.packageBannerTitle', { name: selectedCategory.name }) }}</h3>
+              <p class="text-xs text-amber-200/70 mt-1">{{ $t('customer.menu.packageBannerText') }}</p>
             </div>
           </div>
           <div class="flex items-center gap-3 shrink-0">
@@ -42,7 +42,7 @@
                         ? 'bg-amber-600/20 text-amber-300 border border-amber-500/30 cursor-default pointer-events-none'
                         : 'bg-[#ff9800] hover:bg-amber-600 text-white border-none'
                     ]">
-              {{ isSetInCart(selectedCategory.id) ? '✓ Đã chọn gói' : '+ Chọn gói này' }}
+              {{ isSetInCart(selectedCategory.id) ? $t('customer.menu.packageSelected') : $t('customer.menu.selectPackage') }}
             </button>
           </div>
         </div>
@@ -51,7 +51,7 @@
           <!-- Header -->
           <div class="category-header">
             <h1>{{ selectedCategory.name }}</h1>
-            <span class="item-count">{{ displayedItems.length }} món</span>
+            <span class="item-count">{{ $t('customer.menu.itemCount', { count: displayedItems.length }) }}</span>
           </div>
 
           <!-- Loading State -->
@@ -62,8 +62,8 @@
           <!-- Empty State -->
           <div v-else-if="displayedItems.length === 0" class="empty-state">
             <div class="empty-icon">🍽️</div>
-            <h2>Không có món nào</h2>
-            <p>Danh mục này hiện chưa có món</p>
+            <h2>{{ $t('customer.menu.emptyTitle') }}</h2>
+            <p>{{ $t('customer.menu.emptyText') }}</p>
           </div>
 
           <!-- Items Grid -->
@@ -82,8 +82,8 @@
         <!-- Empty State (No Category selected) -->
         <div v-else class="empty-state">
           <div class="empty-icon">🍽️</div>
-          <h2>Chọn danh mục để xem món</h2>
-          <p>Vui lòng chọn một danh mục từ menu bên trái</p>
+          <h2>{{ $t('customer.menu.selectCategoryTitle') }}</h2>
+          <p>{{ $t('customer.menu.selectCategoryText') }}</p>
         </div>
       </main>
 
@@ -114,7 +114,7 @@
       <button
         @click="goToServiceRequest"
         class="w-14 h-14 bg-[#E8772E] hover:bg-amber-600 active:scale-95 text-white rounded-full flex items-center justify-center shadow-2xl shadow-[#E8772E]/20 border-2 border-white/10 transition-all hover:rotate-12 select-none animate-bounce"
-        title="Gọi phục vụ"
+        :title="$t('customer.menu.callService')"
       >
         <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
@@ -141,6 +141,7 @@ import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useCustomerStore } from '@/stores/customerStore';
 import { useCustomerSession } from '@/composables/useCustomerSession';
+import { useI18n } from 'vue-i18n';
 import MenuItemDetailModal from '@/components/customer/MenuItemDetailModal.vue';
 import MenuItemCard from '@/components/customer/MenuItemCard.vue';
 import CategoryTabs from '@/components/customer/CategoryTabs.vue';
@@ -149,6 +150,7 @@ import type { MenuCategory, MenuItem } from '@/types/customer';
 import { applyPackage, calculateItemUnitPrice } from '@/utils/packageRules';
 
 const store = useCustomerStore();
+const { t } = useI18n();
 const router = useRouter();
 const { syncCart } = useCustomerSession();
 
@@ -359,7 +361,7 @@ const handleAddToCart = (item: MenuItem) => {
     store.addToCart(modifiedItem, 1);
   }
   syncCart();
-  store.addNotification(`Đã thêm 1 x ${modifiedItem.name} vào giỏ hàng`, 'success');
+  store.addNotification(t('customer.menu.addedToCart', { qty: 1, name: modifiedItem.name }), 'success');
 };
 
 // Update cart quantity from modal
@@ -397,7 +399,7 @@ function confirmDetailAdd(item: MenuItem, quantity: number, note: string) {
       if (added) added.note = note;
     }
     syncCart();
-    store.addNotification(`Đã thêm ${quantity} x ${item.name} vào giỏ hàng`, 'success');
+    store.addNotification(t('customer.menu.addedToCart', { qty: quantity, name: item.name }), 'success');
   }
   closeDetail();
 }
@@ -445,7 +447,7 @@ function addSetToCart(cat: MenuCategory) {
   if (setItem) {
     store.addToCart(setItem, 1)
     syncCart()
-    store.addNotification(`Đã chọn gói ${cat.name}`, 'success')
+    store.addNotification(t('customer.menu.packageSelectedNotif', { name: cat.name }), 'success')
   }
 }
 </script>

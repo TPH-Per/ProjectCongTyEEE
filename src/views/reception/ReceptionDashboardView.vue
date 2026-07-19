@@ -80,7 +80,7 @@
       <div class="lg:col-span-3 space-y-6">
         
         <!-- Enhanced Stat Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <!-- Card 1: Bàn đang sử dụng -->
           <div 
             @click="scrollToSection('active-tables-section')"
@@ -130,6 +130,23 @@
             </div>
             <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-500 flex items-center justify-center border border-blue-100">
               <Calendar class="w-6 h-6" />
+            </div>
+          </div>
+
+          <!-- Card 4: Doanh thu hôm nay -->
+          <div 
+            @click="scrollToSection('revenue-chart-section')"
+            class="bg-white border border-[#E8772E]/10 rounded-2xl p-5 shadow-sm hover:shadow-md hover:scale-[1.02] cursor-pointer transition-all duration-200 flex items-center justify-between"
+          >
+            <div>
+              <div class="text-xs font-bold text-gray-500 uppercase tracking-wide">DOANH THU HÔM NAY</div>
+              <div class="text-2xl font-black text-green-600 mt-1">{{ dashboardExtraStats.totalRevenue.toLocaleString('vi-VN') }}đ</div>
+              <div class="text-xs text-gray-500 mt-1 font-bold">
+                AOV: {{ dashboardExtraStats.averageOrderValue.toLocaleString('vi-VN') }}đ · {{ dashboardExtraStats.totalCustomers }} khách
+              </div>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-green-50 text-green-500 flex items-center justify-center border border-green-100">
+              <Wallet class="w-6 h-6" />
             </div>
           </div>
         </div>
@@ -245,6 +262,54 @@
             </div>
           </div>
           <div v-else class="text-sm text-gray-400 text-center py-4">{{ t('reception.no_active_shifts') }}</div>
+        </div>
+
+        <!-- Revenue Chart + Top Items -->
+        <div id="revenue-chart-section" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <!-- Revenue Chart (2 cols) -->
+          <div class="lg:col-span-2 bg-white border border-[#E8772E]/10 rounded-2xl p-6 shadow-sm">
+            <div class="flex items-center justify-between border-b pb-3 mb-4">
+              <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wider flex items-center gap-2">
+                <TrendingUp class="w-4 h-4 text-[#E8772E]" />Doanh thu 7 ngày gần nhất
+              </h3>
+              <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700">
+                Tổng: {{ revenueChartData.reduce((s, d) => s + d.revenue, 0).toLocaleString('vi-VN') }}đ
+              </span>
+            </div>
+            <div class="relative h-64">
+              <canvas ref="revenueChartCanvas"></canvas>
+            </div>
+          </div>
+
+          <!-- Top Selling Items (1 col) -->
+          <div class="bg-white border border-[#E8772E]/10 rounded-2xl p-6 shadow-sm">
+            <div class="flex items-center justify-between border-b pb-3 mb-4">
+              <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wider flex items-center gap-2">
+                <Award class="w-4 h-4 text-[#E8772E]" />Món bán chạy
+              </h3>
+            </div>
+            <div class="space-y-3">
+              <div
+                v-for="(item, idx) in topItemsData"
+                :key="item.id"
+                class="flex items-center gap-3 p-2 rounded-xl hover:bg-gray-50 transition-colors"
+              >
+                <span
+                  :class="[
+                    'w-7 h-7 rounded-lg flex items-center justify-center text-xs font-black shrink-0',
+                    idx === 0 ? 'bg-yellow-100 text-yellow-700' :
+                    idx === 1 ? 'bg-gray-200 text-gray-600' :
+                    idx === 2 ? 'bg-orange-100 text-orange-700' :
+                    'bg-gray-100 text-gray-400'
+                  ]"
+                >{{ idx + 1 }}</span>
+                <div class="flex-1 min-w-0">
+                  <div class="text-xs font-bold text-[#3D2817] truncate">{{ item.name }}</div>
+                  <div class="text-[10px] text-gray-500">{{ item.sold }} suất · {{ item.revenue.toLocaleString('vi-VN') }}đ</div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Active Tables List -->
@@ -726,7 +791,7 @@
 <script setup lang="ts">
 import Swal from 'sweetalert2'
 import { useLanguageStore } from '@/stores/useLanguageStore'
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/composables/useAuth'
@@ -755,8 +820,18 @@ import {
   Bell,
   CheckCircle,
   XCircle,
-  Eye
+  Eye,
+  Wallet,
+  Award
 } from 'lucide-vue-next'
+import { Chart, registerables } from 'chart.js'
+import {
+  dashboardRevenueData,
+  dashboardTopItems,
+  dashboardExtraStats,
+} from '@/data/dashboardMockData'
+
+Chart.register(...registerables)
 
 interface UINotification {
   id: string
@@ -925,6 +1000,75 @@ const dbNotifications = ref<UINotification[]>([])
 const showAllNotifications = ref(false)
 const seenNotificationIds = ref(new Set<string>())
 
+// Revenue chart + top items (mock data)
+const revenueChartData = dashboardRevenueData
+const topItemsData = dashboardTopItems
+const revenueChartCanvas = ref<HTMLCanvasElement | null>(null)
+let chartInstance: Chart | null = null
+
+function initRevenueChart() {
+  if (!revenueChartCanvas.value) return
+  if (chartInstance) chartInstance.destroy()
+
+  const labels = revenueChartData.map(d =>
+    new Date(d.date).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' }),
+  )
+  const data = revenueChartData.map(d => d.revenue)
+
+  chartInstance = new Chart(revenueChartCanvas.value, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Doanh thu (đ)',
+          data,
+          borderColor: '#E8772E',
+          backgroundColor: 'rgba(232,119,46,0.08)',
+          borderWidth: 2,
+          fill: true,
+          tension: 0.35,
+          pointBackgroundColor: '#E8772E',
+          pointBorderColor: '#fff',
+          pointBorderWidth: 1.5,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (ctx) =>
+              `${ctx.dataset.label}: ${Number(ctx.parsed.y).toLocaleString('vi-VN')}đ`,
+          },
+        },
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: { font: { size: 10 }, color: '#9ca3af' },
+        },
+        y: {
+          grid: { color: '#f3f4f6' },
+          ticks: {
+            font: { size: 10 },
+            color: '#9ca3af',
+            callback: (v) =>
+              Number(v) >= 1_000_000
+                ? `${Math.round(Number(v) / 1_000_000)}tr`
+                : Number(v).toLocaleString('vi-VN'),
+          },
+        },
+      },
+    },
+  })
+}
+
 // Local mock notifications as requested
 const localMockNotifications = ref<UINotification[]>([
   {
@@ -990,6 +1134,9 @@ onMounted(() => {
   notificationPollInterval = setInterval(() => {
     fetchNotificationsOnly()
   }, 30000)
+
+  // Revenue chart — init on next tick so canvas is mounted
+  nextTick(() => initRevenueChart())
 })
 
 onUnmounted(() => {
@@ -997,6 +1144,10 @@ onUnmounted(() => {
   cleanups.length = 0
   clearInterval(timerId)
   clearInterval(notificationPollInterval)
+  if (chartInstance) {
+    chartInstance.destroy()
+    chartInstance = null
+  }
 })
 
 const formattedTime = computed(() => {

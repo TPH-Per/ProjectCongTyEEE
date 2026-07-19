@@ -7,7 +7,7 @@
           <div class="header-left">
             <span class="logo-icon">📋</span>
             <div>
-              <h2 class="modal-title">Theo dõi món ăn</h2>
+              <h2 class="modal-title">{{ $t('customer.tracking.title') }}</h2>
               <p class="modal-subtitle">Bàn {{ tableNumber }} • {{ items.length }} món</p>
             </div>
           </div>
@@ -23,7 +23,7 @@
             </div>
             <div class="status-info">
               <div class="status-count">{{ servedItems.length }}</div>
-              <div class="status-label">Đã phục vụ</div>
+              <div class="status-label">{{ $t('customer.tracking.served') }}</div>
             </div>
           </div>
 
@@ -34,7 +34,7 @@
             </div>
             <div class="status-info">
               <div class="status-count">{{ preparingItems.length }}</div>
-              <div class="status-label">Đang chế biến</div>
+              <div class="status-label">{{ $t('customer.tracking.preparing') }}</div>
             </div>
           </div>
 
@@ -45,7 +45,7 @@
             </div>
             <div class="status-info">
               <div class="status-count">{{ pendingItems.length }}</div>
-              <div class="status-label">Chờ xử lý</div>
+              <div class="status-label">{{ $t('customer.tracking.pending') }}</div>
             </div>
           </div>
         </div>
@@ -53,21 +53,21 @@
         <!-- Progress Overview Bars -->
         <div class="progress-overview">
           <div class="overview-item">
-            <span class="overview-label">Đã phục vụ</span>
+            <span class="overview-label">{{ $t('customer.tracking.served') }}</span>
             <div class="overview-bar">
               <div class="overview-fill served" :style="{ width: servedPercent + '%' }"></div>
             </div>
             <span class="overview-value">{{ servedPercent }}%</span>
           </div>
           <div class="overview-item">
-            <span class="overview-label">Đang chế biến</span>
+            <span class="overview-label">{{ $t('customer.tracking.preparing') }}</span>
             <div class="overview-bar">
               <div class="overview-fill preparing" :style="{ width: preparingPercent + '%' }"></div>
             </div>
             <span class="overview-value">{{ preparingPercent }}%</span>
           </div>
           <div class="overview-item">
-            <span class="overview-label">Chờ xử lý</span>
+            <span class="overview-label">{{ $t('customer.tracking.pending') }}</span>
             <div class="overview-bar">
               <div class="overview-fill pending" :style="{ width: pendingPercent + '%' }"></div>
             </div>
@@ -81,25 +81,25 @@
             :class="['tab-btn', { active: activeFilter === 'all' }]"
             @click="activeFilter = 'all'"
           >
-            Tất cả ({{ items.length }})
+            {{ $t('customer.tracking.filterAll', { count: items.length }) }}
           </button>
           <button 
             :class="['tab-btn', { active: activeFilter === 'served' }]"
             @click="activeFilter = 'served'"
           >
-            Đã phục vụ ({{ servedItems.length }})
+            {{ $t('customer.tracking.filterServed', { count: servedItems.length }) }}
           </button>
           <button 
             :class="['tab-btn', { active: activeFilter === 'preparing' }]"
             @click="activeFilter = 'preparing'"
           >
-            Đang chế biến ({{ preparingItems.length }})
+            {{ $t('customer.tracking.filterPreparing', { count: preparingItems.length }) }}
           </button>
           <button 
             :class="['tab-btn', { active: activeFilter === 'pending' }]"
             @click="activeFilter = 'pending'"
           >
-            Chờ xử lý ({{ pendingItems.length }})
+            {{ $t('customer.tracking.filterPending', { count: pendingItems.length }) }}
           </button>
         </div>
 
@@ -114,8 +114,8 @@
               <div class="item-info">
                 <h3 class="item-name">{{ item.name }}</h3>
                 <div class="item-meta">
-                  <span class="item-quantity">SL: {{ item.quantity }}</span>
-                  <span class="item-time">Đặt lúc {{ item.orderedTime }}</span>
+                  <span class="item-quantity">{{ $t('customer.tracking.quantityLabel') }} {{ item.quantity }}</span>
+                  <span class="item-time">{{ $t('customer.tracking.orderedAt', { time: item.orderedTime }) }}</span>
                 </div>
               </div>
               <div class="item-status-badge">
@@ -144,7 +144,7 @@
                   <span class="dot-icon">✓</span>
                 </div>
                 <div class="step-info">
-                  <div class="step-label">Đã đặt</div>
+                  <div class="step-label">{{ $t('customer.tracking.stepOrdered') }}</div>
                   <div class="step-time">{{ item.orderedTime }}</div>
                 </div>
               </div>
@@ -154,7 +154,7 @@
                   <span class="dot-icon">✓</span>
                 </div>
                 <div class="step-info">
-                  <div class="step-label">Đang chế biến</div>
+                  <div class="step-label">{{ $t('customer.tracking.preparing') }}</div>
                   <div class="step-time">{{ item.status === 'preparing' || item.status === 'served' ? formatTime(item.orderedTime) : '--:--' }}</div>
                 </div>
               </div>
@@ -164,7 +164,7 @@
                   <span class="dot-icon">✓</span>
                 </div>
                 <div class="step-info">
-                  <div class="step-label">Đã phục vụ</div>
+                  <div class="step-label">{{ $t('customer.tracking.served') }}</div>
                   <div class="step-time">{{ item.servedTime || '--:--' }}</div>
                 </div>
               </div>
@@ -174,18 +174,18 @@
           <!-- Empty State -->
           <div v-if="filteredItems.length === 0" class="empty-state">
             <div class="empty-icon">🍽️</div>
-            <p class="empty-text">Không có món nào</p>
-            <p class="empty-subtext">Vui lòng gọi món để theo dõi trạng thái.</p>
+            <p class="empty-text">{{ $t('customer.tracking.emptyTitle') }}</p>
+            <p class="empty-subtext">{{ $t('customer.tracking.emptyText') }}</p>
           </div>
         </div>
 
         <!-- Footer -->
         <div class="modal-footer">
           <button class="btn-refresh" @click="refreshStatus">
-            Làm mới
+            {{ $t('customer.tracking.refresh') }}
           </button>
           <button class="btn-close" @click="$emit('close')">
-            Đóng
+            {{ $t('customer.tracking.close') }}
           </button>
         </div>
       </div>
@@ -195,6 +195,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{
   items: Array<{
@@ -212,6 +213,8 @@ const emit = defineEmits<{
   close: []
   refresh: []
 }>()
+
+const { t } = useI18n()
 
 const activeFilter = ref<'all' | 'served' | 'preparing' | 'pending'>('all')
 
@@ -239,9 +242,9 @@ const filteredItems = computed(() => {
 
 function getStatusText(status: string): string {
   const statusMap: Record<string, string> = {
-    'served': 'Đã phục vụ',
-    'preparing': 'Đang chế biến',
-    'pending': 'Chờ xử lý'
+    'served': t('customer.tracking.served'),
+    'preparing': t('customer.tracking.preparing'),
+    'pending': t('customer.tracking.pending')
   }
   return statusMap[status] || status
 }

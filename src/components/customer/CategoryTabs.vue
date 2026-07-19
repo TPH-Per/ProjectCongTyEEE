@@ -9,7 +9,7 @@
         @click="selectTab('all')"
         type="button"
       >
-        <span class="tab-name">Tất cả</span>
+        <span class="tab-name">{{ $t('customer.categoryTabs.all') }}</span>
         <span class="tab-count">{{ totalItems }}</span>
       </button>
 

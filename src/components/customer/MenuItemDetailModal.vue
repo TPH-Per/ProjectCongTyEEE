@@ -15,7 +15,7 @@
           
           <!-- FIX: Thêm @click handler và type="button" -->
           <button class="btn-cart" @click="handleGoToCart" type="button">
-            Giỏ ({{ cartCount }})
+            {{ $t('customer.itemDetail.cart', { count: cartCount }) }}
           </button>
         </div>
 
@@ -54,11 +54,11 @@
           <div class="info-column">
             <h1 class="item-name">{{ item.name }}</h1>
             <div class="item-price" :class="{ free: item.price === 0 }">
-              {{ item.price === 0 ? '0K (Trong gói buffet)' : item.price_display }}
+              {{ item.price === 0 ? $t('customer.itemDetail.inBuffetPackage') : item.price_display }}
             </div>
 
             <div class="description-box">
-              <h3 class="section-label">MÔ TẢ</h3>
+              <h3 class="section-label">{{ $t('customer.itemDetail.descriptionLabel') }}</h3>
               <p class="description-text">
                 {{ item.description || getDefaultDescription() }}
               </p>
@@ -67,18 +67,18 @@
             <div class="attributes-row">
               <div class="attr-card">
                 <span class="attr-icon">🚫</span>
-                <span class="attr-label">Dị ứng</span>
-                <span class="attr-value">Không đậu phộng</span>
+                <span class="attr-label">{{ $t('customer.itemDetail.allergyLabel') }}</span>
+                <span class="attr-value">{{ $t('customer.itemDetail.allergyValue') }}</span>
               </div>
               <div class="attr-card">
                 <span class="attr-icon">🔥</span>
-                <span class="attr-label">Độ cay</span>
-                <span class="attr-value highlight">Nhẹ</span>
+                <span class="attr-label">{{ $t('customer.itemDetail.spicinessLabel') }}</span>
+                <span class="attr-value highlight">{{ $t('customer.itemDetail.spicinessValue') }}</span>
               </div>
               <div class="attr-card">
                 <span class="attr-icon">⏱️</span>
-                <span class="attr-label">Thời gian</span>
-                <span class="attr-value">8-10 phút</span>
+                <span class="attr-label">{{ $t('customer.itemDetail.prepTimeLabel') }}</span>
+                <span class="attr-value">{{ $t('customer.itemDetail.prepTimeValue') }}</span>
               </div>
             </div>
           </div>
@@ -88,7 +88,7 @@
         <div class="modal-footer">
           <div class="footer-row">
             <div class="quantity-section">
-              <label class="section-label">SỐ LƯỢNG</label>
+              <label class="section-label">{{ $t('customer.itemDetail.quantityLabel') }}</label>
               <div class="quantity-control">
                 <button class="qty-btn" @click="decreaseQty" type="button">-</button>
                 <span class="qty-value">{{ quantity }}</span>
@@ -97,18 +97,18 @@
             </div>
 
             <div class="notes-section">
-              <label class="section-label">GHI CHÚ CHO BẾP</label>
+              <label class="section-label">{{ $t('customer.itemDetail.chefNoteLabel') }}</label>
               <input 
                 v-model="chefNote" 
                 type="text"
                 class="note-input"
-                placeholder="VD: Không hành, ít cay, nướng chín kỹ..."
+                :placeholder="$t('customer.itemDetail.chefNotePlaceholder')"
               />
             </div>
           </div>
 
           <button class="btn-add-cart" @click="handleAddToCart" type="button">
-            THÊM VÀO GIỎ HÀNG
+            {{ $t('customer.itemDetail.addToCart') }}
           </button>
         </div>
       </div>
@@ -119,6 +119,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import type { MenuItem } from '@/data/menuData'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{
   item: MenuItem | null
@@ -131,6 +132,8 @@ const emit = defineEmits<{
   (e: 'add', item: MenuItem, quantity: number, note: string): void
   (e: 'go-to-cart'): void
 }>()
+
+const { t } = useI18n()
 
 const chefNote = ref('')
 const quantity = ref(1)
@@ -217,10 +220,10 @@ const thumbnails = computed(() => {
   const mainGradient = getGradientByName(props.item.name)
   
   return [
-    { emoji: mainEmoji, gradient: mainGradient, label: 'Tổng quan' },
-    { emoji: getDetailEmoji(name), gradient: getDetailGradient(name), label: 'Chế biến' },
-    { emoji: '🌾', gradient: 'linear-gradient(135deg, #8B4513 0%, #A0522D 100%)', label: 'Nguyên liệu' },
-    { emoji: '👨‍🍳', gradient: 'linear-gradient(135deg, #434343 0%, #000000 100%)', label: 'Trình bày' }
+    { emoji: mainEmoji, gradient: mainGradient, label: t('customer.itemDetail.overview') },
+    { emoji: getDetailEmoji(name), gradient: getDetailGradient(name), label: t('customer.itemDetail.preparation') },
+    { emoji: '🌾', gradient: 'linear-gradient(135deg, #8B4513 0%, #A0522D 100%)', label: t('customer.itemDetail.ingredients') },
+    { emoji: '👨‍🍳', gradient: 'linear-gradient(135deg, #434343 0%, #000000 100%)', label: t('customer.itemDetail.plating') }
   ]
 })
 
@@ -237,11 +240,11 @@ const currentGradient = computed(() => {
 const getDefaultDescription = () => {
   if (!props.item) return ''
   const name = props.item.name.toLowerCase()
-  if (name.includes('wagyu') || name.includes('bò') || name.includes('beef')) 
-    return 'Thịt bò vân mỡ cẩm thạch tuyệt hảo, được chế biến với nước sốt độc quyền đậm đà hương vị truyền thống.'
-  if (name.includes('vé') || name.includes('ticket')) 
-    return 'Vé buffet cao cấp bao gồm toàn bộ thực đơn hơn 300 món ăn đa dạng từ khai vị, nướng, lẩu đến tráng miệng.'
-  return 'Món ăn được chế biến từ nguyên liệu tươi ngon, đảm bảo chất lượng và vệ sinh an toàn thực phẩm.'
+  if (name.includes('wagyu') || name.includes('bò') || name.includes('beef'))
+    return t('customer.itemDetail.defaultDescBeef')
+  if (name.includes('vé') || name.includes('ticket'))
+    return t('customer.itemDetail.defaultDescTicket')
+  return t('customer.itemDetail.defaultDescGeneric')
 }
 
 // FIX: Handler functions rõ ràng

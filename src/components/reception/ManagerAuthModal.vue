@@ -171,6 +171,11 @@ const reasons = [
   'Khách đổi ý',
   'Nhân viên nhập sai',
   'Bếp làm sai/Hết nguyên liệu',
+  'Lỗi thanh toán',
+  'Lỗi hệ thống',
+  'Phiếu trùng lặp',
+  'Khách hàng phàn nàn',
+  'Yêu cầu từ quản lý',
 ];
 
 const title = computed(() => {
@@ -181,6 +186,10 @@ const title = computed(() => {
       return t('reception.auth.title_cancel_table', '⚠️ Xác nhận hủy bàn');
     case 'EDIT_PRICE':
       return t('reception.auth.title_edit_price', '⚠️ Xác nhận sửa giá');
+    case 'CANCEL_BILL':
+      return t('reception.auth.title_cancel_bill', '⚠️ Xác nhận hủy phiếu');
+    case 'EDIT_BILL':
+      return t('reception.auth.title_edit_bill', '⚠️ Xác nhận sửa phiếu');
     default:
       return t('reception.auth.title_default', '⚠️ Xác nhận quyền quản lý');
   }

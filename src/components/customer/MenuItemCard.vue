@@ -5,7 +5,7 @@
     <div class="item-image" :style="{ background: imageGradient }">
       <span class="item-emoji">{{ itemEmoji }}</span>
       <div v-if="item.price === 0" class="badge-free">
-        Trong gói
+        {{ $t('customer.menuItem.inPackage') }}
       </div>
     </div>
 

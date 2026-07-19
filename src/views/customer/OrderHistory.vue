@@ -5,19 +5,19 @@
     <!-- Sub Header Bar -->
     <div class="px-6 md:px-8 py-4 bg-[#1a110a] border-b border-[#2d1e12] flex items-center justify-between shrink-0">
       <div>
-        <h1 class="text-lg md:text-xl font-black text-white font-serif tracking-wide">Lịch sử gọi món</h1>
-        <p class="text-[10px] text-gray-400 mt-0.5">Theo dõi chi tiết món ăn đang chuẩn bị và hóa đơn tại bàn</p>
+        <h1 class="text-lg md:text-xl font-black text-white font-serif tracking-wide">{{ $t('customer.orderHistory.title') }}</h1>
+        <p class="text-[10px] text-gray-400 mt-0.5">{{ $t('customer.orderHistory.subtitle') }}</p>
       </div>
 
       <div class="bg-[#2a1b10] border border-[#442c19] rounded-lg px-3.5 py-1.5 text-xs flex items-center gap-2">
-        <span class="text-gray-400 font-bold">Tổng gọi:</span>
-        <span class="text-[#E8772E] font-black text-xs">{{ totalItemsCount }} món</span>
+        <span class="text-gray-400 font-bold">{{ $t('customer.orderHistory.totalOrdered') }}</span>
+        <span class="text-[#E8772E] font-black text-xs">{{ $t('customer.orderHistory.totalOrderedValue', { count: totalItemsCount }) }}</span>
       </div>
     </div>
 
     <!-- Main Content Split -->
     <div class="flex-1 flex flex-col lg:flex-row overflow-hidden">
-      <!-- Ordered Items list (Wood background, scrollable) -->
+      <!-- Aggregated Items list (all items from all orders in one bill) -->
       <div class="flex-1 overflow-y-auto p-6 md:p-8 flex flex-col gap-4">
         <div v-if="orders.length === 0" 
              class="flex-1 flex flex-col items-center justify-center text-center p-12 gap-4">
@@ -25,41 +25,30 @@
             🥩
           </div>
           <div>
-            <h3 class="text-base font-bold text-white font-serif">Chưa gọi món nào</h3>
-            <p class="text-xs text-gray-400 mt-1">Các món ăn sau khi bạn gửi bếp thành công sẽ xuất hiện ở đây.</p>
+            <h3 class="text-base font-bold text-white font-serif">{{ $t('customer.orderHistory.emptyTitle') }}</h3>
+            <p class="text-xs text-gray-400 mt-1">{{ $t('customer.orderHistory.emptyText') }}</p>
           </div>
         </div>
 
         <template v-else>
-          <!-- Loop through orders (rendered in White cards) -->
-          <div v-for="order in orders" :key="order.id" 
-               class="bg-white border border-gray-200 rounded-2xl p-5 flex flex-col gap-3.5 shadow-sm">
-            <!-- Order Header -->
+          <!-- Aggregated Bill: all items merged into one list -->
+          <div class="bg-white border border-gray-200 rounded-2xl p-5 flex flex-col gap-3.5 shadow-sm">
+            <!-- Bill Header -->
             <div class="flex items-center justify-between border-b border-gray-100 pb-2.5">
               <div>
-                <span class="text-[10px] text-gray-500 font-bold uppercase">Mã Order:</span>
-                <span class="text-xs font-black text-[#E8772E] ml-1.5">{{ order.id.slice(-8).toUpperCase() }}</span>
+                <span class="text-[10px] text-gray-500 font-bold uppercase">{{ $t('customer.orderHistory.billTitle') }}</span>
+                <span class="text-xs font-black text-[#E8772E] ml-1.5">{{ orders.length }} {{ $t('customer.orderHistory.totalOrdered') }}</span>
               </div>
               <div class="flex items-center gap-3">
                 <span class="text-[10px] text-[#666666] font-bold">
-                  {{ formatTime(order.createdAt) }}
-                </span>
-                <!-- Order Status -->
-                <span :class="[
-                  'text-[9px] font-black px-2.5 py-1 rounded-full border uppercase tracking-wider',
-                  order.status === 'confirmed' ? 'bg-amber-500/10 text-amber-600 border-amber-500/20' :
-                  order.status === 'cooking' ? 'bg-blue-500/10 text-blue-500 border-blue-500/20 animate-pulse' :
-                  order.status === 'served' ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' :
-                  'bg-purple-500/10 text-purple-600 border-purple-500/20'
-                ]">
-                  {{ getStatusLabel(order.status) }}
+                  {{ formatTime(orders[0].createdAt) }}
                 </span>
               </div>
             </div>
 
-            <!-- Ordered Dishes inside this Order -->
+            <!-- All ordered dishes aggregated -->
             <div class="flex flex-col gap-2.5">
-              <div v-for="item in order.items" :key="item.menuItemId"
+              <div v-for="item in aggregatedItems" :key="item.key"
                    class="flex items-center justify-between text-xs text-[#333333]">
                 <div class="flex items-start gap-2.5">
                   <span class="w-5.5 h-5.5 bg-gray-105 rounded flex items-center justify-center text-[10px] text-gray-600 font-bold border border-gray-200">
@@ -87,34 +76,34 @@
         
         <div class="flex flex-col gap-5">
           <h3 class="text-sm font-black text-[#333333] border-b border-gray-250 pb-3 flex items-center gap-2 font-serif uppercase tracking-wider">
-            <span>🧾</span> Hóa đơn tạm tính tại bàn
+            <span>🧾</span> {{ $t('customer.orderHistory.billTitle') }}
           </h3>
 
           <div class="flex flex-col gap-3.5 text-xs">
             <div class="flex items-center justify-between text-[#666666] font-bold">
-              <span>Tổng tiền món:</span>
+              <span>{{ $t('customer.orderHistory.subtotal') }}</span>
               <span class="text-[#333333] font-black">{{ formatPrice(billSummary.subtotal) }}</span>
             </div>
 
             <div class="flex items-center justify-between text-[#666666] font-bold">
-              <span>Phí dịch vụ phục vụ (5%):</span>
+              <span>{{ $t('customer.orderHistory.serviceCharge') }}</span>
               <span class="text-[#333333] font-black">{{ formatPrice(billSummary.serviceCharge) }}</span>
             </div>
 
             <div class="flex items-center justify-between text-[#666666] font-bold">
-              <span>Thuế VAT (8%):</span>
+              <span>{{ $t('customer.orderHistory.vat') }}</span>
               <span class="text-[#333333] font-black">{{ formatPrice(billSummary.vat) }}</span>
             </div>
 
             <div v-if="billSummary.discount > 0" class="flex items-center justify-between text-rose-600 font-bold">
-              <span>Chiết khấu/Giảm giá:</span>
+              <span>{{ $t('customer.orderHistory.discount') }}</span>
               <span>-{{ formatPrice(billSummary.discount) }}</span>
             </div>
 
             <div class="border-t border-gray-200 my-1"></div>
 
             <div class="flex items-center justify-between text-sm font-black">
-              <span class="text-[#333333]">Tổng cộng tạm tính:</span>
+              <span class="text-[#333333]">{{ $t('customer.orderHistory.grandTotal') }}</span>
               <!-- Red price text -->
               <span class="text-[#C62828] text-lg font-black">{{ formatPrice(billSummary.total) }}</span>
             </div>
@@ -124,7 +113,7 @@
           <div class="bg-gray-100 border border-gray-200 rounded-xl p-3.5 flex items-start gap-2.5">
             <span class="text-blue-500 mt-0.5 text-xs">ℹ</span>
             <p class="text-[10px] text-[#666666] leading-relaxed font-bold">
-              Để tiến hành thanh toán tại bàn hoặc yêu cầu xuất hóa đơn đỏ VAT, vui lòng bấm nút bên dưới. Phục vụ sẽ đến hỗ trợ bạn ngay lập tức.
+              {{ $t('customer.orderHistory.paymentHint') }}
             </p>
           </div>
         </div>
@@ -132,7 +121,7 @@
         <div class="flex flex-col gap-3 mt-6 lg:mt-0">
           <button @click="requestVATInvoice"
                   class="w-full h-12 rounded-xl bg-white border border-gray-200 hover:bg-gray-50 text-[#333333] font-bold text-xs transition-colors active:scale-95 shadow-sm">
-            📋 Yêu cầu hóa đơn VAT
+            {{ $t('customer.orderHistory.requestVAT') }}
           </button>
           
           <button @click="triggerPayment"
@@ -144,7 +133,7 @@
                       : 'bg-[#E8772E] text-white hover:bg-amber-600 shadow-[#E8772E]/10'
                   ]">
             <span>💵</span>
-            {{ store.session?.status === 'waiting_payment' ? 'Chờ phục vụ thanh toán...' : 'Yêu Cầu Thanh Toán' }}
+            {{ store.session?.status === 'waiting_payment' ? $t('customer.orderHistory.waitingPayment') : $t('customer.orderHistory.requestPayment') }}
           </button>
         </div>
 
@@ -158,9 +147,11 @@ import { computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useCustomerStore } from '@/stores/customerStore';
 import Swal from 'sweetalert2';
+import { useI18n } from 'vue-i18n';
 
 const store = useCustomerStore();
 const router = useRouter();
+const { t, locale } = useI18n();
 
 const orders = computed(() => store.orders);
 
@@ -169,6 +160,34 @@ const totalItemsCount = computed(() => {
   return orders.value.reduce((total, order) => {
     return total + order.items.reduce((sum, item) => sum + item.quantity, 0);
   }, 0);
+});
+
+// Aggregate all items from all orders into a single flat bill.
+// Items with the same name (and same price) are merged and quantities summed.
+const aggregatedItems = computed(() => {
+  const map = new Map<string, { key: string; name: string; price: number; quantity: number; note: string }>();
+  for (const order of orders.value) {
+    for (const item of order.items) {
+      const key = `${item.name}__${item.price}`;
+      const existing = map.get(key);
+      if (existing) {
+        existing.quantity += item.quantity;
+        // Append note if different
+        if (item.note && !existing.note.includes(item.note)) {
+          existing.note = existing.note ? `${existing.note}; ${item.note}` : item.note;
+        }
+      } else {
+        map.set(key, {
+          key,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+          note: item.note || '',
+        });
+      }
+    }
+  }
+  return Array.from(map.values());
 });
 
 // Calculate accumulated bill totals
@@ -199,14 +218,14 @@ onMounted(async () => {
 
 function triggerPayment() {
   Swal.fire({
-    title: 'Gửi yêu cầu thanh toán?',
-    text: 'Nhân viên sẽ mang hóa đơn đến thanh toán trực tiếp tại bàn của bạn.',
+    title: t('customer.orderHistory.confirmPaymentTitle'),
+    text: t('customer.orderHistory.confirmPaymentText'),
     icon: 'question',
     showCancelButton: true,
     confirmButtonColor: '#E8772E',
     cancelButtonColor: '#3085d6',
-    confirmButtonText: 'Đúng, thanh toán!',
-    cancelButtonText: 'Hủy'
+    confirmButtonText: t('customer.orderHistory.confirmPaymentButton'),
+    cancelButtonText: t('customer.exitTable.cancelButton')
   }).then(async (result) => {
     if (result.isConfirmed) {
       await store.requestPayment();
@@ -224,13 +243,13 @@ function triggerPayment() {
 
 function requestVATInvoice() {
   Swal.fire({
-    title: 'Yêu cầu hóa đơn đỏ?',
-    text: 'Vui lòng cung cấp thông tin xuất hóa đơn cho phục vụ khi thanh toán.',
+    title: t('customer.orderHistory.confirmVATTitle'),
+    text: t('customer.orderHistory.confirmVATText'),
     icon: 'info',
     showCancelButton: true,
     confirmButtonColor: '#E8772E',
-    confirmButtonText: 'Gửi yêu cầu',
-    cancelButtonText: 'Hủy'
+    confirmButtonText: t('customer.orderHistory.confirmVATButton'),
+    cancelButtonText: t('customer.exitTable.cancelButton')
   }).then(async (result) => {
     if (result.isConfirmed) {
       await store.requestInvoice();
@@ -240,21 +259,23 @@ function requestVATInvoice() {
 
 function getStatusLabel(status: string): string {
   const labels: Record<string, string> = {
-    confirmed: 'Đã nhận',
-    cooking: 'Đang nấu',
-    served: 'Đã phục vụ',
-    completed: 'Đã xong',
-    paid: 'Đã thanh toán'
+    confirmed: t('customer.orderHistory.statusConfirmed'),
+    cooking: t('customer.orderHistory.statusCooking'),
+    served: t('customer.orderHistory.statusServed'),
+    completed: t('customer.orderHistory.statusCompleted'),
+    paid: t('customer.orderHistory.statusPaid')
   };
   return labels[status] || status;
 }
 
+const priceLocale = computed(() => locale.value === 'ja' ? 'ja-JP' : locale.value === 'en' ? 'en-US' : 'vi-VN');
+
 function formatPrice(val: number): string {
-  return val.toLocaleString('vi-VN') + 'đ';
+  return val.toLocaleString(priceLocale.value) + 'đ';
 }
 
 function formatTime(date: any): string {
   const d = new Date(date);
-  return d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+  return d.toLocaleTimeString(priceLocale.value, { hour: '2-digit', minute: '2-digit' });
 }
 </script>

@@ -1,5 +1,16 @@
 // File: src/types/customer.ts
 
+// Branch
+export interface Branch {
+  id: string;
+  code: string;
+  name: string;
+  name_en?: string;
+  address?: string;
+  phone?: string;
+  isActive: boolean;
+}
+
 // Session & Table
 export interface CustomerSession {
   id: string;
@@ -27,6 +38,8 @@ export interface Area {
   id: string;
   name: string;
   tables: Table[];
+  code?: string;
+  name_en?: string;
 }
 
 // Menu

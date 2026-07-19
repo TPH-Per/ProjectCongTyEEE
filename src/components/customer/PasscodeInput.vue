@@ -4,12 +4,13 @@
     
     <!-- Top-left Back Button -->
     <button @click="emit('back')" 
+            type="button"
             class="absolute top-6 left-6 flex items-center gap-1.5 text-xs font-bold text-gray-500 hover:text-white bg-gray-900 border border-gray-800 hover:border-gray-700 px-3.5 py-2 rounded-xl transition-all active:scale-95 select-none">
       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <line x1="19" y1="12" x2="5" y2="12"></line>
         <polyline points="12 19 5 12 12 5"></polyline>
       </svg>
-      Quay lại
+      {{ $t('customer.passcode.back') }}
     </button>
 
     <!-- Background decorative accents -->
@@ -21,8 +22,8 @@
       <div class="w-20 h-20 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex items-center justify-center text-4xl mx-auto mb-4 shadow-lg shadow-amber-500/5 animate-pulse">
         🐂
       </div>
-      <h2 class="text-2xl font-black text-amber-500 uppercase tracking-widest">NGƯU CÁT POS</h2>
-      <h3 class="text-sm font-bold text-gray-300 mt-2">Xác thực nhân viên</h3>
+      <h2 class="text-2xl font-black text-amber-500 uppercase tracking-widest">{{ $t('customer.passcode.title') }}</h2>
+      <h3 class="text-sm font-bold text-gray-300 mt-2">{{ $t('customer.passcode.subtitle') }}</h3>
     </div>
 
     <!-- Passcode Dots (6 characters) -->
@@ -40,6 +41,7 @@
     <!-- Virtual Numpad Grid -->
     <div class="grid grid-cols-3 gap-4 w-full mt-2">
       <button v-for="num in [1, 2, 3, 4, 5, 6, 7, 8, 9]" :key="num"
+              type="button"
               @click="pressKey(String(num))"
               class="h-14 rounded-2xl bg-[#1d1d1d] active:bg-[#282828] border border-gray-805 active:scale-95 text-xl font-bold text-white transition-all flex items-center justify-center select-none">
         {{ num }}
@@ -47,23 +49,26 @@
 
       <!-- Bottom Row: Xóa, 0, Xác nhận -->
       <button @click="backspace"
+              type="button"
               class="h-14 rounded-2xl bg-[#1d1d1d] active:bg-[#282828] border border-gray-805 active:scale-95 text-xs font-black text-rose-400 active:text-rose-300 transition-all flex items-center justify-center select-none uppercase tracking-wider">
-        Xóa
+        {{ $t('customer.passcode.delete') }}
       </button>
 
       <button @click="pressKey('0')"
+              type="button"
               class="h-14 rounded-2xl bg-[#1d1d1d] active:bg-[#282828] border border-gray-805 active:scale-95 text-xl font-bold text-white transition-all flex items-center justify-center select-none">
         0
       </button>
 
       <button @click="confirm"
+              type="button"
               :class="[
                 'h-14 rounded-2xl border active:scale-95 text-xs font-black transition-all flex items-center justify-center select-none uppercase tracking-wider',
                 passcode.length === 6
                   ? 'bg-amber-500 text-black border-amber-500 shadow-md shadow-amber-500/10'
                   : 'bg-gray-800 text-gray-500 border-gray-705'
               ]">
-        Xác nhận
+        {{ $t('customer.passcode.confirm') }}
       </button>
     </div>
 
@@ -81,6 +86,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 const emit = defineEmits<{
   (e: 'submit', passcode: string): void;
@@ -89,6 +95,7 @@ const emit = defineEmits<{
 
 const passcode = ref('');
 const error = ref<string | null>(null);
+const { t } = useI18n();
 
 function pressKey(key: string) {
   error.value = null;
@@ -107,7 +114,7 @@ function backspace() {
 function confirm() {
   error.value = null;
   if (passcode.value.length !== 6) {
-    error.value = 'Mã passcode phải đủ 6 ký tự!';
+    error.value = t('customer.passcode.errorLength');
     return;
   }
   emit('submit', passcode.value);

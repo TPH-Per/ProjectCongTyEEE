@@ -17,12 +17,14 @@
 // `supabase/migrations/20260704000000_customer_self_service_order.sql`
 // and `supabase/migrations/20260702083325_hall_customer_rpc.sql`.
 
-import { supabase } from '@/lib/supabase'
+import { supabase, isSupabaseConfigured } from '@/lib/supabase'
 import { menuData as menuTemplate } from '@/data/menuData'
+import { customerAreas } from '@/data/customerAreaData'
 import type {
   CustomerSession,
   Table,
   Area,
+  Branch,
   MenuItem,
   MenuCategory,
   CartItem,
@@ -36,8 +38,11 @@ export interface CustomerApi {
   // Authentication
   authenticateStaff(passcode: string): Promise<{ success: boolean; staffId: string }>
 
+  // Branch Management
+  getBranches(): Promise<Branch[]>
+
   // Table Management
-  getAreas(): Promise<Area[]>
+  getAreas(branchId?: string): Promise<Area[]>
   getTables(areaId: string): Promise<Table[]>
   selectTable(tableId: string): Promise<{ success: boolean }>
   confirmTable(session: CustomerSession): Promise<CustomerSession>
@@ -91,6 +96,29 @@ export interface CustomerApi {
 // URL `?branch=B001` query param once multi-branch QR labels exist.
 const DEFAULT_BRANCH_CODE = 'B001'
 
+// Mock branches for the customer self-service flow. When Supabase is
+// configured, `getBranches()` reads from the `branches` table instead.
+const MOCK_BRANCHES: Branch[] = [
+  {
+    id: 'branch_1',
+    code: 'B001',
+    name: 'Ngưu Cát 1',
+    name_en: 'Nguu Cat 1',
+    address: '123 Nguyễn Văn A, Quận 1, TP.HCM',
+    phone: '028 1234 5678',
+    isActive: true,
+  },
+  {
+    id: 'branch_2',
+    code: 'B002',
+    name: 'Ngưu Cát 2',
+    name_en: 'Nguu Cat 2',
+    address: '456 Lê Văn B, Quận 3, TP.HCM',
+    phone: '028 8765 4321',
+    isActive: true,
+  },
+]
+
 async function resolveBranchIdByCode(code: string): Promise<string | null> {
   const { data, error } = await supabase
     .from('branches')
@@ -142,43 +170,118 @@ export const customerApiImpl: CustomerApi = {
     return { success: false, staffId: '' }
   },
 
-  async getAreas(): Promise<Area[]> {
+  async getBranches(): Promise<Branch[]> {
+    if (!isSupabaseConfigured) {
+      return MOCK_BRANCHES
+    }
+    const { data, error } = await supabase
+      .from('branches')
+      .select('id, code, name, address, phone, is_active')
+      .eq('is_active', true)
+      .order('name', { ascending: true })
+    if (error || !data || data.length === 0) {
+      // Fall back to mock data when Supabase returns an error or no
+      // active branches are configured yet.
+      if (error) console.warn('[customerApi] getBranches failed, using mock:', error.message)
+      return MOCK_BRANCHES
+    }
+    return data.map((b: any) => ({
+      id: b.id,
+      code: b.code,
+      name: b.name,
+      address: b.address,
+      phone: b.phone,
+      isActive: b.is_active,
+    }))
+  },
+
+  async getAreas(branchId?: string): Promise<Area[]> {
+    if (!isSupabaseConfigured) {
+      // Mock fallback: return all 10 areas with embedded tables so the
+      // area selection grid can show table counts and previews.
+      return JSON.parse(JSON.stringify(customerAreas))
+    }
     // Read live zones from Supabase. `zones` has columns
     // `id, branch_id, name, color, sort_order, is_active, metadata, …`
     // — no `code` column. We surface the zone by uuid and stash the
     // display name in `metadata->>'zone_code'` when present, falling
     // back to a derived slug. The customer's UI keys areas by uuid
     // (see `getTables`).
-    const { data, error } = await supabase
+    let query = supabase
       .from('zones')
       .select('id, name, sort_order, metadata')
       .eq('is_active', true)
-      .order('sort_order', { ascending: true })
-    if (error) {
-      console.error('[customerApi] getAreas failed:', error)
-      return []
+    if (branchId) {
+      query = query.eq('branch_id', branchId)
     }
-    return (data ?? []).map((z: any) => ({
-      id: z.id as string,
-      name: (z.name as string) ?? 'Khu vực',
-      tables: [],
-    }))
+    const { data, error } = await query.order('sort_order', { ascending: true })
+    if (error || !data || data.length === 0) {
+      // Fall back to mock data when Supabase returns an error or no
+      // zones are configured yet. This keeps the UI functional during
+      // development / before DB seeding.
+      if (error) console.warn('[customerApi] getAreas failed, using mock:', error.message)
+      return JSON.parse(JSON.stringify(customerAreas))
+    }
+    // Supabase returns zones without embedded tables. The customer UI
+    // (AreaGrid) needs tables embedded in each area for stats and
+    // previews. Fetch table counts per zone so we can populate them.
+    const zonesWithData = await Promise.all(
+      (data ?? []).map(async (z: any) => {
+        const { data: zoneTables } = await supabase
+          .from('tables')
+          .select('id, code, capacity, status')
+          .eq('zone_id', z.id)
+          .eq('is_active', true)
+          .order('code', { ascending: true })
+        return {
+          id: z.id as string,
+          name: (z.name as string) ?? 'Khu vực',
+          tables: (zoneTables ?? []).map((t: any) => ({
+            id: t.id,
+            number: t.code,
+            areaId: z.id,
+            status: mapDbStatus(t.status),
+            capacity: t.capacity,
+          })),
+        }
+      }),
+    )
+    // If none of the zones have any tables, fall back to mock data.
+    const totalTablesFromDb = zonesWithData.reduce((s, a) => s + a.tables.length, 0)
+    if (totalTablesFromDb === 0) {
+      console.warn('[customerApi] getAreas: no tables found in any zone, using mock data')
+      return JSON.parse(JSON.stringify(customerAreas))
+    }
+    return zonesWithData
   },
 
   async getTables(areaId: string): Promise<Table[]> {
+    if (!isSupabaseConfigured) {
+      // Mock fallback: look up tables from the customerAreaData by area id
+      const area = customerAreas.find(a => a.id === areaId)
+      return area ? JSON.parse(JSON.stringify(area.tables)) : []
+    }
     // `areaId` is now the zone UUID (see `getAreas`). The tables
     // table doesn't have a `current_session_id` column either — only
     // `metadata->>'current_session_id'` — so we don't expose that.
-    if (!areaId || !/^[0-9a-f-]{36}$/i.test(areaId)) return []
+    if (!areaId || !/^[0-9a-f-]{36}$/i.test(areaId)) {
+      // Not a valid UUID — likely a mock area id (e.g. "area_a").
+      // Fall back to mock data so the UI still works.
+      const area = customerAreas.find(a => a.id === areaId)
+      return area ? JSON.parse(JSON.stringify(area.tables)) : []
+    }
     const { data, error } = await supabase
       .from('tables')
       .select('id, code, capacity, status, zone_id')
       .eq('zone_id', areaId)
       .eq('is_active', true)
       .order('code', { ascending: true })
-    if (error) {
-      console.error('[customerApi] getTables failed:', error)
-      return []
+    if (error || !data || data.length === 0) {
+      // Fall back to mock data when Supabase returns an error or no
+      // tables are found for this zone.
+      if (error) console.warn('[customerApi] getTables failed, using mock:', error.message)
+      const area = customerAreas.find(a => a.id === areaId)
+      return area ? JSON.parse(JSON.stringify(area.tables)) : []
     }
     return (data ?? []).map((t: any) => ({
       id: t.id,
@@ -190,6 +293,11 @@ export const customerApiImpl: CustomerApi = {
   },
 
   async selectTable(tableId: string): Promise<{ success: boolean }> {
+    if (!isSupabaseConfigured) {
+      // Mock fallback: allow selection if the table exists and is available
+      const table = customerAreas.flatMap(a => a.tables).find(t => t.id === tableId)
+      return { success: !!table && table.status === 'available' }
+    }
     // Read-only check against the live DB. The actual flip-to-occupied
     // happens later in `confirmTable` (or when the first order lands
     // via `customer_create_self_service_order`).
@@ -203,6 +311,12 @@ export const customerApiImpl: CustomerApi = {
   },
 
   async confirmTable(session: CustomerSession): Promise<CustomerSession> {
+    if (!isSupabaseConfigured) {
+      // Mock fallback: return a local session immediately
+      session.id = `sess-mock-${Date.now()}`
+      session.staffId = 'staff-uuid-001'
+      return session
+    }
     // Persist the session by activating a `tablet_sessions` row. The
     // RPC requires the table to already be `occupied`/`reserved` — the
     // staff check-in flow handles that. For the customer self-service
@@ -254,6 +368,10 @@ export const customerApiImpl: CustomerApi = {
   },
 
   async releaseTable(sessionId: string): Promise<void> {
+    if (!isSupabaseConfigured) {
+      // Mock fallback: no-op
+      return
+    }
     // End the tablet_session. If the sessionId is a real uuid, mark it
     // ENDED. If it's a `sess-local-…` placeholder (used when the
     // Only PATCH when the session id is a real uuid. The customer's
@@ -281,6 +399,27 @@ export const customerApiImpl: CustomerApi = {
   async getRawMenuItems(): Promise<
     Array<{ id: string; name: string; price: number; price_display?: string }>
   > {
+    if (!isSupabaseConfigured) {
+      // Mock fallback: generate stable UUIDs for the mock menu items
+      // so isValidUUID passes in cart validation.
+      const allItems: Array<{ id: string; name: string; price: number; price_display?: string }> = []
+      let counter = 0
+      const walk = (items?: MenuItem[]) => {
+        if (!items) return
+        for (const it of items) {
+          counter++
+          const uuid = `00000000-0000-4000-8000-${String(counter).padStart(12, '0')}`
+          allItems.push({ id: uuid, name: it.name, price: it.price, price_display: it.price_display })
+        }
+      }
+      for (const cat of menuTemplate.categories) {
+        walk(cat.items)
+        if (cat.subcategories) {
+          for (const sub of cat.subcategories) walk(sub.items)
+        }
+      }
+      return allItems
+    }
     const branchId = await resolveBranchIdByCode(DEFAULT_BRANCH_CODE)
     if (!branchId) return []
     const { data, error } = await supabase.rpc('customer_list_menu_items', {
@@ -300,7 +439,16 @@ export const customerApiImpl: CustomerApi = {
   },
 
   async createOrder(order: Order): Promise<Order> {
-    // Pre-flight UUID validation
+    if (!isSupabaseConfigured) {
+      // Mock fallback: return order with local id
+      console.log('[MOCK] createOrder:', order)
+      await new Promise(r => setTimeout(r, 800))
+      return {
+        ...order,
+        id: `ord-mock-${Date.now()}`,
+        status: 'confirmed',
+      }
+    }
     for (const item of order.items) {
       if (!isValidUUID(item.menuItemId)) {
         console.error(`[customerApi] Invalid UUID: ${item.menuItemId}`)
@@ -404,6 +552,9 @@ export const customerApiImpl: CustomerApi = {
   },
 
   async getOrderHistory(sessionId: string): Promise<Order[]> {
+    if (!isSupabaseConfigured) {
+      return []
+    }
     // Read orders for the active tablet_session (or for the table when
     // no sessionId is provided).
     const { data, error } = await supabase
@@ -421,6 +572,15 @@ export const customerApiImpl: CustomerApi = {
   },
 
   async submitServiceRequest(request: ServiceRequest): Promise<ServiceRequest> {
+    if (!isSupabaseConfigured) {
+      // Mock fallback: return the request with a fake id
+      return {
+        ...request,
+        id: `sr-mock-${Date.now()}`,
+        status: 'created',
+        createdAt: new Date(),
+      }
+    }
     const tableNumber = request.tableNumber
     const branchId = await resolveBranchIdByCode(DEFAULT_BRANCH_CODE)
     const tableId = branchId
@@ -459,6 +619,9 @@ export const customerApiImpl: CustomerApi = {
   },
 
   async getServiceRequests(sessionId: string): Promise<ServiceRequest[]> {
+    if (!isSupabaseConfigured) {
+      return []
+    }
     // No direct session_id column on service_requests — filter by
     // table. The customer UI mostly uses this to show pending
     // requests; we return recent rows scoped to the branch.
@@ -480,6 +643,9 @@ export const customerApiImpl: CustomerApi = {
   },
 
   async updateServiceRequest(requestId: string, status: string): Promise<void> {
+    if (!isSupabaseConfigured) {
+      return
+    }
     // service_requests.status enum is OPEN / IN_PROGRESS / RESOLVED.
     // Map the customer's UI vocabulary onto that.
     const dbStatus =
@@ -541,6 +707,14 @@ export const customerApiImpl: CustomerApi = {
   },
 
   async submitFeedback(feedback: Feedback): Promise<Feedback> {
+    if (!isSupabaseConfigured) {
+      // Mock fallback
+      return {
+        ...feedback,
+        id: `fb-mock-${Date.now()}`,
+        createdAt: new Date(),
+      }
+    }
     const branchId = await resolveBranchIdByCode(DEFAULT_BRANCH_CODE)
     if (!branchId) {
       throw new Error('Cannot submit feedback: branch unresolved')
@@ -578,6 +752,10 @@ export const customerApiImpl: CustomerApi = {
 
   // -------- realtime --------
   subscribeToTableUpdates(tableId: string, callback: (payload: any) => void): () => void {
+    if (!isSupabaseConfigured) {
+      // Mock fallback: no-op subscription
+      return () => {}
+    }
     const channel = supabase
       .channel(`customer-table-${tableId}`)
       .on(

@@ -22,19 +22,18 @@
           {{ t('sidebar.dashboard') }}
         </RouterLink>
 
+        <!-- Nhóm Bán hàng -->
+        <div class="text-[11px] font-extrabold text-gray-500 uppercase tracking-wider mb-2 mt-4">
+          {{ t('sidebar.sales') }}
+        </div>
         <RouterLink
           to="/reception/reservation-detail"
           class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-sm font-semibold text-gray-600 hover:bg-gray-100"
           active-class="bg-red-50 text-red-600 hover:bg-red-50"
         >
           <Calendar class="w-[18px] h-[18px]" />
-          Chi tiết đặt
+          {{ t('sidebar.reservation_detail') }}
         </RouterLink>
-
-        <!-- Nhóm Bán hàng -->
-        <div class="text-[11px] font-extrabold text-gray-500 uppercase tracking-wider mb-2 mt-4">
-          {{ t('sidebar.sales') }}
-        </div>
         <RouterLink
           to="/reception/order"
           class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-sm font-semibold text-gray-600 hover:bg-gray-100"

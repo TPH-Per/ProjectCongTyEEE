@@ -341,6 +341,9 @@
         </div>
       </div>
       <div class="footer-actions">
+        <button v-if="selectedReservation" class="btn-save delete" @click="handleDelete" :disabled="submitting">
+          🗑️ Xóa đặt bàn
+        </button>
         <button v-if="selectedReservation" class="btn-save update" @click="handleUpdate" :disabled="submitting">
           💾 Cập nhật đặt bàn
         </button>
@@ -394,21 +397,70 @@
 <script setup lang="ts">
 import { ref, computed, reactive, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { useReservation } from '@/composables/useReservation'
-import { useTable } from '@/composables/useTable'
 import Swal from 'sweetalert2'
+import { useReceptionSync } from '@/composables/useReceptionSync'
+import { normalizeStatus, type ReservationStatus } from '@/stores/receptionStore'
 
 const router = useRouter()
 const route = useRoute()
-const { listReservations, createReservation, updateStatus } = useReservation()
-const { listTables } = useTable()
+
+// ===== Reception Store (single source of truth) =====
+const {
+  reservations: storeReservations,
+  addReservation: storeAdd,
+  updateReservation: storeUpdate,
+  deleteReservation: storeDelete,
+  loadReservations,
+} = useReceptionSync()
+
+// ===== Status mapping: store enum ↔ view's lowercase strings =====
+const VIEW_STATUS_MAP: Record<ReservationStatus, string> = {
+  PENDING: 'new',
+  CONFIRMED: 'confirmed',
+  SEATED: 'confirmed',
+  COMPLETED: 'completed',
+  CANCELLED: 'cancelled',
+}
+const STORE_STATUS_MAP: Record<string, ReservationStatus> = {
+  new: 'PENDING',
+  confirmed: 'CONFIRMED',
+  cancelled: 'CANCELLED',
+  completed: 'COMPLETED',
+}
+function toViewStatus(s: ReservationStatus): string {
+  return VIEW_STATUS_MAP[s] ?? 'new'
+}
+function toStoreStatus(s: string): ReservationStatus {
+  return STORE_STATUS_MAP[s] ?? 'PENDING'
+}
+
+// Map a store reservation to the shape this view's template expects
+function mapStoreToView(r: any) {
+  return {
+    id: r.id,
+    code: r.code,
+    time: r.reservationTime,
+    guests: r.guests,
+    children: r.children,
+    customerName: r.customerName,
+    phone: r.customerPhone,
+    email: r.email || '',
+    status: toViewStatus(r.status),
+    timeSlot: r.timeSlot,
+    notes: r.notes || '',
+    partyName: r.partyName || '',
+    tableId: r.tableId || r.tableCode || '',
+    source: r.source,
+    isVIP: r.isVip,
+  }
+}
 
 const selectedBranch = ref('nguu-cat')
 const currentDate = ref(new Date().toISOString().split('T')[0])
 const currentView = ref('detail')
 const selectedSlot = ref('all')
 const activeTab = ref('reservation-info')
-const dbReservations = ref<any[]>([])
+const dbReservations = computed(() => storeReservations.value.map(mapStoreToView))
 const dbTables = ref<any[]>([])
 const selectedReservation = ref<any>(null)
 const loading = ref(false)
@@ -496,30 +548,26 @@ const assignedTableZone = computed(() => {
   return t ? t.zone : ''
 })
 
-async function fetchReservations() {
+// === Mock Tables (tables are managed separately from reservations) ===
+const mockTables = [
+  { id: 't01', code: 'A01', zone: 'Khu A' },
+  { id: 't02', code: 'A02', zone: 'Khu A' },
+  { id: 't03', code: 'A03', zone: 'Khu A' },
+  { id: 't04', code: 'B01', zone: 'Khu B' },
+  { id: 't05', code: 'B02', zone: 'Khu B' },
+  { id: 't06', code: 'B03', zone: 'Khu B' },
+  { id: 't07', code: 'C01', zone: 'Khu C' },
+  { id: 't08', code: 'C02', zone: 'Khu C' },
+  { id: 't09', code: 'VIP01', zone: 'VIP' },
+  { id: 't10', code: 'VIP02', zone: 'VIP' }
+]
+
+function fetchReservations() {
   loading.value = true
   try {
-    const today = new Date().toISOString().split('T')[0]
-    const res = await listReservations({ date: today })
-    dbReservations.value = (res.reservations || []).map((r: any) => {
-      const snap = r.customer_snapshot as any
-      return {
-        id: r.id,
-        code: r.booking_code || r.id.substring(0, 5).toUpperCase(),
-        time: r.reservation_time ? r.reservation_time.substring(0, 5) : '18:00',
-        guests: r.guests || 0,
-        children: r.children_count || 0,
-        customerName: snap?.name || 'Khách vãng lai',
-        phone: snap?.phone || '',
-        email: snap?.email || '',
-        status: (r.status === 'CONFIRMED' || r.status === 'Arrived') ? 'confirmed' : r.status === 'Dining' ? 'completed' : (r.status === 'Cancelled' || r.status === 'NO_SHOW') ? 'cancelled' : 'new',
-        timeSlot: getTimeSlot(r.reservation_time),
-        notes: r.booking_info?.notes || '',
-        partyName: r.booking_info?.occasion || '',
-        tableId: r.table_id || '',
-        source: r.source || 'facebook'
-      }
-    })
+    // Data now comes from the shared receptionStore via the
+    // `dbReservations` computed — no local mock to copy from.
+    loadReservations()
   } catch (error) {
     console.error(error)
   } finally {
@@ -527,15 +575,12 @@ async function fetchReservations() {
   }
 }
 
-async function fetchTables() {
-  try {
-    dbTables.value = await listTables()
-  } catch (error) {
-    console.error(error)
-  }
+function fetchTables() {
+  dbTables.value = mockTables
 }
 
 function selectReservation(reservation: any) {
+  // reservation comes from dbReservations computed (already mapped to view format)
   selectedReservation.value = reservation
   Object.assign(formData, {
     phone: reservation.phone,
@@ -624,16 +669,25 @@ async function handleCreate() {
   if (!validateForm()) return
   submitting.value = true
   try {
-    await createReservation({
-      guestName: formData.customerName,
-      guestPhone: formData.phone,
-      reservationTime: `${formData.date} ${formData.time}:00`,
-      guestCount: formData.adults,
-      notes: formData.notes || undefined
+    storeAdd({
+      customerName: formData.customerName,
+      customerPhone: formData.phone,
+      email: formData.email,
+      guests: formData.adults,
+      children: formData.children,
+      reservationTime: formData.time,
+      reservationDate: formData.date,
+      status: toStoreStatus(formData.status),
+      timeSlot: getTimeSlot(formData.time),
+      notes: formData.notes,
+      partyName: formData.partyName,
+      tableId: formData.tableId,
+      tableCode: formData.tableId || null,
+      source: formData.source,
+      isVip: false,
+      mealType: getTimeSlot(formData.time) === 'evening' || getTimeSlot(formData.time) === 'afternoon' ? 'DINNER' : 'LUNCH',
     })
-
-    await Swal.fire('Thành công', 'Đã tạo đặt bàn thành công!', 'success')
-    await fetchReservations()
+    await Swal.fire('Thành công', 'Đã tạo đặt bàn thành công! Dữ liệu đã đồng bộ toàn hệ thống.', 'success')
     resetForm()
   } catch (error: any) {
     Swal.fire('Lỗi', error.message || 'Không thể tạo đặt bàn.', 'error')
@@ -647,21 +701,53 @@ async function handleUpdate() {
   if (!validateForm()) return
   submitting.value = true
   try {
-    let newDbStatus = 'PENDING'
-    if (formData.status === 'confirmed') newDbStatus = 'CONFIRMED'
-    else if (formData.status === 'completed') newDbStatus = 'Dining'
-    else if (formData.status === 'cancelled') newDbStatus = 'Cancelled'
-
-    await updateStatus(
-      selectedReservation.value.id,
-      newDbStatus as any,
-      formData.tableId || undefined
-    )
-
-    await Swal.fire('Thành công', 'Đã cập nhật đặt bàn thành công!', 'success')
-    await fetchReservations()
+    const updated = storeUpdate(selectedReservation.value.id, {
+      customerName: formData.customerName,
+      customerPhone: formData.phone,
+      email: formData.email,
+      guests: formData.adults,
+      children: formData.children,
+      reservationTime: formData.time,
+      reservationDate: formData.date,
+      status: toStoreStatus(formData.status),
+      timeSlot: getTimeSlot(formData.time),
+      notes: formData.notes,
+      partyName: formData.partyName,
+      tableId: formData.tableId,
+      tableCode: formData.tableId || null,
+      source: formData.source,
+    })
+    if (updated) {
+      selectedReservation.value = mapStoreToView(updated)
+    }
+    await Swal.fire('Thành công', 'Đã cập nhật đặt bàn thành công! Dữ liệu đã đồng bộ toàn hệ thống.', 'success')
   } catch (error: any) {
     Swal.fire('Lỗi', error.message || 'Không thể cập nhật đặt bàn.', 'error')
+  } finally {
+    submitting.value = false
+  }
+}
+
+async function handleDelete() {
+  if (!selectedReservation.value) return
+  const result = await Swal.fire({
+    title: 'Xác nhận xóa?',
+    text: `Bạn có chắc muốn xóa đặt bàn của ${selectedReservation.value.customerName}?`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Xóa',
+    cancelButtonText: 'Hủy',
+    confirmButtonColor: '#ef4444',
+  })
+  if (!result.isConfirmed) return
+  submitting.value = true
+  try {
+    storeDelete(selectedReservation.value.id)
+    selectedReservation.value = null
+    await Swal.fire('Thành công', 'Đã xóa đặt bàn! Dữ liệu đã đồng bộ toàn hệ thống.', 'success')
+    resetForm()
+  } catch (error: any) {
+    Swal.fire('Lỗi', error.message || 'Không thể xóa đặt bàn.', 'error')
   } finally {
     submitting.value = false
   }
@@ -719,9 +805,9 @@ function selectBottomTab(tab: string) {
   }
 }
 
-onMounted(async () => {
-  await fetchReservations()
-  await fetchTables()
+onMounted(() => {
+  fetchReservations()
+  fetchTables()
   if (route.query.id) {
     const res = dbReservations.value.find(r => r.id === route.query.id)
     if (res) selectReservation(res)
@@ -1531,6 +1617,14 @@ onMounted(async () => {
 
 .btn-save.update:hover:not(:disabled) {
   background: #059669;
+}
+
+.btn-save.delete {
+  background: #ef4444;
+}
+
+.btn-save.delete:hover:not(:disabled) {
+  background: #dc2626;
 }
 
 /* Bottom Navigation - Fixed 60px */

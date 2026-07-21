@@ -21,33 +21,56 @@
     <!-- HEADER BAR                                                          -->
     <!-- ═══════════════════════════════════════════════════════════════════ -->
     <div class="shrink-0 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-      <div>
-        <h1 class="text-xl font-black text-gray-900 tracking-tight flex items-center gap-2">
-          <Utensils class="w-5 h-5 text-[#E8772E]" />
-          Quản lý Món
-        </h1>
-        <p class="text-xs text-gray-500 font-medium mt-0.5">
-          Phân cấp: Category → SubCategory (tùy chọn) → Item · Soft delete · POS realtime sync
-        </p>
+      <div class="flex items-start gap-3">
+        <button
+          @click="goBack"
+          class="shrink-0 inline-flex items-center gap-1.5 px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-xs font-bold transition-colors"
+        >
+          <ArrowLeft class="w-3.5 h-3.5" />
+          Quay lại
+        </button>
+        <div>
+          <h1 class="text-xl font-black text-gray-900 tracking-tight flex items-center gap-2">
+            <Utensils class="w-5 h-5 text-[#E8772E]" />
+            Quản lý Món
+          </h1>
+          <p class="text-xs text-gray-500 font-medium mt-0.5">
+            Phân cấp: Category → SubCategory (tùy chọn) → Item · Soft delete · POS realtime sync
+          </p>
+        </div>
       </div>
 
-      <!-- Stats strip -->
-      <div class="flex items-center gap-2 text-[10px] font-black uppercase tracking-wider">
-        <div class="flex items-center gap-1.5 bg-green-50 text-green-700 px-2.5 py-1.5 rounded-xl border border-green-100/60">
-          <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
-          {{ activeItemCount }} đang bán
-        </div>
-        <div class="flex items-center gap-1.5 bg-amber-50 text-amber-700 px-2.5 py-1.5 rounded-xl border border-amber-100/60">
-          <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-          {{ soldOutCount }} hết hàng
-        </div>
-        <div class="flex items-center gap-1.5 bg-red-50 text-red-700 px-2.5 py-1.5 rounded-xl border border-red-100/60">
-          <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>
-          {{ inactiveCount }} đã khóa
-        </div>
-        <div class="flex items-center gap-1.5 bg-sky-50 text-sky-700 px-2.5 py-1.5 rounded-xl border border-sky-100/60">
-          <span class="w-1.5 h-1.5 rounded-full bg-sky-500"></span>
-          {{ totalItems }} tổng
+      <div class="flex items-center gap-3">
+        <button
+          @click="toggleAllItemsView"
+          :class="[
+            'inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold transition-colors',
+            showAllItems
+              ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm'
+              : 'bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200',
+          ]"
+        >
+          <LayoutGrid class="w-3.5 h-3.5" />
+          {{ showAllItems ? 'Xem theo danh mục' : 'Xem tất cả' }}
+        </button>
+
+        <div class="flex items-center gap-2 text-[10px] font-black uppercase tracking-wider">
+          <div class="flex items-center gap-1.5 bg-green-50 text-green-700 px-2.5 py-1.5 rounded-xl border border-green-100/60">
+            <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+            {{ activeItemCount }} đang bán
+          </div>
+          <div class="flex items-center gap-1.5 bg-amber-50 text-amber-700 px-2.5 py-1.5 rounded-xl border border-amber-100/60">
+            <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+            {{ soldOutCount }} hết hàng
+          </div>
+          <div class="flex items-center gap-1.5 bg-red-50 text-red-700 px-2.5 py-1.5 rounded-xl border border-red-100/60">
+            <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+            {{ inactiveCount }} đã khóa
+          </div>
+          <div class="flex items-center gap-1.5 bg-sky-50 text-sky-700 px-2.5 py-1.5 rounded-xl border border-sky-100/60">
+            <span class="w-1.5 h-1.5 rounded-full bg-sky-500"></span>
+            {{ totalItems }} tổng
+          </div>
         </div>
       </div>
     </div>
@@ -214,10 +237,10 @@
             </h3>
             <button
               @click="startCreate"
-              :disabled="!selectedCategoryId"
+              :disabled="!showAllItems && !selectedCategoryId"
               :class="[
                 'inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold rounded-lg transition-colors',
-                selectedCategoryId
+                showAllItems || selectedCategoryId
                   ? 'bg-[#E8772E] hover:bg-[#D4660B] text-white shadow-sm'
                   : 'bg-gray-100 text-gray-400 cursor-not-allowed',
               ]"
@@ -246,6 +269,8 @@
               <thead class="sticky top-0 bg-gray-50/95 backdrop-blur-sm z-10">
                 <tr class="text-[10px] font-black text-gray-500 uppercase tracking-wider">
                   <th class="px-3 py-2 font-black">Món</th>
+                  <th v-if="showAllItems" class="px-3 py-2 font-black">Danh mục</th>
+                  <th v-if="showAllItems" class="px-3 py-2 font-black">Danh mục con</th>
                   <th class="px-3 py-2 font-black">SKU</th>
                   <th class="px-3 py-2 font-black text-right">Giá</th>
                   <th class="px-3 py-2 font-black text-center">Trạng thái</th>
@@ -289,6 +314,21 @@
                         </div>
                       </div>
                     </div>
+                  </td>
+
+                  <!-- Category (all-items view) -->
+                  <td v-if="showAllItems" class="px-3 py-2.5">
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-700">
+                      {{ store.getCategoryById(item.category_id)?.icon }}
+                      {{ store.getCategoryById(item.category_id)?.name ?? '—' }}
+                    </span>
+                  </td>
+                  <!-- SubCategory (all-items view) -->
+                  <td v-if="showAllItems" class="px-3 py-2.5">
+                    <span v-if="item.sub_category_id" class="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-700">
+                      {{ store.getSubCategoryById(item.sub_category_id)?.name ?? '—' }}
+                    </span>
+                    <span v-else class="text-[10px] text-gray-400 font-medium">—</span>
                   </td>
 
                   <!-- SKU -->
@@ -359,7 +399,11 @@
 
           <!-- Empty states -->
           <div v-else class="py-16 text-center text-xs text-gray-400 font-medium">
-            <template v-if="!selectedCategoryId">
+            <template v-if="showAllItems">
+              <Package class="w-10 h-10 mx-auto mb-3 opacity-20" />
+              Không tìm thấy món nào{{ searchQuery ? ' khớp với từ khóa' : '' }}
+            </template>
+            <template v-else-if="!selectedCategoryId">
               <FolderTree class="w-10 h-10 mx-auto mb-3 opacity-20" />
               Chọn một danh mục bên trái để xem danh sách món
             </template>
@@ -404,6 +448,31 @@
 
         <!-- Form body / empty state -->
         <div v-if="formMode" class="flex-1 overflow-y-auto p-4 space-y-4">
+          <!-- ── Template: Copy from existing item (create mode only) ── -->
+          <div v-if="formMode === 'create'" class="p-3 bg-blue-50 border border-blue-200 rounded-lg space-y-2">
+            <label class="text-[11px] font-bold text-blue-900 uppercase tracking-wide flex items-center gap-1">
+              <Lightbulb class="w-3 h-3" />
+              Sao chép từ món có sẵn
+            </label>
+            <div class="flex gap-2">
+              <select
+                v-model="templateItemId"
+                class="flex-1 px-3 py-2 text-sm border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 bg-white"
+              >
+                <option value="">— Nhập thủ công —</option>
+                <option v-for="item in store.items" :key="item.id" :value="item.id">
+                  {{ item.name }} ({{ store.getCategoryById(item.category_id)?.name ?? '—' }})
+                </option>
+              </select>
+              <button
+                v-if="templateItemId"
+                @click="clearTemplate"
+                class="px-3 py-2 text-xs font-bold text-blue-700 hover:bg-blue-100 rounded-lg transition-colors whitespace-nowrap"
+              >
+                Xóa
+              </button>
+            </div>
+          </div>
           <!-- ── Category & SubCategory (always visible) ── -->
           <div class="space-y-2 pb-3 border-b border-gray-100">
             <div>
@@ -418,7 +487,24 @@
                 <option v-for="cat in store.activeCategories" :key="cat.id" :value="cat.id">
                   {{ cat.icon }} {{ cat.name }}
                 </option>
+                <option value="__temp__">📎 Danh mục chưa phân loại</option>
               </select>
+
+              <!-- TEMP category suggestion -->
+              <div v-if="formData.category_id === '__temp__'" class="mt-2 p-2.5 bg-amber-50 border border-amber-200 rounded-lg">
+                <label class="text-[11px] font-bold text-amber-800 uppercase tracking-wide">
+                  Đề xuất tên danh mục mới
+                </label>
+                <input
+                  v-model="suggestedCategoryName"
+                  type="text"
+                  class="mt-1 w-full px-3 py-2 text-sm border border-amber-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-200 bg-white"
+                  placeholder="VD: Đồ ăn nhanh, Món lẩu..."
+                />
+                <p class="mt-1 text-[10px] text-amber-600 font-medium">
+                  Để trống nếu muốn dùng danh mục "Khác"
+                </p>
+              </div>
             </div>
 
             <div>
@@ -695,14 +781,25 @@
       </aside>
 
     </div>
+
+    <!-- Manager PIN Modal -->
+    <ManagerAuthModal
+      v-if="showPinModal"
+      :action-type="pinAction === 'delete' ? 'VOID_ITEM' : 'EDIT_PRICE'"
+      :target-name="formData.name || 'Món mới'"
+      @confirm="handlePinConfirm"
+      @close="showPinModal = false"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, watch } from 'vue'
+import { ref, reactive, computed, watch, nextTick } from 'vue'
+import { useRouter } from 'vue-router'
 import { VueDraggable } from 'vue-draggable-plus'
 import Swal from 'sweetalert2'
 import ToggleSwitch from '@/components/ToggleSwitch.vue'
+import ManagerAuthModal from '@/components/reception/ManagerAuthModal.vue'
 import { useMenuManagementStore } from '@/stores/menuManagementStore'
 import {
   kitchenPrinters,
@@ -733,9 +830,24 @@ import {
   Printer,
   Save,
   Image as ImageIcon,
+  Lightbulb,
+  ArrowLeft,
+  LayoutGrid,
 } from 'lucide-vue-next'
 
 const store = useMenuManagementStore()
+const router = useRouter()
+
+// ── View mode ────────────────────────────────────────────────────────────────
+const showAllItems = ref(false)
+
+function goBack(): void {
+  router.push('/reception/dashboard')
+}
+
+function toggleAllItemsView(): void {
+  showAllItems.value = !showAllItems.value
+}
 
 // ── Tabs ────────────────────────────────────────────────────────────────────
 const tabs = [
@@ -766,6 +878,17 @@ function toggleExpand(id: string): void {
 
 // ── Search ───────────────────────────────────────────────────────────────────
 const searchQuery = ref('')
+
+// ── Template copy (pre-fill form from existing item) ──────────────────────────
+const templateItemId = ref<string>('')
+
+// ── PIN protection ───────────────────────────────────────────────────────────
+const showPinModal = ref(false)
+const pinAction = ref<'save' | 'delete' | null>(null)
+const pendingDeleteId = ref<string>('')
+
+// ── TEMP unclassified category ────────────────────────────────────────────────
+const suggestedCategoryName = ref('')
 
 // ── Drag & Drop (local list synced with store) ───────────────────────────────
 const dragCategoryList = ref<MenuCategory[]>([])
@@ -822,6 +945,29 @@ watch(
   },
 )
 
+// Pre-fill form from selected template item (create mode only)
+watch(templateItemId, (newId) => {
+  if (newId && formMode.value === 'create') {
+    const source = store.getItemById(newId)
+    if (source) {
+      const sourceSubCatId = source.sub_category_id
+      Object.assign(formData, JSON.parse(JSON.stringify(source)))
+      formData.id = ''
+      formData.name = `${source.name} (Bản sao)`
+      formData.sku = source.sku ? `${source.sku}-COPY` : ''
+      formData.barcode = ''
+      formData.is_active = true
+      formData.is_sold_out = false
+      // Restore sub_category_id after the category watcher resets it
+      if (sourceSubCatId !== null) {
+        nextTick(() => {
+          formData.sub_category_id = sourceSubCatId
+        })
+      }
+    }
+  }
+})
+
 // ── Computed: stats ──────────────────────────────────────────────────────────
 const totalItems = computed(() => store.items.length)
 const activeItemCount = computed(() => store.items.filter((i) => i.is_active && !i.is_sold_out).length)
@@ -830,11 +976,16 @@ const inactiveCount = computed(() => store.items.filter((i) => !i.is_active).len
 
 // ── Computed: filtered items ─────────────────────────────────────────────────
 const filteredItems = computed(() => {
-  if (!selectedCategoryId.value) return []
-  const catId = selectedCategoryId.value
-  const subCatId = selectedSubCategoryId.value
+  let result: MenuItem[]
 
-  let result = store.itemsByCategory(catId, subCatId === undefined ? undefined : subCatId)
+  if (showAllItems.value) {
+    result = [...store.items]
+  } else {
+    if (!selectedCategoryId.value) return []
+    const catId = selectedCategoryId.value
+    const subCatId = selectedSubCategoryId.value
+    result = store.itemsByCategory(catId, subCatId === undefined ? undefined : subCatId)
+  }
 
   const q = searchQuery.value.trim().toLowerCase()
   if (q) {
@@ -848,11 +999,12 @@ const filteredItems = computed(() => {
     )
   }
 
-  return result
+  return result.sort((a, b) => a.sort_order - b.sort_order)
 })
 
 // ── Computed: current selection label ────────────────────────────────────────
 const currentSelectionLabel = computed(() => {
+  if (showAllItems.value) return 'Tất cả món'
   if (!selectedCategoryId.value) return 'Tất cả món'
   const cat = store.getCategoryById(selectedCategoryId.value)
   if (!cat) return 'Tất cả món'
@@ -906,6 +1058,8 @@ function selectDirect(catId: string): void {
 function startCreate(): void {
   formMode.value = 'create'
   activeTab.value = 'basic'
+  templateItemId.value = ''
+  suggestedCategoryName.value = ''
   Object.assign(formData, createEmptyForm())
   // Pre-fill with current selection
   if (selectedCategoryId.value) {
@@ -919,12 +1073,27 @@ function startCreate(): void {
 function startEdit(item: MenuItem): void {
   formMode.value = 'edit'
   activeTab.value = 'basic'
+  templateItemId.value = ''
   Object.assign(formData, JSON.parse(JSON.stringify(item)))
 }
 
 function cancelForm(): void {
   formMode.value = null
+  templateItemId.value = ''
+  suggestedCategoryName.value = ''
   Object.assign(formData, createEmptyForm())
+}
+
+function clearTemplate(): void {
+  templateItemId.value = ''
+  suggestedCategoryName.value = ''
+  Object.assign(formData, createEmptyForm())
+  if (selectedCategoryId.value) {
+    formData.category_id = selectedCategoryId.value
+    if (selectedSubCategoryId.value !== undefined) {
+      formData.sub_category_id = selectedSubCategoryId.value
+    }
+  }
 }
 
 function saveForm(): void {
@@ -938,7 +1107,43 @@ function saveForm(): void {
     return
   }
 
+  // Require PIN for save
+  pinAction.value = 'save'
+  showPinModal.value = true
+}
+
+function resolveTempCategory(): string {
+  const suggested = suggestedCategoryName.value.trim()
+  if (suggested) {
+    const existing = store.categories.find(
+      (c) => c.name.toLowerCase() === suggested.toLowerCase(),
+    )
+    if (existing) return existing.id
+    const newCat = store.addCategory({
+      name: suggested,
+      name_en: '',
+      name_jp: '',
+      icon: '📎',
+      color: '#6B7280',
+      is_active: true,
+      is_visible_on_pos: true,
+    })
+    return newCat.id
+  }
+  return store.categories.find((c) => c.id === 'cat-other')?.id ?? ''
+}
+
+function doSave(): void {
   const payload = { ...formData }
+
+  // Resolve TEMP category
+  if (payload.category_id === '__temp__') {
+    payload.category_id = resolveTempCategory()
+    if (!payload.category_id) {
+      toast('error', 'Không thể tạo danh mục')
+      return
+    }
+  }
 
   if (formMode.value === 'create') {
     const { id: _omit, ...createData } = payload
@@ -966,10 +1171,29 @@ async function handleDeleteItem(id: string, name: string): Promise<void> {
     cancelButtonColor: '#aaa',
   })
   if (result.isConfirmed) {
-    store.softDeleteItem(id)
-    toast('success', 'Đã ẩn món')
-    if (formData.id === id) cancelForm()
+    pendingDeleteId.value = id
+    pinAction.value = 'delete'
+    showPinModal.value = true
   }
+}
+
+function doDelete(): void {
+  const id = pendingDeleteId.value
+  if (!id) return
+  store.softDeleteItem(id)
+  toast('success', 'Đã ẩn món')
+  if (formData.id === id) cancelForm()
+  pendingDeleteId.value = ''
+}
+
+function handlePinConfirm(): void {
+  showPinModal.value = false
+  if (pinAction.value === 'save') {
+    doSave()
+  } else if (pinAction.value === 'delete') {
+    doDelete()
+  }
+  pinAction.value = null
 }
 
 function handleCopyItem(id: string): void {

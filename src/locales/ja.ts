@@ -1442,6 +1442,20 @@ export default {
   'admin_floors.table.unlock': "テーブルのロック解除",
   'admin_floors.action.open_walkin': "ウォークイン客向けテーブルを開く",
   'admin_floors.action.open_serving_2': "テーブルを開く / サービス開始",
+
+  // ─── Reception Floors (Drag & Drop Floor Plan) ───────────────────────
+  'reception_floors.waiting_title': "テーブル待ち",
+  'reception_floors.drag_hint': "空席にドラッグ",
+  'reception_floors.drag_handle': "⋮⋮ ドラッグ",
+  'reception_floors.timeline_label': "時間別表示",
+  'reception_floors.drop_here': "+ ドロップ",
+  'reception_floors.conflict_badge': "⚠️ 予約済",
+  'reception_floors.reset': "リセット",
+  'reception_floors.all_assigned': "✅ 全員割り当て済み",
+  'reception_floors.invalid_drop': "割り当て不可：使用中または予約済み",
+  'reception_floors.assign_success': "テーブル割り当て成功",
+  'reception_floors.zone_summary': "ゾーン別シフト概要",
+
   'admin_kpi.title': "KPI / KGI管理",
   'admin_kpi.subtitle': "目標の設定と追跡",
   'admin_kpi.setup_goals': "目標を設定",

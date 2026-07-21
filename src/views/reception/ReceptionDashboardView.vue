@@ -44,10 +44,17 @@
           </div>
         </div>
       </div>
-      <RouterLink
-        to="/reception/close-shift"
-        class="bg-green-600 hover:bg-green-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-colors shadow-sm"
-      >{{ t('reception.shift_details') }}</RouterLink>
+      <div class="flex items-center gap-2">
+        <RouterLink
+          to="/reception/close-shift"
+          class="bg-green-600 hover:bg-green-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-colors shadow-sm"
+        >{{ t('reception.shift_details') }}</RouterLink>
+        <button
+          @click="showCloseShiftModal = true"
+          class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-colors shadow-sm"
+          type="button"
+        >{{ t('reception.close_shift.confirm_close_btn', 'Đóng ca') }}</button>
+      </div>
     </div>
     <div v-else class="mb-6 rounded-xl border-2 border-yellow-200 bg-yellow-50 p-4 flex items-center justify-between shadow-sm">
       <div class="flex items-center gap-3">
@@ -57,20 +64,11 @@
           <div class="text-sm text-yellow-800 mt-0.5">{{ t('reception.please_open_shift') }}</div>
         </div>
       </div>
-      <!--
-        origin/main shipped this as a RouterLink to `/reception/close-shift`
-        labelled "Mở ca". That route only handles close-shift, so the label
-        here is misleading. We re-route to a future /reception/open-shift
-        page if/when one exists; for now we keep the visual from origin/main
-        and let the receptionist click through. A real open-shift dialog is
-        still wired in this file via `openShiftDialog` further below — see
-        the docs/member_status/Phu/main_merge_followup.md for the wiring
-        intent.
-      -->
-      <RouterLink
-        to="/reception/dashboard"
+      <button
+        @click="showOpenShiftModal = true"
         class="bg-yellow-600 hover:bg-yellow-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-colors shadow-sm"
-      >{{ t('reception.open_shift_btn') }}</RouterLink>
+        type="button"
+      >{{ t('reception.open_shift_btn') }}</button>
     </div>
 
     <!-- Main Grid Layout -->
@@ -785,6 +783,27 @@
       </div>
     </Transition>
 
+    <!-- Open Shift Modal -->
+    <OpenShiftModal
+      :is-open="showOpenShiftModal"
+      :cashier-name="cashierName"
+      :loading="shiftOpening"
+      @close="showOpenShiftModal = false"
+      @confirm="handleOpenShiftConfirm"
+    />
+
+    <!-- Close Shift Modal -->
+    <CloseShiftModal
+      :is-open="showCloseShiftModal"
+      :shift-start-time="activeShift?.opened_at ?? ''"
+      :system-expected-cash="shiftExpectedCash"
+      :card-revenue="shiftCardRevenue"
+      :transfer-revenue="shiftTransferRevenue"
+      :loading="shiftClosing"
+      @close="showCloseShiftModal = false"
+      @confirm="handleCloseShiftConfirm"
+    />
+
   </div>
 </template>
 
@@ -799,10 +818,10 @@ import { useBranch } from '@/composables/useBranch'
 import { useReservation } from '@/composables/useReservation'
 import { useNotification } from '@/composables/useNotification'
 import { useRealtime } from '@/composables/useRealtime'
-// Keep my quality-bar imports (useShift, useServiceRequest) AND the broader
+// Keep my quality-bar imports (useServiceRequest) AND the broader
 // lucide icon set that origin/main's UI requires.
 import { useServiceRequest, type ServiceRequest } from '@/composables/useServiceRequest'
-import { useShift } from '@/composables/useShift'
+import { useShiftStore } from '@/stores/shiftStore'
 import type { TableT, Reservation, Shift, Notification } from '@/types/database'
 import {
   Clock,
@@ -830,6 +849,8 @@ import {
   dashboardTopItems,
   dashboardExtraStats,
 } from '@/data/dashboardMockData'
+import OpenShiftModal from '@/components/reception/OpenShiftModal.vue'
+import CloseShiftModal from '@/components/reception/CloseShiftModal.vue'
 
 Chart.register(...registerables)
 
@@ -851,27 +872,17 @@ const { activeBranchId } = useBranch()
 const { updateStatus } = useReservation()
 const { listForRole, markRead } = useNotification()
 const { watchTable } = useRealtime()
-const { openShift } = useShift()
+const shiftStore = useShiftStore()
 const shiftOpening = ref(false)
+const shiftClosing = ref(false)
+const showOpenShiftModal = ref(false)
+const showCloseShiftModal = ref(false)
 
-async function openShiftDialog() {
+async function handleOpenShiftConfirm(openingCash: number) {
   if (!activeBranch.value) return
-  const { value: openingCash } = await Swal.fire({
-    icon: 'question',
-    title: t('reception.dashboard.open_shift_dialog_title', 'Mở ca làm việc'),
-    html: t('reception.dashboard.open_shift_dialog_text', 'Nhập số tiền đầu ca trong két (VND).'),
-    input: 'number',
-    inputAttributes: { min: '0', step: '1000', 'aria-label': 'opening cash' },
-    inputValue: 0,
-    showCancelButton: true,
-    confirmButtonText: t('reception.dashboard.open_shift_confirm', 'Mở ca'),
-    cancelButtonText: t('reception.dashboard.open_shift_cancel', 'Hủy'),
-  })
-  if (openingCash === undefined || openingCash === null) return
   shiftOpening.value = true
   try {
-    const res = await openShift({ branchId: activeBranch.value, openingCash: Number(openingCash) })
-    await fetchActiveShift()
+    const res = await shiftStore.openShift(activeBranch.value, openingCash)
     await Swal.fire({
       icon: 'success',
       title: res.idempotent
@@ -880,10 +891,38 @@ async function openShiftDialog() {
       timer: 1500,
       showConfirmButton: false,
     })
+    showOpenShiftModal.value = false
   } catch (e: any) {
     Swal.fire('Error', e.message || String(e), 'error')
   } finally {
     shiftOpening.value = false
+  }
+}
+
+async function handleCloseShiftConfirm(payload: { actualCash: number; notes: string; managerPin?: string }) {
+  if (!activeShift.value) return
+  shiftClosing.value = true
+  try {
+    await shiftStore.closeShift(payload.actualCash, payload.notes)
+    const diff = payload.actualCash - shiftExpectedCash.value
+    await Swal.fire({
+      icon: 'success',
+      title: t('reception.close_shift.close_shift_success', 'Đóng ca thành công'),
+      html: `${t('reception.close_shift.cash_diff', 'Chênh lệch')}: <b>${diff >= 0 ? '+' : ''}${diff.toLocaleString('vi-VN')}đ</b>`,
+      timer: 2000,
+      showConfirmButton: false,
+    })
+    showCloseShiftModal.value = false
+    await fetchActiveShift()
+    await fetchShiftPayments()
+  } catch (e: any) {
+    Swal.fire(
+      t('reception.close_shift.error_title', 'Lỗi'),
+      e.message || String(e),
+      'error',
+    )
+  } finally {
+    shiftClosing.value = false
   }
 }
 
@@ -989,8 +1028,8 @@ const error = ref<string | null>(null)
 
 const tables = ref<TableT[]>([])
 const reservations = ref<Reservation[]>([])
-const activeShift = ref<Shift | null>(null)
-const shiftPayments = ref<any[]>([])
+const activeShift = computed(() => shiftStore.currentShift)
+const shiftPayments = computed(() => shiftStore.shiftPayments)
 
 // Detailed summaries map for occupied tables (quantities & total amount)
 const tableDetails = ref<Record<string, { itemsCount: number; grandTotal: number; createdAt: string | null }>>({})
@@ -1202,6 +1241,31 @@ const shiftOrdersCount = computed(() => {
   return shiftPayments.value.length
 })
 
+const shiftCashRevenue = computed(() => {
+  return shiftPayments.value
+    .filter((p) => p.method === 'cash')
+    .reduce((sum, p) => sum + Number(p.amount || 0), 0)
+})
+
+const shiftCardRevenue = computed(() => {
+  return shiftPayments.value
+    .filter((p) => p.method === 'card')
+    .reduce((sum, p) => sum + Number(p.amount || 0), 0)
+})
+
+const shiftTransferRevenue = computed(() => {
+  return shiftPayments.value
+    .filter((p) => p.method === 'transfer')
+    .reduce((sum, p) => sum + Number(p.amount || 0), 0)
+})
+
+const shiftExpectedCash = computed(() => {
+  if (!activeShift.value) return 0
+  return Number(activeShift.value.opening_cash || 0) + shiftCashRevenue.value
+})
+
+const cashierName = computed(() => profile.value?.full_name || 'Thu Ngân')
+
 // Notifications mapping & logic
 const allNotifications = computed<UINotification[]>(() => {
   const list = [...dbNotifications.value, ...localMockNotifications.value]
@@ -1272,14 +1336,7 @@ async function fetchBranchInfo() {
 // pill + payment aggregates refresh without a full dashboard re-fetch).
 async function fetchActiveShift() {
   if (!activeBranch.value) return
-  const { data, error: err } = await supabase.rpc('hall_get_active_shift', {
-    p_branch_id: activeBranch.value,
-  })
-  if (err) {
-    console.warn('[ReceptionDashboard] fetchActiveShift failed:', err)
-    return
-  }
-  activeShift.value = (data as Shift) ?? null
+  await shiftStore.fetchActiveShift(activeBranch.value)
 }
 
 // Main fetch function converting all table fetches to Supabase Stored Procedures (RPC)
@@ -1298,20 +1355,20 @@ async function fetchAll() {
     // 2. Fetch today reservations list via RPC 'hall_list_reservations_by_date'
     // 3. Fetch notifications for role
     // 4. Fetch active shift via RPC 'hall_get_active_shift'
-    const [tablesData, resData, notifData, shiftData] = await Promise.all([
+    const [tablesData, resData, notifData] = await Promise.all([
       supabase.rpc('hall_list_tables', { p_branch_id: activeBranch.value }),
       supabase.rpc('hall_list_reservations_by_date', { p_branch_id: activeBranch.value, p_date: todayStr }),
       listForRole('reception-panel', 50).catch(() => [] as Notification[]),
-      supabase.rpc('hall_get_active_shift', { p_branch_id: activeBranch.value })
     ])
 
     if (tablesData.error) throw tablesData.error
     if (resData.error) throw resData.error
-    if (shiftData.error) throw shiftData.error
 
     tables.value = tablesData.data as TableT[]
     reservations.value = resData.data as Reservation[]
-    activeShift.value = shiftData.data as Shift
+
+    // Load shift from mock store
+    await fetchActiveShift()
 
     // Map DB notifications to UINotification format
     mapDbNotifications(notifData ?? [])
@@ -1460,15 +1517,7 @@ async function fetchTableDetails() {
 
 // Fetch active shift payments (to calculate revenue & count orders)
 async function fetchShiftPayments() {
-  if (!activeShift.value) {
-    shiftPayments.value = []
-    return
-  }
-  const { data } = await supabase
-    .from('payments')
-    .select('amount')
-    .eq('shift_id', activeShift.value.id)
-  shiftPayments.value = data || []
+  await shiftStore.fetchShiftPayments()
 }
 
 function subscribeRealtime() {

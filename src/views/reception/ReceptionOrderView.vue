@@ -202,6 +202,9 @@
 
             <!-- Dropdown Menu -->
             <div v-if="showMoreMenu" class="more-dropdown">
+              <button type="button" @click="showOrderManagement = true">
+                📋 Quản lý Order
+              </button>
               <button type="button" @click="showOtherIncomeModal = true">
                 {{ t("reception.other_income") }}
               </button>
@@ -4880,6 +4883,14 @@
       @close="handleAuthClose"
     />
 
+    <!-- Order Management Full-Screen Modal -->
+    <OrderManagementModal
+      v-if="showOrderManagement"
+      ref="orderManagementRef"
+      @close="showOrderManagement = false"
+      @cancelOrder="handleCancelOrder"
+    />
+
     <!-- Selection Mode Info Bar -->
     <div
       v-if="selectionMode !== 'none'"
@@ -4909,6 +4920,7 @@
 import Swal from "sweetalert2";
 import ManagerAuthModal from "@/components/reception/ManagerAuthModal.vue";
 import FloorViewFooter from "@/components/reception/FloorViewFooter.vue";
+import OrderManagementModal from "@/components/reception/OrderManagementModal.vue";
 import { useLanguageStore } from "@/stores/useLanguageStore";
 const langStore = useLanguageStore();
 const t = langStore.t;
@@ -5876,6 +5888,33 @@ const showSearch = ref(false);
 const tableSearchQuery = ref("");
 const searchInputRef = ref<HTMLInputElement | null>(null);
 const showMoreMenu = ref(false);
+
+// ─── Order Management Modal ───────────────────────────────────────────────────
+const showOrderManagement = ref(false);
+const orderManagementRef = ref<InstanceType<typeof OrderManagementModal> | null>(null);
+
+async function handleCancelOrder(order: any) {
+  requestManagerAuth(
+    "CANCEL_BILL",
+    order.order_number,
+    async (payload: { pin: string; reason: string }) => {
+      try {
+        const { error } = await supabase
+          .from("orders")
+          .update({ status: "Cancelled", notes: `Hủy: ${payload.reason}` })
+          .eq("id", order.id);
+
+        if (error) throw error;
+
+        triggerToast("success", `Đã hủy order ${order.order_number}`);
+        orderManagementRef.value?.loadOrders();
+      } catch (err: any) {
+        console.error("[OrderManagement] Cancel failed:", err);
+        triggerToast("error", `Lỗi hủy order: ${err?.message || "Không xác định"}`);
+      }
+    },
+  );
+}
 
 const orderGroups = ref([
   {

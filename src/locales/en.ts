@@ -1427,6 +1427,20 @@ export default {
   'admin_floors.table.unlock': "Unlock Table",
   'admin_floors.action.open_walkin': "Open Table for Walk-in",
   'admin_floors.action.open_serving_2': "Open Table / Start Serving",
+
+  // ─── Reception Floors (Drag & Drop Floor Plan) ───────────────────────
+  'reception_floors.waiting_title': "Waiting for table",
+  'reception_floors.drag_hint': "Drag to empty table",
+  'reception_floors.drag_handle': "⋮⋮ Drag",
+  'reception_floors.timeline_label': "View by time",
+  'reception_floors.drop_here': "+ Drop here",
+  'reception_floors.conflict_badge': "⚠️ Booked",
+  'reception_floors.reset': "Reset",
+  'reception_floors.all_assigned': "✅ All customers assigned",
+  'reception_floors.invalid_drop': "Cannot assign: table occupied or booked!",
+  'reception_floors.assign_success': "Table assigned successfully",
+  'reception_floors.zone_summary': "Shift overview by zone",
+
   'admin_kpi.title': "KPI / KGI Management",
   'admin_kpi.subtitle': "Configure and track goals",
   'admin_kpi.setup_goals': "Set Goals",

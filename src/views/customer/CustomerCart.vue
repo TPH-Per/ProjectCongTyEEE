@@ -409,6 +409,7 @@ async function submitOrder() {
       };
       store.orders.push(order);
       store.clearCart();
+      store.persistOrders();
       syncCart();
     } else {
       // ── Live mode: gọi API thật ──

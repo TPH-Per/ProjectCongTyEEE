@@ -55,13 +55,27 @@ export function useShift() {
     loading.value = true
     error.value = null
     try {
+      // 1. Try Edge Function first
       return await callEdgeFunction<OpenShiftPayload, ShiftOpenResponse>(
         'open-shift',
         payload,
       )
-    } catch (e) {
-      error.value = e instanceof Error ? e.message : String(e)
-      throw e
+    } catch (edgeErr) {
+      console.warn('[useShift] Edge Function open-shift failed, trying direct RPC:', edgeErr)
+      // 2. Fallback: call shift_open RPC directly via Supabase client
+      try {
+        const { data, error: rpcErr } = await supabase.rpc('shift_open', {
+          p_branch_id: payload.branchId,
+          p_opening_cash: payload.openingCash,
+          p_notes: payload.notes ?? {},
+        })
+        if (rpcErr) throw rpcErr
+        if (!data) throw new Error('shift_open RPC returned no data')
+        return data as ShiftOpenResponse
+      } catch (rpcErr) {
+        error.value = rpcErr instanceof Error ? rpcErr.message : String(rpcErr)
+        throw rpcErr
+      }
     } finally {
       loading.value = false
     }
@@ -73,12 +87,26 @@ export function useShift() {
     loading.value = true
     error.value = null
     try {
-      return await callEdgeFunction<CloseShiftPayload, CloseShiftResponse>(
+      const res = await callEdgeFunction<CloseShiftPayload, CloseShiftResponse>(
         'close-shift',
         payload,
       )
+      // Edge Function may return 200 with { ok: false } for business errors
+      // (e.g. unsettled orders)
+      if (res && res.ok === false && res.error) {
+        throw new Error(res.error)
+      }
+      return res
     } catch (e) {
-      error.value = e instanceof Error ? e.message : String(e)
+      const msg = e instanceof Error ? e.message : String(e)
+      // Provide a more helpful message for common failures
+      if (msg.includes('Failed to fetch') || msg.includes('fetch')) {
+        error.value = 'Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng và thử lại.'
+      } else if (msg.includes('unsettled_orders') || msg.includes('chưa thanh toán')) {
+        error.value = msg
+      } else {
+        error.value = msg
+      }
       throw e
     } finally {
       loading.value = false

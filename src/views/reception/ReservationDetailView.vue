@@ -341,6 +341,9 @@
         </div>
       </div>
       <div class="footer-actions">
+        <button v-if="selectedReservation" class="btn-save cancel-bill" @click="openCancelModal" :disabled="submitting">
+          🚫 Hủy phiếu
+        </button>
         <button v-if="selectedReservation" class="btn-save delete" @click="handleDelete" :disabled="submitting">
           🗑️ Xóa đặt bàn
         </button>
@@ -391,6 +394,14 @@
         <span class="nav-label">Chọn món</span>
       </button>
     </nav>
+
+    <!-- Cancel Order Modal -->
+    <CancelOrderModal
+      :is-open="showCancelModal"
+      :order-info="selectedOrder"
+      @close="showCancelModal = false"
+      @confirm="handleCancelConfirm"
+    />
   </div>
 </template>
 
@@ -400,6 +411,7 @@ import { useRouter, useRoute } from 'vue-router'
 import Swal from 'sweetalert2'
 import { useReceptionSync } from '@/composables/useReceptionSync'
 import { normalizeStatus, type ReservationStatus } from '@/stores/receptionStore'
+import CancelOrderModal from '@/components/reception/CancelOrderModal.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -465,6 +477,14 @@ const dbTables = ref<any[]>([])
 const selectedReservation = ref<any>(null)
 const loading = ref(false)
 const submitting = ref(false)
+
+// ===== Cancel Order Modal =====
+const showCancelModal = ref(false)
+const selectedOrder = ref({
+  code: '',
+  tableNumber: '',
+  total: 0
+})
 
 const timeSlots = [
   { id: 'all', label: 'Tất cả' },
@@ -751,6 +771,24 @@ async function handleDelete() {
   } finally {
     submitting.value = false
   }
+}
+
+function openCancelModal() {
+  if (selectedReservation.value) {
+    selectedOrder.value = {
+      code: selectedReservation.value.code || 'N/A',
+      tableNumber: assignedTableCode.value || 'N/A',
+      total: 17214120 // Mock — replace with actual order total when available
+    }
+  }
+  showCancelModal.value = true
+}
+
+async function handleCancelConfirm(cancelData: any) {
+  console.log('Processing cancellation:', cancelData)
+  // TODO: Call API to cancel order
+  // await api.cancelOrder(cancelData)
+  showCancelModal.value = false
 }
 
 function createNew() {
@@ -1625,6 +1663,14 @@ onMounted(() => {
 
 .btn-save.delete:hover:not(:disabled) {
   background: #dc2626;
+}
+
+.btn-save.cancel-bill {
+  background: #b91c1c;
+}
+
+.btn-save.cancel-bill:hover:not(:disabled) {
+  background: #991b1b;
 }
 
 /* Bottom Navigation - Fixed 60px */

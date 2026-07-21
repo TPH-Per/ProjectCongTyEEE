@@ -16,6 +16,9 @@ import type {
 import { customerApiImpl } from '@/services/customerApi';
 import { computeTotals } from '@/utils/packageRules';
 import { isValidUUID } from '@/utils/validators';
+import { isSupabaseConfigured } from '@/lib/supabase';
+
+const ORDERS_KEY = 'nguucat_customer_orders';
 
 export interface Notification {
   id: string;
@@ -334,23 +337,36 @@ export const useCustomerStore = defineStore('customer', {
       confirmedOrder.status = 'confirmed';
       this.orders.push(confirmedOrder);
       this.clearCart();
+      this.persistOrders();
       this.addNotification('Đã gửi món vào bếp thành công!', 'success');
       return confirmedOrder;
     },
 
     async cancelOrder(orderId: string): Promise<void> {
-      // Typically orders cannot be canceled after confirmation from tablet,
-      // but let's provide client side action
       this.orders = this.orders.filter(o => o.id !== orderId);
+      this.persistOrders();
       this.addNotification('Đã hủy order', 'info');
     },
     
     // NV5: History & Payment
     async loadOrderHistory(): Promise<Order[]> {
       if (!this.session) return [];
+
+      // Mock mode: skip API (returns []), restore from localStorage if needed
+      if (!isSupabaseConfigured) {
+        if (this.orders.length === 0) {
+          this.restoreOrders();
+        }
+        return this.orders;
+      }
+
+      // Live mode: fetch from Supabase
       const history = await customerApiImpl.getOrderHistory(this.session.id);
-      this.orders = history;
-      return history;
+      if (history.length > 0) {
+        this.orders = history;
+        this.persistOrders();
+      }
+      return this.orders;
     },
 
     async requestPayment(): Promise<void> {
@@ -403,6 +419,36 @@ export const useCustomerStore = defineStore('customer', {
       this.feedback = null;
       this.currentView = 'home';
       this.notifications = [];
+      localStorage.removeItem(ORDERS_KEY);
+    },
+
+    // ── Orders localStorage persistence ──────────────────────────────
+    persistOrders(): void {
+      try {
+        // Serialize dates as ISO strings for round-trip safety
+        const serializable = this.orders.map(o => ({
+          ...o,
+          createdAt: o.createdAt instanceof Date ? o.createdAt.toISOString() : o.createdAt,
+        }));
+        localStorage.setItem(ORDERS_KEY, JSON.stringify(serializable));
+      } catch (e) {
+        console.error('[customerStore] persistOrders failed:', e);
+      }
+    },
+
+    restoreOrders(): void {
+      try {
+        const raw = localStorage.getItem(ORDERS_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw) as Order[];
+          this.orders = parsed.map(o => ({
+            ...o,
+            createdAt: typeof o.createdAt === 'string' ? new Date(o.createdAt) : o.createdAt,
+          }));
+        }
+      } catch (e) {
+        console.error('[customerStore] restoreOrders failed:', e);
+      }
     },
 
     // UI Helpers

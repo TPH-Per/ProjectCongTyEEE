@@ -1519,6 +1519,20 @@ export default {
   'admin_floors.table.unlock': "Mở khóa bàn",
   'admin_floors.action.open_walkin': "Khai Bàn Khách Vãng Lai (Walk-in)",
   'admin_floors.action.open_serving_2': "Khai Bàn / Mở Phục Vụ (Serving)",
+
+  // ─── Reception Floors (Drag & Drop Floor Plan) ───────────────────────
+  'reception_floors.waiting_title': "Khách chờ xếp bàn",
+  'reception_floors.drag_hint': "Kéo thả vào bàn trống",
+  'reception_floors.drag_handle': "⋮⋮ Kéo",
+  'reception_floors.timeline_label': "Xem lịch theo giờ",
+  'reception_floors.drop_here': "+ Thả vào đây",
+  'reception_floors.conflict_badge': "⚠️ Đã đặt",
+  'reception_floors.reset': "Đặt lại",
+  'reception_floors.all_assigned': "✅ Tất cả khách đã được xếp bàn",
+  'reception_floors.invalid_drop': "Không thể xếp bàn: Bàn đang có khách hoặc đã có lịch đặt!",
+  'reception_floors.assign_success': "Đã xếp bàn thành công",
+  'reception_floors.zone_summary': "Tổng quan ca theo khu",
+
   'admin_kpi.title': "Quản Lý KPI / KGI",
   'admin_kpi.subtitle': "Cấu hình và theo dõi mục tiêu",
   'admin_kpi.setup_goals': "Thiết Lập Mục Tiêu",

@@ -10,6 +10,7 @@ export function useCustomerSession() {
   const AUTH_KEY = 'nguucat_customer_auth';
   const TABLE_KEY = 'nguucat_customer_table';
   const CART_KEY = 'nguucat_customer_cart';
+  const ORDERS_KEY = 'nguucat_customer_orders';
 
   const session = computed(() => store.session);
   const isAuthenticated = computed(() => store.isAuthenticated);
@@ -39,6 +40,7 @@ export function useCustomerSession() {
       const savedAuth = localStorage.getItem(AUTH_KEY);
       const savedTable = localStorage.getItem(TABLE_KEY);
       const savedCart = localStorage.getItem(CART_KEY);
+      const savedOrders = localStorage.getItem(ORDERS_KEY);
 
       if (savedAuth === 'true') {
         store.isAuthenticated = true;
@@ -58,6 +60,15 @@ export function useCustomerSession() {
 
       if (savedCart) {
         store.cart = JSON.parse(savedCart);
+      }
+
+      // Restore orders so they survive page reloads in mock mode
+      if (savedOrders && store.orders.length === 0) {
+        const parsed = JSON.parse(savedOrders) as any[];
+        store.orders = parsed.map(o => ({
+          ...o,
+          createdAt: typeof o.createdAt === 'string' ? new Date(o.createdAt) : o.createdAt,
+        }));
       }
     } catch (e) {
       console.error('Failed to restore customer session from localStorage:', e);
@@ -91,6 +102,7 @@ export function useCustomerSession() {
     localStorage.removeItem(AUTH_KEY);
     localStorage.removeItem(TABLE_KEY);
     localStorage.removeItem(CART_KEY);
+    localStorage.removeItem(ORDERS_KEY);
   }
 
   // Monitor and save changes whenever cart changes

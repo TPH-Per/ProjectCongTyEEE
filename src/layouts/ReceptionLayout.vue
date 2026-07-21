@@ -105,26 +105,43 @@
           <BarChart3 class="w-[18px] h-[18px]" />
           {{ t('sidebar.reports') }}
         </RouterLink>
+        <RouterLink
+          to="/reception/menu-management"
+          class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-sm font-semibold text-gray-600 hover:bg-gray-100"
+          active-class="bg-orange-50 text-[#E8772E] hover:bg-orange-50"
+        >
+          <Coffee class="w-[18px] h-[18px]" />
+          {{ t('sidebar.menu_management') }}
+        </RouterLink>
 
         <!-- Ca làm việc -->
         <div class="text-[11px] font-extrabold text-gray-500 uppercase tracking-wider mb-2 mt-4">
           {{ t('sidebar.shift') }}
         </div>
         <RouterLink
+          to="/reception/shift-summary?action=open"
+          class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-sm font-semibold text-gray-600 hover:bg-gray-100"
+          active-class="bg-green-50 text-green-700 hover:bg-green-50"
+        >
+          <LockOpen class="w-[18px] h-[18px]" />
+          {{ t('sidebar.open_shift', 'Mở ca') }}
+        </RouterLink>
+        <RouterLink
+          to="/reception/shift-summary"
+          class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-sm font-semibold text-gray-600 hover:bg-gray-100"
+          active-class="bg-orange-50 text-[#E8772E] hover:bg-orange-50"
+        >
+          <ClipboardList class="w-[18px] h-[18px]" />
+          {{ t('sidebar.shift_summary', 'Tổng kết ca') }}
+        </RouterLink>
+        <RouterLink
           to="/reception/close-shift"
           class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-sm font-semibold text-gray-600 hover:bg-gray-100"
           active-class="bg-red-50 text-red-600 hover:bg-red-50"
         >
-          <Clock class="w-[18px] h-[18px]" />
-          {{ t('sidebar.close_shift') }}
-        </RouterLink>
-        <button
-          @click="handleQuickAction('Ra ca', '/shift/end')"
-          class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-sm font-semibold text-gray-600 hover:bg-gray-100 text-left"
-        >
           <LogOut class="w-[18px] h-[18px]" />
-          {{ t('sidebar.exit_shift') }}
-        </button>
+          {{ t('sidebar.ra_ca', 'Ra ca') }}
+        </RouterLink>
       </nav>
       <div class="p-4 border-t relative">
         <!-- Backdrop to close dropdown on click outside -->
@@ -456,19 +473,22 @@ import { useAuth } from '@/composables/useAuth'
 import { useUserSticker } from '@/composables/useUserSticker'
 import TextLogo from '@/components/TextLogo.vue'
 import Swal from 'sweetalert2'
-import { 
-  Utensils, 
-  BadgePlus, 
-  BadgeMinus, 
-  Settings as SettingsIcon, 
-  Receipt, 
+import {
+  Utensils,
+  BadgePlus,
+  BadgeMinus,
+  Settings as SettingsIcon,
+  Receipt,
   BarChart3,
+  Coffee,
   LogOut,
   LayoutDashboard,
   Grid,
   Clock,
   Store,
-  Calendar
+  Calendar,
+  ClipboardList,
+  LockOpen
 } from 'lucide-vue-next'
 
 const router = useRouter()

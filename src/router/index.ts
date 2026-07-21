@@ -47,6 +47,7 @@ import StaffInDiningCRMView from "@/views/staff/StaffInDiningCRMView.vue";
 import ReceptionCheckoutView from "@/views/reception/ReceptionCheckoutView.vue";
 import ReceptionDashboardView from "@/views/reception/ReceptionDashboardView.vue";
 import ReceptionCloseShiftView from "@/views/reception/ReceptionCloseShiftView.vue";
+import ShiftSummaryView from "@/views/reception/ShiftSummaryView.vue";
 import ReceptionOrderView from "@/views/reception/ReceptionOrderView.vue";
 import MenuManagementView from "@/views/reception/MenuManagementView.vue";
 
@@ -311,9 +312,18 @@ const routes: RouteRecordRaw[] = [
         component: ReceptionCloseShiftView,
       },
       {
+        path: "shift-summary",
+        name: "reception-shift-summary",
+        component: ShiftSummaryView,
+        meta: {
+          requiresAuth: true,
+          title: "Tổng kết ca",
+        },
+      },
+      {
         path: "floors",
         name: "reception-floors",
-        component: AdminFloorsView,
+        component: () => import("@/views/reception/ReceptionFloorsView.vue"),
       },
       {
         path: "order",
@@ -368,6 +378,16 @@ const routes: RouteRecordRaw[] = [
         meta: {
           requiresAuth: true,
           title: "Xử lý món",
+          fullscreen: true,
+        },
+      },
+      {
+        path: "menu-management",
+        name: "reception-menu-management",
+        component: MenuManagementView,
+        meta: {
+          requiresAuth: true,
+          title: "Quản lý Món",
           fullscreen: true,
         },
       },

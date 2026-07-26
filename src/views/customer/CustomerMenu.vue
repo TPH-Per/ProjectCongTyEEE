@@ -1,10 +1,14 @@
 <!-- File: src/views/customer/CustomerMenu.vue -->
 <template>
-  <div class="menu-layout relative overflow-hidden">
-    <!-- Subtle Background Circle Accents (properly positioned with pointer-events-none) -->
-    <div class="absolute inset-0 pointer-events-none overflow-hidden z-0">
-      <div class="absolute -top-40 -right-40 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl"></div>
-      <div class="absolute top-1/3 -left-20 w-80 h-80 bg-amber-600/5 rounded-full blur-3xl"></div>
+  <div class="menu-layout relative min-h-screen overflow-x-hidden overflow-y-auto">
+    <!-- Background Decorative Circles (z-0, pointer-events-none) -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
+      <!-- Circle 1 - Top right -->
+      <div class="absolute -top-20 -right-20 w-96 h-96 max-w-[400px] max-h-[400px] bg-amber-500/10 rounded-full blur-3xl opacity-10"></div>
+      <!-- Circle 2 - Bottom left -->
+      <div class="absolute bottom-0 -left-20 w-72 h-72 max-w-[300px] max-h-[300px] bg-amber-600/10 rounded-full blur-2xl opacity-5"></div>
+      <!-- Circle 3 - Center -->
+      <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 max-w-[260px] max-h-[260px] bg-amber-500/5 rounded-full blur-3xl opacity-5"></div>
     </div>
 
     <!-- 1. SIDEBAR: Cấp 1 & Cấp 2 danh mục chính -->
@@ -73,21 +77,23 @@
           </div>
 
           <!-- Empty State -->
-          <div v-if="displayedItems.length === 0" class="empty-state">
-            <div class="empty-icon">🍽️</div>
-            <h2>{{ $t('customer.menu.emptyTitle') }}</h2>
-            <p>{{ store.searchQuery ? 'Không tìm thấy món nào phù hợp với từ khóa "' + store.searchQuery + '"' : $t('customer.menu.emptyText') }}</p>
+          <div v-if="displayedItems.length === 0" class="text-center py-16">
+            <div class="text-8xl mb-6">📭</div>
+            <h2 class="text-2xl font-bold text-gray-200 mb-2">Không có món nào</h2>
+            <p class="text-gray-400">
+              {{ store.searchQuery ? 'Không tìm thấy món phù hợp' : 'Menu đang được cập nhật' }}
+            </p>
             <button 
               v-if="store.searchQuery" 
               @click="store.searchQuery = ''"
-              class="mt-4 px-5 py-2.5 bg-amber-500 hover:bg-amber-400 text-black font-extrabold rounded-xl transition-all active:scale-95 text-xs shadow-lg shadow-amber-500/20"
+              class="mt-4 px-6 py-2 bg-amber-500 hover:bg-amber-400 text-black font-extrabold rounded-lg transition-colors text-sm shadow-lg shadow-amber-500/20"
             >
-              Xóa tìm kiếm
+              Xóa bộ lọc
             </button>
           </div>
 
-          <!-- Items Grid -->
-          <div v-else class="items-grid">
+          <!-- Menu Grid - z-10 -->
+          <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 relative z-10">
             <MenuItemCard
               v-for="item in displayedItems"
               :key="item.id"
@@ -155,6 +161,20 @@
       @go-to-cart="goToCart"
     />
 
+    <!-- Dev Mode Debug Overlay Panel -->
+    <div v-if="isDevMode" class="fixed top-4 right-4 bg-rose-950/90 text-white p-4 rounded-2xl z-50 text-xs border border-rose-500/40 shadow-2xl backdrop-blur-md max-w-xs space-y-2 select-none">
+      <div class="flex items-center justify-between font-black tracking-wider border-b border-rose-700/50 pb-1.5">
+        <h3 class="font-bold flex items-center gap-1.5"><span class="animate-pulse">🐛</span> Debug Info</h3>
+        <button @click="isDevMode = false" class="text-[10px] bg-rose-800 hover:bg-rose-700 px-2 py-0.5 rounded-lg text-rose-200 hover:text-white transition-colors">✕ Off</button>
+      </div>
+      <ul class="space-y-1.5 text-rose-200 text-[11px] font-medium">
+        <li class="flex justify-between"><span>Menu items:</span> <span class="font-bold text-emerald-400">{{ debugState.itemCount }}</span></li>
+        <li class="flex justify-between"><span>Grid visible:</span> <span class="font-bold">{{ debugState.gridVisible ? '✅' : '❌' }}</span></li>
+        <li class="flex justify-between"><span>Background size:</span> <span class="font-mono text-white text-[10px]">{{ debugState.backgroundSize }}</span></li>
+        <li class="flex justify-between border-t border-rose-800/60 pt-1"><span>Bàn:</span> <span class="font-bold text-white">{{ store.session?.tableNumber || 'A01' }}</span></li>
+      </ul>
+    </div>
+
   </div>
 </template>
 
@@ -177,6 +197,22 @@ const router = useRouter()
 const store = useCustomerStore()
 const i18nStore = useI18nStore()
 const { syncCart } = useCustomerSession();
+
+const isDevMode = ref(import.meta.env.DEV);
+
+const debugState = computed(() => {
+  const circle = typeof document !== 'undefined' ? document.querySelector('.bg-amber-500\\/10.rounded-full') : null;
+  let bgSize = '384px x 384px';
+  if (circle) {
+    const styles = window.getComputedStyle(circle);
+    bgSize = `${styles.width} x ${styles.height}`;
+  }
+  return {
+    itemCount: displayedItems.value.length,
+    gridVisible: displayedItems.value.length > 0,
+    backgroundSize: bgSize,
+  };
+});
 
 const focusedItem = ref<MenuItem | null>(null);
 const isModalOpen = computed(() => focusedItem.value !== null);
@@ -582,7 +618,7 @@ function addSetToCart(cat: MenuCategory) {
   bottom: 0;
   left: 250px;
   right: 0;
-  z-index: 40;
+  z-index: 50;
   display: flex;
   flex-direction: column;
   background: transparent;

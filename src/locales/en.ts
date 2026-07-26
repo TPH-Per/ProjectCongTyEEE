@@ -313,6 +313,7 @@ export default {
         "5": 'Very satisfied! 😍'
       }
     },
+
     tracking: {
       title: 'Order Tracking',
       subtitle: 'Table {table} • {count} items',

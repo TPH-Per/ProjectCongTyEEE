@@ -311,6 +311,7 @@ export default {
         "5": 'Rất hài lòng! 😍'
       }
     },
+
     tracking: {
       title: 'Theo dõi món ăn',
       subtitle: 'Bàn {table} • {count} món',

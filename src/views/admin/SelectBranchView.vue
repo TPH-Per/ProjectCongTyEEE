@@ -25,8 +25,14 @@ const submitting = ref(false)
 onMounted(async () => {
   try {
     branches.value = await listBranches()
-  } catch (e) {
-    errorMsg.value = e instanceof Error ? e.message : String(e)
+  } catch (e: any) {
+    if (e instanceof Error) {
+      errorMsg.value = e.message
+    } else if (typeof e === 'object' && e !== null) {
+      errorMsg.value = e.message || JSON.stringify(e)
+    } else {
+      errorMsg.value = String(e)
+    }
   } finally {
     loading.value = false
   }

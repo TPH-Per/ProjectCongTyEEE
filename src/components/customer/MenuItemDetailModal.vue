@@ -5,7 +5,6 @@
       <div class="modal-container">
         <!-- Header -->
         <div class="modal-header">
-          <!-- FIX: Thêm @click handler rõ ràng và type="button" -->
           <button class="btn-back" @click="handleBack" type="button">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="pointer-events: none;">
               <line x1="19" y1="12" x2="5" y2="12"></line>
@@ -13,14 +12,13 @@
             </svg>
           </button>
           
-          <!-- FIX: Thêm @click handler và type="button" -->
           <button class="btn-cart" @click="handleGoToCart" type="button">
             {{ $t('customer.itemDetail.cart', { count: cartCount }) }}
           </button>
         </div>
 
         <!-- Body -->
-        <div class="modal-body">
+        <div class="modal-body scrollbar-hide">
           <!-- Gallery Column -->
           <div class="gallery-column">
             <!-- Ảnh chính -->
@@ -177,28 +175,28 @@ const getEmojiByName = (name: string): string => {
 const getGradientByName = (name: string): string => {
   const n = name.toLowerCase()
   if (n.includes('wagyu') || n.includes('bò') || n.includes('beef')) 
-    return 'linear-gradient(135deg, #8B0000 0%, #DC143C 100%)'
+    return 'linear-gradient(135deg, #450a0a 0%, #991b1b 100%)'
   if (n.includes('heo') || n.includes('pork') || n.includes('ba chỉ')) 
-    return 'linear-gradient(135deg, #FFB6C1 0%, #FF69B4 100%)'
+    return 'linear-gradient(135deg, #831843 0%, #be185d 100%)'
   if (n.includes('gà') || n.includes('chicken')) 
-    return 'linear-gradient(135deg, #FFA500 0%, #FF8C00 100%)'
+    return 'linear-gradient(135deg, #7c2d12 0%, #c2410c 100%)'
   if (n.includes('hải sản') || n.includes('tôm') || n.includes('cá') || n.includes('bạch tuộc') || n.includes('cua') || n.includes('sò')) 
-    return 'linear-gradient(135deg, #00CED1 0%, #20B2AA 100%)'
+    return 'linear-gradient(135deg, #134e4a 0%, #0f766e 100%)'
   if (n.includes('rau') || n.includes('salad') || n.includes('nấm')) 
-    return 'linear-gradient(135deg, #98FB98 0%, #3CB371 100%)'
+    return 'linear-gradient(135deg, #14532d 0%, #15803d 100%)'
   if (n.includes('cơm') || n.includes('rice')) 
-    return 'linear-gradient(135deg, #FFF8DC 0%, #F5DEB3 100%)'
+    return 'linear-gradient(135deg, #713f12 0%, #a16207 100%)'
   if (n.includes('mì') || n.includes('noodle') || n.includes('udon') || n.includes('ramen')) 
-    return 'linear-gradient(135deg, #FFE4B5 0%, #DEB887 100%)'
+    return 'linear-gradient(135deg, #78350f 0%, #b45309 100%)'
   if (n.includes('kem') || n.includes('bánh') || n.includes('dessert') || n.includes('tráng miệng')) 
-    return 'linear-gradient(135deg, #FFB6C1 0%, #FF69B4 100%)'
+    return 'linear-gradient(135deg, #701a75 0%, #a21caf 100%)'
   if (n.includes('bia') || n.includes('beer')) 
-    return 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)'
+    return 'linear-gradient(135deg, #713f12 0%, #d97706 100%)'
   if (n.includes('rượu') || n.includes('wine') || n.includes('soju') || n.includes('sake')) 
-    return 'linear-gradient(135deg, #722F37 0%, #8B0000 100%)'
+    return 'linear-gradient(135deg, #581c87 0%, #7e22ce 100%)'
   if (n.includes('lẩu') || n.includes('hotpot'))
-    return 'linear-gradient(135deg, #FF6347 0%, #FF4500 100%)'
-  return 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+    return 'linear-gradient(135deg, #9a3412 0%, #c2410c 100%)'
+  return 'linear-gradient(135deg, #1e1b4b 0%, #3730a3 100%)'
 }
 
 const getDetailEmoji = (name: string): string => {
@@ -209,10 +207,10 @@ const getDetailEmoji = (name: string): string => {
 }
 
 const getDetailGradient = (name: string): string => {
-  if (name.includes('wagyu') || name.includes('bò') || name.includes('beef')) return 'linear-gradient(135deg, #FF4500 0%, #FF6347 100%)'
-  if (name.includes('rau') || name.includes('salad') || name.includes('nấm')) return 'linear-gradient(135deg, #32CD32 0%, #228B22 100%)'
-  if (name.includes('cơm') || name.includes('rice')) return 'linear-gradient(135deg, #F5DEB3 0%, #D2B48C 100%)'
-  return 'linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%)'
+  if (name.includes('wagyu') || name.includes('bò') || name.includes('beef')) return 'linear-gradient(135deg, #7c2d12 0%, #b45309 100%)'
+  if (name.includes('rau') || name.includes('salad') || name.includes('nấm')) return 'linear-gradient(135deg, #14532d 0%, #15803d 100%)'
+  if (name.includes('cơm') || name.includes('rice')) return 'linear-gradient(135deg, #713f12 0%, #a16207 100%)'
+  return 'linear-gradient(135deg, #9a3412 0%, #ea580c 100%)'
 }
 
 const thumbnails = computed(() => {
@@ -224,8 +222,8 @@ const thumbnails = computed(() => {
   return [
     { emoji: mainEmoji, gradient: mainGradient, label: t('customer.itemDetail.overview') },
     { emoji: getDetailEmoji(name), gradient: getDetailGradient(name), label: t('customer.itemDetail.preparation') },
-    { emoji: '🌾', gradient: 'linear-gradient(135deg, #8B4513 0%, #A0522D 100%)', label: t('customer.itemDetail.ingredients') },
-    { emoji: '👨‍🍳', gradient: 'linear-gradient(135deg, #434343 0%, #000000 100%)', label: t('customer.itemDetail.plating') }
+    { emoji: '🌾', gradient: 'linear-gradient(135deg, #451a03 0%, #78350f 100%)', label: t('customer.itemDetail.ingredients') },
+    { emoji: '👨‍🍳', gradient: 'linear-gradient(135deg, #18181b 0%, #27272a 100%)', label: t('customer.itemDetail.plating') }
   ]
 })
 
@@ -235,8 +233,8 @@ const currentEmoji = computed(() => {
 })
 
 const currentGradient = computed(() => {
-  if (thumbnails.value.length === 0) return 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-  return thumbnails.value[selectedThumb.value]?.gradient || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+  if (thumbnails.value.length === 0) return 'linear-gradient(135deg, #1e1b4b 0%, #3730a3 100%)'
+  return thumbnails.value[selectedThumb.value]?.gradient || 'linear-gradient(135deg, #1e1b4b 0%, #3730a3 100%)'
 })
 
 const getDefaultDescription = () => {
@@ -249,19 +247,15 @@ const getDefaultDescription = () => {
   return t('customer.itemDetail.defaultDescGeneric')
 }
 
-// FIX: Handler functions rõ ràng
 const handleBack = () => {
-  console.log('Back button clicked')
   emit('close')
 }
 
 const handleGoToCart = () => {
-  console.log('Go to cart clicked')
   emit('go-to-cart')
 }
 
 const handleSelectThumb = (index: number) => {
-  console.log('Thumbnail clicked:', index)
   selectedThumb.value = index
 }
 
@@ -275,18 +269,15 @@ const decreaseQty = () => {
 
 const handleAddToCart = () => {
   if (!props.item) return
-  console.log('Add to cart clicked:', props.item.name, quantity.value)
   emit('add', props.item, quantity.value, chefNote.value)
 }
 
-// Reset state khi mở modal
 const resetState = () => {
   chefNote.value = ''
   quantity.value = 1
   selectedThumb.value = 0
 }
 
-// Watch isOpen để reset
 watch(() => props.isOpen, (newVal) => {
   if (newVal) {
     resetState()
@@ -295,80 +286,99 @@ watch(() => props.isOpen, (newVal) => {
 </script>
 
 <style scoped>
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: #121212;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(12px);
   z-index: 9999;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0;
+  padding: 24px;
 }
 
 .modal-container {
-  background: #ffffff;
+  background: #18181b;
   width: 100%;
   height: 100%;
-  max-width: 100%;
-  max-height: 100%;
-  border-radius: 0;
+  max-width: 960px;
+  max-height: 640px;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
 }
 
 .modal-header {
-  height: 60px;
+  height: 64px;
   flex-shrink: 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 0 24px;
-  background: #ffffff;
-  border-bottom: 1px solid #eeeeee;
+  background: #141417;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-/* FIX: Button styles rõ ràng */
 .btn-back, .btn-cart {
   position: relative;
   z-index: 10;
   pointer-events: auto;
-  padding: 10px 20px;
+  padding: 8px 18px;
   border: none;
-  border-radius: 20px;
-  color: white;
-  font-weight: 700;
+  border-radius: 14px;
+  font-weight: 800;
   cursor: pointer;
-  transition: all 0.2s;
-  font-size: 14px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  font-size: 13px;
 }
 
 .btn-back {
-  background: #f0f0f0;
-  color: #333333;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
+  background: #27272a;
+  color: #f4f4f5;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0;
-  font-size: 20px;
+}
+
+.btn-back:hover {
+  background: #3f3f46;
+  color: white;
 }
 
 .btn-back:active {
-  background: #e0e0e0;
   transform: scale(0.95);
 }
 
 .btn-cart {
-  background: #E8772E;
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: #000000;
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.3);
+}
+
+.btn-cart:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(245, 158, 11, 0.4);
 }
 
 .btn-cart:active {
-  background: #C96626;
-  transform: translateY(2px);
+  transform: scale(0.95);
 }
 
 .modal-body {
@@ -377,32 +387,32 @@ watch(() => props.isOpen, (newVal) => {
   grid-template-columns: 1fr 1fr;
   gap: 24px;
   padding: 24px;
-  overflow: hidden;
+  overflow-y: auto;
   min-height: 0;
 }
 
 .gallery-column {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
   min-height: 0;
 }
 
 .main-image {
   flex: 1;
-  border-radius: 16px;
+  border-radius: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-  min-height: 0;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+  min-height: 200px;
 }
 
 .main-emoji {
-  font-size: min(18vw, 180px);
-  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.4));
+  font-size: 100px;
+  filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.5));
 }
 
 .fade-enter-active,
@@ -428,9 +438,9 @@ watch(() => props.isOpen, (newVal) => {
   color: white;
   padding: 4px 12px;
   border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-  backdrop-filter: blur(10px);
+  font-size: 11px;
+  font-weight: 700;
+  backdrop-filter: blur(8px);
 }
 
 .thumbnails-row {
@@ -440,10 +450,9 @@ watch(() => props.isOpen, (newVal) => {
   flex-shrink: 0;
 }
 
-/* FIX: Thumbnail button styles */
 .thumbnail {
   aspect-ratio: 1;
-  border-radius: 12px;
+  border-radius: 14px;
   border: 2px solid transparent;
   cursor: pointer;
   display: flex;
@@ -454,32 +463,30 @@ watch(() => props.isOpen, (newVal) => {
   transition: all 0.2s ease;
   position: relative;
   overflow: hidden;
-  padding: 8px;
-  background: #f5f5f5;
+  padding: 6px;
+  background: #27272a;
 }
 
-.thumbnail:active {
-  transform: translateY(2px) scale(0.95);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+.thumbnail:hover {
+  border-color: rgba(245, 158, 11, 0.5);
 }
 
 .thumbnail.active {
-  border-color: #E8772E;
-  box-shadow: 0 0 0 2px rgba(232, 119, 46, 0.2);
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.3);
   transform: translateY(-2px);
 }
 
 .thumb-emoji {
-  font-size: 32px;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  font-size: 28px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
 }
 
 .thumb-label {
   font-size: 10px;
-  font-weight: 600;
+  font-weight: 700;
   color: white;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
-  letter-spacing: 0.3px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
 }
 
 .info-column {
@@ -490,51 +497,47 @@ watch(() => props.isOpen, (newVal) => {
 }
 
 .item-name {
-  font-size: 28px;
-  font-weight: 700;
-  color: #333333;
+  font-size: 24px;
+  font-weight: 800;
+  color: #ffffff;
   margin: 0;
-  line-height: 1.2;
+  line-height: 1.25;
   flex-shrink: 0;
 }
 
 .item-price {
-  font-size: 24px;
-  font-weight: 700;
-  color: #C62828;
+  font-size: 22px;
+  font-weight: 900;
+  color: #f59e0b;
   flex-shrink: 0;
 }
 
 .item-price.free {
-  color: #4CAF50;
+  color: #10b981;
 }
 
 .description-box {
-  background: #f5f5f5;
-  border-radius: 12px;
-  padding: 16px 20px;
+  background: #27272a;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 16px;
   flex-shrink: 0;
 }
 
 .section-label {
   font-size: 11px;
-  font-weight: 700;
-  color: #666666;
+  font-weight: 800;
+  color: #a1a1aa;
   text-transform: uppercase;
   letter-spacing: 1px;
   margin: 0 0 8px 0;
 }
 
 .description-text {
-  font-size: 14px;
-  color: #333333;
+  font-size: 13px;
+  color: #e4e4e7;
   line-height: 1.5;
   margin: 0;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .attributes-row {
@@ -545,43 +548,45 @@ watch(() => props.isOpen, (newVal) => {
 }
 
 .attr-card {
-  background: #f5f5f5;
-  border-radius: 12px;
-  padding: 14px 8px;
+  background: #27272a;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 12px 8px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   text-align: center;
 }
 
 .attr-icon {
-  font-size: 22px;
+  font-size: 20px;
 }
 
 .attr-label {
-  font-size: 11px;
-  color: #666666;
+  font-size: 10px;
+  color: #a1a1aa;
+  font-weight: 600;
 }
 
 .attr-value {
-  font-size: 13px;
-  font-weight: 600;
-  color: #333333;
+  font-size: 12px;
+  font-weight: 700;
+  color: #f4f4f5;
 }
 
 .attr-value.highlight {
-  color: #E8772E;
+  color: #f59e0b;
 }
 
 .modal-footer {
-  padding: 16px 24px;
-  background: #ffffff;
-  border-top: 1px solid #eeeeee;
+  padding: 16px 24px 20px;
+  background: #141417;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 
 .footer-row {
@@ -600,86 +605,102 @@ watch(() => props.isOpen, (newVal) => {
 .quantity-control {
   display: flex;
   align-items: center;
-  gap: 10px;
-  background: #f5f5f5;
-  border-radius: 10px;
-  padding: 6px;
-  border: 1px solid #eeeeee;
+  gap: 8px;
+  background: #27272a;
+  border-radius: 14px;
+  padding: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .qty-btn {
-  width: 44px;
-  height: 44px;
-  border-radius: 8px;
-  background: #ffffff;
-  border: 1px solid #dddddd;
-  color: #333333;
-  font-size: 20px;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: #3f3f46;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 800;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.1s;
+  transition: all 0.15s ease;
+}
+
+.qty-btn:hover {
+  background: #f59e0b;
+  color: #000000;
 }
 
 .qty-btn:active {
-  background: #e0e0e0;
   transform: scale(0.95);
 }
 
 .qty-value {
-  font-size: 18px;
-  font-weight: 700;
-  color: #333333;
-  min-width: 32px;
+  font-size: 16px;
+  font-weight: 800;
+  color: #ffffff;
+  min-width: 28px;
   text-align: center;
 }
 
 .note-input {
   width: 100%;
-  background: #ffffff;
-  border: 1px solid #cccccc;
-  border-radius: 10px;
-  padding: 12px 16px;
-  color: #333333;
-  font-size: 15px;
+  background: #27272a;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 10px 14px;
+  color: #ffffff;
+  font-size: 13px;
   font-family: inherit;
+  transition: border-color 0.2s;
 }
 
 .note-input:focus {
   outline: none;
-  border-color: #E8772E;
-  box-shadow: 0 0 0 2px rgba(232, 119, 46, 0.2);
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2);
 }
 
 .note-input::placeholder {
-  color: #999999;
+  color: #71717a;
 }
 
 .btn-add-cart {
   width: 100%;
-  padding: 18px;
-  background: #E8772E;
+  padding: 14px;
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
   border: none;
-  border-radius: 12px;
-  color: white;
-  font-size: 16px;
-  font-weight: 700;
+  border-radius: 14px;
+  color: #000000;
+  font-size: 14px;
+  font-weight: 900;
   cursor: pointer;
-  transition: all 0.1s;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 16px rgba(245, 158, 11, 0.3);
+}
+
+.btn-add-cart:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.45);
 }
 
 .btn-add-cart:active {
-  background: #C96626;
-  transform: translateY(2px);
-  box-shadow: 0 4px 12px rgba(232, 119, 46, 0.3);
+  transform: scale(0.98);
 }
 
 @media (max-width: 768px) {
+  .modal-overlay {
+    padding: 0;
+  }
+
   .modal-container {
-    height: 95vh;
+    height: 100%;
+    max-height: 100%;
+    border-radius: 0;
   }
   
   .modal-body {
@@ -687,12 +708,17 @@ watch(() => props.isOpen, (newVal) => {
     gap: 16px;
   }
   
-  .main-emoji {
-    font-size: 80px;
+  .main-image {
+    min-height: 160px;
   }
   
-  .attributes-row {
+  .main-emoji {
+    font-size: 70px;
+  }
+  
+  .footer-row {
     grid-template-columns: 1fr;
   }
 }
 </style>
+

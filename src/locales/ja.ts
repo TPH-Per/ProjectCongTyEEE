@@ -92,6 +92,17 @@ export default {
       removedInvalid: '{count}品の無効な商品を削除しました',
       reloadedMenu: 'メニューを再読み込みしました。カートをもう一度ご確認ください。',
     },
+    setup: {
+      selectServiceMode: 'サービスモードの選択',
+      selectServiceModeDesc: 'サービスモードと人数を選択してください。',
+      alacarte: 'アラカルト (A la carte)',
+      buffet: 'ビュッフェ (Buffet)',
+      adult: '大人',
+      child: '子供',
+      tableCapacity: 'このテーブルは最大{capacity}名様までご利用いただけます',
+      adultCount: '大人',
+      childCount: '子供'
+    },
     cartItem: {
       noteLabel: 'メモ:',
       notePlaceholder: '玉葱抜き、よく焼き...',
@@ -302,17 +313,7 @@ export default {
         "5": '大変満足！😍'
       }
     },
-    setup: {
-      selectServiceMode: 'サービスモードを選択',
-      selectServiceModeDesc: 'サービスモードと人数を選択してください',
-      adult: '大人',
-      child: '子供',
-      adultCount: '大人',
-      childCount: '子供',
-      tableCapacity: 'テーブルの定員: {capacity}名',
-      alacarte: 'アラカルト',
-      buffet: 'ビュッフェ',
-    },
+
     tracking: {
       title: '注文追跡',
       subtitle: 'テーブル{table} • {count}品',
@@ -349,6 +350,17 @@ export default {
       selecting: '選択中',
       occupied: '使用中'
     },
+  },
+  menu: {
+    sold_out: '売り切れ',
+    available: '利用可能',
+    locked: 'ロック済み',
+    lock_item: 'アイテムをロック',
+    unlock_item: 'アイテムのロックを解除',
+    bulk_lock: '複数アイテムをロック',
+    bulk_unlock: '複数アイテムのロックを解除',
+    quick_lock: 'クイックロック',
+    exit_quick_lock: 'クイックロックを終了',
   },
   membership: {
     member: 'メンバー',
@@ -3526,6 +3538,9 @@ export default {
   'sidebar.shift': 'シフト',
   'sidebar.close_shift': 'シフト終了',
   'sidebar.exit_shift': '退出',
+  'sidebar.open_shift': 'シフト開始',
+  'sidebar.shift_summary': 'シフト概要',
+  'sidebar.ra_ca': '退出',
   'sidebar.user_info.cashier': '受付',
   'sidebar.user_info.receptionist': '受付',
 

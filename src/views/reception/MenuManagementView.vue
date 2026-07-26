@@ -54,6 +54,19 @@
           {{ showAllItems ? 'Xem theo danh mục' : 'Xem tất cả' }}
         </button>
 
+        <button
+          @click="toggleBulkMode"
+          :class="[
+            'inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold transition-colors',
+            bulkMode
+              ? 'bg-red-600 hover:bg-red-700 text-white shadow-sm'
+              : 'bg-red-50 hover:bg-red-100 text-red-700 border border-red-200',
+          ]"
+        >
+          <Lock class="w-3.5 h-3.5" />
+          {{ bulkMode ? 'Thoát khóa nhanh' : 'Khóa nhanh' }}
+        </button>
+
         <div class="flex items-center gap-2 text-[10px] font-black uppercase tracking-wider">
           <div class="flex items-center gap-1.5 bg-green-50 text-green-700 px-2.5 py-1.5 rounded-xl border border-green-100/60">
             <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
@@ -268,6 +281,14 @@
             <table class="w-full text-left">
               <thead class="sticky top-0 bg-gray-50/95 backdrop-blur-sm z-10">
                 <tr class="text-[10px] font-black text-gray-500 uppercase tracking-wider">
+                  <th v-if="bulkMode" class="px-3 py-2 font-black w-8">
+                    <input
+                      type="checkbox"
+                      :checked="filteredItems.length > 0 && filteredItems.every((i) => selectedItemIds.has(i.id))"
+                      @change="toggleSelectAll"
+                      class="w-4 h-4 rounded border-gray-300 text-[#E8772E] focus:ring-orange-200 cursor-pointer"
+                    />
+                  </th>
                   <th class="px-3 py-2 font-black">Món</th>
                   <th v-if="showAllItems" class="px-3 py-2 font-black">Danh mục</th>
                   <th v-if="showAllItems" class="px-3 py-2 font-black">Danh mục con</th>
@@ -286,8 +307,19 @@
                     'transition-colors hover:bg-gray-50/60',
                     !item.is_active && 'bg-gray-50/40 opacity-60',
                     item.is_active && item.is_sold_out && 'bg-amber-50/30',
+                    bulkMode && isItemSelected(item.id) && 'bg-orange-50/60',
                   ]"
                 >
+                  <!-- Checkbox (bulk mode) -->
+                  <td v-if="bulkMode" class="px-3 py-2.5 w-8" @click.stop>
+                    <input
+                      type="checkbox"
+                      :checked="isItemSelected(item.id)"
+                      @change="toggleItemSelection(item.id)"
+                      class="w-4 h-4 rounded border-gray-300 text-[#E8772E] focus:ring-orange-200 cursor-pointer"
+                    />
+                  </td>
+
                   <!-- Thumbnail + Name -->
                   <td class="px-3 py-2.5">
                     <div class="flex items-center gap-2.5">
@@ -357,13 +389,7 @@
 
                   <!-- Sold out toggle -->
                   <td class="px-3 py-2.5 text-center" @click.stop>
-                    <ToggleSwitch
-                      :model-value="item.is_sold_out"
-                      :disabled="!item.is_active"
-                      @update:model-value="() => store.toggleSoldOut(item.id)"
-                      size="sm"
-                      aria-label="Tạm hết hàng"
-                    />
+                    <QuickLockToggle :item-id="item.id" :disabled="!item.is_active" />
                   </td>
 
                   <!-- Actions -->
@@ -782,6 +808,14 @@
 
     </div>
 
+    <!-- Quick Lock Bar (bulk mode) -->
+    <QuickLockBar
+      v-if="bulkMode"
+      :selected-ids="getSelectedIds()"
+      @close="toggleBulkMode"
+      @locked="handleBulkLocked"
+    />
+
     <!-- Manager PIN Modal -->
     <ManagerAuthModal
       v-if="showPinModal"
@@ -800,6 +834,8 @@ import { VueDraggable } from 'vue-draggable-plus'
 import Swal from 'sweetalert2'
 import ToggleSwitch from '@/components/ToggleSwitch.vue'
 import ManagerAuthModal from '@/components/reception/ManagerAuthModal.vue'
+import QuickLockToggle from '@/components/reception/QuickLockToggle.vue'
+import QuickLockBar from '@/components/reception/QuickLockBar.vue'
 import { useMenuManagementStore } from '@/stores/menuManagementStore'
 import {
   kitchenPrinters,
@@ -833,6 +869,7 @@ import {
   Lightbulb,
   ArrowLeft,
   LayoutGrid,
+  Lock,
 } from 'lucide-vue-next'
 
 const store = useMenuManagementStore()
@@ -878,6 +915,45 @@ function toggleExpand(id: string): void {
 
 // ── Search ───────────────────────────────────────────────────────────────────
 const searchQuery = ref('')
+
+// ── Bulk lock mode ──────────────────────────────────────────────────────────
+const bulkMode = ref(false)
+const selectedItemIds = ref<Set<string>>(new Set())
+
+function toggleBulkMode(): void {
+  bulkMode.value = !bulkMode.value
+  if (!bulkMode.value) selectedItemIds.value = new Set()
+}
+
+function toggleItemSelection(itemId: string): void {
+  const set = new Set(selectedItemIds.value)
+  if (set.has(itemId)) set.delete(itemId)
+  else set.add(itemId)
+  selectedItemIds.value = set
+}
+
+function isItemSelected(itemId: string): boolean {
+  return selectedItemIds.value.has(itemId)
+}
+
+function toggleSelectAll(): void {
+  const allSelected = filteredItems.value.length > 0 && filteredItems.value.every((i) => selectedItemIds.value.has(i.id))
+  const set = new Set(selectedItemIds.value)
+  if (allSelected) {
+    filteredItems.value.forEach((i) => set.delete(i.id))
+  } else {
+    filteredItems.value.forEach((i) => set.add(i.id))
+  }
+  selectedItemIds.value = set
+}
+
+function getSelectedIds(): string[] {
+  return Array.from(selectedItemIds.value)
+}
+
+function handleBulkLocked(): void {
+  selectedItemIds.value = new Set()
+}
 
 // ── Template copy (pre-fill form from existing item) ──────────────────────────
 const templateItemId = ref<string>('')

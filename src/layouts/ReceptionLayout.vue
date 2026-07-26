@@ -232,7 +232,7 @@
     </main>
     <!-- Custom Modal other-income -->
     <Transition name="fade">
-      <div v-if="showOtherIncomeModal" class="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-[9999] p-4">
+      <div v-if="showOtherIncomeModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[9999] p-4">
         <div class="other-income-modal w-full max-w-[600px] bg-white rounded-2xl overflow-hidden shadow-2xl border border-gray-100 text-[#333333]">
           <!-- Header -->
           <div class="modal-header bg-[#1a5276] text-white p-4 flex items-center justify-between">
@@ -360,7 +360,7 @@
                 v-model="form.isCash" 
                 type="checkbox" 
                 id="isCash" 
-                class="w-4.5 h-4.5 accent-[#E8772E] cursor-pointer"
+                class="w-4 h-4 accent-[#E8772E] cursor-pointer"
               />
               <label for="isCash" class="text-xs font-bold text-gray-700 cursor-pointer">Tiền mặt</label>
             </div>
@@ -396,7 +396,7 @@
 
     <!-- Custom Modal settings -->
     <Transition name="fade">
-      <div v-if="showSettingsModal" class="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-[9999] p-4">
+      <div v-if="showSettingsModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[9999] p-4">
         <div class="settings-modal w-full max-w-[500px] bg-white rounded-2xl overflow-hidden shadow-2xl border border-gray-100 text-[#333333]">
           <!-- Header -->
           <div class="modal-header bg-[#1a5276] text-white p-4 flex items-center justify-between">

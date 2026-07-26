@@ -1441,7 +1441,14 @@ const dict: Record<Lang, Record<string, string>> = {
     'reception.password': 'パスワード',
     'reception.enter_password': 'パスワードを入力...',
     'reception.ignore': '無視',
-  
+
+    // Sidebar
+    'sidebar.shift': 'シフト',
+    'sidebar.open_shift': 'シフト開始',
+    'sidebar.shift_summary': 'シフト概要',
+    'sidebar.ra_ca': '退出',
+    'sidebar.close_shift': 'シフト終了',
+
     // Dashboard Keys
 
     // Purchasing

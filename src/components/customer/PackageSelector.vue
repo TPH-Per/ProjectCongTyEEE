@@ -123,13 +123,21 @@ const emit = defineEmits<{
 }>();
 
 const serviceMode = ref<'alacarte' | 'buffet'>('alacarte');
-const selectedPackageId = ref<string | null>(null);
+const selectedPackageId = ref<string | null>(props.packages.length > 0 ? props.packages[0].id : null);
 const adultCount = ref(2);
 const childCount = ref(0);
 
 function formatPrice(price: number): string {
   return price.toLocaleString('vi-VN') + 'đ';
 }
+
+import { watch } from 'vue';
+
+watch(() => props.packages, (newPkgs) => {
+  if (newPkgs && newPkgs.length > 0 && !selectedPackageId.value) {
+    selectedPackageId.value = newPkgs[0].id;
+  }
+}, { immediate: true });
 
 function confirm() {
   if (serviceMode.value === 'alacarte' || selectedPackageId.value) {

@@ -1,6 +1,6 @@
 <!-- File: src/components/customer/CategoryTabs.vue -->
 <template>
-  <div class="category-tabs-container">
+  <div class="category-tabs-container scrollbar-hide">
     <div class="category-tabs-wrapper">
       <!-- Tab "Tất cả" -->
       <button
@@ -43,129 +43,110 @@ const emit = defineEmits<{
 }>()
 
 const selectTab = (tabId: string) => {
-  console.log('Select subcategory tab clicked:', tabId)
   emit('update:selected-tab', tabId)
 }
 </script>
 
 <style scoped>
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 .category-tabs-container {
   position: relative;
-  background: #1a1a1a;
-  padding: 16px 24px 20px;
-  max-height: 200px;
-  overflow-y: auto;
+  background: #141417;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 10px 20px;
+  overflow-x: auto;
+  overflow-y: hidden;
   width: 100%;
   box-sizing: border-box;
-  pointer-events: auto; /* Enable click/touch events inside fixed-bottom-container */
+  pointer-events: auto;
+  z-index: 10;
 }
 
 .category-tabs-wrapper {
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  justify-content: flex-start;
+  flex-wrap: nowrap;
+  gap: 8px;
+  align-items: center;
+  width: max-content;
 }
 
 .tab-button {
-  padding: 10px 18px;
-  background: #2d2d2d;
-  border: 2px solid transparent;
+  padding: 8px 16px;
+  background: #1e1e24;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 12px;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  transition: all 0.2s;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   flex-shrink: 0;
-  min-height: 44px;
-  color: white;
+  min-height: 36px;
+  color: #a1a1aa;
 }
 
 .tab-button:hover {
-  background: #3d3d3d;
-  transform: translateY(-2px);
+  background: #27272a;
+  color: #f4f4f5;
+  border-color: rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
 }
 
 .tab-button.active {
-  background: linear-gradient(135deg, #ff9800 0%, #ffb74d 100%);
-  border-color: #ff9800;
-  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.4);
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  border-color: #f59e0b;
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);
+  color: #000000;
 }
 
 .tab-name {
-  font-size: 13px;
-  font-weight: 600;
-  color: #e0e0e0;
+  font-size: 12px;
+  font-weight: 700;
   white-space: nowrap;
 }
 
 .tab-button.active .tab-name {
-  color: #1a1a1a;
+  color: #000000;
 }
 
 .tab-count {
-  background: rgba(255, 255, 255, 0.15);
-  padding: 2px 8px;
-  border-radius: 10px;
-  font-size: 11px;
-  font-weight: 700;
-  color: #b0b0b0;
-  min-width: 24px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 2px 7px;
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 800;
+  color: #a1a1aa;
+  min-width: 20px;
   text-align: center;
 }
 
 .tab-button.active .tab-count {
-  background: rgba(0, 0, 0, 0.2);
-  color: #1a1a1a;
+  background: rgba(0, 0, 0, 0.25);
+  color: #000000;
 }
 
-/* Tablet */
-@media (max-width: 1200px) {
-  .category-tabs-container {
-    padding: 16px 20px 20px;
-  }
-  
-  .tab-button {
-    padding: 8px 14px;
-    min-height: 40px;
-  }
-  
-  .tab-name {
-    font-size: 12px;
-  }
-  
-  .tab-count {
-    font-size: 10px;
-    padding: 2px 6px;
-  }
-}
-
-/* Mobile */
+/* Responsive */
 @media (max-width: 768px) {
   .category-tabs-container {
-    padding: 12px 16px 16px;
-    background: #1a1a1a;
-  }
-  
-  .category-tabs-wrapper {
-    gap: 8px;
+    padding: 8px 14px;
   }
   
   .tab-button {
-    padding: 8px 12px;
-    min-height: 38px;
-    border-radius: 10px;
+    padding: 6px 12px;
+    min-height: 32px;
   }
   
   .tab-name {
     font-size: 11px;
   }
-  
-  .tab-count {
-    font-size: 10px;
-    min-width: 20px;
-    padding: 2px 5px;
-  }
 }
 </style>
+
+

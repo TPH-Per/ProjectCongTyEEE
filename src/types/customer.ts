@@ -67,6 +67,7 @@ export interface MenuItem {
   description?: string;
   image_url?: string;
   is_available?: boolean;
+  is_sold_out?: boolean;
 }
 
 export interface PackageDetail {

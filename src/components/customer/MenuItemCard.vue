@@ -1,15 +1,17 @@
 <!-- File: src/components/customer/MenuItemCard.vue -->
 <template>
-  <div class="menu-item-card relative" @click="handleCardClick">
-    <!-- Hết món Overlay -->
-    <div v-if="!item.is_available" class="absolute inset-0 z-10 bg-black/60 backdrop-blur-[2px] flex items-center justify-center rounded-xl cursor-not-allowed">
-      <span class="bg-red-600/90 text-white font-bold px-4 py-2 rounded-full border border-red-400 shadow-lg rotate-[-10deg]">{{ $t('customer.menuItem.soldOut') }}</span>
+  <div class="menu-item-card relative group" @click="handleCardClick">
+    <!-- Hết món Overlay (unavailable or sold out) -->
+    <div v-if="isUnavailable" class="absolute inset-0 z-10 bg-black/75 backdrop-blur-[3px] flex items-center justify-center rounded-2xl cursor-not-allowed">
+      <span class="bg-rose-600/90 text-white font-black px-4 py-2 rounded-full border border-rose-400 shadow-xl rotate-[-10deg] text-xs uppercase tracking-wider">
+        {{ $t('customer.menuItem.soldOut') }}
+      </span>
     </div>
 
     <!-- Hình ảnh placeholder -->
     <div class="item-image" :style="{ background: imageGradient }">
-      <span class="item-emoji">{{ itemEmoji }}</span>
-      <div v-if="item.price === 0" class="badge-free shadow-md">
+      <span class="item-emoji transition-transform duration-300 group-hover:scale-110">{{ itemEmoji }}</span>
+      <div v-if="item.price === 0" class="badge-free shadow-lg">
         {{ $t('customer.menuItem.inPackage') }}
       </div>
     </div>
@@ -21,27 +23,27 @@
         <span class="item-unit">{{ item.unit }}</span>
       </div>
       
-      <div class="item-footer mt-auto pt-3 border-t border-gray-200 flex justify-between items-center">
+      <div class="item-footer mt-auto pt-3 border-t border-white/10 flex justify-between items-center">
         <div class="item-price-section">
-          <span v-if="item.price === 0" class="text-xl font-bold text-[#4CAF50]">
+          <span v-if="item.price === 0" class="text-lg font-black text-emerald-400">
             0K
           </span>
-          <span v-else class="text-xl font-bold text-[#C62828]">
+          <span v-else class="text-lg font-black text-amber-400">
             {{ item.price_display }}
           </span>
         </div>
         
         <!-- Nút + thêm trực tiếp hoặc +/- nếu đã có trong giỏ -->
-        <div v-if="quantityInCart > 0" class="flex items-center gap-2 bg-gray-100 rounded-xl p-1 z-20 border border-gray-200" @click.stop>
-          <button @click.stop="handleUpdateQty(quantityInCart - 1)" class="w-11 h-11 rounded-lg bg-white active:bg-gray-200 text-[#333] flex items-center justify-center font-bold text-lg shadow-sm transition-colors">-</button>
-          <span class="w-8 text-center font-bold text-[#333]">{{ quantityInCart }}</span>
-          <button @click.stop="handleUpdateQty(quantityInCart + 1)" class="w-11 h-11 rounded-lg bg-[#E8772E] active:bg-[#C96626] text-white flex items-center justify-center font-bold text-lg shadow-sm transition-colors">+</button>
+        <div v-if="quantityInCart > 0" class="flex items-center gap-1.5 bg-[#27272a] rounded-xl p-1 z-20 border border-white/10" @click.stop>
+          <button @click.stop="handleUpdateQty(quantityInCart - 1)" class="w-8 h-8 rounded-lg bg-[#3f3f46] hover:bg-rose-900/60 active:scale-95 text-white flex items-center justify-center font-bold text-sm transition-all">-</button>
+          <span class="w-6 text-center font-black text-white text-xs">{{ quantityInCart }}</span>
+          <button @click.stop="handleUpdateQty(quantityInCart + 1)" class="w-8 h-8 rounded-lg bg-amber-500 hover:bg-amber-400 active:scale-95 text-black flex items-center justify-center font-bold text-sm transition-all">+</button>
         </div>
         <button v-else
           class="add-btn z-20" 
           @click.stop="handleQuickAdd"
           :class="{ added: isJustAdded }"
-          :disabled="!item.is_available"
+          :disabled="isUnavailable"
         >
           <span class="add-icon" v-if="!isJustAdded">
             +
@@ -74,6 +76,9 @@ const emit = defineEmits<{
 }>()
 
 const isJustAdded = ref(false)
+
+// Combined unavailable state: not available OR sold out
+const isUnavailable = computed(() => !props.item.is_available || !!props.item.is_sold_out)
 
 const itemEmoji = computed(() => {
   const name = props.item.name.toLowerCase()
@@ -129,31 +134,31 @@ const itemEmoji = computed(() => {
 const imageGradient = computed(() => {
   const name = props.item.name.toLowerCase()
   if (name.includes('wagyu') || name.includes('bò') || name.includes('beef')) 
-    return 'linear-gradient(135deg, #8B0000 0%, #DC143C 100%)'
+    return 'linear-gradient(135deg, #450a0a 0%, #991b1b 100%)'
   if (name.includes('heo') || name.includes('pork') || name.includes('ba chỉ')) 
-    return 'linear-gradient(135deg, #FFB6C1 0%, #FF69B4 100%)'
+    return 'linear-gradient(135deg, #831843 0%, #be185d 100%)'
   if (name.includes('gà') || name.includes('chicken')) 
-    return 'linear-gradient(135deg, #FFA500 0%, #FF8C00 100%)'
+    return 'linear-gradient(135deg, #7c2d12 0%, #c2410c 100%)'
   if (name.includes('hải sản') || name.includes('tôm') || name.includes('cá') || name.includes('bạch tuộc') || name.includes('cua') || name.includes('sò')) 
-    return 'linear-gradient(135deg, #00CED1 0%, #20B2AA 100%)'
+    return 'linear-gradient(135deg, #134e4a 0%, #0f766e 100%)'
   if (name.includes('rau') || name.includes('salad') || name.includes('nấm')) 
-    return 'linear-gradient(135deg, #98FB98 0%, #3CB371 100%)'
+    return 'linear-gradient(135deg, #14532d 0%, #15803d 100%)'
   if (name.includes('cơm') || name.includes('rice')) 
-    return 'linear-gradient(135deg, #FFF8DC 0%, #F5DEB3 100%)'
+    return 'linear-gradient(135deg, #713f12 0%, #a16207 100%)'
   if (name.includes('mì') || name.includes('noodle') || name.includes('udon') || name.includes('ramen')) 
-    return 'linear-gradient(135deg, #FFE4B5 0%, #DEB887 100%)'
+    return 'linear-gradient(135deg, #78350f 0%, #b45309 100%)'
   if (name.includes('kem') || name.includes('bánh') || name.includes('dessert') || name.includes('tráng miệng')) 
-    return 'linear-gradient(135deg, #FFB6C1 0%, #FF69B4 100%)'
+    return 'linear-gradient(135deg, #701a75 0%, #a21caf 100%)'
   if (name.includes('bia') || name.includes('beer')) 
-    return 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)'
+    return 'linear-gradient(135deg, #713f12 0%, #d97706 100%)'
   if (name.includes('rượu') || name.includes('wine') || name.includes('soju') || name.includes('sake')) 
-    return 'linear-gradient(135deg, #722F37 0%, #8B0000 100%)'
-  return 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+    return 'linear-gradient(135deg, #581c87 0%, #7e22ce 100%)'
+  return 'linear-gradient(135deg, #1e1b4b 0%, #3730a3 100%)'
 })
 
 // Click vào card mở modal chi tiết
 const handleCardClick = () => {
-  if (!props.item.is_available) return
+  if (isUnavailable.value) return
   emit('click-detail', props.item)
 }
 
@@ -161,7 +166,7 @@ const store = useCustomerStore() // Needed for qty update in-place
 
 // Click nút + thêm nhanh, không mở modal
 const handleQuickAdd = () => {
-  if (!props.item.is_available) return
+  if (isUnavailable.value) return
   emit('add', props.item)
   
   // Animation feedback
@@ -172,7 +177,7 @@ const handleQuickAdd = () => {
 }
 
 const handleUpdateQty = (qty: number) => {
-  if (!props.item.is_available) return
+  if (isUnavailable.value) return
   if (qty <= 0) {
     store.removeFromCart(props.item.id)
   } else {
@@ -183,24 +188,25 @@ const handleUpdateQty = (qty: number) => {
 
 <style scoped>
 .menu-item-card {
-  background: #ffffff;
-  border: 1px solid #eeeeee;
-  border-radius: 12px;
+  background: #1e1e24;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
   overflow: hidden;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   display: flex;
   flex-direction: column;
 }
 
-.menu-item-card:active {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  border-color: #E8772E;
+.menu-item-card:hover {
+  transform: translateY(-4px);
+  background: #27272a;
+  border-color: rgba(245, 158, 11, 0.4);
+  box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(245, 158, 11, 0.2);
 }
 
 .item-image {
-  height: 140px;
+  height: 130px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -209,56 +215,58 @@ const handleUpdateQty = (qty: number) => {
 }
 
 .item-emoji {
-  font-size: 64px;
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
-  animation: float 3s ease-in-out infinite;
+  font-size: 56px;
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.4));
+  animation: float 3.5s ease-in-out infinite;
 }
 
 @keyframes float {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+  50% { transform: translateY(-8px); }
 }
 
 .badge-free {
   position: absolute;
   top: 10px;
   right: 10px;
-  background: #4CAF50;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   color: white;
-  padding: 4px 12px;
+  padding: 4px 10px;
   border-radius: 20px;
-  font-size: 11px;
-  font-weight: 700;
+  font-size: 10px;
+  font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .item-content {
-  padding: 16px;
+  padding: 14px 16px 16px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   flex: 1;
 }
 
 .item-name {
-  font-size: 15px;
-  font-weight: 600;
-  color: #333333;
+  font-size: 14px;
+  font-weight: 700;
+  color: #f4f4f5;
   margin: 0;
-  line-height: 1.4;
+  line-height: 1.35;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  min-height: 42px;
+  min-height: 38px;
 }
 
 .item-unit {
-  font-size: 12px;
-  color: #888;
+  font-size: 11px;
+  color: #a1a1aa;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  font-weight: 600;
 }
 
 .item-footer {
@@ -266,61 +274,63 @@ const handleUpdateQty = (qty: number) => {
   justify-content: space-between;
   align-items: center;
   margin-top: auto;
-  padding-top: 12px;
-  border-top: 1px solid #eee;
+  padding-top: 10px;
 }
-
-
 
 /* Nút thêm nhanh */
 .add-btn {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: #E8772E;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
   border: none;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.1s;
-  box-shadow: 0 4px 12px rgba(232, 119, 46, 0.3);
-  color: white;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+  color: #000000;
+  font-weight: 900;
+}
+
+.add-btn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 6px 16px rgba(245, 158, 11, 0.4);
 }
 
 .add-btn:active {
-  background: #C96626;
   transform: scale(0.95);
-  box-shadow: 0 2px 8px rgba(232, 119, 46, 0.4);
 }
 
 /* Animation khi vừa thêm */
 .add-btn.added {
-  background: #4CAF50;
-  animation: pulse-success 0.8s ease;
-  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  animation: pulse-success 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
 }
 
 @keyframes pulse-success {
   0% { transform: scale(1); }
-  50% { transform: scale(1.3); }
+  50% { transform: scale(1.25); }
   100% { transform: scale(1); }
 }
 
 .add-icon {
-  font-size: 16px;
-  color: white;
-  font-weight: 700;
+  font-size: 20px;
+  font-weight: 900;
+  line-height: 1;
 }
 
 .check-icon {
-  font-size: 20px;
-  color: white;
-  font-weight: 700;
+  font-size: 16px;
+  font-weight: 900;
 }
 
 .add-btn:disabled {
-  background: #555;
+  background: #3f3f46;
+  color: #71717a;
   cursor: not-allowed;
   box-shadow: none;
 }
@@ -328,3 +338,4 @@ const handleUpdateQty = (qty: number) => {
   transform: none;
 }
 </style>
+

@@ -294,8 +294,8 @@ restoreSessionFromLocalStorage();
 
 onMounted(() => {
   // If not authenticated or no session, redirect to the customer home page (passcode screen).
-  // Cho phép truy cập trực tiếp trang cart để test UI (nút seed data sẽ tạo session).
-  const allowDirectAccess = route.name === 'CustomerCart';
+  // Cho phép truy cập trực tiếp trang cart & menu để test UI.
+  const allowDirectAccess = route.name === 'CustomerCart' || route.name === 'CustomerMenu';
   if (!store.session && route.name !== 'CustomerHome' && route.path.startsWith('/customer') && !allowDirectAccess) {
     router.push({ name: 'CustomerHome' });
   } else if (store.session) {

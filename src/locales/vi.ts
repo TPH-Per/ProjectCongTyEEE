@@ -311,17 +311,6 @@ export default {
         "5": 'Rất hài lòng! 😍'
       }
     },
-    setup: {
-      selectServiceMode: 'Chọn hình thức phục vụ',
-      selectServiceModeDesc: 'Vui lòng chọn hình thức và số lượng khách',
-      adult: 'Người lớn',
-      child: 'Trẻ em',
-      adultCount: 'Người lớn',
-      childCount: 'Trẻ em',
-      tableCapacity: 'Sức chứa bàn: {capacity} người',
-      alacarte: 'A La Carte (Gọi món)',
-      buffet: 'Buffet',
-    },
     tracking: {
       title: 'Theo dõi món ăn',
       subtitle: 'Bàn {table} • {count} món',
@@ -358,6 +347,17 @@ export default {
       selecting: 'Đang chọn',
       occupied: 'Có khách'
     },
+  },
+  menu: {
+    sold_out: 'Hết hàng',
+    available: 'Đang bán',
+    locked: 'Đã khóa',
+    lock_item: 'Khóa món',
+    unlock_item: 'Mở khóa món',
+    bulk_lock: 'Khóa nhiều món',
+    bulk_unlock: 'Mở khóa nhiều món',
+    quick_lock: 'Khóa nhanh',
+    exit_quick_lock: 'Thoát khóa nhanh',
   },
   membership: {
     member: 'Thành viên',

@@ -1,61 +1,64 @@
 <!-- File: src/views/customer/CustomerMenu.vue -->
 <template>
-  <div class="menu-layout">
+  <div class="menu-layout relative overflow-hidden">
+    <!-- Subtle Background Circle Accents (properly positioned with pointer-events-none) -->
+    <div class="absolute inset-0 pointer-events-none overflow-hidden z-0">
+      <div class="absolute -top-40 -right-40 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl"></div>
+      <div class="absolute top-1/3 -left-20 w-80 h-80 bg-amber-600/5 rounded-full blur-3xl"></div>
+    </div>
+
     <!-- 1. SIDEBAR: Cấp 1 & Cấp 2 danh mục chính -->
-    <aside class="sidebar scrollbar-hide">
-      <!-- Section: Danh Mục Món -->
-      <div class="sidebar-section full-height flex flex-col">
+    <aside class="sidebar scrollbar-hide z-10">
+      <div class="sidebar-section full-height flex flex-col h-full">
         <h3 class="section-title pink-text">{{ $t('customer.menu.categories') }}</h3>
         
-        <div class="flex-1 overflow-y-auto scrollbar-hide">
+        <div class="flex-1 overflow-y-auto scrollbar-hide space-y-1.5 pr-1">
           <button
             v-for="cat in menuCategories"
             :key="cat.id"
-            :class="['category-btn', 'pink', { active: selectedCategory?.id === cat.id }]"
+            :class="['category-btn', { active: selectedCategory?.id === cat.id }]"
             @click="selectCategory(cat)"
           >
             {{ cat.name }}
-          </button>
-        </div>
-
-        <!-- Language Switcher -->
-        <div class="mt-auto pt-4 flex flex-col gap-2 border-t border-[#4A321F] shrink-0">
-          <button @click="changeLanguage('vi')" :class="['text-sm transition-transform active:scale-95 flex items-center justify-center gap-2 py-2 rounded-xl', locale === 'vi' ? 'bg-amber-500 text-black font-bold' : 'bg-[#1e1e24] text-gray-400 hover:text-white']">
-            <span>🇻🇳</span> Tiếng Việt
-          </button>
-          <button @click="changeLanguage('en')" :class="['text-sm transition-transform active:scale-95 flex items-center justify-center gap-2 py-2 rounded-xl', locale === 'en' ? 'bg-amber-500 text-black font-bold' : 'bg-[#1e1e24] text-gray-400 hover:text-white']">
-            <span>🇬🇧</span> English
-          </button>
-          <button @click="changeLanguage('ja')" :class="['text-sm transition-transform active:scale-95 flex items-center justify-center gap-2 py-2 rounded-xl', locale === 'ja' ? 'bg-amber-500 text-black font-bold' : 'bg-[#1e1e24] text-gray-400 hover:text-white']">
-            <span>🇯🇵</span> 日本語
           </button>
         </div>
       </div>
     </aside>
 
     <!-- 2. MAIN AREA -->
-    <div class="main-area">
+    <div class="main-area z-10">
+      <!-- Mobile Category Bar (Visible only on screens <= 768px) -->
+      <MenuCategoryBar
+        v-if="menuCategories.length > 0"
+        :categories="menuCategories"
+        :selected-category-id="selectedCategory?.id || null"
+        @select="onMobileCategorySelect"
+        class="md:hidden border-b border-white/10 shrink-0"
+      />
+
       <!-- Scrollable Content -->
       <main :class="['main-content', 'scrollbar-hide', { 'has-tabs': hasSubcategories, 'has-cart': cartItemCount > 0 }]">
         
         <!-- Package Purchase Banner (Only for set packages) -->
         <div v-if="selectedCategory && selectedCategory.id.startsWith('buffet-') && !selectedCategory.id.includes('drink') && !selectedCategory.id.includes('alacarte')"
-             class="bg-gradient-to-r from-amber-950/40 to-amber-900/20 border border-amber-500/20 rounded-2xl p-5 mb-6 flex flex-col sm:flex-row items-center justify-between gap-4 shrink-0">
+             class="bg-gradient-to-r from-amber-950/60 via-amber-900/40 to-amber-950/60 border border-amber-500/30 rounded-2xl p-5 mb-6 flex flex-col sm:flex-row items-center justify-between gap-4 shrink-0 shadow-2xl backdrop-blur-md">
           <div class="flex items-center gap-4">
-            <div class="text-4xl">👑</div>
+            <div class="w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-3xl shadow-inner shrink-0">
+              👑
+            </div>
             <div>
-              <h3 class="text-base font-bold text-white">{{ $t('customer.menu.packageBannerTitle', { name: selectedCategory.name }) }}</h3>
-              <p class="text-xs text-amber-200/70 mt-1">{{ $t('customer.menu.packageBannerText') }}</p>
+              <h3 class="text-base font-black text-white tracking-wide">{{ $t('customer.menu.packageBannerTitle', { name: selectedCategory.name }) }}</h3>
+              <p class="text-xs text-amber-200/80 mt-1 font-medium">{{ $t('customer.menu.packageBannerText') }}</p>
             </div>
           </div>
-          <div class="flex items-center gap-3 shrink-0">
-            <span class="text-lg font-black text-amber-400">{{ getSetPriceDisplay(selectedCategory) }}</span>
+          <div class="flex items-center gap-4 shrink-0">
+            <span class="text-xl font-black text-amber-400 tracking-tight">{{ getSetPriceDisplay(selectedCategory) }}</span>
             <button @click="addSetToCart(selectedCategory)"
                     :class="[
-                      'px-5 py-2.5 rounded-xl font-bold text-xs transition-all duration-200 active:scale-95 flex items-center gap-1.5 shadow-md shadow-amber-500/10',
+                      'px-5 py-2.5 rounded-xl font-extrabold text-xs transition-all duration-200 active:scale-95 flex items-center gap-1.5 shadow-lg shadow-amber-500/20',
                       isSetInCart(selectedCategory.id)
-                        ? 'bg-amber-600/20 text-amber-300 border border-amber-500/30 cursor-default pointer-events-none'
-                        : 'bg-[#ff9800] hover:bg-amber-600 text-white border-none'
+                        ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 cursor-default pointer-events-none'
+                        : 'bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black border-none'
                     ]">
               {{ isSetInCart(selectedCategory.id) ? $t('customer.menu.packageSelected') : $t('customer.menu.selectPackage') }}
             </button>
@@ -69,16 +72,18 @@
             <span class="item-count">{{ $t('customer.menu.itemCount', { count: displayedItems.length }) }}</span>
           </div>
 
-          <!-- Loading State -->
-          <div v-if="false /* store.loading */" class="flex flex-col gap-4 py-8">
-            <div v-for="i in 3" :key="i" class="h-24 bg-gray-800/40 animate-pulse rounded-xl"></div>
-          </div>
-
           <!-- Empty State -->
-          <div v-else-if="displayedItems.length === 0" class="empty-state">
+          <div v-if="displayedItems.length === 0" class="empty-state">
             <div class="empty-icon">🍽️</div>
             <h2>{{ $t('customer.menu.emptyTitle') }}</h2>
-            <p>{{ $t('customer.menu.emptyText') }}</p>
+            <p>{{ store.searchQuery ? 'Không tìm thấy món nào phù hợp với từ khóa "' + store.searchQuery + '"' : $t('customer.menu.emptyText') }}</p>
+            <button 
+              v-if="store.searchQuery" 
+              @click="store.searchQuery = ''"
+              class="mt-4 px-5 py-2.5 bg-amber-500 hover:bg-amber-400 text-black font-extrabold rounded-xl transition-all active:scale-95 text-xs shadow-lg shadow-amber-500/20"
+            >
+              Xóa tìm kiếm
+            </button>
           </div>
 
           <!-- Items Grid -->
@@ -104,12 +109,11 @@
 
       <!-- Fixed bottom layout container -->
       <div v-if="!isModalOpen" class="fixed-bottom-container">
-        <!-- CartBar (above Tabs or at the bottom if no tabs) -->
+        <!-- CartBar (above Tabs or at bottom) -->
         <CartBar
           v-if="cartItemCount > 0"
           :cart-count="cartItemCount"
           :cart-total="store.cartTotal"
-          :style="{ bottom: hasSubcategories ? '' : '0px' }"
           @view-cart="goToCart"
         />
 
@@ -124,11 +128,14 @@
       </div>
     </div>
 
-    <!-- Floating "Gọi Phục Vụ" Action Button (bottom right corner) -->
-    <div class="fixed bottom-24 right-6 z-30">
+    <!-- Floating "Gọi Phục Vụ" Action Button (bottom right corner, safe from overlapping bottom bars) -->
+    <div :class="[
+      'fixed right-6 z-30 transition-all duration-300',
+      hasSubcategories && cartItemCount > 0 ? 'bottom-36' : (hasSubcategories || cartItemCount > 0 ? 'bottom-24' : 'bottom-6')
+    ]">
       <button
         @click="goToServiceRequest"
-        class="w-14 h-14 bg-[#E8772E] hover:bg-amber-600 active:scale-95 text-white rounded-full flex items-center justify-center shadow-2xl shadow-[#E8772E]/20 border-2 border-white/10 transition-all hover:rotate-12 select-none animate-bounce"
+        class="w-14 h-14 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 active:scale-95 text-black rounded-full flex items-center justify-center shadow-2xl shadow-amber-500/30 border-2 border-amber-300/40 transition-all hover:rotate-12 select-none"
         :title="$t('customer.menu.callService')"
       >
         <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -152,7 +159,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useCustomerStore } from '@/stores/customerStore';
 import { useCustomerSession } from '@/composables/useCustomerSession';
@@ -161,25 +168,15 @@ import MenuItemDetailModal from '@/components/customer/MenuItemDetailModal.vue';
 import MenuItemCard from '@/components/customer/MenuItemCard.vue';
 import CategoryTabs from '@/components/customer/CategoryTabs.vue';
 import CartBar from '@/components/customer/CartBar.vue';
+import MenuCategoryBar from '@/components/customer/MenuCategoryBar.vue';
 import type { MenuCategory, MenuItem } from '@/types/customer';
 import { applyPackage, calculateItemUnitPrice } from '@/utils/packageRules';
-import { customerApiImpl as customerApi } from '@/services/customerApi';
+import { mockSession } from '@/data/mockCartData';
 
 const router = useRouter()
 const store = useCustomerStore()
 const i18nStore = useI18nStore()
-const locale = computed({
-  get: () => i18nStore.locale,
-  set: (val) => { i18nStore.locale = val; }
-});
 const { syncCart } = useCustomerSession();
-
-async function changeLanguage(lang: 'vi' | 'en' | 'ja') {
-  locale.value = lang;
-  if (store.session) {
-    await customerApi.updateLanguage(store.session.id, lang);
-  }
-};
 
 const focusedItem = ref<MenuItem | null>(null);
 const isModalOpen = computed(() => focusedItem.value !== null);
@@ -191,7 +188,6 @@ const selectedSubId = ref<string>('all');
 
 const cart = computed(() => store.cart);
 const cartItemCount = computed(() => store.cartItemCount);
-const cartTotalDisplay = computed(() => store.cartTotal.toLocaleString('vi-VN') + 'đ');
 
 // Computed: Categories of Gói dịch vụ (Used for price calculation mapping)
 const yellowCategories = computed(() => {
@@ -199,27 +195,42 @@ const yellowCategories = computed(() => {
   return buffetCat?.subcategories || [];
 });
 
-// Computed: Menu Categories in Sidebar (Only 9 items)
+// Computed: Menu Categories in Sidebar (Ensures categories are never empty)
 const menuCategories = computed(() => {
+  if (!store.menuData || store.menuData.length === 0) return [];
+  
   const list: any[] = [];
   const buffetCat = store.menuData.find(c => c.id === 'buffet');
   if (buffetCat && store.session?.serviceMode === 'buffet') {
     list.push(buffetCat);
   }
-  const others = store.menuData.filter(c => c.color === 'pink');
+  
+  const others = store.menuData.filter(c => c.id !== 'buffet' || store.session?.serviceMode !== 'buffet');
   list.push(...others);
-  return list;
+  
+  return list.length > 0 ? list : store.menuData;
 });
+
+// Watch menuCategories to automatically select first category when data loads
+watch(menuCategories, (newCats) => {
+  if (newCats && newCats.length > 0) {
+    if (!selectedCategory.value || !newCats.some(c => c.id === selectedCategory.value?.id)) {
+      selectedCategory.value = newCats[0];
+      if (newCats[0].subcategories && newCats[0].subcategories.length > 0) {
+        selectedSubId.value = newCats[0].subcategories[0].id;
+        selectedYellowCategoryId.value = newCats[0].id === 'buffet' ? newCats[0].subcategories[0].id : null;
+      } else {
+        selectedSubId.value = 'all';
+      }
+    }
+  }
+}, { immediate: true });
 
 // Computed: Check if has subcategories
 const hasSubcategories = computed(() => 
   selectedCategory.value?.subcategories && 
   selectedCategory.value.subcategories.length > 0
 );
-
-const subcategories = computed(() => {
-  return selectedCategory.value?.subcategories || [];
-});
 
 // Computed: Total items in category
 const totalItems = computed(() => {
@@ -270,11 +281,6 @@ const displayedItems = computed(() => {
 watch(() => selectedSubId.value, (newSubId) => {
   const cat = selectedCategory.value
   if (!cat || !newSubId || newSubId === 'all') return
-  // BUFFET-shaped categories are surfaced by the banner; their ids
-  // start with `buffet-` (e.g. `buffet-1390`, `buffet-1150`,
-  // `buffet-kids`, `buffet-lau`). When the customer enters one, the
-  // SET ticket must be in the cart — otherwise `tạm tính` collapses
-  // to 0đ (only in-pkg items carry price=0).
   const isBuffetLike =
     cat.id === 'buffet' ||
     cat.id.startsWith('buffet-') ||
@@ -298,21 +304,49 @@ const initDefaults = () => {
   }
 };
 
+// Listen for real-time sold-out changes from Menu Management
+const handleMenuItemStatusChanged = (event: Event) => {
+  const detail = (event as CustomEvent).detail;
+  if (!detail) return;
+  const { id, name, is_sold_out } = detail;
+
+  const findAndUpdate = (items: MenuItem[]): boolean => {
+    const item = items.find((i) => i.id === id || i.name === name);
+    if (item) {
+      item.is_sold_out = is_sold_out;
+      return true;
+    }
+    return false;
+  };
+
+  for (const cat of store.menuData) {
+    if (cat.items && findAndUpdate(cat.items)) return;
+    if (cat.subcategories) {
+      for (const sub of cat.subcategories) {
+        if (findAndUpdate(sub.items)) return;
+      }
+    }
+  }
+};
+
 // Load menu on mount
 onMounted(async () => {
+  // If no session exists, create a default mock session so direct access for testing works seamlessly
   if (!store.session) {
-    router.push({ name: 'CustomerHome' });
-    return;
+    store.session = mockSession;
   }
+  
   await store.loadMenu();
   initDefaults();
+  window.addEventListener('menu:item-status-changed', handleMenuItemStatusChanged);
+
+  console.log('📦 CustomerMenu loaded - categories:', menuCategories.value.length, 'displayedItems:', displayedItems.value.length);
 });
 
-// ---- Package pricing rules ----
-// The shared engine lives in `@/utils/packageRules`. We just build a
-// one-shot subcategory lookup here so the rule can resolve tier
-// membership without us walking the menu tree for every item on every
-// render.  Performance: O(items) build once, O(1) per call.
+onUnmounted(() => {
+  window.removeEventListener('menu:item-status-changed', handleMenuItemStatusChanged);
+});
+
 const subCatIdByItemId = computed(() => {
   const out = new Map<string, string>()
   for (const cat of store.menuData) {
@@ -327,23 +361,12 @@ const subCatIdByItemId = computed(() => {
   return out
 })
 
-function isItemInPackage(item: MenuItem, mainCategoryName: string): boolean {
-  // Delegates to the shared package-rule engine so customer and cashier
-  // never disagree on which item is free inside a buffet.
-  return applyPackage(item, mainCategoryName).price === 0
-}
-
 function getModifiedItem(item: MenuItem, packageName: string): MenuItem {
-  // Apply package rule (free inside buffet), then re-apply lunch 50%
-  // via the shared rule engine — same math as the cashier preview.
   const inPkg = applyPackage(
     { ...item, subCatId: subCatIdByItemId.value.get(item.id) },
     packageName,
   )
   if (inPkg.price === 0) return inPkg
-  // Preserve `price` and `price_display` semantics:
-  // - in-pkg → 0 / "0K (Trong gói)"  (returned by applyPackage)
-  // - lunch  → half price / updated display
   const unit = calculateItemUnitPrice(item, packageName)
   if (unit === Number(item.price ?? 0)) return item
   const half = Math.round(Number(item.price ?? 0) * 0.5)
@@ -353,19 +376,6 @@ function getModifiedItem(item: MenuItem, packageName: string): MenuItem {
     price_display: i18nStore.t('customer.menuItem.lunchPrice', { price: `${half.toLocaleString('vi-VN')}đ` }),
   }
 }
-
-// Focus item details states
-const focusedItemQty = computed(() => {
-  if (!focusedItem.value) return 1;
-  const inCart = cart.value.find(c => c.menuItemId === focusedItem.value?.id);
-  return inCart ? inCart.quantity : 1;
-});
-
-const focusedItemNote = computed(() => {
-  if (!focusedItem.value) return '';
-  const inCart = cart.value.find(c => c.menuItemId === focusedItem.value?.id);
-  return inCart ? inCart.note || '' : '';
-});
 
 function getQuantity(itemId: string): number {
   const inCart = cart.value.find(c => c.menuItemId === itemId);
@@ -378,7 +388,15 @@ const selectCategory = (cat: MenuCategory) => {
   selectedSubId.value = 'all'; // Reset to "Tất cả"
 };
 
+const onMobileCategorySelect = (catId: string) => {
+  const cat = menuCategories.value.find(c => c.id === catId);
+  if (cat) {
+    selectCategory(cat);
+  }
+};
+
 const handleAddToCart = (item: MenuItem) => {
+  if (item.is_sold_out) return;
   const activePackage = yellowCategories.value.find(c => c.id === selectedYellowCategoryId.value);
   const modifiedItem = getModifiedItem(item, activePackage?.name || '');
   const existing = cart.value.find(c => c.menuItemId === modifiedItem.id);
@@ -391,21 +409,8 @@ const handleAddToCart = (item: MenuItem) => {
   store.addNotification(i18nStore.t('customer.menu.addedToCart', { qty: 1, name: modifiedItem.name }), 'success');
 };
 
-// Update cart quantity from modal
-function onUpdateQuantity(item: MenuItem, qty: number) {
-  const activePackage = yellowCategories.value.find(c => c.id === selectedYellowCategoryId.value);
-  const modifiedItem = getModifiedItem(item, activePackage?.name || '');
-  store.updateCartItem(modifiedItem.id, qty);
-  if (qty > getQuantity(modifiedItem.id)) {
-    const existing = cart.value.find(c => c.menuItemId === modifiedItem.id);
-    if (!existing) {
-      store.addToCart(modifiedItem, qty);
-    }
-  }
-  syncCart();
-}
-
 function openDetail(item: MenuItem) {
+  if (item.is_sold_out) return;
   const activePackage = yellowCategories.value.find(c => c.id === selectedYellowCategoryId.value);
   focusedItem.value = getModifiedItem(item, activePackage?.name || '');
 }
@@ -439,7 +444,6 @@ function goToServiceRequest() {
   router.push({ name: 'ServiceRequest' });
 }
 
-// Set/Package helper functions
 function getSetPriceDisplay(cat: MenuCategory): string {
   if (cat.id.includes('1390')) return '1.390.000đ';
   if (cat.id.includes('1150')) return '1.150.000đ';
@@ -451,11 +455,6 @@ function getSetPriceDisplay(cat: MenuCategory): string {
 }
 
 const isSetInCart = (catId: string): boolean => {
-  // `catId` is the buffet subcategory id (e.g. `buffet-1390`). The
-  // SET ticket is whichever first item belongs to that subcategory in
-  // the live menu (matched via `subCatIdByItemId`). After the
-  // loadMenu() id remap, item ids are real UUIDs so a substring
-  // check on the menuItemId would fail — we use the resolved map.
   const ticket = store.menuData
     .flatMap((c) => c.subcategories ?? [])
     .find((s) => s.id === catId)
@@ -465,9 +464,6 @@ const isSetInCart = (catId: string): boolean => {
 };
 
 function addSetToCart(cat: MenuCategory) {
-  // The SET ticket is always the first item in the first subcategory
-  // (per Ishii 02/07_2026 spec: each buffet tier has one `Vé` ticket
-  //  listed first, then the eligible items). Take that one.
   const subs = cat.subcategories || []
   const setItem = subs[0]?.items?.[0] ?? null
 
@@ -487,17 +483,12 @@ function addSetToCart(cat: MenuCategory) {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
-.slide-up-enter-active, .slide-up-leave-active {
-  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.slide-up-enter-from, .slide-up-leave-to {
-  transform: translateY(100%);
-}
 
 /* ===== LAYOUT CHÍNH ===== */
 .menu-layout {
   display: flex;
-  height: calc(100vh - 60px);
+  height: 100%;
+  width: 100%;
   background-color: #0d0d0f;
   color: white;
   overflow: hidden;
@@ -505,24 +496,19 @@ function addSetToCart(cat: MenuCategory) {
 
 /* ===== SIDEBAR ===== */
 .sidebar {
-  width: 260px;
+  width: 250px;
   background: #141417;
   border-right: 1px solid rgba(255, 255, 255, 0.08);
   overflow-y: auto;
-  padding: 20px 15px;
-  height: calc(100vh - 60px);
+  padding: 20px 14px;
+  height: 100%;
   flex-shrink: 0;
 }
 
-.sidebar-section.full-height {
-  display: flex;
-  flex-direction: column;
-}
-
 .section-title {
-  font-size: 12px;
-  font-weight: 800;
-  margin-bottom: 16px;
+  font-size: 11px;
+  font-weight: 900;
+  margin-bottom: 14px;
   text-transform: uppercase;
   letter-spacing: 1.5px;
 }
@@ -533,8 +519,7 @@ function addSetToCart(cat: MenuCategory) {
 
 .category-btn {
   width: 100%;
-  padding: 15px 18px;
-  margin-bottom: 10px;
+  padding: 13px 16px;
   border-radius: 14px;
   border: 1px solid rgba(255, 255, 255, 0.05);
   text-align: left;
@@ -548,14 +533,14 @@ function addSetToCart(cat: MenuCategory) {
 }
 
 .category-btn:hover {
-  background: #282832;
+  background: #27272a;
   color: white;
   border-color: rgba(245, 158, 11, 0.3);
   transform: translateX(4px);
 }
 
 .category-btn.active {
-  background: linear-gradient(135deg, #f59e0b, #d97706);
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
   color: #000000;
   font-weight: 900;
   border: none;
@@ -569,6 +554,7 @@ function addSetToCart(cat: MenuCategory) {
   flex-direction: column;
   position: relative;
   overflow: hidden;
+  height: 100%;
 }
 
 .main-content {
@@ -580,23 +566,23 @@ function addSetToCart(cat: MenuCategory) {
 }
 
 .main-content.has-cart {
-  padding-bottom: 94px; /* 70px cart bar + 24px default margin */
+  padding-bottom: 90px;
 }
 
 .main-content.has-tabs {
-  padding-bottom: 112px; /* ~88px CategoryTabs + 24px default margin */
+  padding-bottom: 90px;
 }
 
 .main-content.has-cart.has-tabs {
-  padding-bottom: 182px; /* 70px cart bar + ~88px CategoryTabs + 24px default margin */
+  padding-bottom: 160px;
 }
 
 .fixed-bottom-container {
   position: fixed;
   bottom: 0;
-  left: 260px; /* Sidebar width */
+  left: 250px;
   right: 0;
-  z-index: 100;
+  z-index: 40;
   display: flex;
   flex-direction: column;
   background: transparent;
@@ -604,6 +590,9 @@ function addSetToCart(cat: MenuCategory) {
 }
 
 @media (max-width: 768px) {
+  .sidebar {
+    display: none;
+  }
   .fixed-bottom-container {
     left: 0;
   }
@@ -613,96 +602,29 @@ function addSetToCart(cat: MenuCategory) {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid #333;
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .category-header h1 {
-  font-size: 28px;
+  font-size: 24px;
   margin: 0;
   font-weight: 800;
+  color: #ffffff;
 }
 
 .item-count {
-  color: #888;
-  font-size: 14px;
+  color: #a1a1aa;
+  font-size: 13px;
+  font-weight: 600;
 }
 
 /* ===== ITEMS GRID ===== */
 .items-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(285px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 16px;
-}
-
-.item-card {
-  background: #1e1e1e;
-  border: 1px solid #333;
-  border-radius: 12px;
-  padding: 16px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  transition: all 0.2s;
-}
-
-.item-card:hover {
-  border-color: #ff9800;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.2);
-}
-
-.item-info {
-  flex: 1;
-}
-
-.item-name {
-  margin: 0 0 4px 0;
-  font-size: 15px;
-  font-weight: 600;
-}
-
-.item-unit {
-  font-size: 12px;
-  color: #888;
-}
-
-.item-action {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.item-price {
-  font-size: 16px;
-  font-weight: 700;
-  color: #ff9800;
-}
-
-.item-price.free {
-  color: #4caf50;
-}
-
-.add-btn {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: #ff9800;
-  border: none;
-  color: white;
-  font-size: 20px;
-  cursor: pointer;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-}
-
-.add-btn:hover {
-  background: #ffb74d;
-  transform: scale(1.1);
 }
 
 /* ===== EMPTY STATE ===== */
@@ -711,26 +633,21 @@ function addSetToCart(cat: MenuCategory) {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 100px 20px;
-  color: #666;
+  padding: 80px 20px;
+  color: #71717a;
 }
 
 .empty-icon {
-  font-size: 80px;
-  margin-bottom: 20px;
+  font-size: 64px;
+  margin-bottom: 16px;
 }
 
 .empty-state h2 {
-  font-size: 24px;
-  margin-bottom: 10px;
+  font-size: 20px;
+  margin-bottom: 8px;
   color: white;
   font-weight: 700;
 }
-
-/* ===== RESPONSIVE ===== */
-@media (max-width: 768px) {
-  .sidebar {
-    width: 200px;
-  }
-}
 </style>
+
+

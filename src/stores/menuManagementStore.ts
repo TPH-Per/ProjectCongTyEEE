@@ -156,6 +156,17 @@ export const useMenuManagementStore = defineStore('menuManagement', () => {
     broadcastItemStatus(id)
   }
 
+  /** Bulk set is_sold_out on multiple items at once. */
+  function bulkLockItems(itemIds: string[], lock: boolean): void {
+    itemIds.forEach((id) => {
+      const item = getItemById(id)
+      if (item) {
+        item.is_sold_out = lock
+        broadcastItemStatus(id)
+      }
+    })
+  }
+
   function toggleItemActive(id: string): void {
     const item = getItemById(id)
     if (!item) return
@@ -261,6 +272,7 @@ export const useMenuManagementStore = defineStore('menuManagement', () => {
     softDeleteItem,
     copyItem,
     toggleSoldOut,
+    bulkLockItems,
     toggleItemActive,
     // category actions
     addCategory,

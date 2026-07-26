@@ -313,17 +313,6 @@ export default {
         "5": 'Very satisfied! 😍'
       }
     },
-    setup: {
-      selectServiceMode: 'Select Service Mode',
-      selectServiceModeDesc: 'Please select the service mode and number of guests',
-      adult: 'Adult',
-      child: 'Child',
-      adultCount: 'Adults',
-      childCount: 'Children',
-      tableCapacity: 'Table capacity: {capacity} guests',
-      alacarte: 'A La Carte',
-      buffet: 'Buffet',
-    },
     tracking: {
       title: 'Order Tracking',
       subtitle: 'Table {table} • {count} items',
@@ -360,6 +349,17 @@ export default {
       selecting: 'Selecting',
       occupied: 'Occupied'
     },
+  },
+  menu: {
+    sold_out: 'Sold Out',
+    available: 'Available',
+    locked: 'Locked',
+    lock_item: 'Lock Item',
+    unlock_item: 'Unlock Item',
+    bulk_lock: 'Lock Multiple Items',
+    bulk_unlock: 'Unlock Multiple Items',
+    quick_lock: 'Quick Lock',
+    exit_quick_lock: 'Exit Quick Lock',
   },
   membership: {
     member: 'Member',

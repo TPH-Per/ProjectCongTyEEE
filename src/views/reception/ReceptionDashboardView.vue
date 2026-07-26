@@ -1322,13 +1322,20 @@ function playNotificationSound() {
 // Fetch active branch info name
 async function fetchBranchInfo() {
   if (!activeBranch.value) return
-  const { data } = await supabase
+  const { data, error: dbError } = await supabase
     .from('branches')
     .select('name')
     .eq('id', activeBranch.value)
     .maybeSingle()
+  if (dbError) {
+    // Fallback: use branch ID as display name if DB query fails
+    activeBranchName.value = activeBranch.value
+    return
+  }
   if (data?.name) {
     activeBranchName.value = data.name
+  } else {
+    activeBranchName.value = activeBranch.value
   }
 }
 
@@ -1377,7 +1384,13 @@ async function fetchAll() {
     await fetchShiftPayments()
     await fetchTableDetails()
   } catch (err) {
-    error.value = err instanceof Error ? err.message : String(err)
+    if (err instanceof Error) {
+      error.value = err.message
+    } else if (typeof err === 'object' && err !== null) {
+      error.value = (err as any).message || JSON.stringify(err)
+    } else {
+      error.value = String(err)
+    }
     console.error('[ReceptionDashboard] Fetch error:', err)
   } finally {
     loading.value = false

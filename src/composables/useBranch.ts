@@ -57,12 +57,25 @@ export function useBranch() {
 
   // LIST (with manager profile joined, one query)
   async function listBranches(): Promise<Branch[]> {
-    const { data, error } = await supabase.rpc('rpc_list_branches')
+    // Try RPC first; fall back to direct table query if RPC is unavailable.
+    const { data: rpcData, error: rpcError } = await supabase.rpc('rpc_list_branches')
+    if (!rpcError && rpcData) {
+      return (rpcData || []).map((b: any) => ({
+        ...b,
+        id: b.branch_id ?? b.id,
+      })) as Branch[]
+    }
+
+    // Fallback: direct table query
+    const { data, error } = await supabase
+      .from('branches')
+      .select('*')
+      .eq('is_active', true)
+      .order('name', { ascending: true })
     if (error) throw error
-    // Map branch_id to id to satisfy front-end types
     return (data || []).map((b: any) => ({
       ...b,
-      id: b.branch_id
+      id: b.branch_id ?? b.id,
     })) as Branch[]
   }
 

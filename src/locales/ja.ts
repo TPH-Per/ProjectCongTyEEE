@@ -350,6 +350,17 @@ export default {
       occupied: '使用中'
     },
   },
+  menu: {
+    sold_out: '売り切れ',
+    available: '利用可能',
+    locked: 'ロック済み',
+    lock_item: 'アイテムをロック',
+    unlock_item: 'アイテムのロックを解除',
+    bulk_lock: '複数アイテムをロック',
+    bulk_unlock: '複数アイテムのロックを解除',
+    quick_lock: 'クイックロック',
+    exit_quick_lock: 'クイックロックを終了',
+  },
   membership: {
     member: 'メンバー',
   },

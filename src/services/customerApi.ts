@@ -1043,7 +1043,7 @@ function rowToOrder(row: any): Order {
     vat_vnd: 0,
     discount_vnd: 0,
     total_vnd: computedTotal,
-    status: row.status === 'completed' || row.status === 'served' ? 'confirmed' : 'pending',
-    createdAt: new Date(row.created_at),
+    status: (['draft', 'confirmed', 'cooking', 'served', 'completed'].includes(row.status) ? row.status : 'confirmed') as any,
+    createdAt: new Date(row.created_at ?? Date.now()),
   }
 }

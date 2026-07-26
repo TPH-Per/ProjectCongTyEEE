@@ -14,7 +14,7 @@
             :class="['category-btn', 'pink', { active: selectedCategory?.id === cat.id }]"
             @click="selectCategory(cat)"
           >
-            {{ cat.name }}
+            {{ $te(`customer.menuCategories.${cat.id}`) ? $t(`customer.menuCategories.${cat.id}`) : ($te(`customer.menuSubcategories.${cat.id}`) ? $t(`customer.menuSubcategories.${cat.id}`) : cat.name) }}
           </button>
         </div>
 
@@ -44,13 +44,13 @@
           <div class="flex items-center gap-4">
             <div class="text-4xl">👑</div>
             <div>
-              <h3 class="text-base font-bold text-white">{{ $t('customer.menu.packageBannerTitle', { name: selectedCategory.name }) }}</h3>
+              <h3 class="text-base font-bold text-white">{{ $t('customer.menu.packageBannerTitle', { name: $te(`customer.menuCategories.${selectedCategory.id}`) ? $t(`customer.menuCategories.${selectedCategory.id}`) : ($te(`customer.menuSubcategories.${selectedCategory.id}`) ? $t(`customer.menuSubcategories.${selectedCategory.id}`) : selectedCategory.name) }) }}</h3>
               <p class="text-xs text-amber-200/70 mt-1">{{ $t('customer.menu.packageBannerText') }}</p>
             </div>
           </div>
           <div class="flex items-center gap-3 shrink-0">
             <span class="text-lg font-black text-amber-400">{{ getSetPriceDisplay(selectedCategory) }}</span>
-            <button @click="addSetToCart(selectedCategory)"
+            <button @click="addSetToCart(selectedCategory.id)"
                     :class="[
                       'px-5 py-2.5 rounded-xl font-bold text-xs transition-all duration-200 active:scale-95 flex items-center gap-1.5 shadow-md shadow-amber-500/10',
                       isSetInCart(selectedCategory.id)
@@ -65,7 +65,7 @@
         <div v-if="selectedCategory" class="category-content">
           <!-- Header -->
           <div class="category-header">
-            <h1>{{ selectedCategory.name }}</h1>
+            <h1>{{ $te(`customer.menuCategories.${selectedCategory.id}`) ? $t(`customer.menuCategories.${selectedCategory.id}`) : ($te(`customer.menuSubcategories.${selectedCategory.id}`) ? $t(`customer.menuSubcategories.${selectedCategory.id}`) : selectedCategory.name) }}</h1>
             <span class="item-count">{{ $t('customer.menu.itemCount', { count: displayedItems.length }) }}</span>
           </div>
 
@@ -276,13 +276,13 @@ watch(() => selectedSubId.value, (newSubId) => {
   // SET ticket must be in the cart — otherwise `tạm tính` collapses
   // to 0đ (only in-pkg items carry price=0).
   const isBuffetLike =
-    cat.id === 'buffet' ||
-    cat.id.startsWith('buffet-') ||
-    !!cat.subcategories?.some((s) => s.id === 'set-' + cat.id || s.id.startsWith('set-'))
+    newSubId === 'buffet' ||
+    newSubId.startsWith('buffet-') ||
+    newSubId.startsWith('set-')
   if (!isBuffetLike) return
   selectedYellowCategoryId.value = newSubId
-  if (!isSetInCart(cat.id)) {
-    addSetToCart(cat)
+  if (!isSetInCart(newSubId)) {
+    addSetToCart(newSubId)
   }
 });
 
@@ -451,11 +451,6 @@ function getSetPriceDisplay(cat: MenuCategory): string {
 }
 
 const isSetInCart = (catId: string): boolean => {
-  // `catId` is the buffet subcategory id (e.g. `buffet-1390`). The
-  // SET ticket is whichever first item belongs to that subcategory in
-  // the live menu (matched via `subCatIdByItemId`). After the
-  // loadMenu() id remap, item ids are real UUIDs so a substring
-  // check on the menuItemId would fail — we use the resolved map.
   const ticket = store.menuData
     .flatMap((c) => c.subcategories ?? [])
     .find((s) => s.id === catId)
@@ -464,17 +459,21 @@ const isSetInCart = (catId: string): boolean => {
   return cart.value.some((c) => c.menuItemId === ticket.id)
 };
 
-function addSetToCart(cat: MenuCategory) {
-  // The SET ticket is always the first item in the first subcategory
-  // (per Ishii 02/07_2026 spec: each buffet tier has one `Vé` ticket
-  //  listed first, then the eligible items). Take that one.
-  const subs = cat.subcategories || []
-  const setItem = subs[0]?.items?.[0] ?? null
+function addSetToCart(subCatId: string) {
+  const sub = store.menuData
+    .flatMap((c) => c.subcategories ?? [])
+    .find((s) => s.id === subCatId)
+  const setItem = sub?.items?.[0] ?? null
 
   if (setItem) {
-    store.addToCart(setItem, 1)
+    if (store.session) {
+      store.session.packageId = subCatId
+      store.session.serviceMode = 'buffet'
+      localStorage.setItem('nguucat_customer_session', JSON.stringify(store.session))
+    }
+    store.addToCart(setItem, store.session?.guestCount || 1)
     syncCart()
-    store.addNotification(i18nStore.t('customer.menu.packageSelectedNotif', { name: cat.name }), 'success')
+    store.addNotification(i18nStore.t('customer.menu.packageSelectedNotif', { name: sub?.name || '' }), 'success')
   }
 }
 </script>

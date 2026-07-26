@@ -169,7 +169,7 @@ import Swal from 'sweetalert2';
 import { useLanguageStore } from '@/stores/useLanguageStore';
 import { useAuth } from '@/composables/useAuth';
 import { useBranch } from '@/composables/useBranch';
-import { useShift } from '@/composables/useShift';
+import { useShiftStore } from '@/stores/shiftStore';
 import { supabase } from '@/lib/supabase';
 import type { Shift } from '@/types/database';
 
@@ -178,7 +178,7 @@ const langStore = useLanguageStore();
 const t = langStore.t;
 const { profile } = useAuth();
 const { activeBranchId } = useBranch();
-const { closeShift, loading: shiftLoading, error: shiftError } = useShift();
+const shiftStore = useShiftStore();
 
 const loading = ref(false);
 const activeShift = ref<Shift | null>(null);
@@ -427,11 +427,10 @@ const endShift = async () => {
     if (resultConfirm.isConfirmed) {
       loading.value = true;
       try {
-        await closeShift({
-          shiftId: activeShift.value!.id,
-          closingCash: actual,
-          notes: notes.value || undefined,
-        });
+        await shiftStore.closeShift(
+          actual,
+          notes.value || undefined,
+        );
         Swal.fire({
           icon: 'success',
           title: 'Ra ca thành công',

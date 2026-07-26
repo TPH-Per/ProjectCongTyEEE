@@ -530,10 +530,22 @@
           <button @click="closeMenuItemModal" class="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
         </div>
         <form @submit.prevent="saveMenuItem" class="p-6 space-y-4">
-          <div>
-            <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">{{ i18n.t('admin_menus.item_name') }}</label>
-            <input v-model="editingMenuItem.name" required type="text" placeholder="VD: Wagyu A5"
-              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-200 focus:border-rose-400" />
+          <div class="space-y-3">
+            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wide">{{ i18n.t('admin_menus.item_name') }} *</label>
+            <div v-if="editingMenuItem.i18n_name" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div>
+                <input v-model="editingMenuItem.i18n_name.vi" required type="text" placeholder="Tiếng Việt"
+                  class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-200 focus:border-rose-400" />
+              </div>
+              <div>
+                <input v-model="editingMenuItem.i18n_name.en" required type="text" placeholder="English"
+                  class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-200 focus:border-rose-400" />
+              </div>
+              <div>
+                <input v-model="editingMenuItem.i18n_name.ja" required type="text" placeholder="日本語"
+                  class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-200 focus:border-rose-400" />
+              </div>
+            </div>
           </div>
 
           <div class="grid grid-cols-2 gap-3">
@@ -579,10 +591,22 @@
             <p class="text-[10px] text-gray-400 mt-1">{{ i18n.t('admin_menus.optional_price_display') }}</p>
           </div>
 
-          <div>
-            <label class="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wide">{{ i18n.t('admin_menus.description') }}</label>
-            <textarea v-model="editingMenuItem.description" rows="2" :placeholder="i18n.t('admin_menus.short_description')"
-              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-200 focus:border-rose-400"></textarea>
+          <div class="space-y-3">
+            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wide">{{ i18n.t('admin_menus.description') }}</label>
+            <div v-if="editingMenuItem.i18n_description" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div>
+                <textarea v-model="editingMenuItem.i18n_description.vi" rows="2" placeholder="Tiếng Việt"
+                  class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-200 focus:border-rose-400"></textarea>
+              </div>
+              <div>
+                <textarea v-model="editingMenuItem.i18n_description.en" rows="2" placeholder="English"
+                  class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-200 focus:border-rose-400"></textarea>
+              </div>
+              <div>
+                <textarea v-model="editingMenuItem.i18n_description.ja" rows="2" placeholder="日本語"
+                  class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-200 focus:border-rose-400"></textarea>
+              </div>
+            </div>
           </div>
 
           <div class="flex items-center gap-2 pt-2 border-t border-gray-100">
@@ -921,9 +945,17 @@ async function savePackage() {
 function editMenuItem(item?: MenuItem, defaultCategoryId?: string, defaultSubcategoryId?: string | null) {
   if (item) {
     editingMenuItem.value = { ...item }
+    if (!editingMenuItem.value.i18n_name) {
+      editingMenuItem.value.i18n_name = { vi: item.name || '', en: '', ja: '' }
+    }
+    if (!editingMenuItem.value.i18n_description) {
+      editingMenuItem.value.i18n_description = { vi: item.description || '', en: '', ja: '' }
+    }
   } else {
     editingMenuItem.value = {
       name: '',
+      i18n_name: { vi: '', en: '', ja: '' },
+      i18n_description: { vi: '', en: '', ja: '' },
       category_id: defaultCategoryId ?? (categories.value[0]?.id ?? ''),
       subcategory_id: defaultSubcategoryId ?? null,
       price: 0,
@@ -947,13 +979,15 @@ async function saveMenuItem() {
   saving.value = true
   try {
     const payload = {
-      name: editingMenuItem.value.name,
+      name: editingMenuItem.value.i18n_name?.vi || editingMenuItem.value.name,
+      i18n_name: editingMenuItem.value.i18n_name,
       category_id: editingMenuItem.value.category_id,
       subcategory_id: editingMenuItem.value.subcategory_id ?? null,
       price: editingMenuItem.value.price,
       unit: editingMenuItem.value.unit,
       price_display: editingMenuItem.value.price_display ?? null,
-      description: editingMenuItem.value.description ?? null,
+      description: editingMenuItem.value.i18n_description?.vi || editingMenuItem.value.description || null,
+      i18n_description: editingMenuItem.value.i18n_description,
       is_available: editingMenuItem.value.is_available,
       is_active: editingMenuItem.value.is_active ?? true,
     }

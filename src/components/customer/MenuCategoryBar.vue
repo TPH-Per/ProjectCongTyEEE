@@ -15,7 +15,7 @@
         <span class="text-base">
           {{ getCategoryEmoji(cat.id) }}
         </span>
-        {{ cat.name }}
+        {{ $te(`customer.menuCategories.${cat.id}`) ? $t(`customer.menuCategories.${cat.id}`) : cat.name }}
       </button>
     </div>
   </div>

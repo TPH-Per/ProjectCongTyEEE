@@ -55,9 +55,9 @@ export function useBranch() {
     if (error) throw error
   }
 
-  // LIST (with manager profile joined, one query)
+  // LIST
   async function listBranches(): Promise<Branch[]> {
-    const { data, error } = await supabase.rpc('rpc_list_branches')
+    const { data, error } = await supabase.from('branches').select('*')
     if (error) throw error
     // Map branch_id to id to satisfy front-end types
     return (data || []).map((b: any) => ({

@@ -22,7 +22,7 @@
         @click="selectTab(sub.id)"
         type="button"
       >
-        <span class="tab-name">{{ sub.name }}</span>
+        <span class="tab-name">{{ $te(`customer.menuSubcategories.${sub.id}`) ? $t(`customer.menuSubcategories.${sub.id}`) : sub.name }}</span>
         <span class="tab-count">{{ sub.items.length }}</span>
       </button>
     </div>

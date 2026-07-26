@@ -477,7 +477,7 @@ function formatTime(date: any): string {
 .request-type {
   font-size: 13px;
   font-weight: 700;
-  color: #3d2817;
+  color: #e5e7eb;
   margin: 0 0 2px 0;
   line-height: 1.2;
   white-space: nowrap;
@@ -487,7 +487,7 @@ function formatTime(date: any): string {
 
 .request-time {
   font-size: 10px;
-  color: #8b7355;
+  color: #9ca3af;
   margin: 0;
   font-weight: 600;
 }
@@ -556,9 +556,9 @@ function formatTime(date: any): string {
 /* ✅ REQUEST CONTENT */
 .request-content {
   font-size: 11px;
-  color: #5c4a35;
+  color: #d1d5db;
   line-height: 1.4;
-  background: #faf3e8;
+  background: #27272a;
   padding: 8px;
   border-radius: 6px;
   border-left: 2px solid #e8772e;
@@ -576,15 +576,15 @@ function formatTime(date: any): string {
   display: flex;
   justify-content: flex-end;
   padding-top: 6px;
-  border-top: 1px solid #f0e6d8;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .btn-cancel {
   font-size: 10px;
   font-weight: 700;
-  color: #8b7355;
-  background: #faf3e8;
-  border: 1px solid #e8dcc8;
+  color: #9ca3af;
+  background: transparent;
+  border: 1px solid #52525b;
   padding: 4px 10px;
   border-radius: 5px;
   cursor: pointer;
@@ -595,9 +595,9 @@ function formatTime(date: any): string {
 }
 
 .btn-cancel:hover {
-  color: #c62828;
-  background: #fff5f5;
-  border-color: #ffcdd2;
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+  border-color: #ef4444;
 }
 
 /* ✅ MORE INDICATOR */

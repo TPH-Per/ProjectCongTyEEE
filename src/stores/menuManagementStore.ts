@@ -149,11 +149,21 @@ export const useMenuManagementStore = defineStore('menuManagement', () => {
     return copy
   }
 
-  function toggleSoldOut(id: string): void {
+  async function toggleSoldOut(id: string): Promise<void> {
     const item = getItemById(id)
     if (!item) return
     item.is_sold_out = !item.is_sold_out
     broadcastItemStatus(id)
+
+    if (id.includes('-')) {
+      try {
+        const { useMenu } = await import('@/composables/useMenu')
+        const { toggleItemAvailability } = useMenu()
+        await toggleItemAvailability(id)
+      } catch (e) {
+        console.warn('Failed to sync item availability to Supabase:', e)
+      }
+    }
   }
 
   function toggleItemActive(id: string): void {

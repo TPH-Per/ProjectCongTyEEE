@@ -2,7 +2,7 @@
   <Transition name="fade">
     <div
       v-if="isOpen"
-      class="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-[9999] p-4"
+      class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[9999] p-4"
     >
       <div class="w-full max-w-md bg-white rounded-2xl overflow-hidden shadow-2xl border border-gray-100 text-[#3D2817]">
         <!-- Header -->

@@ -3522,6 +3522,9 @@ export default {
   'sidebar.shift': 'Shift',
   'sidebar.close_shift': 'Close Shift',
   'sidebar.exit_shift': 'Exit Shift',
+  'sidebar.open_shift': 'Open Shift',
+  'sidebar.shift_summary': 'Shift Summary',
+  'sidebar.ra_ca': 'Close Shift',
   'sidebar.user_info.cashier': 'Cashier',
   'sidebar.user_info.receptionist': 'Receptionist',
 

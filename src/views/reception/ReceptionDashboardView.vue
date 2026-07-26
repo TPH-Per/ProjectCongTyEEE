@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-[#FAF3E8] p-4 md:p-6 text-[#3D2817] font-sans">
+  <div class="h-full bg-[#FAF3E8] text-[#3D2817] font-sans">
     
     <!-- Top Header Widget -->
     <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between bg-white rounded-2xl p-6 border border-[#E8772E]/10 shadow-sm gap-4">
@@ -474,7 +474,7 @@
       <!-- Right Column: Notifications Panel (Column 4) -->
       <div class="lg:col-span-1 space-y-6">
         
-        <div class="bg-white border border-[#E8772E]/10 rounded-2xl shadow-sm overflow-hidden flex flex-col h-[750px] sticky top-6">
+        <div class="bg-white border border-[#E8772E]/10 rounded-2xl shadow-sm overflow-hidden flex flex-col h-[calc(100vh-12rem)] sticky top-6">
           <!-- Notification Panel Header -->
           <div class="bg-gray-50 px-4 py-4 border-b flex items-center justify-between shrink-0">
             <div class="flex items-center gap-2">
@@ -482,7 +482,7 @@
                 <Bell class="w-5 h-5 text-[#E8772E]" />
                 <span 
                   v-if="unreadCount > 0"
-                  class="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[9px] font-black w-4.5 h-4.5 rounded-full flex items-center justify-center border border-white animate-pulse"
+                  class="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center border border-white animate-pulse"
                 >
                   {{ unreadCount }}
                 </span>
@@ -564,7 +564,7 @@
 
     <!-- Custom Modal other-income -->
     <Transition name="fade">
-      <div v-if="showOtherIncomeModal" class="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-[9999] p-4">
+      <div v-if="showOtherIncomeModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[9999] p-4">
         <div class="other-income-modal w-full max-w-[600px] bg-white rounded-2xl overflow-hidden shadow-2xl border border-gray-100 text-[#333333]">
           <!-- Header -->
           <div class="modal-header bg-[#1a5276] text-white p-4 flex items-center justify-between">
@@ -692,7 +692,7 @@
                 v-model="form.isCash" 
                 type="checkbox" 
                 id="isCash" 
-                class="w-4.5 h-4.5 accent-[#E8772E] cursor-pointer"
+                class="w-4 h-4 accent-[#E8772E] cursor-pointer"
               />
               <label for="isCash" class="text-xs font-bold text-gray-700 cursor-pointer">{{ t('reception.cash') }}</label>
             </div>
@@ -722,7 +722,7 @@
 
     <!-- Custom Modal settings -->
     <Transition name="fade">
-      <div v-if="showSettingsModal" class="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-[9999] p-4">
+      <div v-if="showSettingsModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[9999] p-4">
         <div class="settings-modal w-full max-w-[500px] bg-white rounded-2xl overflow-hidden shadow-2xl border border-gray-100 text-[#333333]">
           <!-- Header -->
           <div class="modal-header bg-[#1a5276] text-white p-4 flex items-center justify-between">
@@ -1162,6 +1162,7 @@ let notificationPollInterval: any
 
 onMounted(() => {
   fetchAll()
+  fetchBranchInfo()
   subscribeRealtime()
   
   // Timer interval for Date Time Widget
@@ -1322,19 +1323,20 @@ function playNotificationSound() {
 // Fetch active branch info name
 async function fetchBranchInfo() {
   if (!activeBranch.value) return
-  const { data, error: dbError } = await supabase
-    .from('branches')
-    .select('name')
-    .eq('id', activeBranch.value)
-    .maybeSingle()
-  if (dbError) {
+  try {
+    const { data, error: dbError } = await supabase
+      .from('branches')
+      .select('name, branch_id')
+      .eq('branch_id', activeBranch.value)
+      .maybeSingle()
+    if (dbError) throw dbError
+    if (data?.name) {
+      activeBranchName.value = data.name
+    } else {
+      activeBranchName.value = activeBranch.value
+    }
+  } catch {
     // Fallback: use branch ID as display name if DB query fails
-    activeBranchName.value = activeBranch.value
-    return
-  }
-  if (data?.name) {
-    activeBranchName.value = data.name
-  } else {
     activeBranchName.value = activeBranch.value
   }
 }
@@ -1380,7 +1382,6 @@ async function fetchAll() {
     // Map DB notifications to UINotification format
     mapDbNotifications(notifData ?? [])
 
-    await fetchBranchInfo()
     await fetchShiftPayments()
     await fetchTableDetails()
   } catch (err) {

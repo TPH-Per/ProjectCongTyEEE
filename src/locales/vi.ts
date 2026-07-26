@@ -3605,6 +3605,9 @@ export default {
   'sidebar.shift': 'Ca làm việc',
   'sidebar.close_shift': 'Tổng Kết Ca',
   'sidebar.exit_shift': 'Ra ca',
+  'sidebar.open_shift': 'Mở ca',
+  'sidebar.shift_summary': 'Tổng kết ca',
+  'sidebar.ra_ca': 'Ra ca',
   'sidebar.user_info.cashier': 'Thu ngân',
   'sidebar.user_info.receptionist': 'Lễ tân',
 

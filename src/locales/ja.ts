@@ -3538,6 +3538,9 @@ export default {
   'sidebar.shift': 'シフト',
   'sidebar.close_shift': 'シフト終了',
   'sidebar.exit_shift': '退出',
+  'sidebar.open_shift': 'シフト開始',
+  'sidebar.shift_summary': 'シフト概要',
+  'sidebar.ra_ca': '退出',
   'sidebar.user_info.cashier': '受付',
   'sidebar.user_info.receptionist': '受付',
 

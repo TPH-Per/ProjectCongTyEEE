@@ -313,17 +313,7 @@ export default {
         "5": 'Very satisfied! 😍'
       }
     },
-    setup: {
-      selectServiceMode: 'Select Service Mode',
-      selectServiceModeDesc: 'Please select the service mode and number of guests',
-      adult: 'Adult',
-      child: 'Child',
-      adultCount: 'Adults',
-      childCount: 'Children',
-      tableCapacity: 'Table capacity: {capacity} guests',
-      alacarte: 'A La Carte',
-      buffet: 'Buffet',
-    },
+
     tracking: {
       title: 'Order Tracking',
       subtitle: 'Table {table} • {count} items',

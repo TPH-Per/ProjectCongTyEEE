@@ -1043,7 +1043,7 @@ function rowToOrder(row: any): Order {
     vat_vnd: 0,
     discount_vnd: 0,
     total_vnd: computedTotal,
-    status: row.status === 'completed' || row.status === 'served' ? 'confirmed' : 'pending',
+    status: (row.status as any) || 'confirmed',
     createdAt: new Date(row.created_at),
   }
 }

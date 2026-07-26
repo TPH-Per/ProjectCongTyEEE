@@ -92,6 +92,17 @@ export default {
       removedInvalid: '{count}品の無効な商品を削除しました',
       reloadedMenu: 'メニューを再読み込みしました。カートをもう一度ご確認ください。',
     },
+    setup: {
+      selectServiceMode: 'サービスモードの選択',
+      selectServiceModeDesc: 'サービスモードと人数を選択してください。',
+      alacarte: 'アラカルト (A la carte)',
+      buffet: 'ビュッフェ (Buffet)',
+      adult: '大人',
+      child: '子供',
+      tableCapacity: 'このテーブルは最大{capacity}名様までご利用いただけます',
+      adultCount: '大人',
+      childCount: '子供'
+    },
     cartItem: {
       noteLabel: 'メモ:',
       notePlaceholder: '玉葱抜き、よく焼き...',
@@ -302,17 +313,7 @@ export default {
         "5": '大変満足！😍'
       }
     },
-    setup: {
-      selectServiceMode: 'サービスモードを選択',
-      selectServiceModeDesc: 'サービスモードと人数を選択してください',
-      adult: '大人',
-      child: '子供',
-      adultCount: '大人',
-      childCount: '子供',
-      tableCapacity: 'テーブルの定員: {capacity}名',
-      alacarte: 'アラカルト',
-      buffet: 'ビュッフェ',
-    },
+
     tracking: {
       title: '注文追跡',
       subtitle: 'テーブル{table} • {count}品',

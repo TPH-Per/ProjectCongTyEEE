@@ -867,8 +867,8 @@ interface UINotification {
 const langStore = useLanguageStore()
 const t = langStore.t
 const router = useRouter()
-const { branchId, role, profile } = useAuth()
-const { activeBranchId } = useBranch()
+const { role, profile } = useAuth();
+const { activeBranchId } = useBranch();
 const { updateStatus } = useReservation()
 const { listForRole, markRead } = useNotification()
 const { watchTable } = useRealtime()
@@ -1150,7 +1150,7 @@ const localMockNotifications = ref<UINotification[]>([
 
 const cleanups: Array<() => void> = []
 
-const activeBranch = computed<string>(() => activeBranchId.value ?? branchId.value ?? '')
+const activeBranch = computed<string>(() => activeBranchId.value ?? '')
 
 // Real active branch name
 const activeBranchName = ref('Đang tải...')

@@ -42,7 +42,8 @@ export const useCustomerStore = defineStore('customer', {
     tables: [] as Table[],
     selectedTable: null as Table | null,
     
-    // Menu
+    // Packages
+    packages: [] as any[],
     menuData: [] as MenuCategory[],
     selectedCategory: null as MenuCategory | null,
     selectedSubcategory: null as SubCategory | null,
@@ -106,21 +107,30 @@ export const useCustomerStore = defineStore('customer', {
       return false;
     },
 
-    async confirmTable(): Promise<void> {
-      if (!this.selectedTable) return;
+    async loadPackages(branchId: string): Promise<any[]> {
+      const packages = await customerApiImpl.getPackages(branchId);
+      this.packages = packages;
+      return packages;
+    },
+
+    async createSession(packageId: string | null, serviceMode: 'alacarte' | 'buffet', adultCount: number, childCount: number): Promise<void> {
+      if (!this.selectedTable || !this.selectedBranchId || !this.selectedAreaId) return;
       
-      const newSession: CustomerSession = {
-        id: `sess-${Date.now()}`,
+      const area = this.areas.find(a => a.id === this.selectedTable?.areaId);
+
+      const session = await customerApiImpl.createSession({
+        branchId: this.selectedBranchId,
         tableId: this.selectedTable.id,
         tableNumber: this.selectedTable.number,
         areaId: this.selectedTable.areaId,
-        areaName: this.areas.find(a => a.id === this.selectedTable?.areaId)?.name || 'Khu vực',
-        staffId: 'staff-uuid-001',
-        startedAt: new Date(),
-        status: 'active'
-      };
-
-      const session = await customerApiImpl.confirmTable(newSession);
+        areaName: area?.name || 'Khu vực',
+        packageId: packageId || '',
+        adultCount,
+        childCount,
+        openedBy: 'staff-uuid-001'
+      });
+      
+      session.serviceMode = serviceMode;
       this.session = session;
       this.currentView = 'menu';
 
@@ -229,6 +239,7 @@ export const useCustomerStore = defineStore('customer', {
         existing.quantity += quantity;
       } else {
         this.cart.push({
+          branchMenuItemId: item.id,
           menuItemId: item.id,
           name: item.name,
           unit: item.unit,
@@ -329,6 +340,11 @@ export const useCustomerStore = defineStore('customer', {
         vat: vatVal,
         discount: 0,
         total: grand,
+        subtotal_vnd: subtotal,
+        serviceCharge_vnd: charge,
+        vat_vnd: vatVal,
+        discount_vnd: 0,
+        total_vnd: grand,
         status: 'draft',
         createdAt: new Date()
       };
@@ -349,6 +365,16 @@ export const useCustomerStore = defineStore('customer', {
     },
     
     // NV5: History & Payment
+    async loadOrderStatus() {
+      if (!this.session) return [];
+      try {
+        return await customerApiImpl.getOrderStatus(this.session.id);
+      } catch (e) {
+        console.error('[customerStore] Failed to load order status', e);
+        return [];
+      }
+    },
+
     async loadOrderHistory(): Promise<Order[]> {
       if (!this.session) return [];
 
@@ -372,14 +398,29 @@ export const useCustomerStore = defineStore('customer', {
     async requestPayment(): Promise<void> {
       if (!this.session) return;
       await customerApiImpl.requestPayment(this.session.id);
-      this.session.status = 'waiting_payment';
+      this.session.status = 'checkout_requested';
       this.addNotification('Đã gửi yêu cầu thanh toán. Vui lòng đợi nhân viên.', 'success');
     },
 
-    async requestInvoice(): Promise<void> {
+
+    async updateCrmInfo(phone: string, name: string): Promise<void> {
       if (!this.session) return;
-      await customerApiImpl.requestInvoice(this.session.id);
-      this.addNotification('Đã gửi yêu cầu xuất hóa đơn đỏ.', 'success');
+      const res = await customerApiImpl.updateCrmInfo(this.session.id, phone, name);
+      if (res.success) {
+        this.addNotification('Đã cập nhật thông tin thành viên.', 'success');
+      } else {
+        this.addNotification('Cập nhật thất bại. Vui lòng thử lại.', 'error');
+      }
+    },
+
+    async requestInvoice(details?: any): Promise<void> {
+      if (!this.session) return;
+      await customerApiImpl.requestInvoice(this.session.id, details);
+      if (details && details.companyName) {
+        this.addNotification(`Đã gửi yêu cầu xuất hóa đơn đỏ cho công ty: ${details.companyName}`, 'success');
+      } else {
+        this.addNotification('Đã gửi yêu cầu xuất hóa đơn đỏ.', 'success');
+      }
     },
 
     async submitFeedback(feedbackData: Omit<Feedback, 'id' | 'sessionId' | 'createdAt'>): Promise<void> {
@@ -391,6 +432,9 @@ export const useCustomerStore = defineStore('customer', {
         rating: feedbackData.rating,
         criteria: feedbackData.criteria,
         comment: feedbackData.comment || '',
+        surveyData: feedbackData.surveyData || null,
+        customerName: feedbackData.customerName,
+        customerPhone: feedbackData.customerPhone,
         createdAt: new Date()
       };
 

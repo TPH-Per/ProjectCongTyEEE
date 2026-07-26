@@ -1,17 +1,17 @@
 <!-- File: src/views/customer/OrderHistory.vue -->
 <template>
-  <div class="w-full h-full flex flex-col overflow-hidden bg-[#3D2817]">
+  <div class="w-full h-full flex flex-col overflow-hidden bg-[#0d0d0f]">
     
     <!-- Sub Header Bar -->
-    <div class="px-6 md:px-8 py-4 bg-[#1a110a] border-b border-[#2d1e12] flex items-center justify-between shrink-0">
+    <div class="px-6 md:px-8 py-4 bg-[#141417] border-b border-white/10 flex items-center justify-between shrink-0">
       <div>
         <h1 class="text-lg md:text-xl font-black text-white font-serif tracking-wide">{{ $t('customer.orderHistory.title') }}</h1>
         <p class="text-[10px] text-gray-400 mt-0.5">{{ $t('customer.orderHistory.subtitle') }}</p>
       </div>
 
-      <div class="bg-[#2a1b10] border border-[#442c19] rounded-lg px-3.5 py-1.5 text-xs flex items-center gap-2">
+      <div class="bg-[#1e1e24] border border-white/10 rounded-xl px-3.5 py-1.5 text-xs flex items-center gap-2">
         <span class="text-gray-400 font-bold">{{ $t('customer.orderHistory.totalOrdered') }}</span>
-        <span class="text-[#E8772E] font-black text-xs">{{ $t('customer.orderHistory.totalOrderedValue', { count: totalItemsCount }) }}</span>
+        <span class="text-amber-400 font-black text-xs">{{ $t('customer.orderHistory.totalOrderedValue', { count: totalItemsCount }) }}</span>
       </div>
     </div>
 
@@ -51,7 +51,7 @@
               <div v-for="item in aggregatedItems" :key="item.key"
                    class="flex items-center justify-between text-xs text-[#333333]">
                 <div class="flex items-start gap-2.5">
-                  <span class="w-5.5 h-5.5 bg-gray-105 rounded flex items-center justify-center text-[10px] text-gray-600 font-bold border border-gray-200">
+                  <span class="w-5.5 h-5.5 bg-gray-100 rounded flex items-center justify-center text-[10px] text-gray-600 font-bold border border-gray-200">
                     {{ item.quantity }}
                   </span>
                   <div>
@@ -75,7 +75,7 @@
            class="w-full lg:w-96 bg-[#F5F5F5] border-t lg:border-t-0 lg:border-l border-gray-300 p-6 md:p-8 flex flex-col justify-between shrink-0 text-[#333333]">
         
         <div class="flex flex-col gap-5">
-          <h3 class="text-sm font-black text-[#333333] border-b border-gray-250 pb-3 flex items-center gap-2 font-serif uppercase tracking-wider">
+          <h3 class="text-sm font-black text-[#333333] border-b border-gray-200 pb-3 flex items-center gap-2 font-serif uppercase tracking-wider">
             <span>🧾</span> {{ $t('customer.orderHistory.billTitle') }}
           </h3>
 
@@ -119,39 +119,73 @@
         </div>
 
         <div class="flex flex-col gap-3 mt-6 lg:mt-0">
+          <button @click="openTracking"
+                  class="w-full h-12 rounded-xl bg-[#2a1b10] border border-[#E8772E] text-[#E8772E] font-bold text-xs transition-colors hover:bg-[#3a2516] active:scale-95 shadow-sm flex items-center justify-center gap-2">
+            <span>🍳</span> {{ $t('customer.tracking.trackOrder') }}
+          </button>
+          
+          <button @click="openCrmModal"
+                  class="w-full h-12 rounded-xl bg-white border border-[#E8772E] text-[#E8772E] font-bold text-xs transition-colors hover:bg-orange-50 active:scale-95 shadow-sm flex items-center justify-center gap-2">
+            <span>💎</span> Đăng ký thành viên
+          </button>
+          
           <button @click="requestVATInvoice"
                   class="w-full h-12 rounded-xl bg-white border border-gray-200 hover:bg-gray-50 text-[#333333] font-bold text-xs transition-colors active:scale-95 shadow-sm">
             {{ $t('customer.orderHistory.requestVAT') }}
           </button>
           
           <button @click="triggerPayment"
-                  :disabled="store.session?.status === 'waiting_payment'"
+                  :disabled="store.session?.status === 'checkout_requested'"
                   :class="[
                     'w-full h-14 rounded-xl font-extrabold text-xs tracking-wider uppercase transition-all active:scale-95 shadow-md flex items-center justify-center gap-2',
-                    store.session?.status === 'waiting_payment'
+                    store.session?.status === 'checkout_requested'
                       ? 'bg-gray-200 text-gray-400 border border-gray-300 cursor-not-allowed'
                       : 'bg-[#E8772E] text-white hover:bg-amber-600 shadow-[#E8772E]/10'
                   ]">
             <span>💵</span>
-            {{ store.session?.status === 'waiting_payment' ? $t('customer.orderHistory.waitingPayment') : $t('customer.orderHistory.requestPayment') }}
+            {{ store.session?.status === 'checkout_requested' ? $t('customer.orderHistory.waitingPayment') : $t('customer.orderHistory.requestPayment') }}
           </button>
         </div>
 
       </div>
     </div>
+
+    <!-- Invoice Request Modal -->
+    <InvoiceRequestModal v-model="showInvoiceModal" @submit="handleInvoiceSubmit" />
+
+    <!-- Order Tracking Modal -->
+    <OrderTrackingModal 
+      v-if="showTrackingModal" 
+      :items="trackingItems" 
+      :tableNumber="store.session?.tableNumber || ''"
+      @close="showTrackingModal = false"
+      @refresh="fetchTrackingItems"
+    />
+
+    <!-- CRM Modal -->
+    <CrmInfoModal v-model="showCrmModal" @submit="handleCrmSubmit" />
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref } from "vue";
 import { computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useCustomerStore } from '@/stores/customerStore';
 import Swal from 'sweetalert2';
-import { useI18n } from 'vue-i18n';
+import { useI18nStore } from '@/stores/i18n';
+import InvoiceRequestModal from '@/components/customer/InvoiceRequestModal.vue';
+import OrderTrackingModal from '@/components/customer/OrderTrackingModal.vue';
+import CrmInfoModal from '@/components/customer/CrmInfoModal.vue';
 
 const store = useCustomerStore();
 const router = useRouter();
-const { t, locale } = useI18n();
+const i18nStore = useI18nStore();
+
+const showInvoiceModal = ref(false);
+const showCrmModal = ref(false);
+const showTrackingModal = ref(false);
+const trackingItems = ref<any[]>([]);
 
 const orders = computed(() => store.orders);
 
@@ -192,7 +226,7 @@ const aggregatedItems = computed(() => {
 
 // Calculate accumulated bill totals
 const billSummary = computed(() => {
-  const subtotal = orders.value.reduce((sum, order) => sum + order.subtotal, 0);
+  const subtotal = orders.value.reduce((sum, order) => sum + (order.subtotal || 0), 0);
   const serviceCharge = Math.round(subtotal * 0.05);
   const vat = Math.round((subtotal + serviceCharge) * 0.08);
   const discount = orders.value.reduce((sum, order) => sum + (order.discount || 0), 0);
@@ -218,14 +252,14 @@ onMounted(async () => {
 
 function triggerPayment() {
   Swal.fire({
-    title: t('customer.orderHistory.confirmPaymentTitle'),
-    text: t('customer.orderHistory.confirmPaymentText'),
+    title: i18nStore.t('customer.orderHistory.confirmPaymentTitle'),
+    text: i18nStore.t('customer.orderHistory.confirmPaymentText'),
     icon: 'question',
     showCancelButton: true,
     confirmButtonColor: '#E8772E',
     cancelButtonColor: '#3085d6',
-    confirmButtonText: t('customer.orderHistory.confirmPaymentButton'),
-    cancelButtonText: t('customer.exitTable.cancelButton')
+    confirmButtonText: i18nStore.t('customer.orderHistory.confirmPaymentButton'),
+    cancelButtonText: i18nStore.t('customer.exitTable.cancelButton')
   }).then(async (result) => {
     if (result.isConfirmed) {
       await store.requestPayment();
@@ -241,37 +275,49 @@ function triggerPayment() {
   });
 }
 
+
+function openCrmModal() {
+  showCrmModal.value = true;
+}
+
+async function handleCrmSubmit(data: { phone: string; name: string }) {
+  await store.updateCrmInfo(data.phone, data.name);
+  showCrmModal.value = false;
+}
+
 function requestVATInvoice() {
-  Swal.fire({
-    title: t('customer.orderHistory.confirmVATTitle'),
-    text: t('customer.orderHistory.confirmVATText'),
-    icon: 'info',
-    showCancelButton: true,
-    confirmButtonColor: '#E8772E',
-    confirmButtonText: t('customer.orderHistory.confirmVATButton'),
-    cancelButtonText: t('customer.exitTable.cancelButton')
-  }).then(async (result) => {
-    if (result.isConfirmed) {
-      await store.requestInvoice();
-    }
-  });
+
+  showInvoiceModal.value = true;
+}
+
+async function openTracking() {
+  await fetchTrackingItems();
+  showTrackingModal.value = true;
+}
+
+async function fetchTrackingItems() {
+  trackingItems.value = await store.loadOrderStatus();
+}
+
+async function handleInvoiceSubmit(details: { taxCode: string; companyName: string; companyAddress: string; email: string }) {
+  await store.requestInvoice(details);
 }
 
 function getStatusLabel(status: string): string {
   const labels: Record<string, string> = {
-    confirmed: t('customer.orderHistory.statusConfirmed'),
-    cooking: t('customer.orderHistory.statusCooking'),
-    served: t('customer.orderHistory.statusServed'),
-    completed: t('customer.orderHistory.statusCompleted'),
-    paid: t('customer.orderHistory.statusPaid')
+    confirmed: i18nStore.t('customer.orderHistory.statusConfirmed'),
+    cooking: i18nStore.t('customer.orderHistory.statusCooking'),
+    served: i18nStore.t('customer.orderHistory.statusServed'),
+    completed: i18nStore.t('customer.orderHistory.statusCompleted'),
+    paid: i18nStore.t('customer.orderHistory.statusPaid')
   };
   return labels[status] || status;
 }
 
-const priceLocale = computed(() => locale.value === 'ja' ? 'ja-JP' : locale.value === 'en' ? 'en-US' : 'vi-VN');
+const priceLocale = computed(() => i18nStore.locale === 'ja' ? 'ja-JP' : i18nStore.locale === 'en' ? 'en-US' : 'vi-VN');
 
 function formatPrice(val: number): string {
-  return val.toLocaleString(priceLocale.value) + 'đ';
+  return val.toLocaleString(priceLocale.value) + i18nStore.t('customer.common.currencySymbol');
 }
 
 function formatTime(date: any): string {

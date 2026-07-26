@@ -106,11 +106,12 @@ import { computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useCustomerStore } from "@/stores/customerStore";
 import type { ServiceRequestType } from "@/types/customer";
-import { useI18n } from 'vue-i18n';
+import { useI18nStore } from '@/stores/i18n';
+import Swal from 'sweetalert2';
 
 const store = useCustomerStore();
 const router = useRouter();
-const { t, locale } = useI18n();
+const i18nStore = useI18nStore();
 
 const requests = computed(() => store.serviceRequests);
 
@@ -120,31 +121,14 @@ const visibleRequests = computed(() => {
 });
 
 // ✅ 9 loại yêu cầu (3x3 grid)
-const requestOptions = [
-  { type: "tissue" as ServiceRequestType, emoji: "🧻", label: t('customer.serviceRequest.tissue') },
-  { type: "bowl" as ServiceRequestType, emoji: "🥣", label: t('customer.serviceRequest.bowl') },
-  { type: "sauce" as ServiceRequestType, emoji: "🧂", label: t('customer.serviceRequest.sauce') },
-  { type: "ice" as ServiceRequestType, emoji: "🧊", label: t('customer.serviceRequest.ice') },
-  { type: "grill_change" as ServiceRequestType, emoji: "🍳", label: t('customer.serviceRequest.grillChange') },
-  {
-    type: "charcoal_change" as ServiceRequestType,
-    emoji: "🪵",
-    label: t('customer.serviceRequest.charcoalChange'),
-  },
-  {
-    type: "request_bill" as ServiceRequestType,
-    emoji: "💵",
-    label: t('customer.serviceRequest.requestBill'),
-    highlight: true,
-  },
-  {
-    type: "call_waiter" as ServiceRequestType,
-    emoji: "🙋‍♂️",
-    label: t('customer.serviceRequest.callWaiter'),
-    highlight: true,
-  },
-  { type: "other" as ServiceRequestType, emoji: "✍️", label: t('customer.serviceRequest.other') },
-];
+// ✅ 5 DB request types
+const requestOptions = computed(() => [
+  { type: "call_staff" as ServiceRequestType, emoji: "🙋‍♂️", label: i18nStore.t('customer.serviceRequest.callWaiter') },
+  { type: "add_charcoal" as ServiceRequestType, emoji: "🪵", label: i18nStore.t('customer.serviceRequest.charcoalChange') },
+  { type: "water" as ServiceRequestType, emoji: "💧", label: i18nStore.t('customer.serviceRequest.water') },
+  { type: "checkout" as ServiceRequestType, emoji: "💵", label: i18nStore.t('customer.serviceRequest.requestBill'), highlight: true },
+  { type: "other" as ServiceRequestType, emoji: "✍️", label: i18nStore.t('customer.serviceRequest.other') },
+]);
 
 onMounted(() => {
   // BR-09: Require session
@@ -157,7 +141,22 @@ async function onSubmitRequest(data: {
   type: ServiceRequestType;
   content: string;
 }) {
-  await store.submitServiceRequest(data.type, data.content);
+  if (data.type === 'other') {
+    const { value: text } = await Swal.fire({
+      title: i18nStore.t('customer.serviceRequest.swalTitle'),
+      input: 'textarea',
+      inputPlaceholder: i18nStore.t('customer.serviceRequest.swalPlaceholder'),
+      showCancelButton: true,
+      confirmButtonText: i18nStore.t('customer.serviceRequest.swalSubmit'),
+      cancelButtonText: i18nStore.t('customer.serviceRequest.swalCancel'),
+      confirmButtonColor: '#E8772E',
+    });
+    if (text) {
+      await store.submitServiceRequest(data.type, text.trim());
+    }
+  } else {
+    await store.submitServiceRequest(data.type, data.content);
+  }
 }
 
 async function cancelRequest(id: string) {
@@ -166,14 +165,10 @@ async function cancelRequest(id: string) {
 
 function getRequestEmoji(type: string): string {
   const emojis: Record<string, string> = {
-    tissue: "🧻",
-    bowl: "🥣",
-    sauce: "🧂",
-    ice: "🧊",
-    grill_change: "🍳",
-    charcoal_change: "🪵",
-    request_bill: "💵",
-    call_waiter: "🙋‍♂️",
+    call_staff: "🙋‍♂️",
+    add_charcoal: "🪵",
+    water: "💧",
+    checkout: "💵",
     other: "✍️",
   };
   return emojis[type] || "🔔";
@@ -181,17 +176,17 @@ function getRequestEmoji(type: string): string {
 
 function getStatusLabel(status: string): string {
   const labels: Record<string, string> = {
-    created: t('customer.serviceRequest.statusCreated'),
-    waiting: t('customer.serviceRequest.statusWaiting'),
-    accepted: t('customer.serviceRequest.statusAccepted'),
-    processing: t('customer.serviceRequest.statusProcessing'),
-    completed: t('customer.serviceRequest.statusCompleted'),
-    cancelled: t('customer.serviceRequest.statusCancelled'),
+    created: i18nStore.t('customer.serviceRequest.statusCreated'),
+    waiting: i18nStore.t('customer.serviceRequest.statusWaiting'),
+    accepted: i18nStore.t('customer.serviceRequest.statusAccepted'),
+    processing: i18nStore.t('customer.serviceRequest.statusProcessing'),
+    completed: i18nStore.t('customer.serviceRequest.statusCompleted'),
+    cancelled: i18nStore.t('customer.serviceRequest.statusCancelled'),
   };
   return labels[status] || status;
 }
 
-const timeLocale = computed(() => locale.value === 'ja' ? 'ja-JP' : locale.value === 'en' ? 'en-US' : 'vi-VN');
+const timeLocale = computed(() => i18nStore.locale === 'ja' ? 'ja-JP' : i18nStore.locale === 'en' ? 'en-US' : 'vi-VN');
 
 function formatTime(date: any): string {
   const d = new Date(date);
@@ -221,12 +216,12 @@ function formatTime(date: any): string {
 
 /* ✅ HEADER - CỐ ĐỊNH HEIGHT */
 .sr-header {
-  height: 80px;
+  height: 70px;
   padding: 0 32px;
-  background: linear-gradient(135deg, #1a110a 0%, #2d1e12 100%);
-  border-bottom: 2px solid #e8772e;
+  background: #141417;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   flex-shrink: 0;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
   display: flex;
   align-items: center;
 }
@@ -239,7 +234,7 @@ function formatTime(date: any): string {
 
 .header-icon {
   font-size: 32px;
-  filter: drop-shadow(0 2px 4px rgba(232, 119, 46, 0.5));
+  filter: drop-shadow(0 2px 4px rgba(245, 158, 11, 0.4));
 }
 
 .header-text {
@@ -248,17 +243,16 @@ function formatTime(date: any): string {
 }
 
 .header-title {
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 800;
-  color: #fffbf5;
+  color: #ffffff;
   margin: 0;
   letter-spacing: 0.5px;
-  font-family: "Playfair Display", serif;
 }
 
 .header-subtitle {
   font-size: 11px;
-  color: #b8a089;
+  color: #a1a1aa;
   margin: 2px 0 0 0;
   font-weight: 500;
 }
@@ -267,20 +261,20 @@ function formatTime(date: any): string {
 .sr-main {
   flex: 1;
   display: flex;
-  overflow: hidden; /* ✅ Không scroll */
+  overflow: hidden;
   gap: 0;
-  min-height: 0; /* ✅ Quan trọng cho flex */
+  min-height: 0;
 }
 
 /* ✅ LEFT PANEL: Options Grid (3x3) */
 .sr-options-panel {
   flex: 1;
   padding: 24px;
-  background: linear-gradient(180deg, #3d2817 0%, #2c1810 100%);
+  background: #0d0d0f;
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden; /* ✅ Không scroll */
+  overflow: hidden;
 }
 
 /* ✅ Grid 3x3 - Fit hoàn toàn */
@@ -297,8 +291,8 @@ function formatTime(date: any): string {
 
 /* ✅ Option Card */
 .option-card {
-  background: linear-gradient(135deg, #fffbf5 0%, #faf3e8 100%);
-  border: 2px solid #e8dcc8;
+  background: #18181c;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 16px;
   display: flex;
   flex-direction: column;
@@ -307,15 +301,16 @@ function formatTime(date: any): string {
   gap: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   padding: 12px;
-  min-height: 0; /* ✅ Cho phép shrink */
+  min-height: 0;
 }
 
 .option-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 20px rgba(232, 119, 46, 0.3);
-  border-color: #e8772e;
+  box-shadow: 0 8px 20px rgba(245, 158, 11, 0.25);
+  border-color: rgba(245, 158, 11, 0.5);
+  background: #22222a;
 }
 
 .option-card:active {
@@ -323,49 +318,50 @@ function formatTime(date: any): string {
 }
 
 .option-card.option-highlight {
-  background: linear-gradient(135deg, #e8772e 0%, #f5a623 100%);
-  border-color: #e8772e;
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  border-color: #f59e0b;
 }
 
 .option-card.option-highlight .option-label {
-  color: white;
+  color: #000000;
+  font-weight: 900;
 }
 
 .option-emoji {
-  font-size: 48px;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+  font-size: 44px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
 }
 
 .option-label {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
-  color: #3d2817;
+  color: #ffffff;
   text-align: center;
   line-height: 1.2;
 }
 
 /* ✅ RIGHT PANEL: Requests Sidebar */
 .sr-requests-panel {
-  width: 400px;
-  background: linear-gradient(180deg, #faf3e8 0%, #f5efe6 100%);
-  border-left: 3px solid #e8772e;
+  width: 380px;
+  background: #141417;
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   flex-direction: column;
-  overflow: hidden; /* ✅ Không scroll */
+  overflow: hidden;
   flex-shrink: 0;
-  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.3);
 }
 
 /* Requests Header */
 .requests-header {
   height: 60px;
   padding: 0 20px;
-  background: linear-gradient(135deg, #e8772e 0%, #f5a623 100%);
+  background: #1a1a1e;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   align-items: center;
   gap: 12px;
   flex-shrink: 0;
-  box-shadow: 0 2px 8px rgba(232, 119, 46, 0.3);
 }
 
 .requests-header-icon {
@@ -373,9 +369,9 @@ function formatTime(date: any): string {
 }
 
 .requests-header-title {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 800;
-  color: #fffbf5;
+  color: #ffffff;
   margin: 0;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -383,22 +379,23 @@ function formatTime(date: any): string {
 }
 
 .requests-count {
-  background: rgba(255, 255, 255, 0.25);
-  color: white;
+  background: rgba(245, 158, 11, 0.2);
+  color: #f59e0b;
   padding: 4px 12px;
   border-radius: 20px;
   font-size: 12px;
   font-weight: 800;
+  border: 1px solid rgba(245, 158, 11, 0.3);
 }
 
-/* ✅ Requests List - KHÔNG SCROLL */
+/* ✅ Requests List */
 .requests-list {
   flex: 1;
   padding: 16px;
   display: flex;
   flex-direction: column;
   gap: 10px;
-  overflow: hidden; /* ✅ Không scroll */
+  overflow-y: auto;
   min-height: 0;
 }
 
@@ -416,35 +413,34 @@ function formatTime(date: any): string {
 
 .empty-icon {
   font-size: 48px;
-  opacity: 0.6;
+  opacity: 0.4;
 }
 
 .empty-title {
   font-size: 14px;
   font-weight: 700;
-  color: #3d2817;
+  color: #ffffff;
   margin: 0;
 }
 
 .empty-subtitle {
   font-size: 11px;
-  color: #8b7355;
+  color: #71717a;
   margin: 0;
   line-height: 1.4;
 }
 
-/* ✅ REQUEST CARD - COMPACT */
+/* ✅ REQUEST CARD */
 .request-card {
-  background: #fffbf5;
-  border: 1px solid #e8dcc8;
-  border-radius: 10px;
+  background: #1a1a1e;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
   padding: 12px;
   display: flex;
   flex-direction: column;
   gap: 8px;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 6px rgba(61, 40, 23, 0.08);
-  flex-shrink: 0; /* ✅ Không co lại */
+  flex-shrink: 0;
 }
 
 .request-card:hover {

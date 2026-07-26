@@ -74,12 +74,12 @@
 
       <!-- Time slider and current value -->
       <div
-        class="flex-1 flex items-center gap-4 bg-gray-50 border border-gray-150 px-4 py-2 rounded-xl"
+        class="flex-1 flex items-center gap-4 bg-gray-50 border border-gray-100 px-4 py-2 rounded-xl"
       >
         <input
           type="time"
           v-model="inputSimulatedTime"
-          class="text-xs font-black text-rose-600 bg-rose-50 border border-rose-250 px-2 py-1 rounded-lg shrink-0 focus:outline-none focus:ring-1 focus:ring-[#FF7B89] cursor-pointer"
+          class="text-xs font-black text-rose-600 bg-rose-50 border border-rose-200 px-2 py-1 rounded-lg shrink-0 focus:outline-none focus:ring-1 focus:ring-[#FF7B89] cursor-pointer"
         />
         <div class="flex-1 flex items-center gap-2">
           <span class="text-[9px] text-gray-400 font-bold select-none"
@@ -110,7 +110,7 @@
             'px-2.5 py-1 rounded-lg text-[10px] font-black border transition-all active:scale-95',
             selectedSimulatedTime === preset
               ? 'bg-[#FF7B89] border-[#FF7B89] text-white'
-              : 'bg-white border-gray-200 text-gray-650 hover:bg-gray-50',
+              : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50',
           ]"
         >
           {{ preset }}
@@ -166,7 +166,7 @@
           >
             <span>{{ zone.label }}</span>
             <span
-              class="text-[9px] bg-gray-150 text-gray-500 px-1.5 py-0.5 rounded-full font-bold"
+              class="text-[9px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded-full font-bold"
             >
               {{ getZoneTableCount(zone.value) }}
             </span>
@@ -435,7 +435,7 @@
 
           <!-- Calendar Widget -->
           <div
-            class="bg-gray-50 border border-gray-150 rounded-lg p-1.5 shadow-inner"
+            class="bg-gray-50 border border-gray-100 rounded-lg p-1.5 shadow-inner"
           >
             <div class="flex justify-between items-center mb-2">
               <button
@@ -519,7 +519,7 @@
 
           <!-- Shift Tabs -->
           <div
-            class="flex gap-1 overflow-x-auto p-0.5 bg-gray-50 border border-gray-150 rounded-lg text-[9px] font-black tracking-wide mb-2 shrink-0 scrollbar-none"
+            class="flex gap-1 overflow-x-auto p-0.5 bg-gray-50 border border-gray-100 rounded-lg text-[9px] font-black tracking-wide mb-2 shrink-0 scrollbar-none"
           >
             <button
               @click="activeShift = 'all'"
@@ -586,19 +586,19 @@
               :class="[
                 'border rounded-lg p-2 transition-all hover:shadow relative bg-white flex flex-col gap-1 text-xs',
                 booking.status === 'Waiting'
-                  ? 'border-l-4 border-l-amber-400 border-gray-250'
+                  ? 'border-l-4 border-l-amber-400 border-gray-200'
                   : '',
                 booking.status === 'Arrived'
-                  ? 'border-l-4 border-l-blue-400 border-gray-250'
+                  ? 'border-l-4 border-l-blue-400 border-gray-200'
                   : '',
                 booking.status === 'Seated'
-                  ? 'border-l-4 border-l-rose-400 border-gray-250 opacity-80'
+                  ? 'border-l-4 border-l-rose-400 border-gray-200 opacity-80'
                   : '',
                 booking.status === 'Completed'
-                  ? 'border-l-4 border-l-emerald-400 border-gray-250 opacity-60'
+                  ? 'border-l-4 border-l-emerald-400 border-gray-200 opacity-60'
                   : '',
                 booking.status === 'Cancelled'
-                  ? 'border-l-4 border-l-gray-300 border-gray-250 opacity-50 bg-gray-50/50'
+                  ? 'border-l-4 border-l-gray-300 border-gray-200 opacity-50 bg-gray-50/50'
                   : '',
                 isBookingInActiveZone(booking)
                   ? 'ring-2 ring-[#FF7B89]/40 border-[#FF7B89] bg-[#FFF5F7]'
@@ -631,7 +631,7 @@
                   </p>
                 </div>
                 <div class="text-right select-none leading-none">
-                  <span class="text-sm font-black text-gray-850">{{
+                  <span class="text-sm font-black text-gray-800">{{
                     booking.reservationTime
                   }}</span>
                   <span
@@ -679,7 +679,7 @@
                 <div class="flex items-center gap-1">
                   <button
                     @click="showBookingDetails(booking)"
-                    class="p-1 bg-gray-50 hover:bg-gray-150 text-gray-600 rounded border border-gray-200 text-[10px]"
+                    class="p-1 bg-gray-50 hover:bg-gray-100 text-gray-600 rounded border border-gray-200 text-[10px]"
                     :title="i18n.t('admin_floors.action.details')"
                   >
                     👁️
@@ -690,7 +690,7 @@
                       booking.status !== 'Cancelled' &&
                       booking.status !== 'Completed'
                     "
-                    class="p-1 bg-gray-50 hover:bg-gray-150 text-gray-600 rounded border border-gray-200 text-[10px]"
+                    class="p-1 bg-gray-50 hover:bg-gray-100 text-gray-600 rounded border border-gray-200 text-[10px]"
                     :title="i18n.t('admin_floors.action.edit')"
                   >
                     ✏️
@@ -718,7 +718,7 @@
                   <button
                     @click="openTableFromBooking(booking)"
                     v-if="booking.status === 'Arrived'"
-                    class="p-1 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded border border-rose-250 text-[10px] animate-pulse"
+                    class="p-1 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded border border-rose-200 text-[10px] animate-pulse"
                     :title="i18n.t('admin_floors.action.open_table')"
                   >
                     🍽️
@@ -751,7 +751,7 @@
             'p-1.5 rounded-lg border transition-all duration-150 text-center cursor-pointer flex flex-col justify-between gap-0.5 shadow-sm',
             selectedZone === zone.value
               ? 'bg-[#FF7B89]/5 border-[#FF7B89] ring-1 ring-[#FF7B89]'
-              : 'bg-gray-50 border-gray-150 hover:bg-white',
+              : 'bg-gray-50 border-gray-100 hover:bg-white',
           ]"
         >
           <span
@@ -783,12 +783,12 @@
     >
       <!-- Left Section (Operational stats) -->
       <div
-        class="flex flex-wrap items-center gap-x-3 gap-y-1 text-[9px] font-black border-r border-gray-150 pr-2 select-none"
+        class="flex flex-wrap items-center gap-x-3 gap-y-1 text-[9px] font-black border-r border-gray-100 pr-2 select-none"
       >
         <div class="flex items-center gap-1 text-gray-500">
           {{ t('admin_floors.system.title') }}
           <span
-            class="bg-gray-100 border border-gray-150 px-2 py-0.5 rounded text-gray-700 font-mono tracking-wider"
+            class="bg-gray-100 border border-gray-100 px-2 py-0.5 rounded text-gray-700 font-mono tracking-wider"
             >{{ currentTime }}</span
           >
         </div>
@@ -810,7 +810,7 @@
 
       <!-- Center Section (Booking statistics) -->
       <div
-        class="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[9px] font-black border-r border-gray-150 px-2 select-none"
+        class="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[9px] font-black border-r border-gray-100 px-2 select-none"
       >
         <div class="flex items-center gap-1.5">
           <span>{{ t('admin_floors.today.bookings') }}</span>
@@ -839,7 +839,7 @@
       <div class="flex gap-1.5 justify-end w-full">
         <button
           @click="resetToCurrentState"
-          class="text-center py-1.5 px-2.5 rounded-lg border border-gray-250 bg-white hover:bg-gray-50 text-gray-700 font-extrabold text-[10px] transition-colors shadow-sm select-none flex items-center justify-center gap-1 active:scale-95"
+          class="text-center py-1.5 px-2.5 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 font-extrabold text-[10px] transition-colors shadow-sm select-none flex items-center justify-center gap-1 active:scale-95"
         >
           {{ t('admin_floors.current.time') }}
         </button>
@@ -1034,7 +1034,7 @@
           <div class="flex gap-2 pt-3.5 border-t border-gray-100 mt-4">
             <button
               @click="closeTableModal"
-              class="flex-1 py-2 rounded-xl border border-gray-250 bg-white hover:bg-gray-50 text-gray-700 text-[11px] font-bold transition-colors select-none"
+              class="flex-1 py-2 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 text-[11px] font-bold transition-colors select-none"
             >
               {{ t('admin_floors.action.close') }}
             </button>
@@ -1249,7 +1249,7 @@
         <div class="flex gap-3 select-none">
           <button
             @click="isCreateBookingModalOpen = false"
-            class="flex-1 py-2.5 rounded-xl border border-gray-250 bg-white hover:bg-gray-50 text-gray-700 text-[11px] font-bold transition-colors"
+            class="flex-1 py-2.5 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 text-[11px] font-bold transition-colors"
           >
             {{ t('admin_floors.action.cancel') }}
           </button>
@@ -1368,7 +1368,7 @@
         <div class="flex gap-3 select-none">
           <button
             @click="async () => { if (await confirmQuickOpenDirty()) isQuickOpenModalOpen = false }"
-            class="flex-1 py-2 rounded-xl border border-gray-250 bg-white hover:bg-gray-50 text-gray-700 text-[11px] font-bold transition-colors"
+            class="flex-1 py-2 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 text-[11px] font-bold transition-colors"
           >
             {{ t('admin_floors.action.close_btn') }}
           </button>
@@ -1440,7 +1440,7 @@
         <div class="flex gap-3 select-none">
           <button
             @click="isQuickArrivedModalOpen = false"
-            class="flex-1 py-2 rounded-xl border border-gray-250 bg-white hover:bg-gray-50 text-gray-700 text-[11px] font-bold transition-colors"
+            class="flex-1 py-2 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 text-[11px] font-bold transition-colors"
           >
             {{ t('admin_floors.action.cancel') }}
           </button>
@@ -1489,7 +1489,7 @@
           <!-- Profile Info Card -->
           <div class="space-y-5">
             <div
-              class="flex items-center gap-3 bg-gray-50 p-3 rounded-xl border border-gray-150 select-none"
+              class="flex items-center gap-3 bg-gray-50 p-3 rounded-xl border border-gray-100 select-none"
             >
               <div
                 class="w-10 h-10 bg-pink-100 rounded-full flex items-center justify-center text-lg text-[#FF7B89] font-black"
@@ -1638,7 +1638,7 @@
             </button>
             <button
               @click="isBookingDetailsOpen = false"
-              class="flex-1 py-2 rounded-xl border border-gray-250 bg-white hover:bg-gray-50 text-gray-700 text-xs font-bold transition-colors"
+              class="flex-1 py-2 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 text-xs font-bold transition-colors"
             >
               {{ t('admin_floors.action.close_btn') }}
             </button>
@@ -1683,7 +1683,7 @@
               type="text"
               v-model="createTableForm.code"
               placeholder="VD: A01, B02..."
-              class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-850 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
+              class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
             />
           </div>
           <div class="space-y-1">
@@ -1695,7 +1695,7 @@
               type="text"
               v-model="createTableForm.zone"
               :placeholder="i18n.t('admin_floors.placeholder.floor')"
-              class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-850 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
+              class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
               list="zone-datalist"
             />
             <datalist id="zone-datalist">
@@ -1716,7 +1716,7 @@
               v-model="createTableForm.capacity"
               placeholder="VD: 4"
               min="1"
-              class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-850 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
+              class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
             />
           </div>
         </div>
@@ -1724,7 +1724,7 @@
         <div class="flex gap-3 select-none">
           <button
             @click="isCreateTableModalOpen = false"
-            class="flex-1 py-2 rounded-xl border border-gray-250 bg-white hover:bg-gray-50 text-gray-700 text-xs font-bold transition-colors"
+            class="flex-1 py-2 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 text-xs font-bold transition-colors"
           >
             {{ t('admin_floors.action.cancel') }}
           </button>
@@ -1770,7 +1770,7 @@
             <input
               type="text"
               v-model="editTableForm.code"
-              class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-850 focus:outline-none focus:ring-1 focus:ring-blue-400"
+              class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-blue-400"
             />
           </div>
           <div class="space-y-1">
@@ -1778,7 +1778,7 @@
             <input
               type="text"
               v-model="editTableForm.zone"
-              class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-850 focus:outline-none focus:ring-1 focus:ring-blue-400"
+              class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-blue-400"
               list="zone-datalist"
             />
           </div>
@@ -1788,7 +1788,7 @@
               type="number"
               v-model="editTableForm.capacity"
               min="1"
-              class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-850 focus:outline-none focus:ring-1 focus:ring-blue-400"
+              class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-blue-400"
             />
           </div>
         </div>
@@ -1796,7 +1796,7 @@
         <div class="flex gap-3 select-none">
           <button
             @click="isEditTableModalOpen = false"
-            class="flex-1 py-2 rounded-xl border border-gray-250 bg-white hover:bg-gray-50 text-gray-700 text-xs font-bold transition-colors"
+            class="flex-1 py-2 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 text-xs font-bold transition-colors"
           >
             {{ t('admin_floors.action.cancel') }}
           </button>
@@ -1843,7 +1843,7 @@
               type="text"
               v-model="maintenanceForm.reason"
               placeholder="VD: Hư ghế, Sửa đèn..."
-              class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-850 focus:outline-none focus:ring-1 focus:ring-yellow-400"
+              class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-yellow-400"
             />
           </div>
         </div>
@@ -1855,7 +1855,7 @@
         <div class="flex gap-3 select-none">
           <button
             @click="isMaintenanceModalOpen = false"
-            class="flex-1 py-2 rounded-xl border border-gray-250 bg-white hover:bg-gray-50 text-gray-700 text-xs font-bold transition-colors"
+            class="flex-1 py-2 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 text-xs font-bold transition-colors"
           >
             {{ t('admin_floors.action.cancel') }}
           </button>
@@ -1915,7 +1915,7 @@
             >
             <select
               v-model="assignTableForm.tableCode"
-              class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-850 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
+              class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
             >
               <option value="">
                 {{ t('admin_floors.modal.not_assigned') }}
@@ -1945,7 +1945,7 @@
         <div class="flex gap-3 select-none">
           <button
             @click="isAssignTableModalOpen = false"
-            class="flex-1 py-2 rounded-xl border border-gray-250 bg-white hover:bg-gray-50 text-gray-700 text-xs font-bold transition-colors"
+            class="flex-1 py-2 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 text-xs font-bold transition-colors"
           >
             {{ t('admin_floors.action.close_btn') }}
           </button>
@@ -2641,8 +2641,8 @@ function getTableColorClass(status: 'Available' | 'Reserved' | 'Arrived' | 'Serv
     case 'Available': return 'bg-emerald-50/40 border-emerald-200 hover:border-emerald-400'
     case 'Reserved': return 'bg-amber-50/40 border-amber-200 hover:border-amber-400'
     case 'Arrived': return 'bg-blue-50/40 border-blue-200 hover:border-blue-400'
-    case 'Serving': return 'bg-rose-50/40 border-rose-200 hover:border-rose-450'
-    case 'Maintenance': return 'bg-yellow-50/40 border-yellow-200 hover:border-yellow-450'
+    case 'Serving': return 'bg-rose-50/40 border-rose-200 hover:border-rose-400'
+    case 'Maintenance': return 'bg-yellow-50/40 border-yellow-200 hover:border-yellow-400'
     default: return 'bg-gray-50 border-gray-200'
   }
 }
@@ -2664,9 +2664,9 @@ function getReservationBadgeClass(status: 'Waiting' | 'Arrived' | 'Seated' | 'Co
   switch (status) {
     case 'Waiting': return 'bg-amber-50 text-amber-700 border-amber-200'
     case 'Arrived': return 'bg-blue-50 text-blue-700 border-blue-200'
-    case 'Seated': return 'bg-rose-50 text-rose-700 border-rose-250'
-    case 'Completed': return 'bg-emerald-50 text-emerald-700 border-emerald-250'
-    case 'Cancelled': return 'bg-gray-50 text-gray-500 border-gray-250'
+    case 'Seated': return 'bg-rose-50 text-rose-700 border-rose-200'
+    case 'Completed': return 'bg-emerald-50 text-emerald-700 border-emerald-200'
+    case 'Cancelled': return 'bg-gray-50 text-gray-500 border-gray-200'
   }
 }
 

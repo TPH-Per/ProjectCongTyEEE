@@ -1,37 +1,50 @@
 <!-- File: src/components/customer/MenuItemCard.vue -->
 <template>
-  <div class="menu-item-card" @click="handleCardClick">
+  <div class="menu-item-card relative" @click="handleCardClick">
+    <!-- Hết món Overlay -->
+    <div v-if="!item.is_available" class="absolute inset-0 z-10 bg-black/60 backdrop-blur-[2px] flex items-center justify-center rounded-xl cursor-not-allowed">
+      <span class="bg-red-600/90 text-white font-bold px-4 py-2 rounded-full border border-red-400 shadow-lg rotate-[-10deg]">{{ $t('customer.menuItem.soldOut') }}</span>
+    </div>
+
     <!-- Hình ảnh placeholder -->
     <div class="item-image" :style="{ background: imageGradient }">
       <span class="item-emoji">{{ itemEmoji }}</span>
-      <div v-if="item.price === 0" class="badge-free">
+      <div v-if="item.price === 0" class="badge-free shadow-md">
         {{ $t('customer.menuItem.inPackage') }}
       </div>
     </div>
 
     <!-- Thông tin món -->
-    <div class="item-content">
-      <h3 class="item-name">{{ item.name }}</h3>
-      <span class="item-unit">{{ item.unit }}</span>
+    <div class="item-content flex-1 flex flex-col justify-between">
+      <div>
+        <h3 class="item-name">{{ item.name }}</h3>
+        <span class="item-unit">{{ item.unit }}</span>
+      </div>
       
-      <div class="item-footer">
+      <div class="item-footer mt-auto pt-3 border-t border-gray-200 flex justify-between items-center">
         <div class="item-price-section">
-          <span v-if="item.price === 0" class="price-free">
+          <span v-if="item.price === 0" class="text-xl font-bold text-[#4CAF50]">
             0K
           </span>
-          <span v-else class="price-paid">
+          <span v-else class="text-xl font-bold text-[#C62828]">
             {{ item.price_display }}
           </span>
         </div>
         
-        <!-- Nút + thêm trực tiếp (stopPropagation để không mở modal) -->
-        <button 
-          class="add-btn" 
+        <!-- Nút + thêm trực tiếp hoặc +/- nếu đã có trong giỏ -->
+        <div v-if="quantityInCart > 0" class="flex items-center gap-2 bg-gray-100 rounded-xl p-1 z-20 border border-gray-200" @click.stop>
+          <button @click.stop="handleUpdateQty(quantityInCart - 1)" class="w-11 h-11 rounded-lg bg-white active:bg-gray-200 text-[#333] flex items-center justify-center font-bold text-lg shadow-sm transition-colors">-</button>
+          <span class="w-8 text-center font-bold text-[#333]">{{ quantityInCart }}</span>
+          <button @click.stop="handleUpdateQty(quantityInCart + 1)" class="w-11 h-11 rounded-lg bg-[#E8772E] active:bg-[#C96626] text-white flex items-center justify-center font-bold text-lg shadow-sm transition-colors">+</button>
+        </div>
+        <button v-else
+          class="add-btn z-20" 
           @click.stop="handleQuickAdd"
           :class="{ added: isJustAdded }"
+          :disabled="!item.is_available"
         >
           <span class="add-icon" v-if="!isJustAdded">
-            {{ quantityInCart > 0 ? quantityInCart : '+' }}
+            +
           </span>
           <span class="check-icon" v-else>✓</span>
         </button>
@@ -42,7 +55,8 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import type { MenuItem } from '@/data/menuData'
+import type { MenuItem } from '@/types/customer'
+import { useCustomerStore } from '@/stores/customerStore'
 
 const props = withDefaults(
   defineProps<{
@@ -139,11 +153,15 @@ const imageGradient = computed(() => {
 
 // Click vào card mở modal chi tiết
 const handleCardClick = () => {
+  if (!props.item.is_available) return
   emit('click-detail', props.item)
 }
 
+const store = useCustomerStore() // Needed for qty update in-place
+
 // Click nút + thêm nhanh, không mở modal
 const handleQuickAdd = () => {
+  if (!props.item.is_available) return
   emit('add', props.item)
   
   // Animation feedback
@@ -152,24 +170,33 @@ const handleQuickAdd = () => {
     isJustAdded.value = false
   }, 800)
 }
+
+const handleUpdateQty = (qty: number) => {
+  if (!props.item.is_available) return
+  if (qty <= 0) {
+    store.removeFromCart(props.item.id)
+  } else {
+    store.updateCartItem(props.item.id, qty)
+  }
+}
 </script>
 
 <style scoped>
 .menu-item-card {
-  background: #1e1e1e;
-  border: 1px solid #333;
+  background: #ffffff;
+  border: 1px solid #eeeeee;
   border-radius: 12px;
   overflow: hidden;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   display: flex;
   flex-direction: column;
 }
 
-.menu-item-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-  border-color: #ff9800;
+.menu-item-card:active {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-color: #E8772E;
 }
 
 .item-image {
@@ -217,7 +244,7 @@ const handleQuickAdd = () => {
 .item-name {
   font-size: 15px;
   font-weight: 600;
-  color: #ffffff;
+  color: #333333;
   margin: 0;
   line-height: 1.4;
   display: -webkit-box;
@@ -240,41 +267,31 @@ const handleQuickAdd = () => {
   align-items: center;
   margin-top: auto;
   padding-top: 12px;
-  border-top: 1px solid #333;
+  border-top: 1px solid #eee;
 }
 
-.price-free {
-  font-size: 20px;
-  font-weight: 700;
-  color: #4CAF50;
-}
 
-.price-paid {
-  font-size: 20px;
-  font-weight: 700;
-  color: #ff9800;
-}
 
 /* Nút thêm nhanh */
 .add-btn {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: #ff9800;
+  background: #E8772E;
   border: none;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s;
-  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
+  transition: all 0.1s;
+  box-shadow: 0 4px 12px rgba(232, 119, 46, 0.3);
   color: white;
 }
 
-.add-btn:hover {
-  background: #ffb74d;
-  transform: scale(1.1);
-  box-shadow: 0 6px 16px rgba(255, 152, 0, 0.4);
+.add-btn:active {
+  background: #C96626;
+  transform: scale(0.95);
+  box-shadow: 0 2px 8px rgba(232, 119, 46, 0.4);
 }
 
 /* Animation khi vừa thêm */
@@ -300,5 +317,14 @@ const handleQuickAdd = () => {
   font-size: 20px;
   color: white;
   font-weight: 700;
+}
+
+.add-btn:disabled {
+  background: #555;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+.add-btn:disabled:hover {
+  transform: none;
 }
 </style>

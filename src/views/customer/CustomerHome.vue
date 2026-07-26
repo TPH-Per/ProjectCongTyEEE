@@ -1,6 +1,6 @@
 <!-- File: src/views/customer/CustomerHome.vue -->
 <template>
-  <div class="flex-1 flex flex-col justify-center items-center p-6 w-full h-full bg-gradient-to-br from-[#0c0c0c] to-[#050505]">
+  <div class="flex-1 flex flex-col justify-center items-center p-6 w-full h-full bg-[#0d0d0f]">
     
     <!-- Title Header for Setup Screens -->
     <div v-if="step !== 'passcode' && step !== 'session_ended'" 
@@ -14,7 +14,7 @@
     <!-- Step 1: Passcode -->
     <transition name="fade-scale" mode="out-in">
       <div v-if="step === 'passcode'" class="w-full flex justify-center">
-        <PasscodeInput ref="passcodeInputRef" @submit="handlePasscodeSubmit" @back="handleBackToTablet" />
+        <PasscodeInput ref="passcodeInputRef" :showBack="false" @submit="handlePasscodeSubmit" @back="handleBackToTablet" />
       </div>
 
       <!-- Step 2: Select Branch -->
@@ -39,23 +39,47 @@
                      :selected-table-id="selectedTableId" 
                      :area-name="selectedAreaName"
                      @select="handleTableSelect"
-                     @confirm="handleTableConfirm"
+                     @confirm="goToPackageSelection"
                      @back="goBackToArea" />
       </div>
 
-      <!-- Step 4: Session Ended -->
+      <!-- Step 4: Package Selection -->
+      <div v-else-if="step === 'package'" class="w-full flex justify-center">
+        <PackageSelector :packages="packages"
+                         :table-capacity="store.selectedTable?.capacity || 4"
+                         @select="handlePackageConfirm"
+                         @back="goBackToTable" />
+      </div>
+
+      <!-- Step 5: Session Ended -->
       <div v-else-if="step === 'session_ended'" class="w-full flex justify-center">
         <SessionEnd @done="step = 'passcode'" />
       </div>
     </transition>
 
-    <!-- Quick Lock/Reset Button for setup steps (top right) -->
-    <button v-if="step === 'branch' || step === 'area' || step === 'table'" 
-            type="button"
-            @click="resetSetup" 
-            class="absolute top-6 right-6 p-2 rounded-xl bg-gray-900 border border-gray-800 text-gray-400 hover:text-white hover:border-gray-700 transition-all text-xs font-bold flex items-center gap-1.5 active:scale-95">
-      {{ $t('customer.passcode.lock') }}
-    </button>
+    <!-- Top right controls: Language & Lock/Reset -->
+    <div class="absolute top-6 right-6 flex items-center gap-4">
+      <!-- Language Switcher -->
+      <div v-if="step !== 'passcode' && step !== 'session_ended'" class="flex bg-[#1e1e24] rounded-xl border border-gray-800 p-1">
+        <button type="button" @click="i18nStore.locale = 'vi'" :class="['px-3 py-1.5 rounded-lg text-sm transition-colors flex items-center gap-2', i18nStore.locale === 'vi' ? 'bg-amber-500 text-black font-bold' : 'text-gray-400 hover:text-white']">
+          <span class="text-lg">🇻🇳</span><span class="hidden md:inline">VI</span>
+        </button>
+        <button type="button" @click="i18nStore.locale = 'en'" :class="['px-3 py-1.5 rounded-lg text-sm transition-colors flex items-center gap-2', i18nStore.locale === 'en' ? 'bg-amber-500 text-black font-bold' : 'text-gray-400 hover:text-white']">
+          <span class="text-lg">🇬🇧</span><span class="hidden md:inline">EN</span>
+        </button>
+        <button type="button" @click="i18nStore.locale = 'ja'" :class="['px-3 py-1.5 rounded-lg text-sm transition-colors flex items-center gap-2', i18nStore.locale === 'ja' ? 'bg-amber-500 text-black font-bold' : 'text-gray-400 hover:text-white']">
+          <span class="text-lg">🇯🇵</span><span class="hidden md:inline">JA</span>
+        </button>
+      </div>
+
+      <!-- Quick Lock/Reset Button for setup steps -->
+      <button v-if="step === 'branch' || step === 'area' || step === 'table'" 
+              type="button"
+              @click="resetSetup" 
+              class="p-2 px-4 rounded-xl bg-gray-900 border border-gray-800 text-gray-400 hover:text-white hover:border-gray-700 transition-all text-xs font-bold flex items-center gap-1.5 active:scale-95 h-[42px]">
+        {{ $t('customer.passcode.lock') }}
+      </button>
+    </div>
   </div>
 </template>
 
@@ -63,15 +87,18 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useCustomerStore } from '@/stores/customerStore';
+import { useI18nStore } from '@/stores/i18n';
 import PasscodeInput from '@/components/customer/PasscodeInput.vue';
 import SelectBranch from './SelectBranch.vue';
 import SelectArea from './SelectArea.vue';
 import SelectTable from './SelectTable.vue';
+import PackageSelector from '@/components/customer/PackageSelector.vue';
 import SessionEnd from './SessionEnd.vue';
 import type { Table } from '@/types/customer';
 
 const store = useCustomerStore();
 const router = useRouter();
+const i18nStore = useI18nStore();
 
 onMounted(() => {
   if (store.session) {
@@ -80,7 +107,7 @@ onMounted(() => {
 });
 
 const passcodeInputRef = ref<any>(null);
-const step = ref<'passcode' | 'branch' | 'area' | 'table' | 'session_ended'>('passcode');
+const step = ref<'passcode' | 'branch' | 'area' | 'table' | 'package' | 'session_ended'>('passcode');
 
 const selectedBranchId = ref<string | null>(null);
 const selectedAreaId = ref<string | null>(null);
@@ -90,8 +117,9 @@ const timeoutId = ref<any>(null);
 const branches = computed(() => store.branches);
 const areas = computed(() => store.areas);
 const tables = computed(() => store.tables);
+const packages = computed(() => store.packages);
 const selectedAreaName = computed(() => {
-  return store.areas.find(a => a.id === selectedAreaId.value)?.name || 'Khu vực';
+  return store.areas.find(a => a.id === selectedAreaId.value)?.name || i18nStore.t('customer.login.area');
 });
 
 // Handle Passcode Unlock
@@ -101,7 +129,7 @@ async function handlePasscodeSubmit(code: string) {
     await store.loadBranches();
     step.value = 'branch';
   } else {
-    passcodeInputRef.value?.setError('Mã passcode không chính xác!');
+    passcodeInputRef.value?.setError(i18nStore.t('customer.login.invalidPasscode'));
   }
 }
 
@@ -155,28 +183,43 @@ async function handleTableSelect(table: Table) {
   startTableTimeout();
 }
 
-// Handle Confirmed Table & Start Session
-async function handleTableConfirm() {
+// Move to Package Selection
+async function goToPackageSelection() {
   clearTableTimeout();
+  if (selectedTableId.value && store.selectedBranchId) {
+    try {
+      await store.loadPackages(store.selectedBranchId);
+    } catch (e) {
+      console.error('[CustomerHome] loadPackages failed:', e);
+    }
+    step.value = 'package';
+  }
+}
+
+// Handle Confirmed Package & Start Session
+async function handlePackageConfirm(data: { packageId: string | null; serviceMode: 'alacarte' | 'buffet'; adultCount: number; childCount: number }) {
   if (selectedTableId.value) {
     try {
-      await store.confirmTable();
+      await store.createSession(data.packageId, data.serviceMode, data.adultCount, data.childCount);
     } catch (e) {
-      console.warn('[CustomerHome] confirmTable failed, creating local session:', e);
+      console.warn('[CustomerHome] createSession failed, creating local session:', e);
     }
-    // Fallback: if confirmTable didn't set a session (API failure,
-    // non-UUID table id, etc.), create a local session so the
-    // customer can still reach the menu and order.
-    if (!store.session && store.selectedTable) {
+    // Fallback: if createSession didn't set a session
+    if (!store.session && store.selectedTable && store.selectedBranchId) {
       store.session = {
         id: `sess-local-${Date.now()}`,
+        branchId: store.selectedBranchId,
         tableId: store.selectedTable.id,
         tableNumber: store.selectedTable.number,
         areaId: store.selectedTable.areaId,
-        areaName: store.areas.find(a => a.id === store.selectedTable?.areaId)?.name || 'Khu vực',
+        areaName: store.areas.find(a => a.id === store.selectedTable?.areaId)?.name || i18nStore.t('customer.login.area'),
         staffId: 'staff-uuid-001',
+        guestCount: data.adultCount + data.childCount,
+        packageId: data.packageId || undefined,
+        serviceMode: data.serviceMode,
+        languageCode: 'vi',
         startedAt: new Date(),
-        status: 'active',
+        status: 'open'
       };
       store.isAuthenticated = true;
       localStorage.setItem('nguucat_customer_session', JSON.stringify(store.session));
@@ -186,6 +229,11 @@ async function handleTableConfirm() {
     // Navigate to menu regardless of API success
     router.push({ name: 'CustomerMenu' });
   }
+}
+
+function goBackToTable() {
+  step.value = 'table';
+  startTableTimeout();
 }
 
 function goBackToArea() {
@@ -210,7 +258,7 @@ function startTableTimeout() {
   // 60 seconds (60000ms)
   timeoutId.value = setTimeout(async () => {
     if (selectedTableId.value && step.value === 'table') {
-      store.addNotification('Hết thời gian chọn bàn. Hệ thống đã giải phóng bàn.', 'warning');
+      store.addNotification(i18nStore.t('customer.login.timeout'), 'warning');
       selectedTableId.value = null;
       store.selectedTable = null;
       step.value = 'area';

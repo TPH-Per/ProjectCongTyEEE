@@ -51,7 +51,7 @@ export const useMenuManagementStore = defineStore('menuManagement', () => {
   /** Items for a specific category + optional sub-category filter. */
   function itemsByCategory(
     categoryId: string,
-    subCategoryId: string | null = undefined,
+    subCategoryId?: string | null,
   ): MenuItem[] {
     return items.value
       .filter((item) => {

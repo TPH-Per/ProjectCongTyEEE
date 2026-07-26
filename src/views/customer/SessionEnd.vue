@@ -17,7 +17,7 @@
 
     <!-- Invoice summary box (White Panel) -->
     <div class="bg-white border border-gray-200 rounded-2xl p-5 w-full shadow-lg text-[#333333] flex flex-col gap-3 font-sans">
-      <div class="flex justify-between items-center text-xs font-bold text-[#666666] border-b border-gray-150 pb-2">
+      <div class="flex justify-between items-center text-xs font-bold text-[#666666] border-b border-gray-100 pb-2">
         <span>{{ $t('customer.sessionEnd.invoiceCode') }}</span>
         <span class="text-[#333333] font-black uppercase">{{ finalInvoiceNumber }}</span>
       </div>
@@ -71,17 +71,17 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { useI18n } from 'vue-i18n';
+import { useI18nStore } from '@/stores/i18n';
+import { useRouter } from 'vue-router';
 import { useCustomerStore } from '@/stores/customerStore';
 import { useCustomerSession } from '@/composables/useCustomerSession';
 
-const emit = defineEmits<{
-  (e: 'done'): void;
-}>();
+const router = useRouter();
 
 const store = useCustomerStore();
-const { locale } = useI18n();
-const { clearSession } = useCustomerSession();
+const i18nStore = useI18nStore();
+const locale = computed(() => i18nStore.locale);
+const clearSession = useCustomerSession().clearSession;
 const countdown = ref(30);
 const priceLocale = computed(() => locale.value === 'ja' ? 'ja-JP' : locale.value === 'en' ? 'en-US' : 'vi-VN');
 let timerId: any = null;
@@ -95,12 +95,12 @@ const finalInvoiceNumber = computed(() => {
 
 // Dynamic Total computation
 const finalTotalDisplay = computed(() => {
-  const subtotal = store.orders.reduce((sum, order) => sum + order.subtotal, 0);
+  const subtotal = store.orders.reduce((sum, order) => sum + (order.subtotal || 0), 0);
   const serviceCharge = Math.round(subtotal * 0.05);
   const vat = Math.round((subtotal + serviceCharge) * 0.08);
   const total = subtotal + serviceCharge + vat;
-  if (total === 0) return '0đ';
-  return total.toLocaleString(priceLocale.value) + 'đ';
+  if (total === 0) return '0' + i18nStore.t('customer.common.currencySymbol');
+  return total.toLocaleString(priceLocale.value) + i18nStore.t('customer.common.currencySymbol');
 });
 
 onMounted(() => {
@@ -119,6 +119,6 @@ onUnmounted(() => {
 function endSessionNow() {
   if (timerId) clearInterval(timerId);
   clearSession();
-  emit('done');
+  router.push({ name: 'CustomerHome' });
 }
 </script>

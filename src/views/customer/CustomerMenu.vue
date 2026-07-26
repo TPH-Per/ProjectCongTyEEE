@@ -4,17 +4,32 @@
     <!-- 1. SIDEBAR: Cấp 1 & Cấp 2 danh mục chính -->
     <aside class="sidebar scrollbar-hide">
       <!-- Section: Danh Mục Món -->
-      <div class="sidebar-section full-height">
+      <div class="sidebar-section full-height flex flex-col">
         <h3 class="section-title pink-text">{{ $t('customer.menu.categories') }}</h3>
         
-        <button
-          v-for="cat in menuCategories"
-          :key="cat.id"
-          :class="['category-btn', 'pink', { active: selectedCategory?.id === cat.id }]"
-          @click="selectCategory(cat)"
-        >
-          {{ cat.name }}
-        </button>
+        <div class="flex-1 overflow-y-auto scrollbar-hide">
+          <button
+            v-for="cat in menuCategories"
+            :key="cat.id"
+            :class="['category-btn', 'pink', { active: selectedCategory?.id === cat.id }]"
+            @click="selectCategory(cat)"
+          >
+            {{ cat.name }}
+          </button>
+        </div>
+
+        <!-- Language Switcher -->
+        <div class="mt-auto pt-4 flex flex-col gap-2 border-t border-[#4A321F] shrink-0">
+          <button @click="changeLanguage('vi')" :class="['text-sm transition-transform active:scale-95 flex items-center justify-center gap-2 py-2 rounded-xl', locale === 'vi' ? 'bg-amber-500 text-black font-bold' : 'bg-[#1e1e24] text-gray-400 hover:text-white']">
+            <span>🇻🇳</span> Tiếng Việt
+          </button>
+          <button @click="changeLanguage('en')" :class="['text-sm transition-transform active:scale-95 flex items-center justify-center gap-2 py-2 rounded-xl', locale === 'en' ? 'bg-amber-500 text-black font-bold' : 'bg-[#1e1e24] text-gray-400 hover:text-white']">
+            <span>🇬🇧</span> English
+          </button>
+          <button @click="changeLanguage('ja')" :class="['text-sm transition-transform active:scale-95 flex items-center justify-center gap-2 py-2 rounded-xl', locale === 'ja' ? 'bg-amber-500 text-black font-bold' : 'bg-[#1e1e24] text-gray-400 hover:text-white']">
+            <span>🇯🇵</span> 日本語
+          </button>
+        </div>
       </div>
     </aside>
 
@@ -141,18 +156,30 @@ import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useCustomerStore } from '@/stores/customerStore';
 import { useCustomerSession } from '@/composables/useCustomerSession';
-import { useI18n } from 'vue-i18n';
+import { useI18nStore } from '@/stores/i18n';
 import MenuItemDetailModal from '@/components/customer/MenuItemDetailModal.vue';
 import MenuItemCard from '@/components/customer/MenuItemCard.vue';
 import CategoryTabs from '@/components/customer/CategoryTabs.vue';
 import CartBar from '@/components/customer/CartBar.vue';
 import type { MenuCategory, MenuItem } from '@/types/customer';
 import { applyPackage, calculateItemUnitPrice } from '@/utils/packageRules';
+import { customerApiImpl as customerApi } from '@/services/customerApi';
 
-const store = useCustomerStore();
-const { t } = useI18n();
-const router = useRouter();
+const router = useRouter()
+const store = useCustomerStore()
+const i18nStore = useI18nStore()
+const locale = computed({
+  get: () => i18nStore.locale,
+  set: (val) => { i18nStore.locale = val; }
+});
 const { syncCart } = useCustomerSession();
+
+async function changeLanguage(lang: 'vi' | 'en' | 'ja') {
+  locale.value = lang;
+  if (store.session) {
+    await customerApi.updateLanguage(store.session.id, lang);
+  }
+};
 
 const focusedItem = ref<MenuItem | null>(null);
 const isModalOpen = computed(() => focusedItem.value !== null);
@@ -176,7 +203,7 @@ const yellowCategories = computed(() => {
 const menuCategories = computed(() => {
   const list: any[] = [];
   const buffetCat = store.menuData.find(c => c.id === 'buffet');
-  if (buffetCat) {
+  if (buffetCat && store.session?.serviceMode === 'buffet') {
     list.push(buffetCat);
   }
   const others = store.menuData.filter(c => c.color === 'pink');
@@ -261,12 +288,12 @@ watch(() => selectedSubId.value, (newSubId) => {
 
 // Initialize defaults
 const initDefaults = () => {
-  const buffet = store.menuData.find(c => c.id === 'buffet');
-  if (buffet && !selectedCategory.value) {
-    selectedCategory.value = buffet;
-    if (buffet.subcategories && buffet.subcategories.length > 0) {
-      selectedSubId.value = buffet.subcategories[0].id;
-      selectedYellowCategoryId.value = buffet.subcategories[0].id;
+  const firstCat = menuCategories.value[0];
+  if (firstCat && !selectedCategory.value) {
+    selectedCategory.value = firstCat;
+    if (firstCat.subcategories && firstCat.subcategories.length > 0) {
+      selectedSubId.value = firstCat.subcategories[0].id;
+      selectedYellowCategoryId.value = firstCat.id === 'buffet' ? firstCat.subcategories[0].id : null;
     }
   }
 };
@@ -323,7 +350,7 @@ function getModifiedItem(item: MenuItem, packageName: string): MenuItem {
   return {
     ...item,
     price: unit,
-    price_display: `${half.toLocaleString('vi-VN')}đ (Lunch 50%)`,
+    price_display: i18nStore.t('customer.menuItem.lunchPrice', { price: `${half.toLocaleString('vi-VN')}đ` }),
   }
 }
 
@@ -361,7 +388,7 @@ const handleAddToCart = (item: MenuItem) => {
     store.addToCart(modifiedItem, 1);
   }
   syncCart();
-  store.addNotification(t('customer.menu.addedToCart', { qty: 1, name: modifiedItem.name }), 'success');
+  store.addNotification(i18nStore.t('customer.menu.addedToCart', { qty: 1, name: modifiedItem.name }), 'success');
 };
 
 // Update cart quantity from modal
@@ -399,7 +426,7 @@ function confirmDetailAdd(item: MenuItem, quantity: number, note: string) {
       if (added) added.note = note;
     }
     syncCart();
-    store.addNotification(t('customer.menu.addedToCart', { qty: quantity, name: item.name }), 'success');
+    store.addNotification(i18nStore.t('customer.menu.addedToCart', { qty: quantity, name: item.name }), 'success');
   }
   closeDetail();
 }
@@ -447,7 +474,7 @@ function addSetToCart(cat: MenuCategory) {
   if (setItem) {
     store.addToCart(setItem, 1)
     syncCart()
-    store.addNotification(t('customer.menu.packageSelectedNotif', { name: cat.name }), 'success')
+    store.addNotification(i18nStore.t('customer.menu.packageSelectedNotif', { name: cat.name }), 'success')
   }
 }
 </script>
@@ -471,7 +498,7 @@ function addSetToCart(cat: MenuCategory) {
 .menu-layout {
   display: flex;
   height: calc(100vh - 60px);
-  background-color: #121212;
+  background-color: #0d0d0f;
   color: white;
   overflow: hidden;
 }
@@ -479,8 +506,8 @@ function addSetToCart(cat: MenuCategory) {
 /* ===== SIDEBAR ===== */
 .sidebar {
   width: 260px;
-  background: #1a1a1a;
-  border-right: 1px solid #333;
+  background: #141417;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
   overflow-y: auto;
   padding: 20px 15px;
   height: calc(100vh - 60px);
@@ -493,42 +520,46 @@ function addSetToCart(cat: MenuCategory) {
 }
 
 .section-title {
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 12px;
+  font-weight: 800;
   margin-bottom: 16px;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 1.5px;
 }
 
 .pink-text { 
-  color: #e91e63; 
+  color: #f59e0b; 
 }
 
 .category-btn {
   width: 100%;
-  padding: 16px 18px;
+  padding: 15px 18px;
   margin-bottom: 10px;
-  border-radius: 10px;
-  border: none;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
   text-align: left;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 13px;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.2s;
-  background: #b56576;
-  color: white;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  background: #1e1e24;
+  color: #a1a1aa;
   display: block;
 }
 
 .category-btn:hover {
-  background: #c67889;
+  background: #282832;
+  color: white;
+  border-color: rgba(245, 158, 11, 0.3);
   transform: translateX(4px);
 }
 
 .category-btn.active {
-  background: #c62828;
-  border: 2px solid white;
-  box-shadow: 0 4px 12px rgba(198, 40, 40, 0.3);
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #000000;
+  font-weight: 900;
+  border: none;
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);
 }
 
 /* ===== MAIN AREA ===== */

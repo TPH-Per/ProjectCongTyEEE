@@ -70,7 +70,7 @@
       </div>
 
       <div
-        class="flex-1 flex items-center gap-4 bg-gray-50 border border-gray-150 px-4 py-2 rounded-xl"
+        class="flex-1 flex items-center gap-4 bg-gray-50 border border-gray-100 px-4 py-2 rounded-xl"
       >
         <input
           type="time"
@@ -351,7 +351,7 @@
             </h3>
           </div>
 
-          <div class="bg-gray-50 border border-gray-150 rounded-lg p-1.5 shadow-inner shrink-0">
+          <div class="bg-gray-50 border border-gray-100 rounded-lg p-1.5 shadow-inner shrink-0">
             <div class="flex justify-between items-center mb-2">
               <button @click="prevMonth" class="p-0.5 rounded hover:bg-gray-200 text-gray-600 transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
@@ -393,7 +393,7 @@
           </div>
 
           <!-- Shift Tabs -->
-          <div class="flex gap-1 overflow-x-auto p-0.5 bg-gray-50 border border-gray-150 rounded-lg text-[9px] font-black tracking-wide mt-2 mb-2 shrink-0 scrollbar-none">
+          <div class="flex gap-1 overflow-x-auto p-0.5 bg-gray-50 border border-gray-100 rounded-lg text-[9px] font-black tracking-wide mt-2 mb-2 shrink-0 scrollbar-none">
             <button
               @click="activeShift = 'all'"
               :class="['flex-1 py-1 rounded transition-colors whitespace-nowrap', activeShift === 'all' ? 'bg-white shadow text-[#FF7B89]' : 'text-gray-500 hover:text-[#FF7B89]']"
@@ -455,10 +455,10 @@
     <div
       class="bg-white border-t border-gray-200 py-1.5 px-3 grid grid-cols-1 md:grid-cols-3 items-center gap-2 z-40 shadow-sm shrink-0"
     >
-      <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-[9px] font-black border-r border-gray-150 pr-2 select-none">
+      <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-[9px] font-black border-r border-gray-100 pr-2 select-none">
         <div class="flex items-center gap-1 text-gray-500">
           {{ t('admin_floors.system.title') }}
-          <span class="bg-gray-100 border border-gray-150 px-2 py-0.5 rounded text-gray-700 font-mono tracking-wider">{{ currentTime }}</span>
+          <span class="bg-gray-100 border border-gray-100 px-2 py-0.5 rounded text-gray-700 font-mono tracking-wider">{{ currentTime }}</span>
         </div>
         <div class="flex items-center gap-2">
           <span>{{ t('admin_floors.system.tables') }}</span>
@@ -470,7 +470,7 @@
         </div>
       </div>
 
-      <div class="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[9px] font-black border-r border-gray-150 px-2 select-none">
+      <div class="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[9px] font-black border-r border-gray-100 px-2 select-none">
         <div class="flex items-center gap-1.5">
           <span>{{ t('admin_floors.today.bookings') }}</span>
           <span class="bg-gray-100 px-2 py-0.5 rounded border border-gray-200 text-gray-700 text-xs">{{ sidebarStats.total }}</span>
@@ -488,7 +488,7 @@
       <div class="flex gap-1.5 justify-end w-full">
         <button
           @click="resetToCurrentState"
-          class="text-center py-1.5 px-2.5 rounded-lg border border-gray-250 bg-white hover:bg-gray-50 text-gray-700 font-extrabold text-[10px] transition-colors shadow-sm select-none flex items-center justify-center gap-1 active:scale-95"
+          class="text-center py-1.5 px-2.5 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 font-extrabold text-[10px] transition-colors shadow-sm select-none flex items-center justify-center gap-1 active:scale-95"
         >
           {{ t('admin_floors.current.time') }}
         </button>
@@ -587,7 +587,7 @@
           </div>
 
           <div class="flex gap-2 pt-3.5 border-t border-gray-100 mt-4">
-            <button @click="closeTableModal" class="flex-1 py-2 rounded-xl border border-gray-250 bg-white hover:bg-gray-50 text-gray-700 text-[11px] font-bold transition-colors select-none">{{ t('admin_floors.action.close') }}</button>
+            <button @click="closeTableModal" class="flex-1 py-2 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 text-[11px] font-bold transition-colors select-none">{{ t('admin_floors.action.close') }}</button>
             <button @click="goToOrderScreen(selectedTableForModal.code)" class="flex-1 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-[11px] font-black transition-colors shadow-sm select-none">🍽️ {{ t('sidebar.order_menu') }}</button>
             <button @click="saveTableModal" class="flex-1 py-2 rounded-xl bg-[#FF7B89] hover:bg-[#FF5A6E] text-white text-[11px] font-black transition-colors shadow-sm select-none">{{ t('admin_floors.action.save') }}</button>
           </div>
@@ -697,7 +697,7 @@
         </div>
 
         <div class="flex gap-3 select-none">
-          <button @click="isCreateBookingModalOpen = false" class="flex-1 py-2.5 rounded-xl border border-gray-250 bg-white hover:bg-gray-50 text-gray-700 text-[11px] font-bold transition-colors">{{ t('admin_floors.action.cancel') }}</button>
+          <button @click="isCreateBookingModalOpen = false" class="flex-1 py-2.5 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 text-[11px] font-bold transition-colors">{{ t('admin_floors.action.cancel') }}</button>
           <button
             @click="saveNewBooking"
             :disabled="isSubmittingBooking"
@@ -762,7 +762,7 @@
         </div>
 
         <div class="flex gap-3 select-none">
-          <button @click="isQuickOpenModalOpen = false" class="flex-1 py-2 rounded-xl border border-gray-250 bg-white hover:bg-gray-50 text-gray-700 text-[11px] font-bold transition-colors">{{ t('admin_floors.action.close_btn') }}</button>
+          <button @click="isQuickOpenModalOpen = false" class="flex-1 py-2 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 text-[11px] font-bold transition-colors">{{ t('admin_floors.action.close_btn') }}</button>
           <button @click="saveQuickOpen" class="flex-1 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-[11px] font-black transition-colors shadow-sm">{{ t('admin_floors.action.open_serving') }}</button>
         </div>
       </div>
@@ -798,7 +798,7 @@
         </div>
 
         <div class="flex gap-3 select-none">
-          <button @click="isQuickArrivedModalOpen = false" class="flex-1 py-2 rounded-xl border border-gray-250 bg-white hover:bg-gray-50 text-gray-700 text-[11px] font-bold transition-colors">{{ t('admin_floors.action.cancel') }}</button>
+          <button @click="isQuickArrivedModalOpen = false" class="flex-1 py-2 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 text-[11px] font-bold transition-colors">{{ t('admin_floors.action.cancel') }}</button>
           <button @click="saveQuickArrived" class="flex-1 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-black transition-colors shadow-sm">{{ t('admin_floors.action.welcome_guest') }}</button>
         </div>
       </div>
@@ -818,6 +818,7 @@ import { useRestaurantStore } from '@/stores/restaurantStore'
 import { storeToRefs } from 'pinia'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/composables/useAuth'
+import { useBranch } from '@/composables/useBranch';
 import { useUnsavedGuard } from '@/composables/useUnsavedGuard'
 import { useCheckout } from '@/composables/useCheckout'
 import { useRealtime } from '@/composables/useRealtime'
@@ -827,7 +828,7 @@ import { useReceptionSync } from '@/composables/useReceptionSync'
 const router = useRouter()
 const restaurantStore = useRestaurantStore()
 const { bookings } = storeToRefs(restaurantStore)
-const { branchId: activeBranchId } = useAuth()
+const { activeBranchId } = useBranch();
 
 // ─── Reception Store (shared with ReservationDetailView) ────────────────────
 const {
@@ -1394,8 +1395,8 @@ function getTableColorClass(table: TableInfo) {
     case 'Available': return 'bg-emerald-50/40 border-emerald-200 hover:border-emerald-400'
     case 'Reserved': return 'bg-amber-50/40 border-amber-200 hover:border-amber-400'
     case 'Arrived': return 'bg-blue-50/40 border-blue-200 hover:border-blue-400'
-    case 'Serving': return 'bg-rose-50/40 border-rose-200 hover:border-rose-450'
-    case 'Maintenance': return 'bg-yellow-50/40 border-yellow-200 hover:border-yellow-450'
+    case 'Serving': return 'bg-rose-50/40 border-rose-200 hover:border-rose-400'
+    case 'Maintenance': return 'bg-yellow-50/40 border-yellow-200 hover:border-yellow-400'
     default: return 'bg-gray-50 border-gray-200'
   }
 }
@@ -1856,8 +1857,8 @@ function resetToCurrentState() {
 
 // ─── Data Loading ──────────────────────────────────────────────────────────────
 async function loadTables() {
-  const { branchId } = useAuth()
-  const bid = branchId.value
+  const { activeBranchId } = useBranch();
+  const bid = activeBranchId.value
   if (!bid) return
 
   const { data: tablesData } = await supabase
@@ -1897,9 +1898,10 @@ onMounted(async () => {
   scheduleSystemClock()
   resetTimeline()
 
-  const { session, branchId } = useAuth()
+  const { session } = useAuth();
+const { activeBranchId } = useBranch();
   if (session.value) {
-    const bid = branchId.value
+    const bid = activeBranchId.value
     if (bid) {
       await loadTables()
       // Load reservations from receptionStore (shared with ReservationDetailView)

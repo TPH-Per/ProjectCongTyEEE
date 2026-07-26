@@ -269,15 +269,15 @@ const router = useRouter()
 const route = useRoute()
 const langStore = useLanguageStore()
 const t = langStore.t
-const { profile, branchId } = useAuth()
-const { activeBranchId } = useBranch()
+const { profile } = useAuth();
+const { activeBranchId } = useBranch();
 const shiftStore = useShiftStore()
 
 const showOpenModal = ref(false)
 const showCloseModal = ref(false)
 const activeBranchName = ref('')
 
-const activeBranch = computed(() => activeBranchId.value ?? branchId.value ?? '')
+const activeBranch = computed(() => activeBranchId.value ?? '')
 const cashierName = computed(() => profile.value?.full_name || 'Thu Ngân')
 
 const shiftTimeIndicator = computed(() => {

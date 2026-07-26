@@ -34,8 +34,8 @@
         
         <!-- Table Code + Lock Icon -->
         <div class="flex items-center justify-between w-full text-[10px] font-bold text-gray-500">
-          <span>BÀN</span>
-          <span v-if="table.status !== 'available'" class="text-[10px] shrink-0" title="Đã khóa">🔒</span>
+          <span>{{ $t('customer.tableGrid.table') }}</span>
+          <span v-if="table.status !== 'available'" class="text-[10px] shrink-0" :title="$t('customer.tableGrid.locked')">🔒</span>
         </div>
 
         <!-- Table Number (e.g. A01) -->
@@ -60,15 +60,15 @@
     <div class="flex items-center justify-center gap-6 text-xs text-gray-400 border-t border-gray-900 pt-4 mt-2 select-none shrink-0">
       <div class="flex items-center gap-2">
         <span class="w-3 h-3 rounded-full bg-emerald-500 border border-emerald-600/30"></span>
-        <span>Trống</span>
+        <span>{{ $t('customer.tableGrid.available') }}</span>
       </div>
       <div class="flex items-center gap-2">
         <span class="w-3 h-3 rounded-full bg-amber-500 border border-amber-600/30"></span>
-        <span>Đang chọn</span>
+        <span>{{ $t('customer.tableGrid.selecting') }}</span>
       </div>
       <div class="flex items-center gap-2">
         <span class="w-3 h-3 rounded-full bg-rose-500 border border-rose-600/30"></span>
-        <span>Có khách</span>
+        <span>{{ $t('customer.tableGrid.occupied') }}</span>
       </div>
     </div>
 

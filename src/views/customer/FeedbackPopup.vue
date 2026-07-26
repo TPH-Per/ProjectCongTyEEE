@@ -14,7 +14,7 @@
     </div>
 
     <!-- Star Rating Selector -->
-    <div class="flex justify-center border-b border-gray-150 pb-5">
+    <div class="flex justify-center border-b border-gray-100 pb-5">
       <StarRating :rating="rating" @update:rating="onRatingUpdate" />
     </div>
 
@@ -34,9 +34,26 @@
       <textarea v-model="comment"
                 rows="2"
                 :placeholder="$t('customer.feedback.commentPlaceholder')"
-                class="w-full bg-gray-50 border border-gray-250 focus:border-[#E8772E]/50 rounded-xl p-3 text-xs text-[#333333] placeholder-gray-455 focus:outline-none resize-none transition-colors">
+                class="w-full bg-gray-50 border border-gray-200 focus:border-[#E8772E]/50 rounded-xl p-3 text-xs text-[#333333] placeholder-gray-455 focus:outline-none resize-none transition-colors">
       </textarea>
     </div>
+
+    <!-- Customer Info input (Optional) -->
+    <div v-if="rating > 0" class="flex flex-col gap-3 pt-2">
+      <div class="flex flex-col gap-1.5">
+        <label class="text-xs font-bold text-[#666666] uppercase tracking-wider">
+          {{ $t('customer.feedback.nameOptional') }}
+        </label>
+        <input v-model="customerName" type="text" :placeholder="$t('customer.feedback.namePlaceholder')" class="w-full bg-gray-50 border border-gray-200 focus:border-[#E8772E]/50 rounded-xl p-3 text-xs text-[#333333] placeholder-gray-455 focus:outline-none transition-colors" />
+      </div>
+      <div class="flex flex-col gap-1.5">
+        <label class="text-xs font-bold text-[#666666] uppercase tracking-wider">
+          {{ $t('customer.feedback.phoneOptional') }}
+        </label>
+        <input v-model="customerPhone" type="tel" :placeholder="$t('customer.feedback.phonePlaceholder')" class="w-full bg-gray-50 border border-gray-200 focus:border-[#E8772E]/50 rounded-xl p-3 text-xs text-[#333333] placeholder-gray-455 focus:outline-none transition-colors" />
+      </div>
+    </div>
+
 
     <!-- Actions Buttons -->
     <div class="flex justify-end gap-3 shrink-0 pt-2 border-t border-gray-100">
@@ -60,13 +77,15 @@ import StarRating from '@/components/customer/StarRating.vue';
 import FeedbackCriteria from '@/components/customer/FeedbackCriteria.vue';
 
 const emit = defineEmits<{
-  (e: 'submit', data: { rating: number; criteria: string[]; comment: string }): void;
+  (e: 'submit', data: { rating: number; criteria: string[]; comment: string; customerName?: string; customerPhone?: string }): void;
   (e: 'skip'): void;
 }>();
 
 const rating = ref(0);
 const criteria = ref<string[]>([]);
 const comment = ref('');
+const customerName = ref('');
+const customerPhone = ref('');
 
 // BR-35: Rating 1-5, BR-36: at least 1 criterion selected
 const isSubmitDisabled = computed(() => {
@@ -90,7 +109,9 @@ function submit() {
   emit('submit', {
     rating: rating.value,
     criteria: criteria.value,
-    comment: comment.value.trim()
+    comment: comment.value.trim(),
+    customerName: customerName.value.trim(),
+    customerPhone: customerPhone.value.trim()
   });
 }
 </script>

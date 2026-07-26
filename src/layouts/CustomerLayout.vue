@@ -1,18 +1,18 @@
 <!-- File: src/layouts/CustomerLayout.vue -->
 <template>
-  <div class="w-full h-screen bg-[#3D2817] text-white flex flex-col font-sans overflow-hidden select-none">
+  <div class="w-full h-screen bg-[#0d0d0f] text-white flex flex-col font-sans overflow-hidden select-none">
     
     <!-- Active Session Layout -->
     <template v-if="session">
       <!-- Header Bar (60px Height) -->
-      <header class="h-[60px] bg-[#1a110a] border-b border-[#2d1e12] flex items-center justify-between px-6 shrink-0 z-30 shadow-md z-40">
+      <header class="h-[60px] bg-[#141417]/95 backdrop-blur-xl border-b border-white/10 flex items-center justify-between px-6 shrink-0 z-40 shadow-xl">
         
         <!-- Logo Branding -->
         <div class="flex items-center gap-3 cursor-pointer shrink-0" @click="goToView('CustomerMenu')">
-          <div class="w-9 h-9 rounded-full bg-rose-600/10 border border-rose-500/20 flex items-center justify-center text-lg text-rose-500 shadow-md">
-            🌸
+          <div class="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-lg text-amber-500 shadow-md">
+            🐂
           </div>
-          <h1 class="text-lg font-black text-amber-500 uppercase tracking-widest font-serif">NGƯU CÁT</h1>
+          <h1 class="text-lg font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-amber-600 uppercase tracking-widest font-serif">NGƯU CÁT</h1>
         </div>
 
         <!-- Search Bar (syncs directly with store) -->
@@ -20,7 +20,7 @@
           <input type="text" 
                  v-model="store.searchQuery" 
                  :placeholder="$t('customer.header.search')" 
-                 class="w-full bg-[#2a1b10] border border-[#442c19] focus:border-[#E8772E]/50 rounded-lg py-1.5 pl-9 pr-4 text-xs text-gray-200 placeholder-gray-550 focus:outline-none transition-colors" />
+                 class="w-full bg-[#1e1e24] border border-white/10 focus:border-amber-500/50 rounded-xl py-1.5 pl-9 pr-4 text-xs text-gray-200 placeholder-gray-500 focus:outline-none transition-colors" />
           <svg xmlns="http://www.w3.org/2000/svg" class="absolute left-3 top-2.5 w-3.5 h-3.5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
             <circle cx="11" cy="11" r="8"></circle>
             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
@@ -30,7 +30,7 @@
         <!-- Header Actions & Table Number -->
         <div class="flex items-center gap-4">
           <!-- Active Table Code -->
-          <div class="bg-[#2a1b10] border border-[#442c19] text-[#E8772E] px-3.5 py-1.5 rounded-lg text-sm font-black tracking-wider select-none shrink-0">
+          <div class="bg-amber-500/10 border border-amber-500/30 text-amber-400 px-3.5 py-1.5 rounded-xl text-sm font-black tracking-wider select-none shrink-0">
             {{ session.tableNumber }}
           </div>
 
@@ -39,10 +39,10 @@
             <!-- 1. Cart Button with badge -->
             <button @click="goToView('CustomerCart')"
                     :class="[
-                      'w-9 h-9 rounded-lg flex items-center justify-center border relative transition-all active:scale-90',
+                      'w-9 h-9 rounded-xl flex items-center justify-center border relative transition-all active:scale-90',
                       isCurrentRoute('CustomerCart') 
-                        ? 'bg-[#E8772E] border-[#E8772E] text-black' 
-                        : 'bg-[#2a1b10] border-[#442c19] text-gray-400 hover:text-white'
+                        ? 'bg-amber-500 border-amber-500 text-black shadow-lg shadow-amber-500/20' 
+                        : 'bg-[#1e1e24] border-white/10 text-gray-400 hover:text-white hover:border-white/20'
                     ]"
                     :title="$t('customer.cart.title')">
               <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -125,16 +125,27 @@
           </div>
 
           <!-- Language flags selector -->
-          <div class="flex items-center gap-1.5 bg-[#2a1b10] border border-[#442c19] px-2 py-1 rounded-lg shrink-0">
+          <div class="flex items-center gap-3 bg-[#2a1b10] border border-[#442c19] px-3 py-1.5 rounded-xl shrink-0">
             <button @click="setLanguage('vi')" 
-                    :class="['text-sm transition-all grayscale active:scale-90', locale === 'vi' ? 'grayscale-0 scale-110 font-bold' : 'opacity-60']" 
-                    title="Tiếng Việt">🇻🇳</button>
+                    :class="['text-sm transition-all flex items-center gap-1.5 active:scale-90', i18nStore.locale === 'vi' ? 'text-amber-500 font-bold scale-105' : 'text-gray-400 opacity-80 hover:text-white']" 
+                    title="Tiếng Việt">
+              <span>🇻🇳</span>
+              <span>Tiếng Việt</span>
+            </button>
+            <div class="w-px h-3 bg-white/10"></div>
             <button @click="setLanguage('en')" 
-                    :class="['text-sm transition-all grayscale active:scale-90', locale === 'en' ? 'grayscale-0 scale-110 font-bold' : 'opacity-60']" 
-                    title="English">🇬🇧</button>
+                    :class="['text-sm transition-all flex items-center gap-1.5 active:scale-90', i18nStore.locale === 'en' ? 'text-amber-500 font-bold scale-105' : 'text-gray-400 opacity-80 hover:text-white']" 
+                    title="English">
+              <span>🇬🇧</span>
+              <span>English</span>
+            </button>
+            <div class="w-px h-3 bg-white/10"></div>
             <button @click="setLanguage('ja')" 
-                    :class="['text-sm transition-all grayscale active:scale-90', locale === 'ja' ? 'grayscale-0 scale-110 font-bold' : 'opacity-60']" 
-                    title="日本語">🇯🇵</button>
+                    :class="['text-sm transition-all flex items-center gap-1.5 active:scale-90', i18nStore.locale === 'ja' ? 'text-amber-500 font-bold scale-105' : 'text-gray-400 opacity-80 hover:text-white']" 
+                    title="日本語">
+              <span>🇯🇵</span>
+              <span>日本語</span>
+            </button>
           </div>
         </div>
       </header>
@@ -142,7 +153,11 @@
       <!-- Main Layout Body (Router view spans full height below header) -->
       <div class="flex-1 flex overflow-hidden">
         <main class="flex-1 bg-[#3D2817] overflow-hidden relative">
-          <RouterView />
+          <router-view v-slot="{ Component }">
+            <transition name="fade" mode="out-in">
+              <component :is="Component" />
+            </transition>
+          </router-view>
         </main>
       </div>
 
@@ -175,8 +190,38 @@
 
     <!-- Inactive Session Layout (Authentication Flow) -->
     <template v-else>
-      <div class="flex-1 bg-[#090909] flex flex-col overflow-hidden justify-center items-center">
-        <RouterView />
+      <div class="flex-1 bg-[#090909] flex flex-col overflow-hidden relative">
+        
+        <!-- Always show language switcher in customer role -->
+        <div class="absolute top-6 right-6 z-50">
+          <div class="flex items-center gap-4 bg-[#141417]/95 backdrop-blur-md border border-white/10 px-5 py-2.5 rounded-2xl shadow-2xl">
+            <button @click="setLanguage('vi')" 
+                    :class="['text-sm transition-all flex items-center gap-2 active:scale-90', i18nStore.locale === 'vi' ? 'text-amber-500 font-bold scale-105' : 'text-gray-400 hover:text-white']">
+              <span class="text-lg">🇻🇳</span>
+              <span>Tiếng Việt</span>
+            </button>
+            <div class="w-px h-4 bg-white/10"></div>
+            <button @click="setLanguage('en')" 
+                    :class="['text-sm transition-all flex items-center gap-2 active:scale-90', i18nStore.locale === 'en' ? 'text-amber-500 font-bold scale-105' : 'text-gray-400 hover:text-white']">
+              <span class="text-lg">🇬🇧</span>
+              <span>English</span>
+            </button>
+            <div class="w-px h-4 bg-white/10"></div>
+            <button @click="setLanguage('ja')" 
+                    :class="['text-sm transition-all flex items-center gap-2 active:scale-90', i18nStore.locale === 'ja' ? 'text-amber-500 font-bold scale-105' : 'text-gray-400 hover:text-white']">
+              <span class="text-lg">🇯🇵</span>
+              <span>日本語</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="flex-1 flex justify-center items-center">
+          <router-view v-slot="{ Component }">
+            <transition name="fade" mode="out-in">
+              <component :is="Component" />
+            </transition>
+          </router-view>
+        </div>
       </div>
     </template>
   </div>
@@ -190,11 +235,10 @@ import { useCustomerStore } from '@/stores/customerStore';
 import { useCustomerSession } from '@/composables/useCustomerSession';
 import { isSupabaseConfigured } from '@/lib/supabase';
 import OrderTrackingModal from '@/components/customer/OrderTrackingModal.vue';
-import { setApplicationLanguage } from '@/helpers/i18n';
-import { useI18n } from 'vue-i18n';
+import { useI18nStore } from '@/stores/i18n';
 
 const store = useCustomerStore();
-const { locale, t } = useI18n();
+const i18nStore = useI18nStore();
 const router = useRouter();
 const route = useRoute();
 const { restoreSessionFromLocalStorage, clearSession } = useCustomerSession();
@@ -206,12 +250,12 @@ const notifications = computed(() => store.notifications);
 
 const showOrderTracking = ref(false);
 
-const timeLocale = computed(() => locale.value === 'ja' ? 'ja-JP' : locale.value === 'en' ? 'en-US' : 'vi-VN');
+const timeLocale = computed(() => i18nStore.locale === 'ja' ? 'ja-JP' : i18nStore.locale === 'en' ? 'en-US' : 'vi-VN');
 
 const trackingItems = computed(() => {
   const list: any[] = [];
   for (const order of store.orders) {
-    let trackingStatus: 'pending' | 'preparing' | 'served' = 'pending';
+    let trackingStatus: 'new' | 'preparing' | 'served' = 'new';
     if (order.status === 'cooking') {
       trackingStatus = 'preparing';
     } else if (order.status === 'served' || order.status === 'completed') {
@@ -277,28 +321,28 @@ function goToView(routeName: string) {
 }
 
 function setLanguage(lang: 'vi' | 'en' | 'ja') {
-  setApplicationLanguage(lang);
+  i18nStore.setLocale(lang);
   const langName = lang === 'vi' ? 'Tiếng Việt' : lang === 'en' ? 'English' : '日本語';
-  store.addNotification(t('customer.languageChanged', { lang: langName }), 'info');
+  store.addNotification(i18nStore.t('customer.languageChanged', { lang: langName }), 'info');
 }
 
 async function handleExitTable() {
   const result = await Swal.fire({
-    title: t('customer.exitTable.confirmTitle'),
-    text: t('customer.exitTable.confirmText'),
+    title: i18nStore.t('customer.exitTable.confirmTitle'),
+    text: i18nStore.t('customer.exitTable.confirmText'),
     icon: 'warning',
     showCancelButton: true,
     confirmButtonColor: '#E8772E',
     cancelButtonColor: '#d33',
-    confirmButtonText: t('customer.exitTable.confirmButton'),
-    cancelButtonText: t('customer.exitTable.cancelButton')
+    confirmButtonText: i18nStore.t('customer.exitTable.confirmButton'),
+    cancelButtonText: i18nStore.t('customer.exitTable.cancelButton')
   });
 
   if (result.isConfirmed) {
     clearSession();
     Swal.fire({
-      title: t('customer.exitTable.successTitle'),
-      text: t('customer.exitTable.successText'),
+      title: i18nStore.t('customer.exitTable.successTitle'),
+      text: i18nStore.t('customer.exitTable.successText'),
       icon: 'success',
       timer: 1500,
       showConfirmButton: false

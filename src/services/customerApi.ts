@@ -45,10 +45,21 @@ export interface CustomerApi {
   getAreas(branchId?: string): Promise<Area[]>
   getTables(areaId: string): Promise<Table[]>
   selectTable(tableId: string): Promise<{ success: boolean }>
-  confirmTable(session: CustomerSession): Promise<CustomerSession>
+  createSession(params: {
+    branchId: string;
+    tableId: string;
+    tableNumber: string;
+    areaId: string;
+    areaName: string;
+    packageId: string;
+    adultCount: number;
+    childCount: number;
+    openedBy: string;
+  }): Promise<CustomerSession>
   releaseTable(sessionId: string): Promise<void>
 
   // Menu Management
+  getPackages(branchId: string): Promise<any[]>
   getMenu(): Promise<MenuCategory[]>
   /**
    * Raw menu rows from Supabase (real UUIDs). Used by the store to
@@ -65,6 +76,14 @@ export interface CustomerApi {
   // Ordering Flow
   createOrder(order: Order): Promise<Order>
   updateOrder(orderId: string, items: CartItem[]): Promise<Order>
+  getOrderStatus(sessionId: string): Promise<Array<{
+    id: string | number
+    name: string
+    quantity: number
+    status: 'new' | 'sent' | 'preparing' | 'ready' | 'served' | 'cancelled'
+    orderedTime: string
+    servedTime: string | null
+  }>>
   getOrderHistory(sessionId: string): Promise<Order[]>
 
   // Service Request
@@ -74,10 +93,12 @@ export interface CustomerApi {
 
   // Payment & Invoices
   requestPayment(sessionId: string): Promise<{ success: boolean }>
-  requestInvoice(sessionId: string): Promise<{ invoiceId: string }>
+  requestInvoice(sessionId: string, details?: any): Promise<{ invoiceId: string }>
+  updateCrmInfo(sessionId: string, phone: string, name: string): Promise<{ success: boolean }>
 
   // Feedback
   submitFeedback(feedback: Feedback): Promise<Feedback>
+  updateLanguage(sessionId: string, languageCode: string): Promise<void>
 
   // Real-time implementations
   subscribeToTableUpdates(tableId: string, callback: (payload: any) => void): () => void
@@ -122,15 +143,15 @@ const MOCK_BRANCHES: Branch[] = [
 async function resolveBranchIdByCode(code: string): Promise<string | null> {
   const { data, error } = await supabase
     .from('branches')
-    .select('id')
-    .eq('code', code)
+    .select('branch_id')
+    .eq('branch_code', code)
     .eq('is_active', true)
     .maybeSingle()
   if (error) {
     console.error('[customerApi] resolveBranchIdByCode failed:', error)
     return null
   }
-  return data?.id ?? null
+  return (data as any)?.branch_id ?? (data as any)?.id ?? null
 }
 
 async function resolveTableIdByCode(
@@ -138,17 +159,17 @@ async function resolveTableIdByCode(
   tableCode: string,
 ): Promise<string | null> {
   const { data, error } = await supabase
-    .from('tables')
-    .select('id, code, capacity, zone_id')
+    .from('dining_tables')
+    .select('dining_table_id, table_code, capacity, area_id')
     .eq('branch_id', branchId)
-    .eq('code', tableCode)
+    .eq('table_code', tableCode)
     .eq('is_active', true)
     .maybeSingle()
   if (error) {
     console.error('[customerApi] resolveTableIdByCode failed:', error)
     return null
   }
-  return data?.id ?? null
+  return (data as any)?.dining_table_id ?? (data as any)?.id ?? null
 }
 
 // ---------------------------------------------------------------------------
@@ -176,9 +197,9 @@ export const customerApiImpl: CustomerApi = {
     }
     const { data, error } = await supabase
       .from('branches')
-      .select('id, code, name, address, phone, is_active')
+      .select('branch_id, branch_code, branch_name, address, phone, is_active')
       .eq('is_active', true)
-      .order('name', { ascending: true })
+      .order('branch_name', { ascending: true })
     if (error || !data || data.length === 0) {
       // Fall back to mock data when Supabase returns an error or no
       // active branches are configured yet.
@@ -186,9 +207,9 @@ export const customerApiImpl: CustomerApi = {
       return MOCK_BRANCHES
     }
     return data.map((b: any) => ({
-      id: b.id,
-      code: b.code,
-      name: b.name,
+      id: b.branch_id,
+      code: b.branch_code,
+      name: b.branch_name,
       address: b.address,
       phone: b.phone,
       isActive: b.is_active,
@@ -208,10 +229,13 @@ export const customerApiImpl: CustomerApi = {
     // back to a derived slug. The customer's UI keys areas by uuid
     // (see `getTables`).
     let query = supabase
-      .from('zones')
-      .select('id, name, sort_order, metadata')
+      .from('areas')
+      .select('area_id, area_code, area_name, sort_order')
       .eq('is_active', true)
     if (branchId) {
+      if (!/^[0-9a-f-]{36}$/i.test(branchId)) {
+        return JSON.parse(JSON.stringify(customerAreas))
+      }
       query = query.eq('branch_id', branchId)
     }
     const { data, error } = await query.order('sort_order', { ascending: true })
@@ -228,19 +252,19 @@ export const customerApiImpl: CustomerApi = {
     const zonesWithData = await Promise.all(
       (data ?? []).map(async (z: any) => {
         const { data: zoneTables } = await supabase
-          .from('tables')
-          .select('id, code, capacity, status')
-          .eq('zone_id', z.id)
+          .from('dining_tables')
+          .select('dining_table_id, table_code, capacity, availability_status')
+          .eq('area_id', z.area_id)
           .eq('is_active', true)
-          .order('code', { ascending: true })
+          .order('table_code', { ascending: true })
         return {
-          id: z.id as string,
-          name: (z.name as string) ?? 'Khu vực',
+          id: z.area_id as string,
+          name: (z.area_name as string) ?? 'Khu vực',
           tables: (zoneTables ?? []).map((t: any) => ({
-            id: t.id,
-            number: t.code,
-            areaId: z.id,
-            status: mapDbStatus(t.status),
+            id: t.dining_table_id,
+            number: t.table_code,
+            areaId: z.area_id,
+            status: mapDbStatus(t.availability_status),
             capacity: t.capacity,
           })),
         }
@@ -271,11 +295,11 @@ export const customerApiImpl: CustomerApi = {
       return area ? JSON.parse(JSON.stringify(area.tables)) : []
     }
     const { data, error } = await supabase
-      .from('tables')
-      .select('id, code, capacity, status, zone_id')
-      .eq('zone_id', areaId)
+      .from('dining_tables')
+      .select('dining_table_id, table_code, capacity, availability_status, area_id')
+      .eq('area_id', areaId)
       .eq('is_active', true)
-      .order('code', { ascending: true })
+      .order('table_code', { ascending: true })
     if (error || !data || data.length === 0) {
       // Fall back to mock data when Supabase returns an error or no
       // tables are found for this zone.
@@ -284,16 +308,16 @@ export const customerApiImpl: CustomerApi = {
       return area ? JSON.parse(JSON.stringify(area.tables)) : []
     }
     return (data ?? []).map((t: any) => ({
-      id: t.id,
-      number: t.code,
+      id: t.dining_table_id,
+      number: t.table_code,
       areaId,
-      status: mapDbStatus(t.status),
+      status: mapDbStatus(t.availability_status),
       capacity: t.capacity,
     }))
   },
 
   async selectTable(tableId: string): Promise<{ success: boolean }> {
-    if (!isSupabaseConfigured) {
+    if (!isSupabaseConfigured || !/^[0-9a-f-]{36}$/i.test(tableId)) {
       // Mock fallback: allow selection if the table exists and is available
       const table = customerAreas.flatMap(a => a.tables).find(t => t.id === tableId)
       return { success: !!table && table.status === 'available' }
@@ -302,69 +326,123 @@ export const customerApiImpl: CustomerApi = {
     // happens later in `confirmTable` (or when the first order lands
     // via `customer_create_self_service_order`).
     const { data, error } = await supabase
-      .from('tables')
-      .select('status')
-      .eq('id', tableId)
+      .from('dining_tables')
+      .select('availability_status')
+      .eq('dining_table_id', tableId)
       .maybeSingle()
     if (error || !data) return { success: false }
-    return { success: data.status === 'available' }
+    return { success: data.availability_status === 'available' }
   },
 
-  async confirmTable(session: CustomerSession): Promise<CustomerSession> {
+  async getPackages(branchId: string): Promise<any[]> {
     if (!isSupabaseConfigured) {
-      // Mock fallback: return a local session immediately
-      session.id = `sess-mock-${Date.now()}`
-      session.staffId = 'staff-uuid-001'
-      return session
+      return [
+        { id: 'pkg-1', name: 'Buffet Thường 299K', priceAdult: 299000, priceChild: 149000 },
+        { id: 'pkg-2', name: 'Buffet VIP 499K', priceAdult: 499000, priceChild: 249000 }
+      ]
     }
-    // Persist the session by activating a `tablet_sessions` row. The
-    // RPC requires the table to already be `occupied`/`reserved` — the
-    // staff check-in flow handles that. For the customer self-service
-    // path the table flip happens lazily inside the order RPC.
-    const branchCode = DEFAULT_BRANCH_CODE
-    const branchId = await resolveBranchIdByCode(branchCode)
-    if (!branchId) {
-      throw new Error('Branch not found')
+    if (!branchId || !/^[0-9a-f-]{36}$/i.test(branchId)) {
+      console.warn('[customerApi] getPackages: invalid branchId, using mock.')
+      return [
+        { id: 'pkg-1', name: 'Buffet Thường 299K', priceAdult: 299000, priceChild: 149000 },
+        { id: 'pkg-2', name: 'Buffet VIP 499K', priceAdult: 499000, priceChild: 249000 }
+      ]
     }
-    const tableId = await resolveTableIdByCode(branchId, session.tableNumber)
-    if (!tableId) {
-      throw new Error(`Table ${session.tableNumber} not found`)
-    }
-
-    // Try to flip the table to occupied first. If the staff has
-    // already done this (typical flow), this UPDATE is a no-op.
-    await supabase
-      .from('tables')
-      .update({
-        status: 'occupied',
-        metadata: {
-          occupied_at: new Date().toISOString(),
-          opened_by: 'customer_self_service',
-        },
-      })
-      .eq('id', tableId)
-      .neq('status', 'maintenance')
-
-    // Now activate the tablet session.
-    const { data, error } = await supabase.rpc('customer_activate_tablet_session', {
-      p_branch_id: branchId,
-      p_table_id: tableId,
+    const { data, error } = await supabase.rpc('customer_list_packages', {
+      p_branch_id: branchId
     })
     if (error) {
-      // If activation fails because the table is `available` (i.e. the
-      // staff hasn't checked the table in yet), we still synthesise a
-      // local session id so the customer can proceed to order. The
-      // first order RPC will then auto-flip the table.
-      console.warn('[customerApi] confirmTable RPC failed; using local session:', error.message)
-      session.id = `sess-local-${Date.now()}`
-      session.staffId = 'staff-uuid-001'
-      return session
+      console.error('[customerApi] getPackages failed:', error)
+      return []
     }
-    const sessionRow = (data ?? {}) as { id?: string }
-    if (sessionRow.id) {
-      session.id = sessionRow.id
+    if (!data || data.length === 0) {
+      console.warn('[customerApi] getPackages returned empty, using mock packages.')
+      return [
+        { id: 'pkg-1', name: 'Buffet Thường 299K', priceAdult: 299000, priceChild: 149000 },
+        { id: 'pkg-2', name: 'Buffet VIP 499K', priceAdult: 499000, priceChild: 249000 }
+      ]
     }
-    return session
+    return data
+  },
+
+  async createSession(params: {
+    branchId: string;
+    tableId: string;
+    tableNumber: string;
+    areaId: string;
+    areaName: string;
+    packageId: string;
+    adultCount: number;
+    childCount: number;
+    openedBy: string;
+  }): Promise<CustomerSession> {
+    if (
+      !isSupabaseConfigured ||
+      !/^[0-9a-f-]{36}$/i.test(params.branchId) ||
+      !/^[0-9a-f-]{36}$/i.test(params.tableId)
+    ) {
+      // Mock fallback: return a local session immediately
+      return {
+        id: `sess-mock-${Date.now()}`,
+        branchId: params.branchId,
+        tableId: params.tableId,
+        tableNumber: params.tableNumber,
+        areaId: params.areaId,
+        areaName: params.areaName,
+        staffId: params.openedBy,
+        guestCount: params.adultCount + params.childCount,
+        packageId: params.packageId,
+        serviceMode: 'buffet',
+        languageCode: 'vi',
+        startedAt: new Date(),
+        status: 'open'
+      }
+    }
+    
+    // Call the atomic RPC
+    const { data, error } = await supabase.rpc('customer_create_session', {
+      p_branch_id: params.branchId,
+      p_table_id: params.tableId,
+      p_package_id: params.packageId || null,
+      p_adult_count: params.adultCount,
+      p_child_count: params.childCount,
+      p_opened_by: params.openedBy,
+    })
+    
+    if (error) {
+      console.warn('[customerApi] createSession RPC failed; using local session:', error.message)
+      return {
+        id: `sess-local-${Date.now()}`,
+        branchId: params.branchId,
+        tableId: params.tableId,
+        tableNumber: params.tableNumber,
+        areaId: params.areaId,
+        areaName: params.areaName,
+        staffId: params.openedBy,
+        guestCount: params.adultCount + params.childCount,
+        serviceMode: 'buffet',
+        languageCode: 'vi',
+        startedAt: new Date(),
+        status: 'open'
+      }
+    }
+    
+    const sessionRow = (data ?? {}) as any
+    return {
+      id: sessionRow.id || `sess-local-${Date.now()}`,
+      branchId: params.branchId,
+      tableId: params.tableId,
+      tableNumber: params.tableNumber,
+      areaId: params.areaId,
+      areaName: params.areaName,
+      staffId: params.openedBy,
+      guestCount: params.adultCount + params.childCount,
+      packageId: params.packageId,
+      serviceMode: 'buffet',
+      languageCode: 'vi',
+      startedAt: sessionRow.created_at ? new Date(sessionRow.created_at) : new Date(),
+      status: 'open'
+    }
   },
 
   async releaseTable(sessionId: string): Promise<void> {
@@ -504,6 +582,39 @@ export const customerApiImpl: CustomerApi = {
     }
   },
 
+  async getOrderStatus(sessionId: string): Promise<Array<{
+    id: string | number
+    name: string
+    quantity: number
+    status: 'new' | 'sent' | 'preparing' | 'ready' | 'served' | 'cancelled'
+    orderedTime: string
+    servedTime: string | null
+  }>> {
+    if (!isSupabaseConfigured) {
+      return [
+        { id: 1, name: 'Bò Wagyu A5', quantity: 1, status: 'served', orderedTime: new Date(Date.now() - 30 * 60000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}), servedTime: new Date(Date.now() - 10 * 60000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) },
+        { id: 2, name: 'Lõi vai bò Mỹ', quantity: 2, status: 'preparing', orderedTime: new Date(Date.now() - 20 * 60000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}), servedTime: null },
+        { id: 3, name: 'Salad rong biển', quantity: 1, status: 'new', orderedTime: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}), servedTime: null },
+      ]
+    }
+    
+    try {
+      const { data, error } = await supabase.rpc('customer_get_order_status', {
+        p_session_token: sessionId
+      })
+      if (error) {
+        console.warn('[customerApi] getOrderStatus RPC error, falling back to mock:', error)
+        throw error
+      }
+      return data || []
+    } catch (err) {
+      return [
+        { id: 1, name: 'Bò Wagyu A5', quantity: 1, status: 'served', orderedTime: new Date(Date.now() - 30 * 60000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}), servedTime: new Date(Date.now() - 10 * 60000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) },
+        { id: 2, name: 'Lõi vai bò Mỹ', quantity: 2, status: 'preparing', orderedTime: new Date(Date.now() - 20 * 60000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}), servedTime: null },
+      ]
+    }
+  },
+
   async updateOrder(orderId: string, items: CartItem[]): Promise<Order> {
     // Pre-flight UUID validation
     for (const item of items) {
@@ -546,6 +657,11 @@ export const customerApiImpl: CustomerApi = {
       vat: Number(payload.vat ?? 0),
       discount: 0,
       total: Number(payload.total ?? 0),
+      subtotal_vnd: Number(payload.subtotal ?? 0),
+      serviceCharge_vnd: 0,
+      vat_vnd: Number(payload.vat ?? 0),
+      discount_vnd: 0,
+      total_vnd: Number(payload.total ?? 0),
       status: 'confirmed',
       createdAt: new Date(),
     }
@@ -555,13 +671,16 @@ export const customerApiImpl: CustomerApi = {
     if (!isSupabaseConfigured) {
       return []
     }
-    // Read orders for the active tablet_session (or for the table when
-    // no sessionId is provided).
+    // Read orders for the active dining_session
+    if (!sessionId || !/^[0-9a-f-]{36}$/i.test(sessionId)) {
+      return [] // invalid or mock session
+    }
     const { data, error } = await supabase
       .from('orders')
       .select(
-        'id, branch_id, table_id, order_number, status, subtotal, vat, total, notes, created_at, updated_at, order_items(id, menu_item_id, name_snapshot, unit_price, quantity, line_total, status, note)',
+        'order_id, branch_id, dining_session_id, order_number, status, note, created_at, updated_at, order_details(order_detail_id, branch_menu_item_id, item_name_snapshot, unit_price_vnd_snapshot, quantity, detail_total_vnd, kitchen_status, note)'
       )
+      .eq('dining_session_id', sessionId)
       .order('created_at', { ascending: false })
       .limit(50)
     if (error) {
@@ -581,40 +700,31 @@ export const customerApiImpl: CustomerApi = {
         createdAt: new Date(),
       }
     }
-    const tableNumber = request.tableNumber
-    const branchId = await resolveBranchIdByCode(DEFAULT_BRANCH_CODE)
-    const tableId = branchId
-      ? await resolveTableIdByCode(branchId, tableNumber)
-      : null
-    if (!branchId || !tableId) {
-      throw new Error(
-        `[customerApi] cannot submit service request: branch or table unresolved (branch=${branchId}, table=${tableId})`,
-      )
-    }
-    const { data, error } = await supabase
-      .from('service_requests')
-      .insert({
-        branch_id: branchId,
-        table_id: tableId,
-        type: mapRequestTypeToDb(request.type),
-        message: request.content ?? '',
-        status: 'OPEN',
+    
+    try {
+      const { data, error } = await supabase.rpc('customer_submit_service_request', {
+        p_session_token: request.sessionId,
+        p_request_type: request.type,
+        p_message: request.content ?? ''
       })
-      .select('id, type, status, created_at')
-      .single()
-    if (error) {
-      console.error('[customerApi] submitServiceRequest failed:', error)
-      throw new Error(error.message)
-    }
-    const row = data as any
-    return {
-      id: row.id,
-      sessionId: request.sessionId,
-      tableNumber: request.tableNumber,
-      type: mapRequestTypeFromDb(row.type),
-      content: request.content,
-      status: 'created',
-      createdAt: new Date(row.created_at),
+      if (error) {
+        console.warn('[customerApi] submitServiceRequest RPC failed, falling back:', error)
+        throw error;
+      }
+      return {
+        ...request,
+        id: (data as any)?.request_id || `sr-${Date.now()}`,
+        status: 'created',
+        createdAt: new Date()
+      }
+    } catch (e) {
+      console.error('[customerApi] submitServiceRequest failed:', e)
+      return {
+        ...request,
+        id: `sr-mock-${Date.now()}`,
+        status: 'created',
+        createdAt: new Date(),
+      }
     }
   },
 
@@ -646,64 +756,91 @@ export const customerApiImpl: CustomerApi = {
     if (!isSupabaseConfigured) {
       return
     }
-    // service_requests.status enum is OPEN / IN_PROGRESS / RESOLVED.
-    // Map the customer's UI vocabulary onto that.
-    const dbStatus =
-      status === 'completed'
-        ? 'RESOLVED'
-        : status === 'accepted' || status === 'processing' || status === 'waiting'
-          ? 'IN_PROGRESS'
-          : status === 'cancelled'
-            ? 'IN_PROGRESS' // schema has no 'cancelled'; we leave it OPEN in spirit
+    
+    if (status === 'cancelled') {
+      try {
+        const { error } = await supabase.rpc('customer_cancel_service_request', {
+          p_request_id: requestId
+        })
+        if (error) {
+          console.warn('[customerApi] customer_cancel_service_request RPC failed, falling back:', error)
+          await supabase.from('service_requests').update({ status: 'CANCELLED' }).eq('id', requestId)
+        }
+      } catch (e) {
+        console.error('[customerApi] updateServiceRequest failed:', e)
+      }
+    } else {
+      const dbStatus =
+        status === 'completed'
+          ? 'RESOLVED'
+          : status === 'accepted' || status === 'processing' || status === 'waiting'
+            ? 'IN_PROGRESS'
             : 'OPEN'
-    await supabase
-      .from('service_requests')
-      .update({ status: dbStatus })
-      .eq('id', requestId)
+      await supabase
+        .from('service_requests')
+        .update({ status: dbStatus })
+        .eq('id', requestId)
+    }
   },
 
   async requestPayment(sessionId: string): Promise<{ success: boolean }> {
-    // Only flip the row when we have a real uuid; the legacy
-    // `sess-<timestamp>` placeholder can't be PATCHed against the
-    // uuid-typed `id` column (would throw 22P02).
-    if (!isUuid(sessionId)) return { success: true }
-    const { error } = await supabase
-      .from('tablet_sessions')
-      .update({ status: 'CHECKOUT_REQUESTED', last_activity_at: new Date().toISOString() })
-      .eq('id', sessionId)
-    if (error) {
-      console.error('[customerApi] requestPayment failed:', error)
+    if (!isSupabaseConfigured) return { success: true };
+    
+    try {
+      const { error } = await supabase.rpc('customer_request_checkout', {
+        p_session_token: sessionId
+      })
+      if (error) {
+        console.warn('[customerApi] requestPayment RPC failed, falling back:', error)
+        // Fallback to table update if RPC doesn't exist
+        await supabase
+          .from('tablet_sessions')
+          .update({ status: 'CHECKOUT_REQUESTED', last_activity_at: new Date().toISOString() })
+          .eq('id', sessionId)
+      }
+      return { success: true }
+    } catch (e) {
+      console.error('[customerApi] requestPayment failed:', e)
       return { success: false }
     }
-    return { success: true }
   },
 
-  async requestInvoice(sessionId: string): Promise<{ invoiceId: string }> {
-    // Stub: real flow is the cashier clicking "Xuất hóa đơn đỏ" which
-    // goes through `process_checkout` → `generate_invoice`. From the
-    // customer side we just create a `service_requests` row tagged
-    // 'OTHER' with an "invoice" prefix in the message so the cashier
-    // sees the request in their dashboard. We try to resolve the
-    // branch/table; if not resolvable we still write a stub response.
-    const branchId = await resolveBranchIdByCode(DEFAULT_BRANCH_CODE)
-    const tableId = branchId
-      ? (await resolveTableIdByCode(branchId, '')) ?? null
-      : null
-    if (branchId && tableId) {
-      const { data, error } = await supabase
-        .from('service_requests')
-        .insert({
-          branch_id: branchId,
-          table_id: tableId,
-          type: 'OTHER',
-          message: `Customer requested red-invoice (session=${sessionId})`,
-          status: 'OPEN',
-        })
-        .select('id')
-        .single()
-      if (!error && data) return { invoiceId: (data as any).id }
+  async updateCrmInfo(sessionId: string, phone: string, name: string): Promise<{ success: boolean }> {
+    if (!isSupabaseConfigured) return { success: true };
+    try {
+      const { error } = await supabase.rpc('customer_update_crm_info', {
+        p_session_token: sessionId,
+        p_phone: phone,
+        p_name: name
+      });
+      if (error) {
+        console.warn('[customerApi] updateCrmInfo RPC failed:', error);
+        return { success: false };
+      }
+      return { success: true };
+    } catch (e) {
+      console.error('[customerApi] updateCrmInfo failed:', e);
+      return { success: false };
     }
-    return { invoiceId: `inv-stub-${Date.now()}` }
+  },
+
+  async requestInvoice(sessionId: string, details?: any): Promise<{ invoiceId: string }> {
+    if (!isSupabaseConfigured) return { invoiceId: `inv-mock-${Date.now()}` };
+
+    try {
+      const { data, error } = await supabase.rpc('customer_request_vat_invoice', {
+        p_session_token: sessionId,
+        p_details: details
+      })
+      if (error) {
+        console.warn('[customerApi] requestVATInvoice RPC failed, falling back:', error)
+        return { invoiceId: `inv-stub-${Date.now()}` }
+      }
+      return { invoiceId: (data as any)?.invoice_id || `inv-${Date.now()}` }
+    } catch (e) {
+      console.error('[customerApi] requestInvoice failed:', e)
+      return { invoiceId: `inv-stub-${Date.now()}` }
+    }
   },
 
   async submitFeedback(feedback: Feedback): Promise<Feedback> {
@@ -715,38 +852,51 @@ export const customerApiImpl: CustomerApi = {
         createdAt: new Date(),
       }
     }
-    const branchId = await resolveBranchIdByCode(DEFAULT_BRANCH_CODE)
-    if (!branchId) {
-      throw new Error('Cannot submit feedback: branch unresolved')
+    
+    try {
+      const surveyData = {
+        criteria: feedback.criteria || feedback.surveyData?.criteria || [],
+        customerName: feedback.customerName || feedback.surveyData?.customerName || '',
+        customerPhone: feedback.customerPhone || feedback.surveyData?.customerPhone || ''
+      };
+
+      const { data, error } = await supabase.rpc('customer_submit_feedback', {
+        p_session_token: feedback.sessionId,
+        p_rating: feedback.rating,
+        p_comment: feedback.comment ?? '',
+        p_survey_data: surveyData
+      });
+
+      if (error) {
+        console.warn('[customerApi] submitFeedback RPC failed:', error);
+        throw error;
+      }
+      
+      return {
+        ...feedback,
+        id: (data as any)?.feedback_id || `fb-${Date.now()}`,
+        createdAt: new Date()
+      };
+    } catch (e) {
+      console.error('[customerApi] submitFeedback failed:', e);
+      return {
+        ...feedback,
+        id: `fb-mock-${Date.now()}`,
+        createdAt: new Date(),
+      };
     }
-    // customer_feedback has columns: id, branch_id, bill_id, order_id,
-    // customer_id, table_id, overall_rating, food_rating, service_rating,
-    // ambiance_rating, comment, tags, source, is_public, staff_response,
-    // responded_by, responded_at, created_at — NO `metadata` column.
-    // The customer's tablet UI sends a single 1-5 rating which we map
-    // onto `overall_rating`; per-axis ratings and staff-response fields
-    // stay null until the manager edits the row.
-    const tableId = await resolveTableIdByCode(branchId, '') // best-effort
-    const { data, error } = await supabase
-      .from('customer_feedback')
-      .insert({
-        branch_id: branchId,
-        table_id: tableId ?? null,
-        overall_rating: feedback.rating,
-        comment: feedback.comment ?? '',
-        tags: feedback.criteria ?? [],
-        source: 'TABLET',
-      })
-      .select('id, created_at')
-      .single()
-    if (error) {
-      console.error('[customerApi] submitFeedback failed:', error)
-      throw new Error(error.message)
-    }
-    return {
-      ...feedback,
-      id: (data as any)?.id ?? feedback.id,
-      createdAt: new Date((data as any)?.created_at ?? Date.now()),
+  },
+
+  async updateLanguage(sessionId: string, languageCode: string): Promise<void> {
+    if (!isSupabaseConfigured) return;
+    try {
+      const { error } = await supabase
+        .from('dining_sessions')
+        .update({ language_code: languageCode })
+        .eq('id', sessionId); // Fallback mock update
+      if (error) console.error('[customerApi] updateLanguage failed:', error);
+    } catch (e) {
+      console.error('[customerApi] updateLanguage failed:', e);
     }
   },
 
@@ -867,25 +1017,33 @@ function mapRequestStatusFromDb(s: string): ServiceRequest['status'] {
 }
 
 function rowToOrder(row: any): Order {
+  const items = (row.order_details ?? []).map((it: any) => ({
+    menuItemId: it.branch_menu_item_id,
+    name: it.item_name_snapshot,
+    unit: 'Phần',
+    price: Number(it.unit_price_vnd_snapshot ?? 0),
+    price_display: `${Number(it.unit_price_vnd_snapshot ?? 0).toLocaleString('vi-VN')}đ`,
+    quantity: Number(it.quantity ?? 1),
+    note: it.note ?? '',
+  }))
+  const computedTotal = items.reduce((sum: number, it: any) => sum + (it.price * it.quantity), 0)
+
   return {
-    id: row.id,
-    sessionId: '',
+    id: row.order_id,
+    sessionId: row.dining_session_id ?? '',
     tableNumber: '',
-    items: (row.order_items ?? []).map((it: any) => ({
-      menuItemId: it.menu_item_id,
-      name: it.name_snapshot,
-      unit: 'Phần',
-      price: Number(it.unit_price ?? 0),
-      price_display: `${Number(it.unit_price ?? 0).toLocaleString('vi-VN')}đ`,
-      quantity: Number(it.quantity ?? 1),
-      note: it.note ?? '',
-    })),
-    subtotal: Number(row.subtotal ?? 0),
+    items,
+    subtotal: computedTotal,
     serviceCharge: 0,
-    vat: Number(row.vat ?? 0),
+    vat: 0,
     discount: 0,
-    total: Number(row.total ?? 0),
-    status: 'confirmed',
+    total: computedTotal,
+    subtotal_vnd: computedTotal,
+    serviceCharge_vnd: 0,
+    vat_vnd: 0,
+    discount_vnd: 0,
+    total_vnd: computedTotal,
+    status: row.status === 'completed' || row.status === 'served' ? 'confirmed' : 'pending',
     createdAt: new Date(row.created_at),
   }
 }

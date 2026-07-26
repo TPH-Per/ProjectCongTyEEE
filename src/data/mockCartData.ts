@@ -9,7 +9,7 @@ import type { CartItem, CustomerSession } from '@/types/customer'
 
 export const mockCartItems: CartItem[] = [
   {
-    menuItemId: 'a1b2c3d4-e5f6-4789-abcd-ef1234567890',
+    branchMenuItemId: 'mock', menuItemId: 'a1b2c3d4-e5f6-4789-abcd-ef1234567890',
     name: 'Wagyu Thăn Ngoại (A5)',
     unit: 'Phần',
     price: 680000,
@@ -18,7 +18,7 @@ export const mockCartItems: CartItem[] = [
     note: 'Chín medium, không hành',
   },
   {
-    menuItemId: 'b2c3d4e5-f6a7-4890-bcde-f12345678901',
+    branchMenuItemId: 'mock', menuItemId: 'b2c3d4e5-f6a7-4890-bcde-f12345678901',
     name: 'Sườn Bò Nướng Muối Ớt',
     unit: 'Phần',
     price: 220000,
@@ -27,7 +27,7 @@ export const mockCartItems: CartItem[] = [
     note: '',
   },
   {
-    menuItemId: 'c3d4e5f6-a7b8-4901-cdef-123456789012',
+    branchMenuItemId: 'mock', menuItemId: 'c3d4e5f6-a7b8-4901-cdef-123456789012',
     name: 'Gà Nướng Mật Ong',
     unit: 'Phần',
     price: 150000,
@@ -36,7 +36,7 @@ export const mockCartItems: CartItem[] = [
     note: 'Cắt nhỏ cho dễ ăn',
   },
   {
-    menuItemId: 'd4e5f6a7-b8c9-4012-def0-234567890123',
+    branchMenuItemId: 'mock', menuItemId: 'd4e5f6a7-b8c9-4012-def0-234567890123',
     name: 'Tôm Hấp Hành Gừng',
     unit: 'Phần',
     price: 320000,
@@ -45,7 +45,7 @@ export const mockCartItems: CartItem[] = [
     note: '',
   },
   {
-    menuItemId: 'e5f6a7b8-c9d0-4123-ef01-345678901234',
+    branchMenuItemId: 'mock', menuItemId: 'e5f6a7b8-c9d0-4123-ef01-345678901234',
     name: 'Salad Rau Câu Biển',
     unit: 'Phần',
     price: 85000,
@@ -54,7 +54,7 @@ export const mockCartItems: CartItem[] = [
     note: 'Ít dấm, thêm hành',
   },
   {
-    menuItemId: 'f6a7b8c9-d0e1-4234-f012-456789012345',
+    branchMenuItemId: 'mock', menuItemId: 'f6a7b8c9-d0e1-4234-f012-456789012345',
     name: 'Mì Udon Nước Dashi',
     unit: 'Tô',
     price: 120000,
@@ -63,7 +63,7 @@ export const mockCartItems: CartItem[] = [
     note: 'Nước nhiều',
   },
   {
-    menuItemId: 'a7b8c9d0-e1f2-4345-8123-567890123456',
+    branchMenuItemId: 'mock', menuItemId: 'a7b8c9d0-e1f2-4345-8123-567890123456',
     name: 'Coca Cola (Lon)',
     unit: 'Lon',
     price: 35000,
@@ -72,7 +72,7 @@ export const mockCartItems: CartItem[] = [
     note: '',
   },
   {
-    menuItemId: 'b8c9d0e1-f2a3-4456-9234-678901234567',
+    branchMenuItemId: 'mock', menuItemId: 'b8c9d0e1-f2a3-4456-9234-678901234567',
     name: 'Bia Sapporo',
     unit: 'Chai',
     price: 65000,
@@ -81,7 +81,7 @@ export const mockCartItems: CartItem[] = [
     note: '',
   },
   {
-    menuItemId: 'c9d0e1f2-a3b4-4567-a345-789012345678',
+    branchMenuItemId: 'mock', menuItemId: 'c9d0e1f2-a3b4-4567-a345-789012345678',
     name: 'Kem Trà Xanh (Trong gói)',
     unit: 'Ly',
     price: 0,
@@ -90,7 +90,7 @@ export const mockCartItems: CartItem[] = [
     note: '',
   },
   {
-    menuItemId: 'd0e1f2a3-b4c5-4678-b456-890123456789',
+    branchMenuItemId: 'mock', menuItemId: 'd0e1f2a3-b4c5-4678-b456-890123456789',
     name: 'Lẩu Bò Tương Miso',
     unit: 'Lẩu',
     price: 450000,
@@ -108,5 +108,9 @@ export const mockSession: CustomerSession = {
   areaName: 'Khu VIP 1',
   staffId: 'staff-uuid-001',
   startedAt: new Date(),
-  status: 'active',
+  status: 'ordering',
+  branchId: '00000000-0000-4000-8000-000000000000',
+  guestCount: 2,
+  serviceMode: 'buffet',
+  languageCode: 'vi',
 }

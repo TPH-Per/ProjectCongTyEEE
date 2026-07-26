@@ -1,0 +1,604 @@
+/* ============================================
+   NGƯU CÁT — Kawaii UI Library
+   Theme: Salmon Pink + Cream + Navy
+   Synced with globals.css (HSL tokens)
+   ============================================ */
+
+/* ---------- 1. Design tokens ---------- */
+:root {
+  /* Brand palette */
+  --kawaii-pink-50:  #FFF5F7;
+  --kawaii-pink-100: #FFE3E6;
+  --kawaii-pink-200: #FFCBD3;
+  --kawaii-pink-300: #FFA6B2;
+  --kawaii-pink-400: #FF8E9C;
+  --kawaii-pink-500: #FF7B89;
+  --kawaii-pink-600: #FF5A6E;
+  --kawaii-pink-700: #E6455A;
+
+  --kawaii-navy-50:  #F4F6F8;
+  --kawaii-navy-500: #718096;
+  --kawaii-navy-700: #2C3E50;
+
+  --kawaii-cream:    #FFF5F7;
+  --kawaii-error:    #FF4757;
+
+  /* Soft pastel status colors */
+  --kawaii-success-50: #ECFDF5;
+  --kawaii-success-200: #A7F3D0;
+  --kawaii-success-600: #059669;
+
+  --kawaii-warn-50: #FFFBEB;
+  --kawaii-warn-200: #FDE68A;
+  --kawaii-warn-600: #D97706;
+
+  --kawaii-info-50: #EFF6FF;
+  --kawaii-info-200: #BFDBFE;
+  --kawaii-info-600: #2563EB;
+
+  --kawaii-rose-50: #FFF1F2;
+  --kawaii-rose-200: #FECDD3;
+  --kawaii-rose-600: #E11D48;
+
+  /* Surfaces */
+  --kawaii-bg:        var(--kawaii-pink-50);
+  --kawaii-surface:   #FFFFFF;
+  --kawaii-surface-2: var(--kawaii-pink-50);
+  --kawaii-border:    var(--kawaii-pink-100);
+  --kawaii-text:      var(--kawaii-navy-700);
+  --kawaii-text-muted: var(--kawaii-navy-500);
+
+  /* Effects */
+  --kawaii-radius-sm: 10px;
+  --kawaii-radius:    16px;
+  --kawaii-radius-lg: 20px;
+  --kawaii-radius-xl: 28px;
+
+  --kawaii-shadow-sm: 0 2px 6px rgba(255, 123, 137, 0.06);
+  --kawaii-shadow:    0 6px 18px rgba(255, 123, 137, 0.14);
+  --kawaii-shadow-lg: 0 16px 36px rgba(255, 123, 137, 0.18);
+
+  --kawaii-grad: linear-gradient(135deg, #FF7B89 0%, #FF5A6E 100%);
+  --kawaii-grad-soft: linear-gradient(135deg, #FFE3E6 0%, #FFF5F7 100%);
+
+  --kawaii-ease: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ---------- 2. Reset ---------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  height: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  font-family: 'Nunito', 'Noto Sans JP', -apple-system, BlinkMacSystemFont,
+    'Hiragino Sans', 'Yu Gothic', sans-serif;
+  background: var(--kawaii-bg);
+  color: var(--kawaii-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.5;
+}
+
+#app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; border: none; background: transparent; }
+input, select, textarea { font-family: inherit; }
+img { display: block; max-width: 100%; }
+
+/* ---------- 3. Scrollbar (kawaii) ---------- */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 123, 137, 0.25);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(255, 123, 137, 0.45); }
+
+/* ---------- 4. Buttons ---------- */
+.k-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  border-radius: var(--kawaii-radius-lg);
+  padding: 12px 22px;
+  transition: transform .18s var(--kawaii-ease),
+              box-shadow .18s ease,
+              filter .18s ease,
+              background-color .18s ease;
+  user-select: none;
+  white-space: nowrap;
+}
+.k-btn:focus-visible {
+  outline: 3px solid rgba(255, 123, 137, 0.35);
+  outline-offset: 2px;
+}
+
+.k-btn--primary {
+  background: var(--kawaii-grad);
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(255, 90, 110, 0.32);
+}
+.k-btn--primary:hover { filter: brightness(1.04); }
+.k-btn--primary:active {
+  transform: translateY(2px) scale(0.98);
+  box-shadow: 0 4px 12px rgba(255, 90, 110, 0.32);
+}
+
+.k-btn--ghost {
+  background: #fff;
+  color: var(--kawaii-navy-700);
+  border: 2px solid var(--kawaii-pink-100);
+}
+.k-btn--ghost:hover { background: var(--kawaii-pink-50); }
+
+.k-btn--soft {
+  background: var(--kawaii-pink-50);
+  color: var(--kawaii-pink-600);
+  border: 2px solid var(--kawaii-pink-100);
+}
+.k-btn--soft:hover { background: var(--kawaii-pink-100); }
+
+.k-btn--block { width: 100%; }
+.k-btn--lg { padding: 16px 28px; font-size: 17px; }
+.k-btn--sm { padding: 8px 14px; font-size: 13px; border-radius: 14px; }
+
+.k-btn[disabled],
+.k-btn.is-loading { pointer-events: none; opacity: .65; }
+
+.k-btn.is-loading { position: relative; color: transparent; }
+.k-btn.is-loading::after {
+  content: '';
+  position: absolute;
+  width: 20px; height: 20px;
+  border: 3px solid rgba(255,255,255,0.5);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: k-spin .8s linear infinite;
+}
+@keyframes k-spin { to { transform: rotate(360deg); } }
+
+/* ---------- 5. Form fields ---------- */
+.k-field { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+
+.k-label {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--kawaii-navy-700);
+  letter-spacing: 0.2px;
+}
+.k-label .req { color: var(--kawaii-error); margin-left: 4px; }
+
+.k-input,
+.k-select,
+.k-textarea {
+  width: 100%;
+  min-height: 52px;
+  background: #fff;
+  border: 2px solid var(--kawaii-pink-100);
+  border-radius: var(--kawaii-radius);
+  color: var(--kawaii-navy-700);
+  font-size: 15px;
+  font-weight: 600;
+  padding: 12px 16px;
+  outline: none;
+  transition: border-color .2s ease, box-shadow .2s ease;
+  -webkit-appearance: none;
+  appearance: none;
+  box-shadow: var(--kawaii-shadow-sm);
+}
+.k-input::placeholder,
+.k-textarea::placeholder { color: #A0AEC0; font-weight: 500; }
+.k-input:hover,
+.k-select:hover,
+.k-textarea:hover { border-color: var(--kawaii-pink-200); }
+.k-input:focus,
+.k-select:focus,
+.k-textarea:focus {
+  border-color: var(--kawaii-pink-500);
+  box-shadow: 0 4px 14px rgba(255, 123, 137, 0.18);
+}
+
+.k-textarea { min-height: 110px; padding: 14px 16px; resize: vertical; line-height: 1.55; }
+
+.k-select {
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%23FF7B89' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  padding-right: 42px;
+  cursor: pointer;
+}
+.k-select option { background: #fff; color: var(--kawaii-navy-700); }
+
+/* Error state */
+.k-field.has-error .k-input,
+.k-field.has-error .k-select,
+.k-field.has-error .k-textarea {
+  border-color: var(--kawaii-error);
+  background: #FFF0F2;
+}
+.k-error {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--kawaii-error);
+  display: none;
+}
+.k-field.has-error .k-error { display: block; }
+
+/* ---------- 6. Cards & surfaces ---------- */
+.k-card {
+  background: #fff;
+  border: 1px solid var(--kawaii-pink-100);
+  border-radius: var(--kawaii-radius-lg);
+  box-shadow: var(--kawaii-shadow);
+  overflow: hidden;
+}
+.k-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 20px;
+  background: var(--kawaii-grad-soft);
+  border-bottom: 1px solid var(--kawaii-pink-100);
+}
+.k-card__title {
+  font-size: 14px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--kawaii-navy-700);
+}
+.k-card__body { padding: 20px; }
+
+/* ---------- 7. Pill / Badge ---------- */
+.k-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+}
+.k-pill .k-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.k-pill--pink  { background: var(--kawaii-pink-100); color: var(--kawaii-pink-700); }
+.k-pill--green { background: var(--kawaii-success-50); color: var(--kawaii-success-600); }
+.k-pill--warn  { background: var(--kawaii-warn-50);    color: var(--kawaii-warn-600); }
+.k-pill--info  { background: var(--kawaii-info-50);    color: var(--kawaii-info-600); }
+.k-pill--rose  { background: var(--kawaii-rose-50);    color: var(--kawaii-rose-600); }
+.k-pill--mute  { background: #F1F5F9;                  color: #475569; }
+
+/* ---------- 8. Counter ---------- */
+.k-counter {
+  display: inline-flex;
+  align-items: center;
+  background: #fff;
+  border: 2px solid var(--kawaii-pink-100);
+  border-radius: var(--kawaii-radius);
+  overflow: hidden;
+  box-shadow: var(--kawaii-shadow-sm);
+}
+.k-counter button {
+  width: 52px; height: 52px;
+  background: var(--kawaii-pink-50);
+  color: var(--kawaii-pink-600);
+  font-size: 24px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .15s ease;
+}
+.k-counter button:hover { background: var(--kawaii-pink-100); }
+.k-counter button:active { transform: scale(0.94); }
+.k-counter span {
+  width: 64px;
+  text-align: center;
+  font-size: 18px; font-weight: 800;
+  color: var(--kawaii-navy-700);
+  border-left: 2px solid var(--kawaii-pink-100);
+  border-right: 2px solid var(--kawaii-pink-100);
+  height: 52px;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* ---------- 9. Radio cards (event options) ---------- */
+.k-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.k-option input { position: absolute; opacity: 0; pointer-events: none; }
+.k-option label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 50px;
+  padding: 0 12px;
+  background: #fff;
+  border: 2px solid var(--kawaii-pink-100);
+  border-radius: 14px;
+  color: var(--kawaii-navy-500);
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all .2s var(--kawaii-ease);
+  box-shadow: var(--kawaii-shadow-sm);
+}
+.k-option label:hover { border-color: var(--kawaii-pink-200); }
+.k-option input:checked + label {
+  background: var(--kawaii-grad);
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 8px 18px rgba(255, 90, 110, 0.3);
+  transform: translateY(-1px);
+}
+
+/* ---------- 10. Date picker ---------- */
+.k-date {
+  position: relative;
+  width: 100%;
+}
+.k-date input {
+  position: absolute; inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 2;
+}
+.k-date__display {
+  display: flex; align-items: center;
+  min-height: 52px;
+  background: #fff;
+  border: 2px solid var(--kawaii-pink-100);
+  border-radius: var(--kawaii-radius);
+  color: #A0AEC0;
+  font-size: 15px; font-weight: 700;
+  padding: 0 16px;
+  box-shadow: var(--kawaii-shadow-sm);
+}
+.k-date__display.is-filled { color: var(--kawaii-navy-700); }
+
+/* ---------- 11. Toast ---------- */
+.k-toast {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--kawaii-navy-700);
+  color: #fff;
+  padding: 14px 24px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 800;
+  box-shadow: 0 16px 32px rgba(44, 62, 80, 0.25);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .25s ease, transform .25s var(--kawaii-ease);
+  z-index: 300;
+}
+.k-toast.is-show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ---------- 12. Modal ---------- */
+.k-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(44, 62, 80, 0.55);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .25s ease, visibility .25s;
+  z-index: 200;
+  padding: 20px;
+}
+.k-modal.is-open {
+  opacity: 1;
+  visibility: visible;
+}
+.k-modal__panel {
+  width: 100%;
+  max-width: 380px;
+  background: #fff;
+  border-radius: 28px;
+  padding: 32px 24px;
+  text-align: center;
+  transform: scale(.92);
+  opacity: 0;
+  transition: transform .35s var(--kawaii-ease), opacity .25s ease;
+  box-shadow: var(--kawaii-shadow-lg);
+}
+.k-modal.is-open .k-modal__panel {
+  transform: scale(1);
+  opacity: 1;
+}
+.k-modal__icon {
+  width: 88px; height: 88px;
+  margin: 0 auto 18px;
+  border-radius: 22px;
+  background: var(--kawaii-grad);
+  color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 44px;
+  box-shadow: 0 14px 28px rgba(255, 90, 110, 0.3);
+}
+.k-modal__title {
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--kawaii-navy-700);
+  margin-bottom: 10px;
+}
+.k-modal__msg {
+  color: var(--kawaii-navy-500);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.6;
+  margin-bottom: 22px;
+}
+.k-modal__details {
+  background: var(--kawaii-pink-50);
+  border: 1px solid var(--kawaii-pink-100);
+  border-radius: var(--kawaii-radius);
+  padding: 14px 16px;
+  text-align: left;
+  margin-bottom: 22px;
+}
+.k-modal__details p {
+  display: flex;
+  gap: 10px;
+  padding: 4px 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--kawaii-navy-700);
+}
+.k-modal__details p b { color: var(--kawaii-navy-500); font-weight: 700; min-width: 110px; }
+
+/* ---------- 13. Tables ---------- */
+.k-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+.k-table th {
+  text-align: left;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--kawaii-navy-500);
+  padding: 12px 14px;
+  background: var(--kawaii-pink-50);
+  border-bottom: 1px solid var(--kawaii-pink-100);
+}
+.k-table td {
+  padding: 12px 14px;
+  font-size: 13px;
+  border-bottom: 1px solid var(--kawaii-pink-100);
+  color: var(--kawaii-navy-700);
+}
+.k-table tbody tr:hover { background: var(--kawaii-pink-50); }
+.k-table tbody tr:last-child td { border-bottom: none; }
+
+/* ---------- 14. Tabs ---------- */
+.k-tabs {
+  display: inline-flex;
+  align-items: center;
+  background: var(--kawaii-pink-50);
+  padding: 4px;
+  border-radius: var(--kawaii-radius);
+  gap: 2px;
+}
+.k-tabs button {
+  padding: 8px 14px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--kawaii-navy-500);
+  transition: all .18s ease;
+}
+.k-tabs button:hover { color: var(--kawaii-navy-700); }
+.k-tabs button.is-active {
+  background: var(--kawaii-grad);
+  color: #fff;
+  box-shadow: 0 6px 14px rgba(255, 90, 110, 0.25);
+}
+
+/* ---------- 15. Avatars & decorations ---------- */
+.k-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: var(--kawaii-grad);
+  color: #fff;
+  font-weight: 900;
+  font-size: 13px;
+  letter-spacing: 0.4px;
+  box-shadow: 0 4px 10px rgba(255, 90, 110, 0.3);
+}
+
+.k-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #fff;
+  border: 2px solid var(--kawaii-pink-100);
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--kawaii-navy-700);
+  transition: border-color .15s ease;
+}
+.k-chip:hover { border-color: var(--kawaii-pink-200); }
+
+/* ---------- 16. Loading skeleton ---------- */
+@keyframes k-shimmer { 0% { background-position: -200px 0; } 100% { background-position: 200px 0; } }
+.k-skeleton {
+  display: block;
+  background: linear-gradient(90deg, #FFE3E6 0%, #FFF5F7 50%, #FFE3E6 100%);
+  background-size: 400px 100%;
+  animation: k-shimmer 1.4s infinite linear;
+  border-radius: 8px;
+}
+
+/* ---------- 17. Animations ---------- */
+@keyframes k-fade-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes k-pop { 0% { transform: scale(.9); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+@keyframes k-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 123, 137, 0.45); }
+  50%      { box-shadow: 0 0 0 12px rgba(255, 123, 137, 0); }
+}
+.k-fade-in { animation: k-fade-in .35s var(--kawaii-ease) both; }
+.k-pop     { animation: k-pop .35s var(--kawaii-ease) both; }
+.k-pulse   { animation: k-pulse 1.8s infinite; }
+
+/* ---------- 18. Utilities ---------- */
+.k-divider {
+  height: 1px;
+  background: var(--kawaii-pink-100);
+  margin: 12px 0;
+}
+.k-section-title {
+  font-size: 14px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--kawaii-navy-500);
+}
+.k-text-muted { color: var(--kawaii-navy-500); }
+.k-text-pink  { color: var(--kawaii-pink-600); }
+
+/* ---------- 19. Responsive helpers ---------- */
+@media (max-width: 640px) {
+  .k-options { grid-template-columns: 1fr; }
+  .k-card__header { padding: 12px 16px; }
+  .k-card__body { padding: 16px; }
+}

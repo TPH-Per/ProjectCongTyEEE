@@ -1,5 +1,18 @@
 export default {
   customer: {
+    crm: {
+      title: '会員情報',
+      subtitle: 'ポイントを貯める',
+      phone: '電話番号',
+      phonePlaceholder: '電話番号...',
+      name: '氏名',
+      namePlaceholder: '氏名...',
+      cancel: 'キャンセル',
+      submit: '確認'
+    },
+    common: {
+      currencySymbol: '₫',
+    },
     header: {
       search: '検索...',
     },
@@ -11,6 +24,11 @@ export default {
       cancelButton: 'キャンセル',
       successTitle: 'テーブルを終了しました！',
       successText: 'セッションが正常に解放されました。',
+    },
+    login: {
+      area: 'エリア',
+      invalidPasscode: 'パスコードが無効です！',
+      timeout: 'テーブル選択時間が終了しました。システムはテーブルを解放しました。',
     },
     menu: {
       categories: 'メニュー',
@@ -56,6 +74,9 @@ export default {
       confirmClearTitle: '削除の確認',
       confirmClearText: 'カート内のすべての商品を削除してもよろしいですか？',
       confirmClearButton: 'はい、すべて削除！',
+      confirmOrderTitle: '注文を確定しますか？',
+      confirmOrderText: '注文は厨房に送信され、キャンセルできません。',
+      confirmOrderButton: '注文を確定',
       seedSuccessTitle: 'テストデータを読み込みました！',
       seedSuccessText: '{count}品をカートに追加しました。数量調整、メモ、選択/削除、注文（モック）のテストができます。',
       orderSuccessTitle: '注文が成功しました！',
@@ -75,6 +96,13 @@ export default {
       noteLabel: 'メモ:',
       notePlaceholder: '玉葱抜き、よく焼き...',
     },
+    bottomCartBar: {
+      title: 'テーブルのカート',
+      selected: '選択中',
+      items: '{count}品',
+      total: '合計:',
+      viewCart: 'カートを見る',
+    },
     cartBar: {
       text: 'カート',
       items: '{count}品',
@@ -82,7 +110,10 @@ export default {
       viewCart: 'カートを見る',
     },
     menuItem: {
-      inPackage: 'プラン内',
+      inPackage: 'コース内',
+      emptyList: '商品が見つかりません',
+      lunchPrice: '{price} (ランチ 50%)',
+      soldOut: '売り切れ',
     },
     itemDetail: {
       cart: 'カート ({count})',
@@ -97,7 +128,7 @@ export default {
       spicinessValue: '控えめ',
       prepTimeLabel: '調理時間',
       prepTimeValue: '8-10分',
-      quantityLabel: '数量',
+      quantityLabel: '数量:',
       chefNoteLabel: '厨房へのメモ',
       chefNotePlaceholder: '例: 玉葱抜き、辛さ控えめ、よく焼き...',
       addToCart: 'カートに追加',
@@ -160,6 +191,46 @@ export default {
       statusProcessing: '処理中',
       statusCompleted: '完了',
       statusCancelled: 'キャンセル済',
+      swalTitle: 'その他のリクエスト',
+      swalPlaceholder: 'ここにリクエストを入力してください...',
+      swalSubmit: '送信',
+      swalCancel: 'キャンセル',
+    },
+    serviceRequestGrid: {
+      title: 'ご用件は何でしょうか？',
+      tissue: 'ティッシュ',
+      bowl: 'お椀/箸',
+      sauce: 'ソース',
+      ice: '氷の追加',
+      grillChange: '網の交換',
+      charcoalChange: '炭の交換',
+      requestBill: 'お会計',
+      callWaiter: '店員を呼ぶ',
+      other: 'その他',
+      detailRequired: 'リクエストの詳細を入力（必須）',
+      detailOptional: '店員へのメモ（任意）',
+      placeholderOther: 'ここにリクエストを入力... 例：ベビースプーンを追加する',
+      placeholderNormal: 'メモを追加... 例：冷たいおしぼりをお願いします',
+      cancel: 'キャンセル',
+      submit: 'リクエストを送信'
+    },
+    invoice: {
+      title: 'VAT請求書のリクエスト',
+      subtitle: '税務コードを入力してください。システムが会社情報を自動的に検索します。',
+      taxCode: '税務コード',
+      taxCodePlaceholder: '税務コードを入力...',
+      lookingUp: '検索中...',
+      lookup: '検索',
+      companyName: '会社名',
+      companyNamePlaceholder: '会社名は自動入力されます...',
+      companyAddress: '住所',
+      companyAddressPlaceholder: '会社の住所は自動入力されます...',
+      email: '請求書用メールアドレス',
+      emailPlaceholder: '会計担当のメールアドレスを入力...',
+      cancel: 'キャンセル',
+      submit: 'リクエスト送信',
+      errorNotFound: 'この税務コードの会社情報が見つかりませんでした。',
+      errorLookup: '検索エラーです。後でもう一度お試しください。'
     },
     passcode: {
       title: 'NGUU CAT POS',
@@ -209,7 +280,38 @@ export default {
       bestAbout: '最も満足した点は何ですか？',
       commentLabel: '詳細なフィードバック (任意)',
       commentPlaceholder: 'こちらにフィードバックを入力してください... 例: サービスが速い、美味しい！',
+      nameOptional: '氏名 (任意)',
+      namePlaceholder: '氏名を入力',
+      phoneOptional: '電話番号 (任意)',
+      phonePlaceholder: '電話番号を入力',
       confirm: '確認',
+      requireCriteria: '少なくとも1つの基準を選択してください',
+      criteria: {
+        foodQuality: '料理の質',
+        serviceTime: '提供スピード',
+        hygiene: '清潔さ',
+        staffAttitude: 'スタッフの態度',
+        valueForMoney: 'コストパフォーマンス',
+        ambiance: '居心地の良さ'
+      },
+      ratingNames: {
+        "1": '非常に不満 😞',
+        "2": '不満 🙁',
+        "3": '普通 😐',
+        "4": '満足 🙂',
+        "5": '大変満足！😍'
+      }
+    },
+    setup: {
+      selectServiceMode: 'サービスモードを選択',
+      selectServiceModeDesc: 'サービスモードと人数を選択してください',
+      adult: '大人',
+      child: '子供',
+      adultCount: '大人',
+      childCount: '子供',
+      tableCapacity: 'テーブルの定員: {capacity}名',
+      alacarte: 'アラカルト',
+      buffet: 'ビュッフェ',
     },
     tracking: {
       title: '注文追跡',
@@ -226,6 +328,12 @@ export default {
       stepOrdered: '注文済',
       stepPreparing: '調理中',
       stepServed: '提供済',
+      statusNew: '受付済',
+      statusSent: '厨房に送信済',
+      statusPreparing: '調理中',
+      statusReady: '準備完了',
+      statusServed: '提供済',
+      statusCancelled: 'キャンセル済',
       emptyTitle: '商品がありません',
       emptyText: '注文してステータスを追跡してください。',
       refresh: '更新',
@@ -234,6 +342,31 @@ export default {
     categoryTabs: {
       all: 'すべて',
     },
+    tableGrid: {
+      table: 'テーブル',
+      locked: 'ロック済み',
+      available: '空席',
+      selecting: '選択中',
+      occupied: '使用中'
+    },
+  },
+  membership: {
+    member: 'メンバー',
+  },
+  common: {
+    unsaved_changes_title: '保存されていない変更',
+    unsaved_changes_text: '保存されていない変更があります。本当に終了しますか？',
+    keep_editing: '編集を続ける',
+    discard: '変更を破棄',
+    create: '作成',
+    edit: '編集',
+    delete: '削除',
+    cancel: 'キャンセル',
+    save: '保存',
+    saveChanges: '変更を保存',
+    confirm: '確認',
+    close: '閉じる',
+    back: '戻る'
   },
   purchasing: {
       "receipts": {

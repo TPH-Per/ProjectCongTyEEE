@@ -102,6 +102,7 @@
                 v-model="chefNote" 
                 type="text"
                 class="note-input"
+                maxlength="100"
                 :placeholder="$t('customer.itemDetail.chefNotePlaceholder')"
               />
             </div>
@@ -119,7 +120,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import type { MenuItem } from '@/data/menuData'
-import { useI18n } from 'vue-i18n'
+import { useI18nStore } from '@/stores/i18n'
 
 const props = defineProps<{
   item: MenuItem | null
@@ -133,7 +134,8 @@ const emit = defineEmits<{
   (e: 'go-to-cart'): void
 }>()
 
-const { t } = useI18n()
+const i18nStore = useI18nStore()
+const t = i18nStore.t
 
 const chefNote = ref('')
 const quantity = ref(1)
@@ -264,7 +266,7 @@ const handleSelectThumb = (index: number) => {
 }
 
 const increaseQty = () => {
-  quantity.value++
+  if (quantity.value < 10) quantity.value++
 }
 
 const decreaseQty = () => {
@@ -296,25 +298,24 @@ watch(() => props.isOpen, (newVal) => {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.85);
+  background: #121212;
   z-index: 9999;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px;
+  padding: 0;
 }
 
 .modal-container {
-  background: #1a1a1a;
-  border-radius: 20px;
+  background: #ffffff;
   width: 100%;
-  max-width: 1000px;
-  height: 90vh;
-  max-height: 90vh;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: 0;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
 }
 
 .modal-header {
@@ -324,8 +325,8 @@ watch(() => props.isOpen, (newVal) => {
   justify-content: space-between;
   align-items: center;
   padding: 0 24px;
-  background: #0f1419;
-  border-bottom: 1px solid #333;
+  background: #ffffff;
+  border-bottom: 1px solid #eeeeee;
 }
 
 /* FIX: Button styles rõ ràng */
@@ -344,7 +345,8 @@ watch(() => props.isOpen, (newVal) => {
 }
 
 .btn-back {
-  background: #2d2d2d;
+  background: #f0f0f0;
+  color: #333333;
   width: 44px;
   height: 44px;
   border-radius: 50%;
@@ -355,18 +357,18 @@ watch(() => props.isOpen, (newVal) => {
   font-size: 20px;
 }
 
-.btn-back:hover {
-  background: #3d3d3d;
-  transform: scale(1.05);
+.btn-back:active {
+  background: #e0e0e0;
+  transform: scale(0.95);
 }
 
 .btn-cart {
-  background: #ff9800;
+  background: #E8772E;
 }
 
-.btn-cart:hover {
-  background: #ffb74d;
-  transform: translateY(-2px);
+.btn-cart:active {
+  background: #C96626;
+  transform: translateY(2px);
 }
 
 .modal-body {
@@ -449,20 +451,21 @@ watch(() => props.isOpen, (newVal) => {
   align-items: center;
   justify-content: center;
   gap: 4px;
-  transition: all 0.25s ease;
+  transition: all 0.2s ease;
   position: relative;
   overflow: hidden;
   padding: 8px;
+  background: #f5f5f5;
 }
 
-.thumbnail:hover {
-  transform: translateY(-3px) scale(1.05);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+.thumbnail:active {
+  transform: translateY(2px) scale(0.95);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .thumbnail.active {
-  border-color: #ff9800;
-  box-shadow: 0 0 0 3px rgba(255, 152, 0, 0.3);
+  border-color: #E8772E;
+  box-shadow: 0 0 0 2px rgba(232, 119, 46, 0.2);
   transform: translateY(-2px);
 }
 
@@ -489,7 +492,7 @@ watch(() => props.isOpen, (newVal) => {
 .item-name {
   font-size: 28px;
   font-weight: 700;
-  color: white;
+  color: #333333;
   margin: 0;
   line-height: 1.2;
   flex-shrink: 0;
@@ -498,7 +501,7 @@ watch(() => props.isOpen, (newVal) => {
 .item-price {
   font-size: 24px;
   font-weight: 700;
-  color: #ff9800;
+  color: #C62828;
   flex-shrink: 0;
 }
 
@@ -507,7 +510,7 @@ watch(() => props.isOpen, (newVal) => {
 }
 
 .description-box {
-  background: #2d2d2d;
+  background: #f5f5f5;
   border-radius: 12px;
   padding: 16px 20px;
   flex-shrink: 0;
@@ -516,7 +519,7 @@ watch(() => props.isOpen, (newVal) => {
 .section-label {
   font-size: 11px;
   font-weight: 700;
-  color: #888;
+  color: #666666;
   text-transform: uppercase;
   letter-spacing: 1px;
   margin: 0 0 8px 0;
@@ -524,7 +527,7 @@ watch(() => props.isOpen, (newVal) => {
 
 .description-text {
   font-size: 14px;
-  color: #e0e0e0;
+  color: #333333;
   line-height: 1.5;
   margin: 0;
   display: -webkit-box;
@@ -542,7 +545,7 @@ watch(() => props.isOpen, (newVal) => {
 }
 
 .attr-card {
-  background: #2d2d2d;
+  background: #f5f5f5;
   border-radius: 12px;
   padding: 14px 8px;
   display: flex;
@@ -558,23 +561,23 @@ watch(() => props.isOpen, (newVal) => {
 
 .attr-label {
   font-size: 11px;
-  color: #888;
+  color: #666666;
 }
 
 .attr-value {
   font-size: 13px;
   font-weight: 600;
-  color: white;
+  color: #333333;
 }
 
 .attr-value.highlight {
-  color: #ff9800;
+  color: #E8772E;
 }
 
 .modal-footer {
   padding: 16px 24px;
-  background: #1a1a1a;
-  border-top: 1px solid #333;
+  background: #ffffff;
+  border-top: 1px solid #eeeeee;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
@@ -598,76 +601,80 @@ watch(() => props.isOpen, (newVal) => {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: #2d2d2d;
+  background: #f5f5f5;
   border-radius: 10px;
   padding: 6px;
+  border: 1px solid #eeeeee;
 }
 
 .qty-btn {
-  width: 32px;
-  height: 32px;
-  border-radius: 6px;
-  background: #3d3d3d;
-  border: none;
-  color: white;
-  font-size: 18px;
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  background: #ffffff;
+  border: 1px solid #dddddd;
+  color: #333333;
+  font-size: 20px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s;
+  transition: all 0.1s;
 }
 
-.qty-btn:hover {
-  background: #4d4d4d;
+.qty-btn:active {
+  background: #e0e0e0;
+  transform: scale(0.95);
 }
 
 .qty-value {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 700;
-  color: white;
-  min-width: 24px;
+  color: #333333;
+  min-width: 32px;
   text-align: center;
 }
 
 .note-input {
   width: 100%;
-  background: #2d2d2d;
-  border: 1px solid #444;
+  background: #ffffff;
+  border: 1px solid #cccccc;
   border-radius: 10px;
-  padding: 10px 14px;
-  color: white;
-  font-size: 14px;
+  padding: 12px 16px;
+  color: #333333;
+  font-size: 15px;
   font-family: inherit;
 }
 
 .note-input:focus {
   outline: none;
-  border-color: #ff9800;
+  border-color: #E8772E;
+  box-shadow: 0 0 0 2px rgba(232, 119, 46, 0.2);
 }
 
 .note-input::placeholder {
-  color: #666;
+  color: #999999;
 }
 
 .btn-add-cart {
   width: 100%;
-  padding: 16px;
-  background: linear-gradient(135deg, #ff9800 0%, #ffb74d 100%);
+  padding: 18px;
+  background: #E8772E;
   border: none;
   border-radius: 12px;
   color: white;
   font-size: 16px;
   font-weight: 700;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.1s;
   text-transform: uppercase;
   letter-spacing: 1px;
 }
 
-.btn-add-cart:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(255, 152, 0, 0.4);
+.btn-add-cart:active {
+  background: #C96626;
+  transform: translateY(2px);
+  box-shadow: 0 4px 12px rgba(232, 119, 46, 0.3);
 }
 
 @media (max-width: 768px) {

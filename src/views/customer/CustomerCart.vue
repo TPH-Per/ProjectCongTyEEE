@@ -28,21 +28,6 @@
         </div>
       </div>
 
-      <!-- Action buttons: bulk deletion and clear all -->
-      <div v-if="cart.length > 0" class="header-actions">
-        <button
-          v-if="selectedIds.size > 0"
-          @click="deleteSelectedItems"
-          class="btn-bulk-delete"
-          type="button"
-        >
-          {{ $t('customer.cart.deleteSelected', { count: selectedIds.size }) }}
-        </button>
-
-        <button @click="clearAllCart" class="btn-clear-all" type="button">
-          {{ $t('customer.cart.clearAll') }}
-        </button>
-      </div>
     </div>
 
     <!-- Main Content Stream (Dark theme, scrollable) -->
@@ -71,31 +56,48 @@
       <template v-else>
         <!-- Left Column: Item List & Selection -->
         <div class="cart-left-col">
-          <!-- Checkbox Select All Toggle -->
+          <!-- Checkbox Select All Toggle & Actions -->
           <div class="select-all-row">
-            <input
-              type="checkbox"
-              :checked="isAllSelected"
-              @change="toggleSelectAll"
-              id="select-all"
-              class="custom-checkbox"
-            />
-            <label for="select-all" class="select-all-label">
-              {{ $t('customer.cart.selectAll', { count: cart.length }) }}
-            </label>
+            <div class="flex items-center gap-2">
+              <input
+                type="checkbox"
+                :checked="isAllSelected"
+                @change="toggleSelectAll"
+                id="select-all"
+                class="custom-checkbox"
+              />
+              <label for="select-all" class="select-all-label">
+                {{ $t('customer.cart.selectAll', { count: cart.length }) }}
+              </label>
+            </div>
+            
+            <div class="header-actions">
+              <button
+                v-if="selectedIds.size > 0"
+                @click="deleteSelectedItems"
+                class="btn-bulk-delete"
+                type="button"
+              >
+                {{ $t('customer.cart.deleteSelected', { count: selectedIds.size }) }}
+              </button>
+
+              <button @click="clearAllCart" class="btn-clear-all" type="button">
+                {{ $t('customer.cart.clearAll') }}
+              </button>
+            </div>
           </div>
 
           <!-- Render list -->
           <div class="cart-items-list">
             <CartItem
               v-for="item in cart"
-              :key="item.menuItemId"
+              :key="(item.menuItemId || '')"
               :item="item"
-              :is-selected="selectedIds.has(item.menuItemId)"
-              @toggle-select="toggleItemSelection(item.menuItemId)"
-              @update-quantity="onUpdateQuantity(item.menuItemId, $event)"
-              @update-note="onUpdateNote(item.menuItemId, $event)"
-              @remove="onRemoveItem(item.menuItemId)"
+              :is-selected="selectedIds.has((item.menuItemId || ''))"
+              @toggle-select="toggleItemSelection((item.menuItemId || ''))"
+              @update-quantity="onUpdateQuantity((item.menuItemId || ''), $event)"
+              @update-note="onUpdateNote((item.menuItemId || ''), $event)"
+              @remove="onRemoveItem((item.menuItemId || ''))"
             />
           </div>
         </div>
@@ -155,12 +157,12 @@
 
             <button
               @click="submitOrder"
-              :disabled="submitting"
-              class="btn-place-order"
+              :disabled="submitting || store.session?.status === 'checkout_requested'"
+              :class="['btn-place-order', { 'opacity-50 cursor-not-allowed bg-gray-400': store.session?.status === 'checkout_requested' }]"
               type="button"
             >
               <span v-if="submitting" class="spinner"></span>
-              {{ submitting ? $t('customer.cart.placingOrder') : $t('customer.cart.placeOrder') }}
+              {{ submitting ? $t('customer.cart.placingOrder') : (store.session?.status === 'checkout_requested' ? $t('customer.orderHistory.waitingPayment') : $t('customer.cart.placeOrder')) }}
             </button>
           </div>
         </div>
@@ -180,10 +182,10 @@ import { mockCartItems, mockSession } from "@/data/mockCartData";
 import CartItem from "@/components/customer/CartItem.vue";
 import Swal from "sweetalert2";
 import { isValidUUID } from "@/utils/validators";
-import { useI18n } from "vue-i18n";
+import { useI18nStore } from "@/stores/i18n";
 
 const store = useCustomerStore();
-const { t, locale } = useI18n();
+const i18nStore = useI18nStore();
 const router = useRouter();
 const { syncCart, saveSessionToLocalStorage } = useCustomerSession();
 const { BR23, BR27, BR28 } = useBusinessRules();
@@ -220,19 +222,19 @@ function toggleSelectAll() {
   if (isAllSelected.value) {
     selectedIds.clear();
   } else {
-    cart.value.forEach((item) => selectedIds.add(item.menuItemId));
+    cart.value.forEach((item) => selectedIds.add((item.menuItemId || "")));
   }
 }
 
 function deleteSelectedItems() {
   Swal.fire({
-    title: t('customer.cart.confirmDeleteSelectedTitle'),
-    text: t('customer.cart.confirmDeleteSelectedText', { count: selectedIds.size }),
+    title: i18nStore.t('customer.cart.confirmDeleteSelectedTitle'),
+    text: i18nStore.t('customer.cart.confirmDeleteSelectedText', { count: selectedIds.size }),
     icon: "warning",
     showCancelButton: true,
     confirmButtonColor: "#C62828",
-    confirmButtonText: t('customer.cart.confirmDeleteButton'),
-    cancelButtonText: t('customer.exitTable.cancelButton'),
+    confirmButtonText: i18nStore.t('customer.cart.confirmDeleteButton'),
+    cancelButtonText: i18nStore.t('customer.exitTable.cancelButton'),
     background: "#1e1e1e",
     color: "#fff",
   }).then((result) => {
@@ -265,14 +267,14 @@ function onRemoveItem(itemId: string) {
 
 function clearAllCart() {
   Swal.fire({
-    title: t('customer.cart.confirmClearTitle'),
-    text: t('customer.cart.confirmClearText'),
+    title: i18nStore.t('customer.cart.confirmClearTitle'),
+    text: i18nStore.t('customer.cart.confirmClearText'),
     icon: "warning",
     showCancelButton: true,
     confirmButtonColor: "#C62828",
     cancelButtonColor: "#3085d6",
-    confirmButtonText: t('customer.cart.confirmClearButton'),
-    cancelButtonText: t('customer.exitTable.cancelButton'),
+    confirmButtonText: i18nStore.t('customer.cart.confirmClearButton'),
+    cancelButtonText: i18nStore.t('customer.exitTable.cancelButton'),
     background: "#1e1e1e",
     color: "#fff",
   }).then((result) => {
@@ -305,8 +307,8 @@ function seedTestData() {
   syncCart();
 
   Swal.fire({
-    title: t('customer.cart.seedSuccessTitle'),
-    text: t('customer.cart.seedSuccessText', { count: mockCartItems.length }),
+    title: i18nStore.t('customer.cart.seedSuccessTitle'),
+    text: i18nStore.t('customer.cart.seedSuccessText', { count: mockCartItems.length }),
     icon: "success",
     timer: 2500,
     showConfirmButton: false,
@@ -318,23 +320,41 @@ function seedTestData() {
 async function submitOrder() {
   if (cart.value.length === 0) return;
 
+  // Confirm order before submitting
+  const confirmResult = await Swal.fire({
+    title: i18nStore.t('customer.cart.confirmOrderTitle'),
+    text: i18nStore.t('customer.cart.confirmOrderText'),
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#ff9800',
+    cancelButtonColor: '#333',
+    confirmButtonText: i18nStore.t('customer.cart.confirmOrderButton'),
+    cancelButtonText: i18nStore.t('customer.exitTable.cancelButton'),
+    background: '#1e1e1e',
+    color: '#fff',
+  });
+
+  if (!confirmResult.isConfirmed) {
+    return;
+  }
+
   // Mock mode bypasses UUID validation — mock IDs like "bf1390-1" are
   // expected when Supabase is not configured or the session is a mock.
   const isMockMode = !isSupabaseConfigured || (store.session?.id ?? '').startsWith('sess-mock-');
 
   if (!isMockMode) {
-    const invalidItems = cart.value.filter(item => !isValidUUID(item.menuItemId));
+    const invalidItems = cart.value.filter(item => !isValidUUID((item.menuItemId || "")));
     if (invalidItems.length > 0) {
       const itemList = invalidItems.map(i => `• ${i.name}`).join('\n');
       const result = await Swal.fire({
-        title: t('customer.cart.invalidItemsTitle', { count: invalidItems.length }),
-        html: `<p style="margin-bottom:12px">${t('customer.cart.invalidItemsHtml')}</p><pre style="text-align:left;font-family:inherit;font-size:14px;color:#f87171;white-space:pre-wrap">${itemList}</pre>`,
+        title: i18nStore.t('customer.cart.invalidItemsTitle', { count: invalidItems.length }),
+        html: `<p style="margin-bottom:12px">${i18nStore.t('customer.cart.invalidItemsHtml')}</p><pre style="text-align:left;font-family:inherit;font-size:14px;color:#f87171;white-space:pre-wrap">${itemList}</pre>`,
         icon: "warning",
         showDenyButton: true,
         showCancelButton: true,
-        confirmButtonText: t('customer.cart.invalidItemsDelete'),
-        denyButtonText: t('customer.cart.invalidItemsReload'),
-        cancelButtonText: t('customer.exitTable.cancelButton'),
+        confirmButtonText: i18nStore.t('customer.cart.invalidItemsDelete'),
+        denyButtonText: i18nStore.t('customer.cart.invalidItemsReload'),
+        cancelButtonText: i18nStore.t('customer.exitTable.cancelButton'),
         confirmButtonColor: "#ef4444",
         denyButtonColor: "#3b82f6",
         cancelButtonColor: "#6b7280",
@@ -348,8 +368,8 @@ async function submitOrder() {
         syncCart();
         if (store.cart.length === 0) {
           Swal.fire({
-            title: t('customer.cart.cartEmptyTitle'),
-            text: t('customer.cart.cartEmptyText'),
+            title: i18nStore.t('customer.cart.cartEmptyTitle'),
+            text: i18nStore.t('customer.cart.cartEmptyText'),
             icon: "info",
             background: "#1e1e1e",
             color: "#fff",
@@ -360,7 +380,7 @@ async function submitOrder() {
           toast: true,
           position: "top-end",
           icon: "success",
-          title: t('customer.cart.removedInvalid', { count: removed.length }),
+          title: i18nStore.t('customer.cart.removedInvalid', { count: removed.length }),
           showConfirmButton: false,
           timer: 2000,
           background: "#1e1e1e",
@@ -373,7 +393,7 @@ async function submitOrder() {
           toast: true,
           position: "top-end",
           icon: "info",
-          title: t('customer.cart.reloadedMenu'),
+          title: i18nStore.t('customer.cart.reloadedMenu'),
           showConfirmButton: false,
           timer: 2500,
           background: "#1e1e1e",
@@ -400,7 +420,7 @@ async function submitOrder() {
         tableNumber: store.session?.tableNumber ?? "A05",
         items: [...store.cart],
         subtotal: store.cartTotal,
-        serviceCharge: store.serviceCharge,
+        subtotal_vnd: 0, serviceCharge_vnd: 0, vat_vnd: 0, discount_vnd: 0, total_vnd: 0, serviceCharge: store.serviceCharge,
         vat: store.vat,
         discount: 0,
         total: store.grandTotal,
@@ -431,22 +451,21 @@ async function submitOrder() {
     });
 
     Swal.fire({
-      title: t('customer.cart.orderSuccessTitle'),
-      text: t('customer.cart.orderSuccessText'),
+      title: i18nStore.t('customer.cart.orderSuccessTitle'),
+      text: i18nStore.t('customer.cart.orderSuccessText'),
       icon: "success",
       confirmButtonColor: "#E8772E",
       background: "#1e1e1e",
       color: "#fff",
     }).then(() => {
-      // Send customer back to the menu so they can continue ordering.
-      // They can navigate to OrderHistory when ready to pay.
-      router.push({ name: "CustomerMenu" });
+      // Navigate to OrderHistory so they can track the status.
+      router.push({ name: "OrderHistory" });
     });
   } catch (err: any) {
     console.error(err);
     Swal.fire({
-      title: t('customer.cart.orderErrorTitle'),
-      text: err.message || t('customer.cart.orderErrorText'),
+      title: i18nStore.t('customer.cart.orderErrorTitle'),
+      text: err.message || i18nStore.t('customer.cart.orderErrorText'),
       icon: "error",
       background: "#1e1e1e",
       color: "#fff",
@@ -468,14 +487,14 @@ function formatPrice(val: number): string {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background: #121212;
+  background: #0d0d0f;
   color: white;
 }
 
 .cart-header {
   padding: 16px 24px;
-  background: #1a110a;
-  border-bottom: 1px solid #2d1e12;
+  background: #141417;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -659,8 +678,11 @@ function formatPrice(val: number): string {
 .select-all-row {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 0 8px;
+  justify-content: space-between;
+  padding: 8px;
+  background: #1a1a1a;
+  border-radius: 12px;
+  border: 1px solid #333;
 }
 
 .custom-checkbox {

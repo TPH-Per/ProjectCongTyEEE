@@ -234,7 +234,7 @@
           >
             🔔
             <span
-              class="absolute -top-1 -right-1 bg-red-650 text-white text-[8px] font-black w-4 h-4 rounded-full flex items-center justify-center animate-pulse"
+              class="absolute -top-1 -right-1 bg-red-600 text-white text-[8px] font-black w-4 h-4 rounded-full flex items-center justify-center animate-pulse"
               >99+</span
             >
           </button>
@@ -519,8 +519,8 @@
                           class="text-gray-400 truncate max-w-[180px] italic"
                         >
                           {{
-                            reservation.notes?.request ||
-                            reservation.notes?.internal ||
+                            (reservation.notes as any)?.request ||
+                            (reservation.notes as any)?.internal ||
                             reservation.notes ||
                             "Không có"
                           }}
@@ -783,7 +783,7 @@
                       <div class="qty-unit">{{ item.unit }}</div>
                     </div>
                     <div
-                      class="item-time bg-gray-650/10 px-2 py-0.5 rounded text-[11px] font-bold text-gray-500"
+                      class="item-time bg-gray-600/10 px-2 py-0.5 rounded text-[11px] font-bold text-gray-500"
                     >
                       {{ item.waitTime }}'
                     </div>
@@ -1723,7 +1723,7 @@
                     </thead>
                     <tbody>
                       <tr
-                        class="bg-gray-100 font-bold text-gray-800 border-b border-gray-250"
+                        class="bg-gray-100 font-bold text-gray-800 border-b border-gray-200"
                       >
                         <td colspan="5" class="p-2">SET LUNCH (Vé)</td>
                       </tr>
@@ -2033,7 +2033,7 @@
                       >
                     </div>
                     <div class="flex gap-2 items-center">
-                      <label class="text-xs text-gray-450 font-bold w-20">{{
+                      <label class="text-xs text-gray-400 font-bold w-20">{{
                         t("reception.vip_card")
                       }}</label>
                       <input
@@ -2080,7 +2080,7 @@
                     class="space-y-2"
                   >
                     <div class="flex gap-2 items-center">
-                      <label class="text-xs text-gray-455 font-bold w-24">{{
+                      <label class="text-xs text-gray-500 font-bold w-24">{{
                         t("reception.card_type")
                       }}</label>
                       <select
@@ -2093,7 +2093,7 @@
                       </select>
                     </div>
                     <div class="flex gap-2 items-center">
-                      <label class="text-xs text-gray-455 font-bold w-24">{{
+                      <label class="text-xs text-gray-500 font-bold w-24">{{
                         t("reception.card_number")
                       }}</label>
                       <input
@@ -2109,7 +2109,7 @@
                       </button>
                     </div>
                     <div class="flex gap-2 items-center">
-                      <label class="text-xs text-gray-455 font-bold w-24">{{
+                      <label class="text-xs text-gray-500 font-bold w-24">{{
                         t("reception.cardholder_name")
                       }}</label>
                       <input
@@ -2132,7 +2132,7 @@
                     class="space-y-2"
                   >
                     <div class="flex gap-2 items-center">
-                      <label class="text-xs text-gray-455 font-bold w-24">{{
+                      <label class="text-xs text-gray-500 font-bold w-24">{{
                         t("reception.card_code")
                       }}</label>
                       <input
@@ -2155,7 +2155,7 @@
                       </button>
                     </div>
                     <div class="flex gap-2 items-center">
-                      <label class="text-xs text-gray-455 font-bold w-24">{{
+                      <label class="text-xs text-gray-500 font-bold w-24">{{
                         t("reception.voucher_type")
                       }}</label>
                       <input
@@ -2171,7 +2171,7 @@
                       </button>
                     </div>
                     <div class="flex gap-2 items-center">
-                      <label class="text-xs text-gray-455 font-bold w-24">{{
+                      <label class="text-xs text-gray-500 font-bold w-24">{{
                         t("reception.quantity")
                       }}</label>
                       <div
@@ -2210,7 +2210,7 @@
                     class="space-y-2"
                   >
                     <div class="flex gap-2 items-center">
-                      <label class="text-xs text-gray-455 font-bold w-24">{{
+                      <label class="text-xs text-gray-500 font-bold w-24">{{
                         t("reception.card_code")
                       }}</label>
                       <input
@@ -2245,7 +2245,7 @@
                     class="space-y-2"
                   >
                     <div class="flex gap-2 items-center">
-                      <label class="text-xs text-gray-455 font-bold w-24">{{
+                      <label class="text-xs text-gray-500 font-bold w-24">{{
                         t("reception.deposit_date")
                       }}</label>
                       <input
@@ -2255,7 +2255,7 @@
                       />
                     </div>
                     <div class="flex gap-2 items-center">
-                      <label class="text-xs text-gray-455 font-bold w-24">{{
+                      <label class="text-xs text-gray-500 font-bold w-24">{{
                         t("reception.receipt_number")
                       }}</label>
                       <input
@@ -2697,8 +2697,8 @@
                     :class="[
                       'w-full py-1 text-center font-bold text-[10px] uppercase rounded-lg tracking-wider border',
                       getEnrichedItem(selectedProductForDetail).isAvailable
-                        ? 'bg-emerald-50 text-emerald-700 border-emerald-150'
-                        : 'bg-red-50 text-red-700 border-red-150',
+                        ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
+                        : 'bg-red-50 text-red-700 border-red-100',
                     ]"
                   >
                     ●
@@ -2723,7 +2723,7 @@
                       type="text"
                       :value="selectedProductForDetail.name"
                       readonly
-                      class="w-full bg-gray-150 border border-gray-200 rounded-lg px-3 py-2 font-bold text-gray-800 focus:outline-none"
+                      class="w-full bg-gray-100 border border-gray-200 rounded-lg px-3 py-2 font-bold text-gray-800 focus:outline-none"
                     />
                   </div>
 
@@ -2737,7 +2737,7 @@
                         type="text"
                         :value="selectedProductForDetail.id"
                         readonly
-                        class="w-full bg-gray-150 border border-gray-200 rounded-lg px-3 py-2 font-mono text-gray-800 focus:outline-none"
+                        class="w-full bg-gray-100 border border-gray-200 rounded-lg px-3 py-2 font-mono text-gray-800 focus:outline-none"
                       />
                     </div>
                     <div class="space-y-1">
@@ -2749,7 +2749,7 @@
                         type="text"
                         :value="selectedProductForDetail.unit"
                         readonly
-                        class="w-full bg-gray-150 border border-gray-200 rounded-lg px-3 py-2 font-bold text-gray-800 focus:outline-none"
+                        class="w-full bg-gray-100 border border-gray-200 rounded-lg px-3 py-2 font-bold text-gray-800 focus:outline-none"
                       />
                     </div>
                   </div>
@@ -2765,7 +2765,7 @@
                         <button
                           @click="modalItemQty = Math.max(1, modalItemQty - 1)"
                           :disabled="modalItemQty <= 1"
-                          class="w-9 h-9 rounded-lg bg-gray-100 border border-gray-250 hover:bg-gray-200 flex items-center justify-center font-bold text-gray-700 disabled:opacity-40"
+                          class="w-9 h-9 rounded-lg bg-gray-100 border border-gray-200 hover:bg-gray-200 flex items-center justify-center font-bold text-gray-700 disabled:opacity-40"
                         >
                           -
                         </button>
@@ -2776,7 +2776,7 @@
                         <button
                           @click="modalItemQty = Math.min(10, modalItemQty + 1)"
                           :disabled="modalItemQty >= 10"
-                          class="w-9 h-9 rounded-lg bg-gray-100 border border-gray-250 hover:bg-gray-200 flex items-center justify-center font-bold text-gray-700 disabled:opacity-40"
+                          class="w-9 h-9 rounded-lg bg-gray-100 border border-gray-200 hover:bg-gray-200 flex items-center justify-center font-bold text-gray-700 disabled:opacity-40"
                         >
                           +
                         </button>
@@ -2798,7 +2798,7 @@
                             : formatVND(selectedProductForDetail.price)
                         "
                         readonly
-                        class="w-full bg-gray-150 border border-gray-205 rounded-lg px-3 py-2 font-bold text-[#c62828] focus:outline-none"
+                        class="w-full bg-gray-100 border border-gray-200 rounded-lg px-3 py-2 font-bold text-[#c62828] focus:outline-none"
                       />
                     </div>
                   </div>
@@ -2854,7 +2854,7 @@
                         type="text"
                         v-model="modalRate"
                         readonly
-                        class="w-full bg-gray-150 border border-gray-205 rounded-lg px-3 py-2 font-bold text-gray-800 focus:outline-none"
+                        class="w-full bg-gray-100 border border-gray-200 rounded-lg px-3 py-2 font-bold text-gray-800 focus:outline-none"
                       />
                     </div>
                   </div>
@@ -2869,7 +2869,7 @@
                       :placeholder="
                         t('reception_order.them_ghi_chu_dac_thu_it_da_nhi')
                       "
-                      class="w-full border border-[#e0e0e0] rounded-lg p-2.5 font-bold text-gray-855 h-20 resize-none focus:outline-none focus:border-[#1976d2]"
+                      class="w-full border border-[#e0e0e0] rounded-lg p-2.5 font-bold text-gray-900 h-20 resize-none focus:outline-none focus:border-[#1976d2]"
                     ></textarea>
                   </div>
 
@@ -2977,7 +2977,7 @@
                         <button
                           @click="modalItemQty = Math.max(1, modalItemQty - 1)"
                           :disabled="modalItemQty <= 1"
-                          class="w-7 h-7 rounded-lg bg-gray-100 border border-gray-250 hover:bg-gray-200 flex items-center justify-center font-bold text-gray-700"
+                          class="w-7 h-7 rounded-lg bg-gray-100 border border-gray-200 hover:bg-gray-200 flex items-center justify-center font-bold text-gray-700"
                         >
                           -
                         </button>
@@ -2988,7 +2988,7 @@
                         <button
                           @click="modalItemQty = Math.min(10, modalItemQty + 1)"
                           :disabled="modalItemQty >= 10"
-                          class="w-7 h-7 rounded-lg bg-gray-100 border border-gray-250 hover:bg-gray-200 flex items-center justify-center font-bold text-gray-700"
+                          class="w-7 h-7 rounded-lg bg-gray-100 border border-gray-200 hover:bg-gray-200 flex items-center justify-center font-bold text-gray-700"
                         >
                           +
                         </button>
@@ -3010,7 +3010,7 @@
                             : formatVND(selectedProductForDetail.price)
                         "
                         readonly
-                        class="w-full bg-gray-150 border border-gray-205 rounded-lg px-2.5 py-1.5 font-bold text-[#c62828] focus:outline-none"
+                        class="w-full bg-gray-100 border border-gray-200 rounded-lg px-2.5 py-1.5 font-bold text-[#c62828] focus:outline-none"
                       />
                     </div>
                   </div>
@@ -3064,7 +3064,7 @@
                         type="text"
                         v-model="modalRate"
                         readonly
-                        class="w-full bg-gray-150 border border-gray-205 rounded-lg px-2 py-1.5 font-bold text-gray-800 focus:outline-none"
+                        class="w-full bg-gray-100 border border-gray-200 rounded-lg px-2 py-1.5 font-bold text-gray-800 focus:outline-none"
                       />
                     </div>
                   </div>
@@ -3165,7 +3165,7 @@
                         'px-4 py-2.5 text-xs font-bold transition-all border-r shrink-0',
                         activeOptionTab === group.id
                           ? 'bg-white text-[#ff8f00] border-b-2 border-b-[#ff8f00]'
-                          : 'text-gray-400 hover:bg-gray-105',
+                          : 'text-gray-400 hover:bg-gray-100',
                       ]"
                     >
                       {{ group.title }}
@@ -3608,7 +3608,7 @@
           <button
             v-if="activeSettings.package"
             @click="cancelPackageSelection"
-            class="absolute top-4 right-4 w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-205 text-gray-505 flex items-center justify-center text-sm font-bold active:scale-90 select-none border border-gray-150"
+            class="absolute top-4 right-4 w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 flex items-center justify-center text-sm font-bold active:scale-90 select-none border border-gray-100"
           >
             ✕
           </button>
@@ -3840,7 +3840,7 @@
                     : '',
                   tempSettings.language === lang
                     ? 'bg-[#1976d2] border-[#1976d2] text-white shadow-sm font-semibold'
-                    : 'bg-gray-50 border-gray-205 text-gray-600 hover:bg-gray-100',
+                    : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100',
                 ]"
               >
                 <span v-if="lang === 'VI'">{{
@@ -3891,7 +3891,7 @@
         >
           <button
             @click="isPinModalOpen = false"
-            class="absolute top-4 right-4 w-7 h-7 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-505 flex items-center justify-center text-xs font-bold"
+            class="absolute top-4 right-4 w-7 h-7 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 flex items-center justify-center text-xs font-bold"
           >
             ✕
           </button>
@@ -3914,7 +3914,7 @@
               :class="[
                 'w-4 h-4 rounded-full border transition-all duration-100',
                 enteredPin.length >= i
-                  ? 'bg-red-650 border-red-700 scale-110 shadow-sm'
+                  ? 'bg-red-600 border-red-700 scale-110 shadow-sm'
                   : 'bg-gray-100 border-gray-300',
               ]"
             ></div>
@@ -3934,7 +3934,7 @@
             </button>
             <button
               @click="clearLastPinDigit"
-              class="w-12 h-12 rounded-2xl bg-amber-50 hover:bg-amber-150 border border-amber-200 text-[10px] font-bold text-amber-700 flex items-center justify-center active:scale-90 transition-all"
+              class="w-12 h-12 rounded-2xl bg-amber-50 hover:bg-amber-100 border border-amber-200 text-[10px] font-bold text-amber-700 flex items-center justify-center active:scale-90 transition-all"
             >
               ⌫
             </button>
@@ -4817,7 +4817,7 @@
                     :class="[
                       cancelItemPin.length >= i
                         ? 'bg-red-500 border-red-500 scale-110 shadow-md'
-                        : 'bg-transparent border-gray-305',
+                        : 'bg-transparent border-gray-300',
                     ]"
                   ></div>
                 </div>
@@ -4917,6 +4917,7 @@
 </template>
 
 <script setup lang="ts">
+import { useBranch } from "@/composables/useBranch";
 import Swal from "sweetalert2";
 import ManagerAuthModal from "@/components/reception/ManagerAuthModal.vue";
 import FloorViewFooter from "@/components/reception/FloorViewFooter.vue";
@@ -4953,6 +4954,7 @@ const {
 } = useReceptionSync();
 const { getItems } = useMenu();
 const { profile } = useAuth();
+const { activeBranchId } = useBranch();
 
 // ===== TABLE OPERATIONS (extracted to composable) =====
 const {
@@ -5084,8 +5086,8 @@ async function openCancelItemModal(item: any) {
   dbOrderInfo.value = null;
   dbOrderItems.value = [];
   try {
-    const { branchId } = useAuth();
-    if (!branchId.value) throw new Error("Chưa chọn chi nhánh.");
+    const { activeBranchId } = useBranch();
+    if (!activeBranchId.value) throw new Error("Chưa chọn chi nhánh.");
 
     let tableRow = (await listTables()).find(
       (t: any) => t.code === selectedTableCode.value,
@@ -5107,7 +5109,7 @@ async function openCancelItemModal(item: any) {
     const { data, error: rpcErr } = await supabase.rpc(
       "hall_get_checkout_totals",
       {
-        p_branch_id: branchId.value,
+        p_branch_id: activeBranchId.value,
         p_table_id: tableRow.id,
         p_order_id: null,
       },
@@ -5170,13 +5172,13 @@ async function executeCancelItem() {
 
   cancelItemLoading.value = true;
   try {
-    const { branchId } = useAuth();
-    if (!branchId.value) throw new Error("Chưa chọn chi nhánh.");
+    const { activeBranchId } = useBranch();
+    if (!activeBranchId.value) throw new Error("Chưa chọn chi nhánh.");
 
     const { data: cancelResult, error: cancelErr } = await supabase.rpc(
       "hall_cancel_order_or_item",
       {
-        p_branch_id: branchId.value,
+        p_branch_id: activeBranchId.value,
         p_order_id: dbOrderInfo.value.id,
         p_order_item_id: dbItem.id,
         p_manager_pin: cancelItemPin.value,
@@ -8029,8 +8031,8 @@ async function checkoutTable() {
   if (!ok.isConfirmed) return;
   try {
     // Resolve the mock table code to the real DB UUID through Hall RPC.
-    const { branchId } = useAuth();
-    if (!branchId.value)
+    const { activeBranchId } = useBranch();
+    if (!activeBranchId.value)
       throw new Error(t("reception_order.tai_khoan_chua_gan_chi_nhanh"));
     const tableRow = (await listTables()).find(
       (table: any) => table.code === code,
@@ -8118,8 +8120,8 @@ async function sendToKitchen() {
   }
   kitchenLoading.value = true;
   try {
-    const { branchId } = useAuth();
-    if (!branchId.value)
+    const { activeBranchId } = useBranch();
+    if (!activeBranchId.value)
       throw new Error(t("reception_order.tai_khoan_chua_gan_chi_nhanh"));
     // 1. Resolve the table row. Try the live RPC first; fall back to
     //    dbTablesList (populated by fetchDbTables, which includes mock
@@ -8142,7 +8144,7 @@ async function sendToKitchen() {
     if (!isMockTable && tableStatus !== "occupied") {
       const { data: openData, error: openErr } = await supabase.rpc(
         "hall_open_table",
-        { p_branch_id: branchId.value, p_table_id: tableId },
+        { p_branch_id: activeBranchId.value, p_table_id: tableId },
       );
       if (openErr) {
         throw new Error(
@@ -8182,7 +8184,7 @@ async function sendToKitchen() {
     }
 
     await ensureMenuDbIds(
-      branchId.value,
+      activeBranchId.value,
       activeOrder.value.items.map((it) => ({ id: it.id, name: it.name })),
     );
     const skipped: string[] = [];
@@ -8209,7 +8211,7 @@ async function sendToKitchen() {
 
     if (payload.length > 0) {
       const { error: rpcErr } = await supabase.rpc("hall_submit_table_order", {
-        p_branch_id: branchId.value,
+        p_branch_id: activeBranchId.value,
         p_table_id: tableId,
         p_items: payload,
         p_idempotency_key: crypto.randomUUID(),
@@ -8564,11 +8566,11 @@ async function triggerCancelTableFlow() {
       // Find table in DB to cancel if it is occupied
       const tableRow = (await listTables()).find((t: any) => t.code === code);
       if (tableRow && tableRow.status === "occupied") {
-        const { branchId } = useAuth();
+        const { activeBranchId } = useBranch();
         const { data: checkoutData, error: getErr } = await supabase.rpc(
           "hall_get_checkout_totals",
           {
-            p_branch_id: branchId.value,
+            p_branch_id: activeBranchId.value,
             p_table_id: tableRow.id,
             p_order_id: null,
           },
@@ -8579,7 +8581,7 @@ async function triggerCancelTableFlow() {
           const { error: cancelErr } = await supabase.rpc(
             "hall_cancel_order_or_item",
             {
-              p_branch_id: branchId.value,
+              p_branch_id: activeBranchId.value,
               p_order_id: checkoutData.order.id,
               p_order_item_id: null,
               p_manager_pin: authPayload.pin,
@@ -8740,9 +8742,9 @@ const tableConflicts = computed(() => {
   const conflictsMap: Record<string, any> = {};
   todayReservations.value.forEach((res) => {
     if (
-      res.status !== "Confirmed" &&
-      res.status !== "Pending" &&
-      res.status !== "Arrived"
+      res.status !== "CONFIRMED" &&
+      res.status !== "PENDING" &&
+      res.status !== "SEATED"
     )
       return;
     if (!res.table_id) return;
@@ -8785,7 +8787,7 @@ const availableTablesCount = computed(() => {
 const unassignedReservations = computed(() => {
   return todayReservations.value.filter(
     (res) =>
-      (res.status === "Confirmed" || res.status === "Pending") && !res.table_id,
+      (res.status === "CONFIRMED" || res.status === "PENDING") && !res.table_id,
   );
 });
 

@@ -76,19 +76,23 @@ export function useCustomerSession() {
     }
   }
 
-  function startSession(table: Table, areaName: string) {
+  function startSession(table: Table, areaName: string, packageId: string = '', adultCount: number = 0, childCount: number = 0) {
     store.selectedTable = table;
     store.isAuthenticated = true;
     
     const newSession: CustomerSession = {
       id: `sess-${Date.now()}`,
+      branchId: store.selectedBranchId || '',
       tableId: table.id,
       tableNumber: table.number,
       areaId: table.areaId,
       areaName: areaName,
       staffId: 'staff-uuid-001',
+      guestCount: adultCount + childCount,
+      serviceMode: 'buffet',
+      languageCode: 'vi',
       startedAt: new Date(),
-      status: 'active'
+      status: 'open'
     };
 
     store.session = newSession;

@@ -1,5 +1,18 @@
 export default {
   customer: {
+    crm: {
+      title: 'Thông tin thành viên',
+      subtitle: 'Tích điểm & nhận ưu đãi',
+      phone: 'Số điện thoại',
+      phonePlaceholder: 'Nhập SĐT...',
+      name: 'Họ và tên',
+      namePlaceholder: 'Nhập họ tên...',
+      cancel: 'Hủy',
+      submit: 'Xác nhận'
+    },
+    common: {
+      currencySymbol: 'đ',
+    },
     header: {
       search: 'Tìm kiếm...',
     },
@@ -11,6 +24,11 @@ export default {
       cancelButton: 'Hủy',
       successTitle: 'Đã thoát bàn!',
       successText: 'Đã giải phóng phiên làm việc thành công.',
+    },
+    login: {
+      area: 'Khu vực',
+      invalidPasscode: 'Mã passcode không chính xác!',
+      timeout: 'Hết thời gian chọn bàn. Hệ thống đã giải phóng bàn.',
     },
     menu: {
       categories: 'DANH MỤC MÓN',
@@ -49,18 +67,19 @@ export default {
       grandTotal: 'Tạm tính (gồm VAT + phí dịch vụ):',
       addMore: 'Thêm món',
       placeOrder: 'Đặt món',
-      placingOrder: 'Đang gửi...',
+      placingOrder: 'Đang đặt món...',
       confirmDeleteSelectedTitle: 'Xác nhận xóa món đã chọn?',
       confirmDeleteSelectedText: 'Bạn có muốn xóa {count} món ăn đang chọn khỏi giỏ hàng?',
       confirmDeleteButton: 'Xóa ngay',
       confirmClearTitle: 'Xác nhận xóa?',
       confirmClearText: 'Bạn có chắc chắn muốn xóa toàn bộ món ăn trong giỏ?',
       confirmClearButton: 'Có, xóa hết!',
+      confirmOrderTitle: 'Xác nhận đặt món?',
+      confirmOrderText: 'Các món sẽ được gửi xuống bếp và không thể hủy ngang.',
+      confirmOrderButton: 'Xác nhận đặt món',
       seedSuccessTitle: 'Đã nạp dữ liệu test!',
       seedSuccessText: 'Đã thêm {count} món ăn vào giỏ hàng. Giờ bạn có thể test các chức năng: tăng/giảm số lượng, ghi chú, chọn/xóa, và đặt món (mock).',
       orderSuccessTitle: 'Đặt món thành công!',
-      orderSuccessText: 'Bếp đang chuẩn bị món ăn của bạn. Vui lòng chờ trong ít phút.',
-      orderErrorTitle: 'Lỗi đặt món',
       orderErrorText: 'Có lỗi xảy ra trong quá trình gửi bếp.',
       invalidItemsTitle: '{count} món không hợp lệ',
       invalidItemsHtml: 'Các món sau không còn tồn tại trong hệ thống và cần được xử lý trước khi đặt:',
@@ -71,9 +90,27 @@ export default {
       removedInvalid: 'Đã xóa {count} món không hợp lệ',
       reloadedMenu: 'Đã tải lại thực đơn. Vui lòng kiểm tra lại giỏ hàng.',
     },
+    setup: {
+      selectServiceMode: 'Chọn hình thức dịch vụ',
+      selectServiceModeDesc: 'Vui lòng chọn hình thức dịch vụ và số lượng khách.',
+      alacarte: 'Gọi món (A la carte)',
+      buffet: 'Buffet',
+      adult: 'Người lớn',
+      child: 'Trẻ em',
+      tableCapacity: 'Bàn này chứa tối đa {capacity} khách',
+      adultCount: 'Người lớn',
+      childCount: 'Trẻ em'
+    },
     cartItem: {
       noteLabel: 'Ghi chú:',
       notePlaceholder: 'Không hành, chín kỹ...',
+    },
+    bottomCartBar: {
+      title: 'Giỏ hàng của bàn',
+      selected: 'Đã chọn',
+      items: '{count} món',
+      total: 'Tổng cộng:',
+      viewCart: 'Xem giỏ hàng',
     },
     cartBar: {
       text: 'Giỏ hàng của bạn',
@@ -83,6 +120,9 @@ export default {
     },
     menuItem: {
       inPackage: 'Trong gói',
+      emptyList: 'Không tìm thấy món ăn nào',
+      lunchPrice: '{price} (Trưa 50%)',
+      soldOut: 'Hết món',
     },
     itemDetail: {
       cart: 'Giỏ ({count})',
@@ -160,6 +200,46 @@ export default {
       statusProcessing: 'Đang xử lý',
       statusCompleted: 'Hoàn thành',
       statusCancelled: 'Đã hủy',
+      swalTitle: 'Yêu cầu khác',
+      swalPlaceholder: 'Nhập nội dung yêu cầu của bạn...',
+      swalSubmit: 'Gửi',
+      swalCancel: 'Hủy',
+    },
+    serviceRequestGrid: {
+      title: 'Bạn cần hỗ trợ gì?',
+      tissue: 'Khăn giấy',
+      bowl: 'Chén bát',
+      sauce: 'Nước chấm',
+      ice: 'Thêm đá',
+      grillChange: 'Thay vỉ',
+      charcoalChange: 'Thay than',
+      requestBill: 'Tính tiền',
+      callWaiter: 'Gọi NV',
+      other: 'Khác',
+      detailRequired: 'Nhập chi tiết yêu cầu của bạn (Bắt buộc)',
+      detailOptional: 'Ghi chú thêm cho phục vụ (Tùy chọn)',
+      placeholderOther: 'Nhập yêu cầu tại đây... ví dụ: Lấy thêm thìa em bé',
+      placeholderNormal: 'Ghi chú thêm... ví dụ: Lấy cho anh khăn ướt lạnh',
+      cancel: 'Hủy bỏ',
+      submit: 'Gửi yêu cầu'
+    },
+    invoice: {
+      title: 'Yêu Cầu Hóa Đơn VAT',
+      subtitle: 'Vui lòng nhập Mã số thuế, hệ thống sẽ tự động tra cứu thông tin công ty.',
+      taxCode: 'Mã số thuế',
+      taxCodePlaceholder: 'Nhập mã số thuế...',
+      lookingUp: 'Đang tìm...',
+      lookup: 'Tra cứu',
+      companyName: 'Tên công ty',
+      companyNamePlaceholder: 'Tên công ty sẽ tự động điền...',
+      companyAddress: 'Địa chỉ',
+      companyAddressPlaceholder: 'Địa chỉ công ty sẽ tự động điền...',
+      email: 'Email nhận hóa đơn',
+      emailPlaceholder: 'Nhập email kế toán...',
+      cancel: 'Hủy bỏ',
+      submit: 'Gửi Yêu Cầu',
+      errorNotFound: 'Không tìm thấy thông tin công ty với MST này.',
+      errorLookup: 'Lỗi tra cứu. Vui lòng thử lại sau.'
     },
     passcode: {
       title: 'NGƯU CÁT POS',
@@ -209,7 +289,38 @@ export default {
       bestAbout: 'Bạn hài lòng nhất về điều gì?',
       commentLabel: 'Góp ý chi tiết (Tùy chọn)',
       commentPlaceholder: 'Nhập ý kiến đóng góp của bạn tại đây... ví dụ: Phục vụ rất nhanh, món ngon!',
+      nameOptional: 'Họ tên (Không bắt buộc)',
+      namePlaceholder: 'Nhập họ tên của bạn',
+      phoneOptional: 'Số điện thoại (Không bắt buộc)',
+      phonePlaceholder: 'Nhập số điện thoại',
       confirm: 'Xác nhận',
+      requireCriteria: 'Vui lòng chọn ít nhất 1 tiêu chí đóng góp ý kiến',
+      criteria: {
+        foodQuality: 'Chất lượng món ăn',
+        serviceTime: 'Tốc độ phục vụ',
+        hygiene: 'Vệ sinh sạch sẽ',
+        staffAttitude: 'Thái độ nhân viên',
+        valueForMoney: 'Giá cả hợp lý',
+        ambiance: 'Không gian ấm cúng'
+      },
+      ratingNames: {
+        "1": 'Rất không hài lòng 😞',
+        "2": 'Không hài lòng 🙁',
+        "3": 'Bình thường 😐',
+        "4": 'Hài lòng 🙂',
+        "5": 'Rất hài lòng! 😍'
+      }
+    },
+    setup: {
+      selectServiceMode: 'Chọn hình thức phục vụ',
+      selectServiceModeDesc: 'Vui lòng chọn hình thức và số lượng khách',
+      adult: 'Người lớn',
+      child: 'Trẻ em',
+      adultCount: 'Người lớn',
+      childCount: 'Trẻ em',
+      tableCapacity: 'Sức chứa bàn: {capacity} người',
+      alacarte: 'A La Carte (Gọi món)',
+      buffet: 'Buffet',
     },
     tracking: {
       title: 'Theo dõi món ăn',
@@ -221,11 +332,17 @@ export default {
       filterServed: 'Đã phục vụ ({count})',
       filterPreparing: 'Đang chế biến ({count})',
       filterPending: 'Chờ xử lý ({count})',
-      quantityLabel: 'SL:',
+      quantityLabel: 'Số lượng:',
       orderedAt: 'Đặt lúc {time}',
       stepOrdered: 'Đã đặt',
       stepPreparing: 'Đang chế biến',
       stepServed: 'Đã phục vụ',
+      statusNew: 'Đã nhận',
+      statusSent: 'Đã gửi bếp',
+      statusPreparing: 'Đang nấu',
+      statusReady: 'Sẵn sàng',
+      statusServed: 'Đã lên món',
+      statusCancelled: 'Đã hủy',
       emptyTitle: 'Không có món nào',
       emptyText: 'Vui lòng gọi món để theo dõi trạng thái.',
       refresh: 'Làm mới',
@@ -234,6 +351,16 @@ export default {
     categoryTabs: {
       all: 'Tất cả',
     },
+    tableGrid: {
+      table: 'BÀN',
+      locked: 'Đã khóa',
+      available: 'Trống',
+      selecting: 'Đang chọn',
+      occupied: 'Có khách'
+    },
+  },
+  membership: {
+    member: 'Thành viên',
   },
   vouchers: {
     title: 'Quản lý Voucher',
@@ -312,7 +439,8 @@ export default {
     save: 'Lưu',
     saveChanges: 'Lưu thay đổi',
     confirm: 'Xác nhận',
-    close: 'Đóng'
+    close: 'Đóng',
+    back: 'Quay lại'
   },
   purchasing: {
       "receipts": {

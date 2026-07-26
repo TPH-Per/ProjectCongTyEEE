@@ -1,5 +1,18 @@
 export default {
   customer: {
+    crm: {
+      title: 'Member Information',
+      subtitle: 'Earn points & special offers',
+      phone: 'Phone Number',
+      phonePlaceholder: 'Enter phone...',
+      name: 'Full Name',
+      namePlaceholder: 'Enter name...',
+      cancel: 'Cancel',
+      submit: 'Submit'
+    },
+    common: {
+      currencySymbol: '₫',
+    },
     header: {
       search: 'Search...',
     },
@@ -9,8 +22,13 @@ export default {
       confirmText: 'Are you sure you want to end this table session?',
       confirmButton: 'Yes',
       cancelButton: 'Cancel',
-      successTitle: 'Table exited!',
-      successText: 'Session has been released successfully.',
+      successTitle: 'Table session ended!',
+      successText: 'Successfully released the session.',
+    },
+    login: {
+      area: 'Area',
+      invalidPasscode: 'Invalid passcode!',
+      timeout: 'Table selection time has expired. The system has released the table.',
     },
     menu: {
       categories: 'MENU CATEGORIES',
@@ -56,6 +74,9 @@ export default {
       confirmClearTitle: 'Confirm clear?',
       confirmClearText: 'Are you sure you want to remove all items in the cart?',
       confirmClearButton: 'Yes, clear all!',
+      confirmOrderTitle: 'Confirm order?',
+      confirmOrderText: 'Items will be sent to the kitchen and cannot be cancelled.',
+      confirmOrderButton: 'Confirm Order',
       seedSuccessTitle: 'Test data loaded!',
       seedSuccessText: 'Added {count} items to the cart. You can now test: quantity adjust, notes, select/delete, and place order (mock).',
       orderSuccessTitle: 'Order placed successfully!',
@@ -71,9 +92,27 @@ export default {
       removedInvalid: 'Removed {count} invalid items',
       reloadedMenu: 'Menu reloaded. Please check your cart again.',
     },
+    setup: {
+      selectServiceMode: 'Select Service Mode',
+      selectServiceModeDesc: 'Please select the service mode and number of guests.',
+      alacarte: 'A la carte',
+      buffet: 'Buffet',
+      adult: 'Adults',
+      child: 'Children',
+      tableCapacity: 'This table seats up to {capacity} guests',
+      adultCount: 'Adults',
+      childCount: 'Children'
+    },
     cartItem: {
       noteLabel: 'Note:',
       notePlaceholder: 'No onions, well done...',
+    },
+    bottomCartBar: {
+      title: 'Table\'s Cart',
+      selected: 'Selected',
+      items: '{count} items',
+      total: 'Total:',
+      viewCart: 'View cart',
     },
     cartBar: {
       text: 'Your Cart',
@@ -83,6 +122,9 @@ export default {
     },
     menuItem: {
       inPackage: 'In package',
+      emptyList: 'No items found',
+      lunchPrice: '{price} (Lunch 50%)',
+      soldOut: 'Sold out',
     },
     itemDetail: {
       cart: 'Cart ({count})',
@@ -160,6 +202,46 @@ export default {
       statusProcessing: 'Processing',
       statusCompleted: 'Completed',
       statusCancelled: 'Cancelled',
+      swalTitle: 'Other request',
+      swalPlaceholder: 'Enter your request here...',
+      swalSubmit: 'Send',
+      swalCancel: 'Cancel',
+    },
+    serviceRequestGrid: {
+      title: 'How can we help you?',
+      tissue: 'Tissue',
+      bowl: 'Bowls/Chopsticks',
+      sauce: 'Sauce',
+      ice: 'Extra ice',
+      grillChange: 'Change grill',
+      charcoalChange: 'Change charcoal',
+      requestBill: 'Bill',
+      callWaiter: 'Call waiter',
+      other: 'Other',
+      detailRequired: 'Enter request details (Required)',
+      detailOptional: 'Add notes for waiter (Optional)',
+      placeholderOther: 'Enter request here... e.g., Get an extra baby spoon',
+      placeholderNormal: 'Add notes... e.g., Get me a cold wet towel',
+      cancel: 'Cancel',
+      submit: 'Send request'
+    },
+    invoice: {
+      title: 'VAT Invoice Request',
+      subtitle: 'Please enter Tax code, the system will automatically look up company information.',
+      taxCode: 'Tax code',
+      taxCodePlaceholder: 'Enter tax code...',
+      lookingUp: 'Searching...',
+      lookup: 'Lookup',
+      companyName: 'Company Name',
+      companyNamePlaceholder: 'Company name will be auto-filled...',
+      companyAddress: 'Address',
+      companyAddressPlaceholder: 'Company address will be auto-filled...',
+      email: 'Email for invoice',
+      emailPlaceholder: 'Enter accountant email...',
+      cancel: 'Cancel',
+      submit: 'Submit Request',
+      errorNotFound: 'Could not find company information with this tax code.',
+      errorLookup: 'Lookup error. Please try again later.'
     },
     passcode: {
       title: 'NGUU CAT POS',
@@ -209,7 +291,38 @@ export default {
       bestAbout: 'What were you most satisfied with?',
       commentLabel: 'Detailed feedback (Optional)',
       commentPlaceholder: 'Enter your feedback here... e.g.: Fast service, delicious food!',
+      nameOptional: 'Name (Optional)',
+      namePlaceholder: 'Enter your name',
+      phoneOptional: 'Phone number (Optional)',
+      phonePlaceholder: 'Enter your phone number',
       confirm: 'Confirm',
+      requireCriteria: 'Please select at least 1 criteria',
+      criteria: {
+        foodQuality: 'Food quality',
+        serviceTime: 'Service speed',
+        hygiene: 'Cleanliness',
+        staffAttitude: 'Staff attitude',
+        valueForMoney: 'Value for money',
+        ambiance: 'Cozy ambiance'
+      },
+      ratingNames: {
+        "1": 'Very dissatisfied 😞',
+        "2": 'Dissatisfied 🙁',
+        "3": 'Neutral 😐',
+        "4": 'Satisfied 🙂',
+        "5": 'Very satisfied! 😍'
+      }
+    },
+    setup: {
+      selectServiceMode: 'Select Service Mode',
+      selectServiceModeDesc: 'Please select the service mode and number of guests',
+      adult: 'Adult',
+      child: 'Child',
+      adultCount: 'Adults',
+      childCount: 'Children',
+      tableCapacity: 'Table capacity: {capacity} guests',
+      alacarte: 'A La Carte',
+      buffet: 'Buffet',
     },
     tracking: {
       title: 'Order Tracking',
@@ -221,11 +334,17 @@ export default {
       filterServed: 'Served ({count})',
       filterPreparing: 'Preparing ({count})',
       filterPending: 'Pending ({count})',
-      quantityLabel: 'Qty:',
+      quantityLabel: 'Quantity:',
       orderedAt: 'Ordered at {time}',
       stepOrdered: 'Ordered',
       stepPreparing: 'Preparing',
       stepServed: 'Served',
+      statusNew: 'Received',
+      statusSent: 'Sent to kitchen',
+      statusPreparing: 'Cooking',
+      statusReady: 'Ready',
+      statusServed: 'Served',
+      statusCancelled: 'Cancelled',
       emptyTitle: 'No items',
       emptyText: 'Please place an order to track its status.',
       refresh: 'Refresh',
@@ -234,12 +353,31 @@ export default {
     categoryTabs: {
       all: 'All',
     },
+    tableGrid: {
+      table: 'TABLE',
+      locked: 'Locked',
+      available: 'Available',
+      selecting: 'Selecting',
+      occupied: 'Occupied'
+    },
+  },
+  membership: {
+    member: 'Member',
   },
   common: {
     unsaved_changes_title: 'Unsaved Changes',
     unsaved_changes_text: 'You have unsaved changes. Are you sure you want to leave?',
     keep_editing: 'Keep Editing',
-    discard: 'Discard Changes'
+    discard: 'Discard Changes',
+    create: 'Create',
+    edit: 'Edit',
+    delete: 'Delete',
+    cancel: 'Cancel',
+    save: 'Save',
+    saveChanges: 'Save Changes',
+    confirm: 'Confirm',
+    close: 'Close',
+    back: 'Back'
   },
   purchasing: {
       "receipts": {

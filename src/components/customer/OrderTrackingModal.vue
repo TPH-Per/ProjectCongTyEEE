@@ -8,7 +8,7 @@
             <span class="logo-icon">📋</span>
             <div>
               <h2 class="modal-title">{{ $t('customer.tracking.title') }}</h2>
-              <p class="modal-subtitle">Bàn {{ tableNumber }} • {{ items.length }} món</p>
+              <p class="modal-subtitle">{{ $t('customer.tracking.subtitle', { table: tableNumber, count: items.length }) }}</p>
             </div>
           </div>
           <button class="close-btn" @click="$emit('close')">×</button>
@@ -149,8 +149,8 @@
                 </div>
               </div>
 
-              <div class="timeline-step" :class="{ completed: item.status !== 'pending' }">
-                <div class="step-dot" :class="{ completed: item.status !== 'pending' }">
+              <div class="timeline-step" :class="{ completed: item.status !== 'new' }">
+                <div class="step-dot" :class="{ completed: item.status !== 'new' }">
                   <span class="dot-icon">✓</span>
                 </div>
                 <div class="step-info">
@@ -195,14 +195,14 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useI18n } from 'vue-i18n'
+import { useI18nStore } from '@/stores/i18n'
 
 const props = defineProps<{
   items: Array<{
     id: string | number
     name: string
     quantity: number
-    status: 'pending' | 'preparing' | 'served'
+    status: 'new' | 'sent' | 'preparing' | 'ready' | 'served' | 'cancelled'
     orderedTime: string
     servedTime: string | null
   }>
@@ -214,13 +214,20 @@ const emit = defineEmits<{
   refresh: []
 }>()
 
-const { t } = useI18n()
+const i18nStore = useI18nStore()
 
 const activeFilter = ref<'all' | 'served' | 'preparing' | 'pending'>('all')
 
-const servedItems = computed(() => props.items.filter(item => item.status === 'served'))
-const preparingItems = computed(() => props.items.filter(item => item.status === 'preparing'))
-const pendingItems = computed(() => props.items.filter(item => item.status === 'pending'))
+function getGroup(status: string): 'served' | 'preparing' | 'pending' | 'cancelled' {
+  if (status === 'served') return 'served';
+  if (status === 'preparing' || status === 'ready') return 'preparing';
+  if (status === 'new' || status === 'sent') return 'pending';
+  return 'cancelled';
+}
+
+const servedItems = computed(() => props.items.filter(item => getGroup(item.status) === 'served'))
+const preparingItems = computed(() => props.items.filter(item => getGroup(item.status) === 'preparing'))
+const pendingItems = computed(() => props.items.filter(item => getGroup(item.status) === 'pending'))
 
 const servedPercent = computed(() => {
   if (props.items.length === 0) return 0
@@ -237,22 +244,27 @@ const pendingPercent = computed(() => {
 
 const filteredItems = computed(() => {
   if (activeFilter.value === 'all') return props.items
-  return props.items.filter(item => item.status === activeFilter.value)
+  return props.items.filter(item => getGroup(item.status) === activeFilter.value)
 })
 
 function getStatusText(status: string): string {
   const statusMap: Record<string, string> = {
-    'served': t('customer.tracking.served'),
-    'preparing': t('customer.tracking.preparing'),
-    'pending': t('customer.tracking.pending')
+    'new': i18nStore.t('customer.tracking.statusNew'),
+    'sent': i18nStore.t('customer.tracking.statusSent'),
+    'preparing': i18nStore.t('customer.tracking.statusPreparing'),
+    'ready': i18nStore.t('customer.tracking.statusReady'),
+    'served': i18nStore.t('customer.tracking.statusServed'),
+    'cancelled': i18nStore.t('customer.tracking.statusCancelled')
   }
   return statusMap[status] || status
 }
 
 function getItemProgress(status: string): number {
-  if (status === 'pending') return 33
-  if (status === 'preparing') return 66
-  return 100
+  const group = getGroup(status);
+  if (status === 'cancelled') return 0;
+  if (group === 'pending') return 33;
+  if (group === 'preparing') return 66;
+  return 100;
 }
 
 function formatTime(time: string | null): string {
@@ -573,20 +585,12 @@ function refreshStatus() {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
 }
 
-.item-card.status-served {
-  border-left-color: #4ade80;
-  box-shadow: 0 0 15px rgba(74, 222, 128, 0.05);
-}
-
-.item-card.status-preparing {
-  border-left-color: #60a5fa;
-  box-shadow: 0 0 15px rgba(96, 165, 250, 0.05);
-}
-
-.item-card.status-pending {
-  border-left-color: #fb923c;
-  box-shadow: 0 0 15px rgba(251, 146, 36, 0.05);
-}
+.item-card.status-new { border-left-color: #94a3b8; box-shadow: 0 0 15px rgba(148, 163, 184, 0.05); }
+.item-card.status-sent { border-left-color: #60a5fa; box-shadow: 0 0 15px rgba(96, 165, 250, 0.05); }
+.item-card.status-preparing { border-left-color: #fb923c; box-shadow: 0 0 15px rgba(251, 146, 36, 0.05); }
+.item-card.status-ready { border-left-color: #facc15; box-shadow: 0 0 15px rgba(250, 204, 21, 0.05); }
+.item-card.status-served { border-left-color: #4ade80; box-shadow: 0 0 15px rgba(74, 222, 128, 0.05); }
+.item-card.status-cancelled { border-left-color: #f87171; box-shadow: 0 0 15px rgba(248, 113, 113, 0.05); }
 
 .item-header {
   display: flex;
@@ -619,23 +623,12 @@ function refreshStatus() {
   display: inline-block;
 }
 
-.badge-served {
-  background: rgba(74, 222, 128, 0.15);
-  color: #4ade80;
-  border: 1px solid rgba(74, 222, 128, 0.3);
-}
-
-.badge-preparing {
-  background: rgba(96, 165, 250, 0.15);
-  color: #60a5fa;
-  border: 1px solid rgba(96, 165, 250, 0.3);
-}
-
-.badge-pending {
-  background: rgba(251, 146, 36, 0.15);
-  color: #fb923c;
-  border: 1px solid rgba(251, 146, 36, 0.3);
-}
+.badge-new { background: rgba(148, 163, 184, 0.15); color: #94a3b8; border: 1px solid rgba(148, 163, 184, 0.3); }
+.badge-sent { background: rgba(96, 165, 250, 0.15); color: #60a5fa; border: 1px solid rgba(96, 165, 250, 0.3); }
+.badge-preparing { background: rgba(251, 146, 36, 0.15); color: #fb923c; border: 1px solid rgba(251, 146, 36, 0.3); }
+.badge-ready { background: rgba(250, 204, 21, 0.15); color: #facc15; border: 1px solid rgba(250, 204, 21, 0.3); }
+.badge-served { background: rgba(74, 222, 128, 0.15); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.3); }
+.badge-cancelled { background: rgba(248, 113, 113, 0.15); color: #f87171; border: 1px solid rgba(248, 113, 113, 0.3); }
 
 /* ===== PROGRESS BAR WITH SHINE ===== */
 .progress-container {
@@ -678,20 +671,12 @@ function refreshStatus() {
   100% { left: 100%; }
 }
 
-.progress-served {
-  background: linear-gradient(90deg, #4ade80, #22c55e);
-  box-shadow: 0 0 8px rgba(74, 222, 128, 0.3);
-}
-
-.progress-preparing {
-  background: linear-gradient(90deg, #60a5fa, #3b82f6);
-  box-shadow: 0 0 8px rgba(96, 165, 250, 0.3);
-}
-
-.progress-pending {
-  background: linear-gradient(90deg, #fb923c, #f97316);
-  box-shadow: 0 0 8px rgba(251, 146, 36, 0.3);
-}
+.progress-new { background: linear-gradient(90deg, #94a3b8, #64748b); box-shadow: 0 0 8px rgba(148, 163, 184, 0.3); }
+.progress-sent { background: linear-gradient(90deg, #60a5fa, #3b82f6); box-shadow: 0 0 8px rgba(96, 165, 250, 0.3); }
+.progress-preparing { background: linear-gradient(90deg, #fb923c, #f97316); box-shadow: 0 0 8px rgba(251, 146, 36, 0.3); }
+.progress-ready { background: linear-gradient(90deg, #facc15, #eab308); box-shadow: 0 0 8px rgba(250, 204, 21, 0.3); }
+.progress-served { background: linear-gradient(90deg, #4ade80, #22c55e); box-shadow: 0 0 8px rgba(74, 222, 128, 0.3); }
+.progress-cancelled { background: linear-gradient(90deg, #f87171, #ef4444); box-shadow: 0 0 8px rgba(248, 113, 113, 0.3); }
 
 .progress-percent {
   width: 36px;

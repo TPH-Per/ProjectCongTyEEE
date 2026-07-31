@@ -19,7 +19,7 @@ const MOCK_PAYMENTS: Array<{ amount: number; method: string }> = [
   { amount: 180000, method: 'cash' },
 ]
 
-function createMockShift(branchId: string, openingCash: number, userId: string): Shift {
+function createMockShift(branchId: string, openingCash: number, userId: string, notes?: string): Shift {
   const now = new Date().toISOString()
   return {
     id: `mock-shift-${Date.now()}`,
@@ -32,7 +32,7 @@ function createMockShift(branchId: string, openingCash: number, userId: string):
     closing_cash: null,
     expected_cash: null,
     cash_difference: null,
-    notes: { handover_notes: '' } as any,
+    notes: { handover_notes: '', open_shift_notes: notes ?? '' } as any,
     metadata: { opened_via: 'mock' },
     created_at: now,
     updated_at: now,
@@ -150,7 +150,7 @@ export const useShiftStore = defineStore('shift', () => {
     }
   }
 
-  async function openShift(branchId: string, openingCash: number) {
+  async function openShift(branchId: string, openingCash: number, notes?: string) {
     loading.value = true
     error.value = null
     try {
@@ -158,7 +158,7 @@ export const useShiftStore = defineStore('shift', () => {
       await new Promise((r) => setTimeout(r, 300))
 
       const userId = 'mock-user-0001'
-      const shift = createMockShift(branchId, openingCash, userId)
+      const shift = createMockShift(branchId, openingCash, userId, notes)
       currentShift.value = shift
       saveToStorage(shift)
 

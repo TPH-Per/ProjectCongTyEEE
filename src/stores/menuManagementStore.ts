@@ -167,6 +167,16 @@ export const useMenuManagementStore = defineStore('menuManagement', () => {
     })
   }
 
+  /** Unlock all items — set is_sold_out = false for every item. */
+  function unlockAllItems(): void {
+    items.value.forEach((item) => {
+      if (item.is_sold_out) {
+        item.is_sold_out = false
+        broadcastItemStatus(item.id)
+      }
+    })
+  }
+
   function toggleItemActive(id: string): void {
     const item = getItemById(id)
     if (!item) return
@@ -273,6 +283,7 @@ export const useMenuManagementStore = defineStore('menuManagement', () => {
     copyItem,
     toggleSoldOut,
     bulkLockItems,
+    unlockAllItems,
     toggleItemActive,
     // category actions
     addCategory,

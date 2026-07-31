@@ -274,9 +274,7 @@
                 Tổng: {{ revenueChartData.reduce((s, d) => s + d.revenue, 0).toLocaleString('vi-VN') }}đ
               </span>
             </div>
-            <div class="relative h-64">
-              <canvas ref="revenueChartCanvas"></canvas>
-            </div>
+            <RevenueChart :data="revenueChartData" />
           </div>
 
           <!-- Top Selling Items (1 col) -->
@@ -473,315 +471,32 @@
 
       <!-- Right Column: Notifications Panel (Column 4) -->
       <div class="lg:col-span-1 space-y-6">
-        
-        <div class="bg-white border border-[#E8772E]/10 rounded-2xl shadow-sm overflow-hidden flex flex-col h-[calc(100vh-12rem)] sticky top-6">
-          <!-- Notification Panel Header -->
-          <div class="bg-gray-50 px-4 py-4 border-b flex items-center justify-between shrink-0">
-            <div class="flex items-center gap-2">
-              <div class="relative">
-                <Bell class="w-5 h-5 text-[#E8772E]" />
-                <span 
-                  v-if="unreadCount > 0"
-                  class="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center border border-white animate-pulse"
-                >
-                  {{ unreadCount }}
-                </span>
-              </div>
-              <span class="font-extrabold text-[#3D2817] text-sm">{{ t('reception.notifications') }}</span>
-            </div>
-            <button 
-              @click="toggleExpandNotifs"
-              class="text-xs font-bold text-[#E8772E] hover:underline"
-            >
-              {{ showAllNotifications ? 'Thu gọn' : 'Xem thêm...' }}
-            </button>
-          </div>
 
-          <!-- Notification Items List -->
-          <div class="flex-1 overflow-y-auto divide-y divide-gray-100 p-2 space-y-2">
-            <div 
-              v-for="notif in visibleNotifications" 
-              :key="notif.id"
-              :class="[
-                'p-3 rounded-xl border transition-all duration-200 relative cursor-pointer',
-                notif.isRead ? 'bg-white border-gray-100 text-gray-600' : 'bg-orange-50/30 border-orange-100 hover:bg-orange-50/50 shadow-sm'
-              ]"
-              @click="handleNotificationClick(notif)"
-            >
-              <!-- Unread status dot -->
-              <div 
-                v-if="!notif.isRead"
-                class="absolute top-3.5 right-3.5 w-2 h-2 rounded-full bg-[#E8772E]"
-              ></div>
-
-              <!-- Header line: icon + type -->
-              <div class="flex items-center gap-2 mb-1.5">
-                <span 
-                  :class="[
-                    'text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-md border',
-                    getNotificationTypeClass(notif)
-                  ]"
-                >
-                  {{ translateNotifType(notif.type) }}
-                </span>
-                
-                <span 
-                  v-if="notif.priority === 'high'"
-                  class="bg-red-100 text-red-700 text-[8px] font-black uppercase px-1 rounded border border-red-200"
-                >{{ t('reception.urgent') }}</span>
-              </div>
-
-              <!-- Message body -->
-              <div class="text-xs font-extrabold text-[#3D2817] pr-4 line-clamp-2">
-                {{ notif.title }}
-              </div>
-              <div class="text-[11px] text-gray-500 mt-1 line-clamp-3">
-                {{ notif.message }}
-              </div>
-
-              <!-- Footer line: time + mark read -->
-              <div class="flex items-center justify-between mt-2.5 pt-1.5 border-t border-gray-100/50">
-                <span class="text-[9px] text-gray-400 font-semibold font-mono flex items-center gap-1">
-                  <Clock class="w-3 h-3 text-gray-300" />
-                  {{ formatTimeOnly(notif.timestamp) }}
-                </span>
-
-                <button 
-                  v-if="!notif.isRead"
-                  @click.stop="handleMarkRead(notif.id)"
-                  class="text-[9px] font-bold text-[#E8772E] hover:underline"
-                >{{ t('reception.read') }}</button>
-              </div>
-            </div>
-
-            <div v-if="visibleNotifications.length === 0" class="text-center text-gray-400 py-10 text-xs">{{ t('reception.no_notifications') }}</div>
-          </div>
-        </div>
+        <NotificationPanel
+          :notifications="allNotifications"
+          :unread-count="unreadCount"
+          @notification-click="handleNotificationClick"
+          @mark-read="handleMarkRead"
+        />
 
       </div>
 
     </div>
 
-    <!-- Custom Modal other-income -->
-    <Transition name="fade">
-      <div v-if="showOtherIncomeModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[9999] p-4">
-        <div class="other-income-modal w-full max-w-[600px] bg-white rounded-2xl overflow-hidden shadow-2xl border border-gray-100 text-[#333333]">
-          <!-- Header -->
-          <div class="modal-header bg-[#1a5276] text-white p-4 flex items-center justify-between">
-            <h2 class="text-base font-black uppercase tracking-wide">{{ t('reception.other_income_short') }}</h2>
-            <button @click="showOtherIncomeModal = false" class="text-white/80 hover:text-white transition-colors" type="button">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
-            </button>
-          </div>
+    <!-- Other Income Modal -->
+    <OtherIncomeModal
+      :is-open="showOtherIncomeModal"
+      @close="showOtherIncomeModal = false"
+      @save="handleOtherIncomeSave"
+      @save-and-print="handleOtherIncomeSaveAndPrint"
+    />
 
-          <!-- Creator Info -->
-          <div class="creator-info bg-[#f5f5f5] p-4 border-b border-gray-200">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div class="flex items-center gap-2">
-                <span class="text-xs font-bold text-gray-500 uppercase min-w-[80px]">Người tạo:</span>
-                <span class="text-xs font-bold text-gray-800">{{ creator }}</span>
-              </div>
-              <div class="flex items-center gap-2">
-                <span class="text-xs font-bold text-gray-500 uppercase min-w-[80px]">Ngày lập:</span>
-                <input v-model="createdDate" type="text" class="bg-white border border-gray-300 rounded px-2.5 py-1 text-xs font-mono font-bold w-full max-w-[160px] focus:outline-none focus:border-[#E8772E]" />
-              </div>
-            </div>
-          </div>
-
-          <!-- Form Content -->
-          <form @submit.prevent="handleSave" class="form-content p-5 max-h-[420px] overflow-y-auto space-y-4">
-            <!-- Đối tượng -->
-            <div class="form-row required flex flex-col gap-1">
-              <label class="text-xs font-bold text-gray-600">Đối tượng <span class="text-red-500">*</span></label>
-              <div class="input-with-button flex items-center gap-1.5">
-                <input 
-                  v-model="form.object" 
-                  type="text" 
-                  class="form-input flex-1 px-3 py-2 border border-gray-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-[#E8772E]/10" 
-                  :placeholder="t('reception.enter_target_name')"
-                  required
-                />
-                <button type="button" @click="triggerSelectObject" class="btn-browse px-3 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-300 text-xs font-bold text-gray-700 rounded-lg active:scale-95 transition-all">...</button>
-              </div>
-            </div>
-
-            <!-- Loại thu & Khoản thu (Grid) -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <!-- Loại thu -->
-              <div class="form-row required flex flex-col gap-1">
-                <label class="text-xs font-bold text-gray-600">Loại thu <span class="text-red-500">*</span></label>
-                <select v-model="form.incomeType" class="form-select w-full px-3 py-2 border border-gray-300 rounded-lg text-xs focus:outline-none" required>
-                  <option value="other">Thu Khác</option>
-                  <option value="deposit">Tiền đặt cọc</option>
-                  <option value="refund">Hoàn tiền</option>
-                </select>
-              </div>
-
-              <!-- Khoản thu -->
-              <div class="form-row required flex flex-col gap-1">
-                <label class="text-xs font-bold text-gray-600">Khoản thu <span class="text-red-500">*</span></label>
-                <select v-model="form.incomeItem" class="form-select w-full px-3 py-2 border border-gray-300 rounded-lg text-xs focus:outline-none" required>
-                  <option value="withdraw">Rút tiền dư</option>
-                  <option value="adjustment">Điều chỉnh</option>
-                  <option value="other">{{ t('reception.other') }}</option>
-                </select>
-              </div>
-            </div>
-
-            <!-- Tiền thu (Highlight hồng nhạt) -->
-            <div class="form-row required highlight bg-[#FFF0F0] border border-red-200/50 p-3.5 rounded-xl flex flex-col gap-1">
-              <label class="text-xs font-bold text-red-700">Tiền thu <span class="text-red-500">*</span></label>
-              <div class="input-with-button flex items-center gap-1.5">
-                <input 
-                  :value="formattedAmount"
-                  @input="handleAmountInput"
-                  type="text" 
-                  class="form-input flex-1 px-3 py-2 border border-red-300 rounded-lg text-xs font-mono font-bold text-right text-red-600 focus:outline-none focus:ring-2 focus:ring-red-100" 
-                  placeholder="0"
-                  required
-                />
-                <button type="button" class="btn-browse px-3 py-2 bg-red-100 hover:bg-red-200 border border-red-300 text-xs font-bold text-red-700 rounded-lg active:scale-95 transition-all">...</button>
-              </div>
-            </div>
-
-            <!-- Lý do -->
-            <div class="form-row flex flex-col gap-1">
-              <label class="text-xs font-bold text-gray-600">{{ t('reception.reason') }}</label>
-              <div class="input-with-button flex items-center gap-1.5">
-                <input 
-                  v-model="form.reason" 
-                  type="text" 
-                  class="form-input flex-1 px-3 py-2 border border-gray-300 rounded-lg text-xs focus:outline-none" 
-                  :placeholder="t('reception.enter_reason')"
-                />
-                <button type="button" class="btn-browse px-3 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-300 text-xs font-bold text-gray-700 rounded-lg active:scale-95 transition-all">...</button>
-              </div>
-            </div>
-
-            <!-- Số chứng từ & Mã đặt chỗ (Grid) -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <!-- Số chứng từ -->
-              <div class="form-row flex flex-col gap-1">
-                <label class="text-xs font-bold text-gray-600">Số chứng từ</label>
-                <input 
-                  v-model="form.voucherNumber" 
-                  type="text" 
-                  class="form-input w-full px-3 py-2 border border-gray-300 rounded-lg text-xs focus:outline-none" 
-                  :placeholder="t('reception.auto_generated')"
-                />
-              </div>
-
-              <!-- Mã đặt chỗ -->
-              <div class="form-row flex flex-col gap-1">
-                <label class="text-xs font-bold text-gray-600">Mã đặt chỗ</label>
-                <input 
-                  v-model="form.bookingCode" 
-                  type="text" 
-                  class="form-input w-full px-3 py-2 border border-gray-300 rounded-lg text-xs focus:outline-none" 
-                  :placeholder="t('reception.enter_booking_code')"
-                />
-              </div>
-            </div>
-
-            <!-- Tiền mặt -->
-            <div class="form-row checkbox-row flex items-center gap-2 pt-2 select-none">
-              <input 
-                v-model="form.isCash" 
-                type="checkbox" 
-                id="isCash" 
-                class="w-4 h-4 accent-[#E8772E] cursor-pointer"
-              />
-              <label for="isCash" class="text-xs font-bold text-gray-700 cursor-pointer">{{ t('reception.cash') }}</label>
-            </div>
-          </form>
-
-          <!-- Footer Actions -->
-          <div class="modal-footer p-4 border-t border-gray-200 bg-gray-50 flex items-center justify-end gap-3">
-            <button 
-              type="button" 
-              class="btn btn-save-print px-4 py-2 bg-[#4CAF50] hover:bg-[#43A047] text-white text-xs font-extrabold rounded-lg shadow transition-all active:scale-95 flex items-center gap-1.5"
-              @click="handleSaveAndPrint"
-            >{{ t('reception.save_and_print') }}</button>
-            <button 
-              type="button" 
-              class="btn btn-save px-4 py-2 bg-[#FF9800] hover:bg-[#F57C00] text-white text-xs font-extrabold rounded-lg shadow transition-all active:scale-95"
-              @click="handleSave"
-            >{{ t('reception.save') }}</button>
-            <button 
-              type="button" 
-              class="btn btn-cancel px-4 py-2 bg-[#F44336] hover:bg-[#E53935] text-white text-xs font-extrabold rounded-lg shadow transition-all active:scale-95"
-              @click="showOtherIncomeModal = false"
-            >{{ t('reception.skip') }}</button>
-          </div>
-        </div>
-      </div>
-    </Transition>
-
-    <!-- Custom Modal settings -->
-    <Transition name="fade">
-      <div v-if="showSettingsModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[9999] p-4">
-        <div class="settings-modal w-full max-w-[500px] bg-white rounded-2xl overflow-hidden shadow-2xl border border-gray-100 text-[#333333]">
-          <!-- Header -->
-          <div class="modal-header bg-[#1a5276] text-white p-4 flex items-center justify-between">
-            <h2 class="text-base font-black uppercase tracking-wide">{{ t('reception.configuration') }}</h2>
-            <button @click="showSettingsModal = false" class="text-white/80 hover:text-white transition-colors" type="button">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
-            </button>
-          </div>
-
-          <!-- Form Content -->
-          <div class="modal-content p-5 space-y-4">
-            <!-- Username -->
-            <div class="form-row flex flex-col gap-1">
-              <label class="text-xs font-bold text-gray-600">{{ t('reception.username') }}</label>
-              <div class="input-group flex items-center gap-1.5">
-                <input 
-                  v-model="settingsUsername" 
-                  type="text" 
-                  class="form-input flex-1 px-3 py-2 border border-gray-300 rounded-lg text-xs focus:outline-none"
-                  :placeholder="t('reception.enter_username')"
-                />
-                <button type="button" class="btn-browse px-3 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-300 text-xs font-bold text-gray-700 rounded-lg active:scale-95 transition-all">...</button>
-              </div>
-            </div>
-
-            <!-- Password -->
-            <div class="form-row flex flex-col gap-1">
-              <label class="text-xs font-bold text-gray-600">{{ t('reception.password') }}</label>
-              <div class="input-group flex items-center gap-1.5">
-                <input 
-                  v-model="settingsPassword" 
-                  type="password" 
-                  class="form-input flex-1 px-3 py-2 border border-gray-300 rounded-lg text-xs focus:outline-none"
-                  :placeholder="t('reception.enter_password')"
-                />
-                <button type="button" class="btn-browse px-3 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-300 text-xs font-bold text-gray-700 rounded-lg active:scale-95 transition-all">...</button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Action Buttons -->
-          <div class="modal-footer p-4 border-t border-gray-200 bg-gray-50 flex items-center justify-end gap-3">
-            <button 
-              type="button" 
-              class="btn btn-confirm px-6 py-2 bg-[#4DB6AC] hover:bg-[#40a095] text-white text-xs font-extrabold rounded-lg shadow transition-all active:scale-95" 
-              @click="handleSaveSettings"
-            >{{ t('reception.confirm') }}</button>
-            <button 
-              type="button" 
-              class="btn btn-skip px-6 py-2 bg-[#E57373] hover:bg-[#d9534f] text-white text-xs font-extrabold rounded-lg shadow transition-all active:scale-95" 
-              @click="showSettingsModal = false"
-            >{{ t('reception.ignore') }}</button>
-          </div>
-        </div>
-      </div>
-    </Transition>
+    <!-- Settings Modal -->
+    <SettingsModal
+      :is-open="showSettingsModal"
+      @close="showSettingsModal = false"
+      @save="handleSettingsSave"
+    />
 
     <!-- Open Shift Modal -->
     <OpenShiftModal
@@ -810,7 +525,7 @@
 <script setup lang="ts">
 import Swal from 'sweetalert2'
 import { useLanguageStore } from '@/stores/useLanguageStore'
-import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/composables/useAuth'
@@ -818,11 +533,8 @@ import { useBranch } from '@/composables/useBranch'
 import { useReservation } from '@/composables/useReservation'
 import { useNotification } from '@/composables/useNotification'
 import { useRealtime } from '@/composables/useRealtime'
-// Keep my quality-bar imports (useServiceRequest) AND the broader
-// lucide icon set that origin/main's UI requires.
-import { useServiceRequest, type ServiceRequest } from '@/composables/useServiceRequest'
 import { useShiftStore } from '@/stores/shiftStore'
-import type { TableT, Reservation, Shift, Notification } from '@/types/database'
+import type { TableT, Reservation } from '@/types/database'
 import {
   Clock,
   Utensils,
@@ -836,14 +548,12 @@ import {
   BarChart3,
   LogOut,
   TrendingUp,
-  Bell,
   CheckCircle,
   XCircle,
   Eye,
   Wallet,
   Award
 } from 'lucide-vue-next'
-import { Chart, registerables } from 'chart.js'
 import {
   dashboardRevenueData,
   dashboardTopItems,
@@ -851,18 +561,10 @@ import {
 } from '@/data/dashboardMockData'
 import OpenShiftModal from '@/components/reception/OpenShiftModal.vue'
 import CloseShiftModal from '@/components/reception/CloseShiftModal.vue'
-
-Chart.register(...registerables)
-
-interface UINotification {
-  id: string
-  type: 'out_of_stock' | 'low_stock' | 'booking' | 'payment'
-  title: string
-  message: string
-  timestamp: Date
-  isRead: boolean
-  priority: 'high' | 'medium' | 'low'
-}
+import RevenueChart from '@/components/reception/RevenueChart.vue'
+import OtherIncomeModal, { type OtherIncomePayload } from '@/components/reception/OtherIncomeModal.vue'
+import SettingsModal, { type SettingsPayload } from '@/components/reception/SettingsModal.vue'
+import NotificationPanel, { type UINotification } from '@/components/reception/NotificationPanel.vue'
 
 const langStore = useLanguageStore()
 const t = langStore.t
@@ -878,11 +580,11 @@ const shiftClosing = ref(false)
 const showOpenShiftModal = ref(false)
 const showCloseShiftModal = ref(false)
 
-async function handleOpenShiftConfirm(openingCash: number) {
+async function handleOpenShiftConfirm(payload: { openingCash: number; notes: string }) {
   if (!activeBranch.value) return
   shiftOpening.value = true
   try {
-    const res = await shiftStore.openShift(activeBranch.value, openingCash)
+    const res = await shiftStore.openShift(activeBranch.value, payload.openingCash, payload.notes)
     await Swal.fire({
       icon: 'success',
       title: res.idempotent
@@ -928,73 +630,22 @@ async function handleCloseShiftConfirm(payload: { actualCash: number; notes: str
 
 const showOtherIncomeModal = ref(false)
 const showSettingsModal = ref(false)
-const settingsUsername = ref('mo')
-const settingsPassword = ref('')
 
-const handleSaveSettings = () => {
+function handleOtherIncomeSave(payload: OtherIncomePayload) {
   Swal.fire({
     title: 'Thành công',
-    text: `Đã cập nhật cấu hình cho tài khoản ${settingsUsername.value}!`,
+    text: `Đã lưu thành công phiếu thu của ${payload.object}!`,
     icon: 'success',
     confirmButtonText: 'Đóng',
-    confirmButtonColor: '#4DB6AC'
+    confirmButtonColor: '#FF9800'
   })
-  showSettingsModal.value = false
-}
-const creator = ref('Dương Thị Mộng')
-const createdDate = ref('02/07/2026 15:08:41')
-
-const form = ref({
-  object: '',
-  incomeType: 'other',
-  incomeItem: 'withdraw',
-  amount: 0,
-  reason: '',
-  voucherNumber: '',
-  bookingCode: '',
-  isCash: true,
-})
-
-const formattedAmount = computed(() => {
-  if (!form.value.amount) return ''
-  return Number(form.value.amount).toLocaleString('vi-VN')
-})
-
-const handleAmountInput = (e: Event) => {
-  const target = e.target as HTMLInputElement
-  const rawValue = target.value.replace(/[^0-9]/g, '')
-  form.value.amount = rawValue ? parseInt(rawValue, 10) : 0
+  showOtherIncomeModal.value = false
 }
 
-const triggerSelectObject = () => {
-  form.value.object = 'Khách vãng lai'
-  triggerToast('info', 'Đã tự động chọn Đối tượng: Khách vãng lai')
-}
-
-const triggerToast = (type: 'success' | 'error' | 'info' | 'warning', text: string) => {
-  Swal.fire({
-    toast: true,
-    position: 'top-end',
-    showConfirmButton: false,
-    timer: 3000,
-    timerProgressBar: true,
-    icon: type,
-    title: text
-  })
-}
-
-const handleSaveAndPrint = () => {
-  if (!form.value.object) {
-    triggerToast('error', 'Vui lòng nhập Đối tượng!')
-    return
-  }
-  if (!form.value.amount) {
-    triggerToast('error', 'Vui lòng nhập Số tiền thu!')
-    return
-  }
+function handleOtherIncomeSaveAndPrint(payload: OtherIncomePayload) {
   Swal.fire({
     title: 'Thành công',
-    text: `Đã lưu và in phiếu thu cho ${form.value.object} với số tiền ${Number(form.value.amount).toLocaleString('vi-VN')}đ!`,
+    text: `Đã lưu và in phiếu thu cho ${payload.object} với số tiền ${payload.amount.toLocaleString('vi-VN')}đ!`,
     icon: 'success',
     confirmButtonText: 'Đóng',
     confirmButtonColor: '#4CAF50'
@@ -1002,23 +653,15 @@ const handleSaveAndPrint = () => {
   showOtherIncomeModal.value = false
 }
 
-const handleSave = () => {
-  if (!form.value.object) {
-    triggerToast('error', 'Vui lòng nhập Đối tượng!')
-    return
-  }
-  if (!form.value.amount) {
-    triggerToast('error', 'Vui lòng nhập Số tiền thu!')
-    return
-  }
+function handleSettingsSave(payload: SettingsPayload) {
   Swal.fire({
     title: 'Thành công',
-    text: `Đã lưu thành công phiếu thu của ${form.value.object}!`,
+    text: `Đã cập nhật cấu hình cho tài khoản ${payload.username}!`,
     icon: 'success',
     confirmButtonText: 'Đóng',
-    confirmButtonColor: '#FF9800'
+    confirmButtonColor: '#4DB6AC'
   })
-  showOtherIncomeModal.value = false
+  showSettingsModal.value = false
 }
 
 const loading = ref(false)
@@ -1036,77 +679,10 @@ const tableDetails = ref<Record<string, { itemsCount: number; grandTotal: number
 
 // Notifications states
 const dbNotifications = ref<UINotification[]>([])
-const showAllNotifications = ref(false)
-const seenNotificationIds = ref(new Set<string>())
 
 // Revenue chart + top items (mock data)
 const revenueChartData = dashboardRevenueData
 const topItemsData = dashboardTopItems
-const revenueChartCanvas = ref<HTMLCanvasElement | null>(null)
-let chartInstance: Chart | null = null
-
-function initRevenueChart() {
-  if (!revenueChartCanvas.value) return
-  if (chartInstance) chartInstance.destroy()
-
-  const labels = revenueChartData.map(d =>
-    new Date(d.date).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' }),
-  )
-  const data = revenueChartData.map(d => d.revenue)
-
-  chartInstance = new Chart(revenueChartCanvas.value, {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [
-        {
-          label: 'Doanh thu (đ)',
-          data,
-          borderColor: '#E8772E',
-          backgroundColor: 'rgba(232,119,46,0.08)',
-          borderWidth: 2,
-          fill: true,
-          tension: 0.35,
-          pointBackgroundColor: '#E8772E',
-          pointBorderColor: '#fff',
-          pointBorderWidth: 1.5,
-          pointRadius: 4,
-          pointHoverRadius: 6,
-        },
-      ],
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            label: (ctx) =>
-              `${ctx.dataset.label}: ${Number(ctx.parsed.y).toLocaleString('vi-VN')}đ`,
-          },
-        },
-      },
-      scales: {
-        x: {
-          grid: { display: false },
-          ticks: { font: { size: 10 }, color: '#9ca3af' },
-        },
-        y: {
-          grid: { color: '#f3f4f6' },
-          ticks: {
-            font: { size: 10 },
-            color: '#9ca3af',
-            callback: (v) =>
-              Number(v) >= 1_000_000
-                ? `${Math.round(Number(v) / 1_000_000)}tr`
-                : Number(v).toLocaleString('vi-VN'),
-          },
-        },
-      },
-    },
-  })
-}
 
 // Local mock notifications as requested
 const localMockNotifications = ref<UINotification[]>([
@@ -1174,9 +750,6 @@ onMounted(() => {
   notificationPollInterval = setInterval(() => {
     fetchNotificationsOnly()
   }, 30000)
-
-  // Revenue chart — init on next tick so canvas is mounted
-  nextTick(() => initRevenueChart())
 })
 
 onUnmounted(() => {
@@ -1184,10 +757,6 @@ onUnmounted(() => {
   cleanups.length = 0
   clearInterval(timerId)
   clearInterval(notificationPollInterval)
-  if (chartInstance) {
-    chartInstance.destroy()
-    chartInstance = null
-  }
 })
 
 const formattedTime = computed(() => {
@@ -1273,17 +842,9 @@ const allNotifications = computed<UINotification[]>(() => {
   return list.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
 })
 
-const visibleNotifications = computed<UINotification[]>(() => {
-  return showAllNotifications.value ? allNotifications.value : allNotifications.value.slice(0, 5)
-})
-
 const unreadCount = computed(() => {
   return allNotifications.value.filter(n => !n.isRead).length
 })
-
-function toggleExpandNotifs() {
-  showAllNotifications.value = !showAllNotifications.value
-}
 
 // Play Double-Beep Web Audio API notification sound (Zero files needed, works everywhere)
 function playNotificationSound() {
@@ -1791,39 +1352,11 @@ function translateStatus(status: Reservation['status']): string {
   }
 }
 
-function getNotificationTypeClass(notif: UINotification): string {
-  switch (notif.type) {
-    case 'out_of_stock': return 'bg-red-50 text-red-700 border-red-200'
-    case 'low_stock': return 'bg-yellow-50 text-yellow-700 border-yellow-200'
-    case 'booking': return 'bg-blue-50 text-blue-700 border-blue-200'
-    case 'payment': return 'bg-green-50 text-green-700 border-green-200'
-    default: return 'bg-gray-50 text-gray-700 border-gray-200'
-  }
-}
-
-function translateNotifType(type: UINotification['type']): string {
-  switch (type) {
-    case 'out_of_stock': return 'Hết hàng'
-    case 'low_stock': return 'Sắp hết'
-    case 'booking': return 'Đặt bàn'
-    case 'payment': return 'Yêu cầu thanh toán'
-    default: return 'Hệ thống'
-  }
-}
-
 // DateTime formatting helpers
 function formatDateTime(iso?: string | null): string {
   if (!iso) return '—'
   const d = new Date(iso)
   return Number.isNaN(d.getTime()) ? '—' : d.toLocaleString('vi-VN', {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false
-  })
-}
-
-function formatTimeOnly(date: Date): string {
-  return date.toLocaleTimeString('vi-VN', {
     hour: '2-digit',
     minute: '2-digit',
     hour12: false
@@ -1845,33 +1378,5 @@ function formatTimeOnly(date: Date): string {
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;  
   overflow: hidden;
-}
-
-/* ===== SETTINGS MODAL ===== */
-.settings-modal {
-  width: 100%;
-  max-width: 500px;
-  background: white;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-}
-
-.btn-confirm {
-  background: #4DB6AC;
-  color: white;
-}
-
-.btn-confirm:hover {
-  background: #40a095;
-}
-
-.btn-skip {
-  background: #E57373;
-  color: white;
-}
-
-.btn-skip:hover {
-  background: #d9534f;
 }
 </style>

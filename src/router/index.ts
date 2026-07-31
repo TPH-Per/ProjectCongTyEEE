@@ -93,6 +93,8 @@ import OrderHistory from "@/views/customer/OrderHistory.vue";
 import ServiceRequest from "@/views/customer/ServiceRequest.vue";
 import SessionEnd from "@/views/customer/SessionEnd.vue";
 import Feedback from "@/views/customer/Feedback.vue";
+import CustomerProfile from "@/views/customer/CustomerProfile.vue";
+import CustomerSettings from "@/views/customer/CustomerSettings.vue";
 
 // ─── Superadmin Views ─────────────────────────────────────────────────────────
 import SuperadminDashboardView from "@/views/superadmin/SuperadminDashboardView.vue";
@@ -493,6 +495,16 @@ const routes: RouteRecordRaw[] = [
         path: "session-end",
         name: "SessionEnd",
         component: SessionEnd,
+      },
+      {
+        path: "profile",
+        name: "CustomerProfile",
+        component: CustomerProfile,
+      },
+      {
+        path: "settings",
+        name: "CustomerSettings",
+        component: CustomerSettings,
       },
     ],
   },

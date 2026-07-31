@@ -89,6 +89,63 @@
     </div>
 
     <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- QUICK LOCK TOOLBAR (bulk mode)                                       -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <div
+      v-if="bulkMode"
+      class="shrink-0 flex items-center justify-between gap-3 px-4 py-2.5 bg-red-50 border border-red-200 rounded-2xl"
+    >
+      <div class="flex items-center gap-2">
+        <div class="w-7 h-7 rounded-lg bg-red-100 flex items-center justify-center">
+          <Lock class="w-4 h-4 text-red-600" />
+        </div>
+        <div>
+          <span class="text-sm font-black text-red-700">Chế độ khóa nhanh</span>
+          <span class="text-xs text-red-500 font-medium ml-1">
+            · Đã chọn {{ selectedItemIds.size }} món
+          </span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button
+          @click="lockSelectedItems"
+          :disabled="selectedItemIds.size === 0"
+          :class="[
+            'inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold transition-colors',
+            selectedItemIds.size > 0
+              ? 'bg-red-600 hover:bg-red-700 text-white shadow-sm'
+              : 'bg-gray-200 text-gray-400 cursor-not-allowed',
+          ]"
+        >
+          <Lock class="w-3.5 h-3.5" />
+          Khóa món
+        </button>
+        <button
+          @click="unlockAllItems"
+          class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold bg-green-600 hover:bg-green-700 text-white shadow-sm transition-colors"
+        >
+          <LockOpen class="w-3.5 h-3.5" />
+          Mở khóa tất cả
+        </button>
+        <button
+          @click="saveChanges"
+          class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold bg-[#E8772E] hover:bg-[#D4660B] text-white shadow-sm transition-colors"
+        >
+          <Save class="w-3.5 h-3.5" />
+          Lưu thay đổi
+        </button>
+        <button
+          @click="toggleBulkMode"
+          class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold text-gray-600 hover:bg-gray-100 transition-colors"
+        >
+          <X class="w-3.5 h-3.5" />
+          Thoát
+        </button>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
     <!-- 3-PANE LAYOUT                                                        -->
     <!-- ═══════════════════════════════════════════════════════════════════ -->
     <div class="flex-1 flex gap-4 min-h-0">
@@ -249,6 +306,7 @@
               </span>
             </h3>
             <button
+              v-if="!bulkMode"
               @click="startCreate"
               :disabled="!showAllItems && !selectedCategoryId"
               :class="[
@@ -261,6 +319,9 @@
               <Plus class="w-3.5 h-3.5" />
               Thêm món
             </button>
+            <span v-else class="text-[11px] font-bold text-red-600 italic">
+              Chọn món để khóa · Click để chọn/bỏ chọn
+            </span>
           </div>
 
           <!-- Search -->
@@ -275,8 +336,92 @@
           </div>
         </div>
 
-        <!-- Items table -->
-        <div class="flex-1 overflow-y-auto">
+        <!-- Items grid (quick-lock mode) -->
+        <div v-if="bulkMode" class="flex-1 overflow-y-auto p-3">
+          <div v-if="filteredItems.length > 0" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+            <div
+              v-for="item in filteredItems"
+              :key="item.id"
+              @click="item.is_active ? toggleItemSelection(item.id) : undefined"
+              :class="[
+                'relative rounded-xl border-2 overflow-hidden transition-all',
+                item.is_active ? 'cursor-pointer hover:shadow-md' : 'cursor-not-allowed',
+                isItemSelected(item.id) ? 'border-[#E8772E] ring-2 ring-orange-200' : 'border-gray-200 hover:border-gray-300',
+              ]"
+            >
+              <!-- Image area -->
+              <div class="relative aspect-square" :style="{ backgroundColor: item.button_color + '15' }">
+                <img
+                  v-if="item.image_url"
+                  :src="item.image_url"
+                  :alt="item.name"
+                  class="w-full h-full object-cover"
+                  :class="{ 'blur-sm': isItemLocked(item) }"
+                />
+                <div
+                  v-else
+                  class="w-full h-full flex items-center justify-center"
+                  :class="{ 'blur-sm': isItemLocked(item) }"
+                >
+                  <span class="text-4xl font-black" :style="{ color: item.button_color }">
+                    {{ item.name.charAt(0) }}
+                  </span>
+                </div>
+
+                <!-- Lock overlay -->
+                <div
+                  v-if="isItemLocked(item)"
+                  class="absolute inset-0 bg-black/50 flex items-center justify-center"
+                >
+                  <Lock class="w-8 h-8 text-white drop-shadow-lg" />
+                </div>
+
+                <!-- Selection checkbox -->
+                <div
+                  v-if="item.is_active"
+                  class="absolute top-2 right-2"
+                >
+                  <div
+                    :class="[
+                      'w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all shadow-sm',
+                      isItemSelected(item.id) ? 'bg-[#E8772E] border-[#E8772E]' : 'bg-white/80 border-gray-300 backdrop-blur-sm',
+                    ]"
+                  >
+                    <Check v-if="isItemSelected(item.id)" class="w-3 h-3 text-white" />
+                  </div>
+                </div>
+
+                <!-- Status badge -->
+                <div class="absolute top-2 left-2">
+                  <span
+                    :class="[
+                      'inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold backdrop-blur-sm',
+                      statusBadge(item).class,
+                    ]"
+                  >
+                    <span :class="['w-1 h-1 rounded-full', statusBadge(item).dot]"></span>
+                    {{ statusBadge(item).label }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Info -->
+              <div class="p-2.5">
+                <div class="text-sm font-bold text-gray-900 truncate">{{ item.name }}</div>
+                <div class="text-xs text-gray-500 font-medium mt-0.5">{{ formatPrice(item.base_price) }}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Empty state -->
+          <div v-else class="py-16 text-center text-xs text-gray-400 font-medium">
+            <Package class="w-10 h-10 mx-auto mb-3 opacity-20" />
+            Không tìm thấy món nào{{ searchQuery ? ' khớp với từ khóa' : '' }}
+          </div>
+        </div>
+
+        <!-- Items table (normal mode) -->
+        <div v-else class="flex-1 overflow-y-auto">
           <template v-if="filteredItems.length > 0">
             <table class="w-full text-left">
               <thead class="sticky top-0 bg-gray-50/95 backdrop-blur-sm z-10">
@@ -808,14 +953,6 @@
 
     </div>
 
-    <!-- Quick Lock Bar (bulk mode) -->
-    <QuickLockBar
-      v-if="bulkMode"
-      :selected-ids="getSelectedIds()"
-      @close="toggleBulkMode"
-      @locked="handleBulkLocked"
-    />
-
     <!-- Manager PIN Modal -->
     <ManagerAuthModal
       v-if="showPinModal"
@@ -835,7 +972,6 @@ import Swal from 'sweetalert2'
 import ToggleSwitch from '@/components/ToggleSwitch.vue'
 import ManagerAuthModal from '@/components/reception/ManagerAuthModal.vue'
 import QuickLockToggle from '@/components/reception/QuickLockToggle.vue'
-import QuickLockBar from '@/components/reception/QuickLockBar.vue'
 import { useMenuManagementStore } from '@/stores/menuManagementStore'
 import {
   kitchenPrinters,
@@ -870,6 +1006,9 @@ import {
   ArrowLeft,
   LayoutGrid,
   Lock,
+  LockOpen,
+  Check,
+  X,
 } from 'lucide-vue-next'
 
 const store = useMenuManagementStore()
@@ -951,8 +1090,26 @@ function getSelectedIds(): string[] {
   return Array.from(selectedItemIds.value)
 }
 
-function handleBulkLocked(): void {
+function isItemLocked(item: MenuItem): boolean {
+  return item.is_sold_out || !item.is_active
+}
+
+function lockSelectedItems(): void {
+  if (selectedItemIds.value.size === 0) return
+  store.bulkLockItems(getSelectedIds(), true)
+  toast('success', `Đã khóa ${selectedItemIds.value.size} món`)
   selectedItemIds.value = new Set()
+}
+
+function unlockAllItems(): void {
+  store.unlockAllItems()
+  toast('success', 'Đã mở khóa tất cả món')
+  selectedItemIds.value = new Set()
+}
+
+function saveChanges(): void {
+  toast('success', 'Đã lưu thay đổi')
+  toggleBulkMode()
 }
 
 // ── Template copy (pre-fill form from existing item) ──────────────────────────

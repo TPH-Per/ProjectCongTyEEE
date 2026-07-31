@@ -299,7 +299,7 @@ async function fetchTrackingItems() {
   trackingItems.value = await store.loadOrderStatus();
 }
 
-async function handleInvoiceSubmit(details: { taxCode: string; companyName: string; companyAddress: string; email: string }) {
+async function handleInvoiceSubmit(details: { taxCode: string; companyName: string; companyAddress: string; email: string; phone: string }) {
   await store.requestInvoice(details);
 }
 

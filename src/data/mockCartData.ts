@@ -9,6 +9,15 @@ import type { CartItem, CustomerSession } from '@/types/customer'
 
 export const mockCartItems: CartItem[] = [
   {
+    branchMenuItemId: 'mock', menuItemId: 'bf1390-1',
+    name: 'Vé Người Lớn 1380',
+    unit: 'Vé',
+    price: 1380000,
+    price_display: '1.380K',
+    quantity: 2,
+    note: '',
+  },
+  {
     branchMenuItemId: 'mock', menuItemId: 'a1b2c3d4-e5f6-4789-abcd-ef1234567890',
     name: 'Wagyu Thăn Ngoại (A5)',
     unit: 'Phần',
@@ -112,5 +121,6 @@ export const mockSession: CustomerSession = {
   branchId: '00000000-0000-4000-8000-000000000000',
   guestCount: 2,
   serviceMode: 'buffet',
+  packageId: 'buffet-1390',
   languageCode: 'vi',
 }

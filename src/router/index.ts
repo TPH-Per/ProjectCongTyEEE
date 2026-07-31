@@ -6,19 +6,11 @@ import {
 import { useAuth } from "@/composables/useAuth";
 import { useBranch } from "@/composables/useBranch";
 import { getFallbackRouteForRole } from "@/utils/route";
-import hallRoutes from "./hall";
 
 // ─── Layouts ───────────────────────────────────
 import ManagerLayout from "@/layouts/ManagerLayout.vue";
 import AdminLayout from "@/layouts/AdminLayout.vue";
-import TabletLayout from "@/layouts/TabletLayout.vue";
-import StaffLayout from "@/layouts/StaffLayout.vue";
 import ReceptionLayout from "@/layouts/ReceptionLayout.vue";
-import KitchenLayout from "@/layouts/KitchenLayout.vue";
-import SuperadminLayout from "@/layouts/SuperadminLayout.vue";
-import PurchasingLayout from "@/layouts/PurchasingLayout.vue";
-import AccountingLayout from "@/layouts/AccountingLayout.vue";
-import CRMLayout from "@/layouts/CRMLayout.vue";
 import CustomerLayout from "@/layouts/CustomerLayout.vue";
 import ReportsView from "@/views/reception/ReportsView.vue";
 import RevenueOverviewView from "@/views/reception/RevenueOverviewView.vue";
@@ -39,11 +31,7 @@ import AdminKPIView from "@/views/admin/AdminKPIView.vue";
 import AdminAuditView from "@/views/admin/AdminAuditView.vue";
 import AdminVoucherView from "@/views/admin/AdminVoucherView.vue";
 
-// ─── Staff/Hall Views ─────────────────────────────────────────────────────────
-import StaffFloorPlanView from "@/views/staff/StaffFloorPlanView.vue";
-import StaffOpenTableView from "@/views/staff/StaffOpenTableView.vue";
-import StaffActiveTablesView from "@/views/staff/StaffActiveTablesView.vue";
-import StaffInDiningCRMView from "@/views/staff/StaffInDiningCRMView.vue";
+// ─── Staff/Hall Views (used by Reception) ─────────────────────────────────────────────────────────
 import ReceptionCheckoutView from "@/views/reception/ReceptionCheckoutView.vue";
 import ReceptionDashboardView from "@/views/reception/ReceptionDashboardView.vue";
 import ReceptionCloseShiftView from "@/views/reception/ReceptionCloseShiftView.vue";
@@ -59,31 +47,7 @@ import ManagerMarketingView from "@/views/manager/ManagerMarketingView.vue";
 import ManagerCRMView from "@/views/manager/ManagerCRMView.vue";
 import ManagerInventoryView from "@/views/manager/ManagerInventoryView.vue";
 
-// ─── CRM Views ───────────────────────────────────────────────────────────────
-import CRMDashboardView from "@/views/crm/CRMDashboardView.vue";
-import CustomerFeedbackView from "@/views/crm/CustomerFeedbackView.vue";
-import CRMServingTablesView from "@/views/crm/CRMServingTablesView.vue";
-
-// ─── Kitchen Views ────────────────────────────────────────────────────────────
-import KitchenKDSView from "@/views/kitchen/KitchenKDSView.vue";
-
-// ─── Purchasing Views ──────────────────────────────────────────────────────────
-import DailyReceiptView from "@/views/purchasing/DailyReceiptView.vue";
-import InventoryAuditView from "@/views/purchasing/InventoryAuditView.vue";
-
-// ─── Accounting Views ──────────────────────────────────────────────────────────
-import AccountingDashboardView from "@/views/accounting/AccountingDashboardView.vue";
-import InvoiceManagerView from "@/views/accounting/InvoiceManagerView.vue";
-import TaxExportView from "@/views/accounting/TaxExportView.vue";
-import CashFlowView from "@/views/accounting/CashFlowView.vue";
-import APPayablesView from "@/views/accounting/APPayablesView.vue";
-import PLReportView from "@/views/accounting/PLReportView.vue";
-
-// ─── Tablet Views ───────────────────────────────────────────────────────────────
-import TabletIdleView from "@/views/tablet/TabletIdleView.vue";
-import TabletLanguageView from "@/views/tablet/TabletLanguageView.vue";
-import TabletOrderView from "@/views/tablet/TabletOrderView.vue";
-import TabletCheckoutView from "@/views/tablet/TabletCheckoutView.vue";
+// Removed unused view imports
 
 // ─── Customer Views ──────────────────────────────────────────────────────────────
 import CustomerHome from "@/views/customer/CustomerHome.vue";
@@ -93,11 +57,10 @@ import OrderHistory from "@/views/customer/OrderHistory.vue";
 import ServiceRequest from "@/views/customer/ServiceRequest.vue";
 import SessionEnd from "@/views/customer/SessionEnd.vue";
 import Feedback from "@/views/customer/Feedback.vue";
+import CustomerProfile from "@/views/customer/CustomerProfile.vue";
+import CustomerSettings from "@/views/customer/CustomerSettings.vue";
 
-// ─── Superadmin Views ─────────────────────────────────────────────────────────
-import SuperadminDashboardView from "@/views/superadmin/SuperadminDashboardView.vue";
-import SuperadminBrandsView from "@/views/superadmin/SuperadminBrandsView.vue";
-import SuperadminIntegrationsView from "@/views/superadmin/SuperadminIntegrationsView.vue";
+// Removed superadmin views
 
 const routes: RouteRecordRaw[] = [
   {
@@ -140,111 +103,7 @@ const routes: RouteRecordRaw[] = [
     ],
   },
 
-  // 2. HALL
-  ...hallRoutes,
-
-  // 3. KITCHEN
-  {
-    path: "/kitchen",
-    component: KitchenLayout,
-    children: [{ path: "kds", name: "kitchen-kds", component: KitchenKDSView }],
-  },
-
-  // 4. PURCHASING
-  {
-    path: "/purchasing",
-    component: PurchasingLayout,
-    children: [
-      {
-        path: "receipts",
-        name: "purchasing-receipts",
-        component: DailyReceiptView,
-      },
-      {
-        path: "audit",
-        name: "purchasing-audit",
-        component: InventoryAuditView,
-      },
-    ],
-  },
-
-  // 5. ACCOUNTING
-  {
-    path: "/accounting",
-    component: AccountingLayout,
-    children: [
-      { path: "", redirect: "/accounting/dashboard" },
-      { path: "dashboard", name: "accounting-dashboard", component: AccountingDashboardView },
-      { path: "cashflow",  name: "accounting-cashflow",  component: CashFlowView },
-      { path: "ap",        name: "accounting-ap",        component: APPayablesView },
-      { path: "pl-report", name: "accounting-pl-report", component: PLReportView },
-      { path: "invoices",  name: "accounting-invoices",  component: InvoiceManagerView },
-      { path: "tax",       name: "accounting-tax",       component: TaxExportView },
-    ],
-  },
-
-  // 6. CUSTOMER (TABLET)
-  {
-    path: "/tablet",
-    component: TabletLayout,
-    children: [
-      {
-        path: "idle",
-        name: "tablet-idle",
-        component: TabletIdleView,
-      },
-      {
-        path: "language",
-        name: "tablet-language",
-        component: TabletLanguageView,
-      },
-      {
-        path: "order",
-        name: "tablet-order",
-        component: TabletOrderView,
-      },
-      {
-        path: "checkout",
-        name: "tablet-checkout",
-        component: TabletCheckoutView,
-      },
-    ],
-  },
-
-  // ═══════════════════════════════════════════════════════════════
-  // SUPERADMIN PORTAL (Desktop — Role: Enterprise Admin)
-  // ═══════════════════════════════════════════════════════════════
-  {
-    path: "/superadmin",
-    component: SuperadminLayout,
-    children: [
-      {
-        path: "dashboard",
-        name: "superadmin-dashboard",
-        component: SuperadminDashboardView,
-      },
-      {
-        path: "brands",
-        name: "superadmin-brands",
-        component: SuperadminBrandsView,
-      },
-      {
-        path: "integrations",
-        name: "superadmin-integrations",
-        component: SuperadminIntegrationsView,
-      },
-      {
-        path: "accounts",
-        name: "superadmin-accounts",
-        component: AdminAccountsView,
-      },
-      {
-        path: "vouchers",
-        name: "superadmin-vouchers",
-        component: AdminVoucherView,
-      },
-    ],
-  },
+  // Removed Hall, Kitchen, Purchasing, Accounting, Tablet, Superadmin routes
   {
     path: "/manager",
     component: ManagerLayout,
@@ -403,57 +262,7 @@ const routes: RouteRecordRaw[] = [
       },
     ],
   },
-  {
-    path: "/crm",
-    component: CRMLayout,
-    children: [
-      {
-        path: "",
-        redirect: "/crm/serving-tables",
-      },
-      {
-        path: "dashboard",
-        name: "crm-dashboard",
-        component: CRMDashboardView,
-      },
-      {
-        path: "serving-tables",
-        name: "crm-serving-tables",
-        component: CRMServingTablesView,
-      },
-      {
-        path: "feedback",
-        name: "crm-feedback",
-        component: CustomerFeedbackView,
-      },
-    ],
-  },
-  {
-    path: "/staff",
-    component: StaffLayout,
-    children: [
-      {
-        path: "floor-plan",
-        name: "staff-floor-plan",
-        component: StaffFloorPlanView,
-      },
-      {
-        path: "active-tables",
-        name: "staff-active-tables",
-        component: StaffActiveTablesView,
-      },
-      {
-        path: "table/:id/open",
-        name: "staff-open-table",
-        component: StaffOpenTableView,
-      },
-      {
-        path: "table/:id/crm",
-        name: "staff-crm",
-        component: StaffInDiningCRMView,
-      },
-    ],
-  },
+  // Removed CRM, Staff routes
   {
     path: "/customer",
     component: CustomerLayout,
@@ -494,6 +303,16 @@ const routes: RouteRecordRaw[] = [
         name: "SessionEnd",
         component: SessionEnd,
       },
+      {
+        path: "profile",
+        name: "CustomerProfile",
+        component: CustomerProfile,
+      },
+      {
+        path: "settings",
+        name: "CustomerSettings",
+        component: CustomerSettings,
+      },
     ],
   },
 ];
@@ -504,19 +323,10 @@ const router = createRouter({
 });
 
 const ROUTE_ROLES: Record<string, string[]> = {
-  superadmin: ["superadmin"],
-  admin: ["superadmin", "admin"],
-  manager: ["superadmin", "admin", "manager"],
-  reception: ["superadmin", "admin", "manager", "reception"],
-  staff: ["superadmin", "admin", "manager", "staff"],
-  hall: ["superadmin", "admin", "manager", "reception", "staff", "hall"],
-  kitchen: ["superadmin", "admin", "manager", "kitchen"],
-  purchasing: ["superadmin", "admin", "procurement", "procurement_manager", "procurement_staff", "purchasing"],
-  accounting: ["superadmin", "admin", "accounting", "accounting_manager", "manager"],
-  crm: ["superadmin", "admin", "manager", "crm_manager", "crm"],
-  marketing: ["superadmin", "admin", "manager", "marketing"],
-  bod: ["superadmin", "admin", "bod"],
-  tablet: ["superadmin", "admin", "manager", "reception", "staff", "customer"],
+  admin: ["admin"],
+  manager: ["admin", "manager"],
+  reception: ["admin", "manager", "cashier"],
+  customer: ["customer"],
 };
 
 router.beforeEach(async (to) => {

@@ -149,11 +149,21 @@ export const useMenuManagementStore = defineStore('menuManagement', () => {
     return copy
   }
 
-  function toggleSoldOut(id: string): void {
+  async function toggleSoldOut(id: string): Promise<void> {
     const item = getItemById(id)
     if (!item) return
     item.is_sold_out = !item.is_sold_out
     broadcastItemStatus(id)
+
+    if (id.includes('-')) {
+      try {
+        const { useMenu } = await import('@/composables/useMenu')
+        const { toggleItemAvailability } = useMenu()
+        await toggleItemAvailability(id)
+      } catch (e) {
+        console.warn('Failed to sync item availability to Supabase:', e)
+      }
+    }
   }
 
   /** Bulk set is_sold_out on multiple items at once. */
@@ -163,6 +173,16 @@ export const useMenuManagementStore = defineStore('menuManagement', () => {
       if (item) {
         item.is_sold_out = lock
         broadcastItemStatus(id)
+      }
+    })
+  }
+
+  /** Unlock all items — set is_sold_out = false for every item. */
+  function unlockAllItems(): void {
+    items.value.forEach((item) => {
+      if (item.is_sold_out) {
+        item.is_sold_out = false
+        broadcastItemStatus(item.id)
       }
     })
   }
@@ -273,6 +293,7 @@ export const useMenuManagementStore = defineStore('menuManagement', () => {
     copyItem,
     toggleSoldOut,
     bulkLockItems,
+    unlockAllItems,
     toggleItemActive,
     // category actions
     addCategory,

@@ -1,112 +1,72 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { Shift } from '@/types/database'
+import { supabase } from '@/lib/supabase'
+import { useAuth } from '@/composables/useAuth'
 
-// Threshold above which a manager PIN is required to close shift
 export const VARIANCE_PIN_THRESHOLD = 100_000
 
-const STORAGE_KEY = 'mock_current_shift'
-const PAYMENTS_KEY = 'mock_shift_payments'
-
-// ─── Mock payments (generated when a shift is opened) ───────────────
-const MOCK_PAYMENTS: Array<{ amount: number; method: string }> = [
-  { amount: 350000, method: 'cash' },
-  { amount: 200000, method: 'cash' },
-  { amount: 500000, method: 'card' },
-  { amount: 300000, method: 'transfer' },
-  { amount: 150000, method: 'cash' },
-  { amount: 425000, method: 'card' },
-  { amount: 180000, method: 'cash' },
-]
-
-function createMockShift(branchId: string, openingCash: number, userId: string): Shift {
-  const now = new Date().toISOString()
+function mapShift(dbShift: any): Shift {
   return {
-    id: `mock-shift-${Date.now()}`,
-    branch_id: branchId,
-    user_id: userId,
-    status: 'open',
-    opened_at: now,
-    closed_at: null,
-    opening_cash: openingCash,
-    closing_cash: null,
-    expected_cash: null,
-    cash_difference: null,
-    notes: { handover_notes: '' } as any,
-    metadata: { opened_via: 'mock' },
-    created_at: now,
-    updated_at: now,
-  }
-}
-
-function loadFromStorage(): Shift | null {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    return raw ? (JSON.parse(raw) as Shift) : null
-  } catch {
-    return null
-  }
-}
-
-function saveToStorage(shift: Shift | null) {
-  try {
-    if (shift) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(shift))
-    } else {
-      localStorage.removeItem(STORAGE_KEY)
-    }
-  } catch {
-    // ignore
-  }
-}
-
-function loadPaymentsFromStorage(): any[] {
-  try {
-    const raw = localStorage.getItem(PAYMENTS_KEY)
-    return raw ? (JSON.parse(raw) as any[]) : []
-  } catch {
-    return []
-  }
-}
-
-function savePaymentsToStorage(payments: any[]) {
-  try {
-    localStorage.setItem(PAYMENTS_KEY, JSON.stringify(payments))
-  } catch {
-    // ignore
+    id: dbShift.shift_id,
+    branch_id: dbShift.branch_id,
+    user_id: dbShift.opened_by_profile_id,
+    status: dbShift.status as 'open' | 'closed',
+    opened_at: dbShift.opened_at,
+    closed_at: dbShift.closed_at,
+    opening_cash: Number(dbShift.opening_cash_vnd) || 0,
+    closing_cash: dbShift.counted_cash_vnd != null ? Number(dbShift.counted_cash_vnd) : null,
+    expected_cash: dbShift.expected_cash_vnd != null ? Number(dbShift.expected_cash_vnd) : null,
+    cash_difference: dbShift.variance_cash_vnd != null ? Number(dbShift.variance_cash_vnd) : null,
+    notes: { handover_notes: dbShift.note || '' } as any,
+    metadata: {},
+    created_at: dbShift.created_at,
+    updated_at: dbShift.created_at
   }
 }
 
 export const useShiftStore = defineStore('shift', () => {
   // ─── State ─────────────────────────────────────────────────────────
-  const currentShift = ref<Shift | null>(loadFromStorage())
-  const shiftPayments = ref<any[]>(loadPaymentsFromStorage())
+  const currentShift = ref<Shift | null>(null)
+  const shiftPayments = ref<any[]>([])
   const loading = ref(false)
   const error = ref<string | null>(null)
 
   // ─── Computed: revenue breakdown ───────────────────────────────────
   const cashRevenue = computed(() =>
     shiftPayments.value
-      .filter((p) => p.method === 'cash')
-      .reduce((sum, p) => sum + Number(p.amount || 0), 0),
+      .filter((p) => p.payment_method === 'cash' && p.transaction_type === 'payment')
+      .reduce((sum, p) => sum + Number(p.amount_vnd || 0), 0) -
+    shiftPayments.value
+      .filter((p) => p.payment_method === 'cash' && p.transaction_type === 'refund')
+      .reduce((sum, p) => sum + Number(p.amount_vnd || 0), 0)
   )
 
   const cardRevenue = computed(() =>
     shiftPayments.value
-      .filter((p) => p.method === 'card')
-      .reduce((sum, p) => sum + Number(p.amount || 0), 0),
+      .filter((p) => p.payment_method === 'card' && p.transaction_type === 'payment')
+      .reduce((sum, p) => sum + Number(p.amount_vnd || 0), 0) -
+    shiftPayments.value
+      .filter((p) => p.payment_method === 'card' && p.transaction_type === 'refund')
+      .reduce((sum, p) => sum + Number(p.amount_vnd || 0), 0)
   )
 
   const transferRevenue = computed(() =>
     shiftPayments.value
-      .filter((p) => p.method === 'transfer')
-      .reduce((sum, p) => sum + Number(p.amount || 0), 0),
+      .filter((p) => p.payment_method === 'transfer' && p.transaction_type === 'payment')
+      .reduce((sum, p) => sum + Number(p.amount_vnd || 0), 0) -
+    shiftPayments.value
+      .filter((p) => p.payment_method === 'transfer' && p.transaction_type === 'refund')
+      .reduce((sum, p) => sum + Number(p.amount_vnd || 0), 0)
   )
 
   const otherRevenue = computed(() =>
     shiftPayments.value
-      .filter((p) => !['cash', 'card', 'transfer'].includes(p.method))
-      .reduce((sum, p) => sum + Number(p.amount || 0), 0),
+      .filter((p) => !['cash', 'card', 'transfer'].includes(p.payment_method) && p.transaction_type === 'payment')
+      .reduce((sum, p) => sum + Number(p.amount_vnd || 0), 0) -
+    shiftPayments.value
+      .filter((p) => !['cash', 'card', 'transfer'].includes(p.payment_method) && p.transaction_type === 'refund')
+      .reduce((sum, p) => sum + Number(p.amount_vnd || 0), 0)
   )
 
   const totalRevenue = computed(
@@ -118,7 +78,7 @@ export const useShiftStore = defineStore('shift', () => {
     return Number(currentShift.value.opening_cash || 0) + cashRevenue.value
   })
 
-  const orderCount = computed(() => shiftPayments.value.length)
+  const orderCount = computed(() => shiftPayments.value.filter(p => p.transaction_type === 'payment').length)
 
   const isOpen = computed(() => currentShift.value?.status === 'open')
 
@@ -126,15 +86,29 @@ export const useShiftStore = defineStore('shift', () => {
     currentShift.value ? Number(currentShift.value.opening_cash || 0) : 0,
   )
 
-  // ─── Actions (mock — no API calls) ─────────────────────────────────
-  async function fetchActiveShift(_branchId: string) {
-    // Load from localStorage (already loaded on init, but refresh in case
-    // another tab modified it)
-    currentShift.value = loadFromStorage()
+  // ─── Actions ─────────────────────────────────
+  async function fetchActiveShift(branchId: string) {
+    const { data, error: err } = await supabase
+      .from('shifts')
+      .select('*')
+      .eq('branch_id', branchId)
+      .eq('status', 'open')
+      .maybeSingle()
+    if (err) throw err
+    currentShift.value = data ? mapShift(data) : null
   }
 
   async function fetchShiftPayments() {
-    shiftPayments.value = loadPaymentsFromStorage()
+    if (!currentShift.value) {
+      shiftPayments.value = []
+      return
+    }
+    const { data, error: err } = await supabase
+      .from('payments')
+      .select('amount_vnd, payment_method, transaction_type')
+      .eq('shift_id', currentShift.value.id)
+    if (err) throw err
+    shiftPayments.value = data || []
   }
 
   async function refresh(branchId: string) {
@@ -150,26 +124,25 @@ export const useShiftStore = defineStore('shift', () => {
     }
   }
 
-  async function openShift(branchId: string, openingCash: number) {
+  async function openShift(branchId: string, openingCashAmount: number) {
     loading.value = true
     error.value = null
     try {
-      // Simulate async delay
-      await new Promise((r) => setTimeout(r, 300))
+      const auth = useAuth()
+      if (!auth.profile.value?.id) throw new Error('User not logged in')
 
-      const userId = 'mock-user-0001'
-      const shift = createMockShift(branchId, openingCash, userId)
-      currentShift.value = shift
-      saveToStorage(shift)
+      const { data, error: err } = await supabase.rpc('rpc_open_shift', {
+        p_branch_id: branchId,
+        p_opened_by_profile_id: auth.profile.value.id,
+        p_opening_cash_vnd: openingCashAmount
+      })
+      if (err) throw err
 
-      // Generate mock payments for this shift
-      shiftPayments.value = [...MOCK_PAYMENTS]
-      savePaymentsToStorage(shiftPayments.value)
-
+      await refresh(branchId)
       return {
         ok: true,
         idempotent: false,
-        shift: { id: shift.id },
+        shift: { id: data.shift_id },
       }
     } catch (e) {
       error.value = e instanceof Error ? e.message : String(e)
@@ -184,30 +157,31 @@ export const useShiftStore = defineStore('shift', () => {
     loading.value = true
     error.value = null
     try {
-      // Simulate async delay
-      await new Promise((r) => setTimeout(r, 300))
-
-      const diff = closingCash - expectedCash.value
-
-      const closed: Shift = {
-        ...currentShift.value,
-        status: 'closed',
-        closed_at: new Date().toISOString(),
-        closing_cash: closingCash,
-        expected_cash: expectedCash.value,
-        cash_difference: diff,
-        notes: { handover_notes: notes ?? '' } as any,
-      }
-
+      const auth = useAuth()
+      if (!auth.profile.value?.id) throw new Error('User not logged in')
+      
+      const expectedBank = cardRevenue.value + transferRevenue.value + otherRevenue.value
+      
+      const { data, error: err } = await supabase.rpc('rpc_close_shift', {
+        p_branch_id: currentShift.value.branch_id,
+        p_shift_id: currentShift.value.id,
+        p_closed_by_profile_id: auth.profile.value.id,
+        p_counted_cash_vnd: closingCash,
+        p_counted_bank_vnd: expectedBank,
+        p_note: notes || ''
+      })
+      if (err) throw err
+      
+      const closedId = currentShift.value.id
+      const expected = data.expected_cash
+      const diff = data.variance_cash
       currentShift.value = null
       shiftPayments.value = []
-      saveToStorage(null)
-      savePaymentsToStorage([])
 
       return {
         ok: true,
-        shift: { id: closed.id, closed_at: closed.closed_at },
-        expectedCash: closed.expected_cash,
+        shift: { id: closedId, closed_at: new Date().toISOString() },
+        expectedCash: expected,
         closingCash,
         cashDifference: diff,
       }
@@ -223,8 +197,6 @@ export const useShiftStore = defineStore('shift', () => {
     currentShift.value = null
     shiftPayments.value = []
     error.value = null
-    saveToStorage(null)
-    savePaymentsToStorage([])
   }
 
   return {

@@ -4,7 +4,8 @@
     <!-- Multi-select Checkbox on the left -->
     <div class="checkbox-wrapper">
       <input type="checkbox" 
-             :checked="isSelected" 
+             :checked="isSelected || isLocked" 
+             :disabled="isLocked"
              @change="emit('toggle-select')" 
              class="custom-checkbox" />
     </div>
@@ -31,6 +32,7 @@
                  :value="item.note"
                  @input="updateNote(($event.target as HTMLInputElement).value)"
                  :placeholder="$t('customer.cartItem.notePlaceholder')"
+                 :disabled="isLocked"
                  class="note-input" />
         </div>
       </div>
@@ -40,13 +42,13 @@
     <div class="controls-wrapper">
       <!-- Quantity Controls -->
       <div class="quantity-controls">
-        <button @click="decrease" class="qty-btn" type="button">-</button>
+        <button @click="decrease" class="qty-btn" type="button" :disabled="isLocked">-</button>
         <span class="qty-val">{{ item.quantity }}</span>
-        <button @click="increase" class="qty-btn plus" type="button">+</button>
+        <button @click="increase" class="qty-btn plus" type="button" :disabled="isLocked">+</button>
       </div>
 
       <!-- Delete Bin button -->
-      <button @click="emit('remove')" class="btn-delete" type="button">
+      <button @click="emit('remove')" class="btn-delete" type="button" v-if="!isLocked">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="3 6 5 6 21 6"></polyline>
           <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -63,6 +65,7 @@ import type { CartItem } from '@/types/customer';
 const props = defineProps<{
   item: CartItem;
   isSelected: boolean;
+  isLocked?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -199,6 +202,11 @@ function formatPriceDisplay(val: number): string {
   border-color: #ff9800;
 }
 
+.custom-checkbox:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .item-details {
   flex: 1;
   display: flex;
@@ -283,6 +291,11 @@ function formatPriceDisplay(val: number): string {
   border-color: #ff9800;
 }
 
+.note-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .note-input::placeholder {
   color: #666;
 }
@@ -320,15 +333,20 @@ function formatPriceDisplay(val: number): string {
   transition: all 0.2s;
 }
 
-.qty-btn:hover {
+.qty-btn:hover:not(:disabled) {
   background: #4d4d4d;
+}
+
+.qty-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .qty-btn.plus {
   background: #ff9800;
 }
 
-.qty-btn.plus:hover {
+.qty-btn.plus:hover:not(:disabled) {
   background: #ffb74d;
 }
 

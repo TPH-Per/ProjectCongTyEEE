@@ -62,6 +62,15 @@
                  :placeholder="$t('customer.invoice.emailPlaceholder')"
                  class="w-full bg-gray-50 border border-gray-200 focus:border-[#E8772E]/50 rounded-xl p-3 text-sm font-bold text-[#333333] placeholder-gray-455 focus:outline-none transition-colors" />
         </div>
+
+        <!-- Phone for Invoice -->
+        <div class="flex flex-col gap-1.5">
+          <label class="text-xs font-bold text-[#666666] uppercase tracking-wider">{{ $t('customer.invoice.phone') }} <span class="text-red-500">*</span></label>
+          <input v-model="phone" 
+                 type="tel" 
+                 :placeholder="$t('customer.invoice.phonePlaceholder')"
+                 class="w-full bg-gray-50 border border-gray-200 focus:border-[#E8772E]/50 rounded-xl p-3 text-sm font-bold text-[#333333] placeholder-gray-455 focus:outline-none transition-colors" />
+        </div>
       </div>
 
       <!-- Actions Buttons -->
@@ -93,19 +102,20 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'update:modelValue', val: boolean): void;
-  (e: 'submit', data: { taxCode: string; companyName: string; companyAddress: string; email: string }): void;
+  (e: 'submit', data: { taxCode: string; companyName: string; companyAddress: string; email: string; phone: string }): void;
 }>();
 
 const taxCode = ref('');
 const companyName = ref('');
 const companyAddress = ref('');
 const email = ref('');
+const phone = ref('');
 
 const isLookingUp = ref(false);
 const lookupError = ref('');
 
 const isSubmitDisabled = computed(() => {
-  return !taxCode.value.trim() || !companyName.value.trim() || !email.value.trim() || !email.value.includes('@');
+  return !taxCode.value.trim() || !companyName.value.trim() || !email.value.trim() || !email.value.includes('@') || !phone.value.trim();
 });
 
 async function lookupTaxCode() {
@@ -144,7 +154,8 @@ function submit() {
     taxCode: taxCode.value.trim(),
     companyName: companyName.value.trim(),
     companyAddress: companyAddress.value.trim(),
-    email: email.value.trim()
+    email: email.value.trim(),
+    phone: phone.value.trim()
   });
   close();
 }

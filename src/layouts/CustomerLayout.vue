@@ -97,20 +97,57 @@
               </span>
             </button>
 
-            <!-- 3. Profile / Order History button -->
-            <button @click="goToView('OrderHistory')"
-                    :class="[
-                      'w-9 h-9 rounded-lg flex items-center justify-center border transition-all active:scale-90',
-                      isCurrentRoute('OrderHistory')
-                        ? 'bg-[#E8772E] border-[#E8772E] text-black'
-                        : 'bg-[#2a1b10] border-[#442c19] text-gray-400 hover:text-white'
-                    ]"
-                    :title="$t('customer.orderHistory.title')">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                <circle cx="12" cy="7" r="4"></circle>
-              </svg>
-            </button>
+            <!-- 3. Profile / Order History button with dropdown -->
+            <div class="relative">
+              <button @click="showProfileMenu = !showProfileMenu"
+                      :class="[
+                        'w-9 h-9 rounded-lg flex items-center justify-center border transition-all active:scale-90',
+                        isCurrentRoute('OrderHistory') || isCurrentRoute('CustomerProfile') || isCurrentRoute('CustomerSettings')
+                          ? 'bg-[#E8772E] border-[#E8772E] text-black'
+                          : 'bg-[#2a1b10] border-[#442c19] text-gray-400 hover:text-white'
+                      ]"
+                      :title="$t('customer.orderHistory.title')">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+              </button>
+
+              <!-- Dropdown backdrop -->
+              <div v-if="showProfileMenu" class="fixed inset-0 z-40" @click="showProfileMenu = false"></div>
+
+              <!-- Dropdown menu -->
+              <Transition name="fade">
+                <div v-if="showProfileMenu" class="absolute right-0 top-full mt-2 w-52 bg-[#1e1e24] border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden">
+                  <button @click="goToView('CustomerProfile'); showProfileMenu = false"
+                          class="w-full flex items-center gap-3 px-4 py-3 text-xs font-bold text-gray-300 hover:bg-white/5 hover:text-white transition-colors text-left">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    {{ $t('customer.profileMenu.profile') }}
+                  </button>
+                  <div class="h-px bg-white/5"></div>
+                  <button @click="goToView('OrderHistory'); showProfileMenu = false"
+                          class="w-full flex items-center gap-3 px-4 py-3 text-xs font-bold text-gray-300 hover:bg-white/5 hover:text-white transition-colors text-left">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M3 3v18h18"></path>
+                      <path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"></path>
+                    </svg>
+                    {{ $t('customer.profileMenu.orderHistory') }}
+                  </button>
+                  <div class="h-px bg-white/5"></div>
+                  <button @click="goToView('CustomerSettings'); showProfileMenu = false"
+                          class="w-full flex items-center gap-3 px-4 py-3 text-xs font-bold text-gray-300 hover:bg-white/5 hover:text-white transition-colors text-left">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="12" cy="12" r="3"></circle>
+                      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                    </svg>
+                    {{ $t('customer.profileMenu.settings') }}
+                  </button>
+                </div>
+              </Transition>
+            </div>
 
             <!-- 4. Exit Table button -->
             <button @click="handleExitTable"
@@ -249,6 +286,7 @@ const activeServiceRequests = computed(() => store.activeServiceRequests);
 const notifications = computed(() => store.notifications);
 
 const showOrderTracking = ref(false);
+const showProfileMenu = ref(false);
 
 const timeLocale = computed(() => i18nStore.locale === 'ja' ? 'ja-JP' : i18nStore.locale === 'en' ? 'en-US' : 'vi-VN');
 

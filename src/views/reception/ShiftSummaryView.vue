@@ -321,10 +321,10 @@ async function refreshData() {
   await fetchBranchInfo()
 }
 
-async function handleOpenShift(openingCash: number) {
+async function handleOpenShift(payload: { openingCash: number; notes: string }) {
   if (!activeBranch.value) return
   try {
-    const res = await shiftStore.openShift(activeBranch.value, openingCash)
+    const res = await shiftStore.openShift(activeBranch.value, payload.openingCash, payload.notes)
     showOpenModal.value = false
     await Swal.fire({
       icon: 'success',

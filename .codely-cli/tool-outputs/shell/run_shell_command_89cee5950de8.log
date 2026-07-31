@@ -1,0 +1,1809 @@
+================================================================================
+TC: SHIFT-01 (6 rows)
+================================================================================
+  [14] M-0010 | Step 3 | P0/Functional
+    Item: Nhập tiền mặt đầu ca (opening_cash)
+    Data: 2000000
+    Expected: Ô hiển thị giá trị
+  [872] M-0868 | Step 1 | P0/Functional
+    Item: Nạp snapshot không có ca mở hoặc đóng ca hiện tại
+    Data: —
+    Expected: Nút Mở ca xuất hiện
+  [873] M-0869 | Step 2 | P0/Functional
+    Item: Bấm Mở ca
+    Data: —
+    Expected: Dialog Mở ca làm việc xuất hiện
+  [874] M-0870 | Step 4 | P0/Functional
+    Item: Bấm Mở ca trong dialog
+    Data: —
+    Expected: Toast Đã mở ca làm việc; dialog đóng
+  [875] M-0871 | Step 5 | P0/Functional
+    Item: Mở bàn trống
+    Data: —
+    Expected: Không còn lỗi Chưa mở ca làm việc
+  [876] M-0872 | Step 6 | P0/Functional
+    Item: Thử mở thêm một ca cùng chi nhánh
+    Data: —
+    Expected: Bị chặn vì đã có ca mở
+
+================================================================================
+TC: HALL-01 (15 rows)
+================================================================================
+  [126] M-0122 | Step 1 | P0/Functional
+    Item: Chọn bàn trống
+    Data: CN1-A02
+    Expected: Dialog Mở bàn CN1-A02 xuất hiện
+  [230] M-0226 | Step 7 | P0/Functional
+    Item: Xem danh sách gói buffet
+    Data: Standard 50 món
+    Expected: Hiển thị tên gói và giá
+  [916] M-0912 | Step 2 | P0/Functional
+    Item: Kiểm tra mô tả
+    Data: —
+    Expected: Hiện thông tin trẻ em dưới 120cm miễn phí
+  [917] M-0913 | Step 3 | P0/Functional
+    Item: Nhập Người lớn
+    Data: 2
+    Expected: Hiển thị 2
+  [918] M-0914 | Step 4 | P0/Functional
+    Item: Nhập Trẻ em (dưới 120cm)
+    Data: 2
+    Expected: Hiển thị 2
+  [919] M-0915 | Step 5 | P0/Functional
+    Item: Chọn Chế độ phục vụ
+    Data: Buffet
+    Expected: Combobox gói buffet hiển thị
+  [920] M-0916 | Step 6 | P0/Functional
+    Item: Chưa chọn gói
+    Data: —
+    Expected: Nút Mở bàn disabled hoặc khi bấm hiện lỗi phải chọn gói
+  [921] M-0917 | Step 8 | P0/Functional
+    Item: Bấm Mở bàn
+    Data: —
+    Expected: Toast Đã mở bàn CN1-A02; điều hướng /hall/{sessionId}/order
+  [922] M-0918 | Step 9 | P0/Functional
+    Item: Trở về Hall
+    Data: —
+    Expected: Bàn có trạng thái occupied/Có khách, hiện 4 khách và gói
+  [923] M-0919 | Step N1 | P0/Functional
+    Item: Gọi món lẻ: combobox gói biến mất, mở được không cần gói.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+  [924] M-0920 | Step N2 | P0/Negative/Boundary
+    Item: Buffet + gọi thêm: bắt buộc gói; món trong gói 0đ, món ngoài gói có giá.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+  [925] M-0921 | Step N3 | P0/Negative/Boundary
+    Item: Tổng người lớn + trẻ em = 0 → bị chặn.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+  [926] M-0922 | Step N4 | P0/Negative/Boundary
+    Item: Giá trị âm, số thập phân hoặc chữ → phải bị chặn/chuẩn hóa; prototype đang dùng Number(...) nên cần kiểm kỹ.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+  [927] M-0923 | Step N5 | P0/Functional
+    Item: Bàn Có khách, Dọn bàn, Bảo trì → không mở phiên mới.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+  [928] M-0924 | Step N6 | P0/Functional
+    Item: Ca đã đóng → hiện lỗi Ca làm việc đã đóng.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+
+================================================================================
+TC: HALL-02 (7 rows)
+================================================================================
+  [46] M-0042 | Step 2 | P1/Functional
+    Item: Chuyển bàn: Double-click bàn nguồn → "Chuyển bàn" → bàn nguồn viền đỏ pulsing → click bàn đích (viền xanh bouncing) → Sw
+    Data: —
+    Expected: Dialog Chuyển bàn {mã} xuất hiện
+  [929] M-0925 | Step 1 | P1/Functional
+    Item: Bấm bàn nguồn trên Hall
+    Data: —
+    Expected: Sheet thao tác bàn xuất hiện
+  [930] M-0926 | Step 3 | P1/Functional
+    Item: Mở combobox Chọn bàn đích
+    Data: —
+    Expected: Chỉ liệt kê bàn trống/đã giữ hợp lệ, không có bàn nguồn
+  [931] M-0927 | Step 4 | P1/Functional
+    Item: Chọn bàn đích
+    Data: CN1-A03
+    Expected: Hiện mã và capacity
+  [932] M-0928 | Step 5 | P1/Functional
+    Item: Bấm Chuyển
+    Data: —
+    Expected: Toast Đã chuyển bàn; dialog đóng
+  [933] M-0929 | Step 6 | P1/Functional
+    Item: Kiểm tra Hall
+    Data: —
+    Expected: Bàn nguồn về trống; bàn đích có khách và trỏ cùng session
+  [934] M-0930 | Step 7 | P1/Functional
+    Item: Mở order/cashier
+    Data: —
+    Expected: Toàn bộ order, khách, gói và số tiền giữ nguyên; mã bàn hiển thị mới
+
+================================================================================
+TC: HALL-03 (7 rows)
+================================================================================
+  [935] M-0931 | Step 1 | P0/Functional
+    Item: Bấm bàn đích, chọn Ghép bàn
+    Data: —
+    Expected: Dialog nêu rõ chỉ ghép cùng mode/gói
+  [936] M-0932 | Step 2 | P0/Functional
+    Item: Mở combobox bàn nguồn
+    Data: —
+    Expected: Chỉ liệt kê session tương thích
+  [937] M-0933 | Step 3 | P0/Functional
+    Item: Chọn bàn nguồn
+    Data: Bàn thứ hai cùng gói
+    Expected: Hiện mã bàn và số người lớn
+  [938] M-0934 | Step 4 | P0/Functional
+    Item: Bấm Ghép bàn
+    Data: —
+    Expected: Toast Đã ghép bàn vào cùng một phiên
+  [939] M-0935 | Step 5 | P0/Functional
+    Item: Kiểm tra Hall
+    Data: —
+    Expected: Cả hai bàn trỏ cùng session; session nguồn đóng/merged
+  [940] M-0936 | Step 6 | P0/Functional
+    Item: Mở cashier session đích
+    Data: —
+    Expected: Số khách bằng tổng hai phiên; tiền buffet tính theo tổng khách; order hai bàn đều có
+  [941] M-0937 | Step 7 | P0/Functional
+    Item: Thử ghép bàn khác mode hoặc khác gói
+    Data: —
+    Expected: Không xuất hiện trong combobox hoặc domain từ chối
+
+================================================================================
+TC: HALL-04 (10 rows)
+================================================================================
+  [942] M-0938 | Step 1 | P1/Functional
+    Item: Tại màn order, bấm Đổi chế độ phục vụ
+    Data: —
+    Expected: Dialog xuất hiện, hiển thị mode hiện tại
+  [943] M-0939 | Step 2 | P1/Functional
+    Item: Chọn Gọi món lẻ
+    Data: —
+    Expected: Combobox gói biến mất
+  [944] M-0940 | Step 3 | P1/Functional
+    Item: Bấm Áp dụng
+    Data: —
+    Expected: Toast cho biết số món được tính lại
+  [945] M-0941 | Step 4 | P1/Negative/Boundary
+    Item: Kiểm tra món từng thuộc buffet
+    Data: —
+    Expected: Giá chuyển từ 0đ sang giá chi nhánh, line total tính lại
+  [946] M-0942 | Step 5 | P1/Security
+    Item: Đổi sang Buffet
+    Data: Chọn gói
+    Expected: Món thuộc gói chuyển 0đ; topping/món ngoài gói vẫn có giá
+  [947] M-0943 | Step 6 | P1/Functional
+    Item: Thử đổi sau khi bill đã settled
+    Data: —
+    Expected: Bị chặn
+  [948] M-0944 | Step 1 | P1/Functional
+    Item: Khi còn khoản chưa thanh toán, bấm Đóng bàn
+    Expected: Bị chặn Phiên còn khoản chưa thanh toán
+  [949] M-0945 | Step 2 | P1/Functional
+    Item: Thanh toán đầy đủ, bấm Đóng bàn
+    Expected: Điều hướng Hall; bàn chuyển Dọn bàn
+  [950] M-0946 | Step 3 | P1/Functional
+    Item: Bấm bàn đang dọn
+    Expected: Sheet có nút Dọn xong, mở lại bàn
+  [951] M-0947 | Step 4 | P1/Functional
+    Item: Bấm Dọn xong, mở lại bàn
+    Expected: Bàn chuyển Trống, không còn currentSessionId
+
+================================================================================
+TC: RSV-01 (16 rows)
+================================================================================
+  [67] M-0063 | Step 1 | P1/Functional
+    Item: Tạo đặt bàn mới: customer, table, time, meal type
+    Data: —
+    Expected: Dialog Tạo đặt bàn xuất hiện
+  [140] M-0136 | Step 2 | P1/Functional
+    Item: Họ tên khách
+    Data: Trần Booking QA
+    Expected: Hiển thị đúng
+  [141] M-0137 | Step 3 | P1/Negative/Boundary
+    Item: Số điện thoại
+    Data: 0912345678
+    Expected: Hiển thị đúng
+  [877] M-0873 | Step 4 | P1/Functional
+    Item: Ô Số khách
+    Data: 4
+    Expected: Chấp nhận số dương
+  [878] M-0874 | Step 5 | P1/Functional
+    Item: Ô Giờ đến
+    Data: Một thời điểm tương lai
+    Expected: Giá trị datetime-local được chọn
+  [879] M-0875 | Step 6 | P1/Functional
+    Item: Combobox Kênh đặt
+    Data: Zalo
+    Expected: Hiển thị Zalo
+  [880] M-0876 | Step 7 | P1/Functional
+    Item: Ô Ghi chú / dịp đặc biệt
+    Data: Sinh nhật, cần bàn gần cửa sổ
+    Expected: Hiển thị đầy đủ
+  [881] M-0877 | Step 8 | P1/Functional
+    Item: Bấm Tạo booking
+    Data: —
+    Expected: Toast Đã tạo booking; dialog đóng; booking mã Rxxxx, trạng thái chờ xuất hiện
+  [882] M-0878 | Step 9 | P1/Negative/Boundary
+    Item: Bấm vào dòng booking
+    Data: —
+    Expected: Sheet chi tiết đúng tên, mã, giờ, số khách, SĐT, ghi chú và cọc 0đ
+  [883] M-0879 | Step 10 | P1/Functional
+    Item: Mở /reservations/calendar
+    Data: Ngày booking
+    Expected: Booking xuất hiện đúng ngày/khung giờ
+  [884] M-0880 | Step N1 | P1/Negative/Boundary
+    Item: Tên rỗng hoặc toàn khoảng trắng → bị chặn.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+  [885] M-0881 | Step N2 | P1/Negative/Boundary
+    Item: Số khách 0, -1, chữ → bị chặn.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+  [886] M-0882 | Step N3 | P1/Negative/Boundary
+    Item: SĐT rỗng/sai định dạng → tài liệu cần quyết định; prototype hiện chưa validate.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+  [887] M-0883 | Step N4 | P1/Negative/Boundary
+    Item: Giờ đến rỗng → prototype tự dùng thời gian hiện tại; cần xác nhận đây có phải hành vi chấp nhận được.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+  [888] M-0884 | Step N5 | P1/Negative/Boundary
+    Item: Giờ đến trong quá khứ → cần bị chặn ở production.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+  [889] M-0885 | Step N6 | P1/Functional
+    Item: Duration hiện cố định 120 phút, chưa có field UI.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+
+================================================================================
+TC: RSV-02 (8 rows)
+================================================================================
+  [890] M-0886 | Step 1 | P0/Functional
+    Item: Chọn đúng ngày booking trên sơ đồ Hall
+    Data: —
+    Expected: Thẻ booking xuất hiện trong danh sách chờ
+  [891] M-0887 | Step 2 | P0/Functional
+    Item: Kéo thẻ booking vào bàn trống sức chứa 4
+    Data: Bàn capacity 4
+    Expected: Vùng drop hợp lệ được highlight
+  [892] M-0888 | Step 3 | P0/Functional
+    Item: Thả booking vào bàn
+    Data: —
+    Expected: Booking chuyển Đã xác nhận; bàn chuyển Đã đặt; tên khách hiện trên bàn
+  [893] M-0889 | Step 4 | P0/Functional
+    Item: Mở chi tiết booking
+    Data: —
+    Expected: Có liên kết bàn vừa chọn
+  [894] M-0890 | Step 5 | P0/Negative/Boundary
+    Item: Tạo booking khác cùng giờ và kéo vào cùng bàn
+    Data: —
+    Expected: Hệ thống từ chối với lỗi trùng khung giờ
+  [895] M-0891 | Step 6 | P0/Functional
+    Item: Kéo booking 6 khách vào bàn capacity 4
+    Data: —
+    Expected: Bị chặn vì sức chứa không đủ
+  [896] M-0892 | Step 7 | P0/Negative/Boundary
+    Item: Chọn hai bàn tổng capacity ≥ số khách nếu UI cho phép
+    Data: —
+    Expected: Gán thành công nhiều bàn, không tạo liên kết trùng
+  [897] M-0893 | Step 8 | P0/Negative/Boundary
+    Item: Mở ngày khác
+    Data: —
+    Expected: Booking không xuất hiện trên sơ đồ sai ngày
+
+================================================================================
+TC: RSV-03 (19 rows)
+================================================================================
+  [36] M-0032 | Step 4 | P0/Functional
+    Item: Chọn gói buffet (package) cho bàn
+    Data: Standard 50 món
+    Expected: Hiện tên và giá gói
+  [898] M-0894 | Step 1 | P0/Functional
+    Item: Tại /reservations, bấm booking đã xác nhận
+    Data: —
+    Expected: Sheet chi tiết xuất hiện
+  [899] M-0895 | Step 2 | P0/Functional
+    Item: Ô Nhận thêm cọc
+    Data: 300000
+    Expected: Giá trị hiển thị đúng
+  [900] M-0896 | Step 3 | P0/Functional
+    Item: Bấm Nhận
+    Data: —
+    Expected: Toast Đã nhận cọc, tổng ...; tổng cọc tăng đúng 300.000đ
+  [901] M-0897 | Step 4 | P0/Functional
+    Item: Nhập tiếp 200000, bấm Nhận
+    Data: —
+    Expected: Tổng cọc cộng dồn thêm thành 500.000đ
+  [902] M-0898 | Step 5 | P0/Functional
+    Item: Refresh
+    Data: —
+    Expected: Tổng cọc vẫn đúng; có hai giao dịch deposit
+  [903] M-0899 | Step 1 | P0/Negative/Boundary
+    Item: Để trống Lý do hủy, bấm Hủy booking
+    Data: Rỗng
+    Expected: Hiện lỗi bắt buộc lý do; booking chưa đổi
+  [904] M-0900 | Step 2 | P0/Functional
+    Item: Nhập lý do
+    Data: Khách đổi lịch
+    Expected: Giá trị hiển thị
+  [905] M-0901 | Step 3 | P0/Functional
+    Item: Bấm Hủy booking
+    Data: —
+    Expected: Toast hủy thành công; sheet đóng
+  [906] M-0902 | Step 4 | P0/Functional
+    Item: Kiểm tra bàn đã giữ
+    Data: —
+    Expected: Bàn trở lại Trống nếu không có phiên khác
+  [907] M-0903 | Step 5 | P0/Functional
+    Item: Mở lại booking
+    Data: —
+    Expected: Trạng thái Đã hủy, lưu thời gian và lý do
+  [908] M-0904 | Step 6 | P0/Functional
+    Item: Thử nhận thêm cọc
+    Data: —
+    Expected: Bị chặn vì booking đã hủy
+  [909] M-0905 | Step 1 | P0/Functional
+    Item: Bấm Báo khách không đến trên booking hợp lệ
+    Expected: Booking đổi Không đến; bàn giữ chỗ được giải phóng
+  [910] M-0906 | Step 2 | P0/Functional
+    Item: Thử check-in lại booking no-show
+    Expected: Bị chặn Booking không ở trạng thái nhận khách được
+  [911] M-0907 | Step 1 | P0/Functional
+    Item: Trên Hall, bấm bàn có booking
+    Data: —
+    Expected: Dialog mở bàn gắn đúng reservation
+  [912] M-0908 | Step 2 | P0/Functional
+    Item: Nhập Người lớn/Trẻ em
+    Data: 3 / 1
+    Expected: Tổng khách = 4
+  [913] M-0909 | Step 3 | P0/Functional
+    Item: Chọn Chế độ phục vụ
+    Data: Buffet
+    Expected: Combobox gói xuất hiện
+  [914] M-0910 | Step 5 | P0/Functional
+    Item: Bấm Mở bàn
+    Data: —
+    Expected: Điều hướng đến order; bàn Có khách; booking Khách đã đến
+  [915] M-0911 | Step 6 | P0/Functional
+    Item: Thử check-in lại cùng booking
+    Data: —
+    Expected: Bị chặn
+
+================================================================================
+TC: ORD-01 (18 rows)
+================================================================================
+  [952] M-0948 | Step 1 | P0/Functional
+    Item: Mở order của bàn buffet
+    Data: —
+    Expected: Header đúng mã bàn, số khách, gói và mode
+  [953] M-0949 | Step 2 | P0/Functional
+    Item: Bấm tab Thịt bò
+    Data: —
+    Expected: Lưới món nhóm thịt bò xuất hiện
+  [954] M-0950 | Step 3 | P0/Negative/Boundary
+    Item: Kiểm tra món Ba chỉ bò/BO01
+    Data: —
+    Expected: Badge Trong gói, giá 0đ
+  [955] M-0951 | Step 4 | P0/Functional
+    Item: Kiểm tra Bò Wagyu A5/BO05
+    Data: —
+    Expected: Giá bán lẻ, ví dụ 890.000đ
+  [956] M-0952 | Step 5 | P0/Functional
+    Item: Bấm món trong gói một lần
+    Data: Qty 1
+    Expected: Món xuất hiện trong giỏ, qty 1
+  [957] M-0953 | Step 6 | P0/Negative/Boundary
+    Item: Bấm lại cùng món
+    Data: Qty 2
+    Expected: Giỏ cộng dồn qty lên 2, không tạo dòng hiển thị trùng
+  [958] M-0954 | Step 7 | P0/Functional
+    Item: Bấm món ngoài gói
+    Data: Qty 1
+    Expected: Giỏ có dòng giá đúng và tổng tăng
+  [959] M-0955 | Step 8 | P0/Negative/Boundary
+    Item: Dùng nút +/− trong giỏ
+    Data: —
+    Expected: Số lượng thay đổi; về 0 thì dòng bị bỏ theo thiết kế
+  [960] M-0956 | Step 9 | P0/Functional
+    Item: Nhập ghi chú nếu UI hỗ trợ
+    Data: Chín tới, không hành
+    Expected: Ghi chú gắn đúng dòng món
+  [961] M-0957 | Step 10 | P0/Functional
+    Item: Bấm Gửi bếp
+    Data: —
+    Expected: Toast Đã gửi bếp N tem; giỏ nháp trống
+  [962] M-0958 | Step 11 | P0/Functional
+    Item: Kiểm tra danh sách món đã gửi
+    Data: —
+    Expected: Món có trạng thái Chờ bếp, đúng qty/note/source
+  [963] M-0959 | Step 12 | P0/Functional
+    Item: Mở KDS
+    Data: —
+    Expected: Món xuất hiện đúng station, bàn, gói và thời gian
+  [964] M-0960 | Step N1 | P0/Negative/Boundary
+    Item: Giỏ rỗng → nút gửi disabled hoặc lỗi Chưa chọn món nào.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+  [965] M-0961 | Step N2 | P0/Functional
+    Item: Món bị khóa sau khi menu đã mở → add/send phải bị chặn nhất quán.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+  [966] M-0962 | Step N3 | P0/Functional
+    Item: Món không có giá chi nhánh → bị chặn.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+  [967] M-0963 | Step N4 | P0/Security
+    Item: Món không có station → dùng station fallback và cảnh báo; nếu không có fallback phải trả danh sách unrouted.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+  [968] M-0964 | Step N5 | P0/Reliability
+    Item: Double-click Gửi bếp → không tạo order/ticket trùng.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+  [969] M-0965 | Step N6 | P0/Functional
+    Item: Không gửi lại order đã sent.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+
+================================================================================
+TC: KIT-01 (10 rows)
+================================================================================
+  [173] M-0169 | Step 5 | P0/Functional
+    Item: Vào /kitchen/expo
+    Expected: Món ready xuất hiện; món queued/preparing không xuất hiện
+  [987] M-0983 | Step 1 | P0/Functional
+    Item: Sau ORD-01, mở /kitchen
+    Expected: Có lane theo station và card món đúng bàn
+  [988] M-0984 | Step 2 | P0/Functional
+    Item: Kiểm tra card
+    Expected: Có tên món, qty, ghi chú, bàn, gói buffet, phút chờ
+  [989] M-0985 | Step 3 | P0/Functional
+    Item: Bấm Bắt đầu làm
+    Expected: Trạng thái đổi Đang chế biến; toast thành công
+  [990] M-0986 | Step 4 | P0/Functional
+    Item: Bấm chuyển tiếp Sẵn sàng
+    Expected: Card chuyển ready
+  [991] M-0987 | Step 6 | P0/Functional
+    Item: Bấm Đã chạy bàn/nút tương đương
+    Expected: Món chuyển served và rời Expo
+  [992] M-0988 | Step 7 | P0/Functional
+    Item: Mở /kitchen/availability
+    Expected: Danh sách món và trạng thái bán xuất hiện
+  [993] M-0989 | Step 8 | P0/Functional
+    Item: Bấm khóa một món
+    Expected: Toast ngừng bán; POS/QR không gọi được món
+  [994] M-0990 | Step 9 | P0/Functional
+    Item: Bấm mở lại
+    Expected: Món gọi được trở lại
+  [995] M-0991 | Step 10 | P0/Integration
+    Item: Từ ticket đã tạo, thực hiện in lại
+    Expected: Tạo ticket reprint và outbox job mới, không thay đổi qty order
+
+================================================================================
+TC: VOID-01 (16 rows)
+================================================================================
+  [996] M-0992 | Step 1 | P0/Functional
+    Item: Tại màn order, bấm Hủy món trên một dòng
+    Data: —
+    Expected: Dialog hủy món xuất hiện
+  [997] M-0993 | Step 2 | P0/Negative/Boundary
+    Item: Ô Số lượng hủy
+    Data: 1
+    Expected: Không vượt số lượng còn hủy được
+  [998] M-0994 | Step 3 | P0/Functional
+    Item: Để trống Lý do, bấm xác nhận
+    Data: —
+    Expected: Lỗi Phải nhập lý do hủy món
+  [999] M-0995 | Step 4 | P0/Functional
+    Item: Nhập Lý do
+    Data: Khách đổi ý
+    Expected: Hiển thị đúng
+  [1000] M-0996 | Step 5 | P0/Security
+    Item: Combobox Quản lý duyệt
+    Data: Đỗ Quốc Hưng
+    Expected: Người có manager PIN được chọn
+  [1001] M-0997 | Step 6 | P0/Security
+    Item: Ô PIN quản lý
+    Data: 0000
+    Expected: Input che ký tự
+  [1002] M-0998 | Step 7 | P0/Security
+    Item: Bấm Xác nhận hủy
+    Data: —
+    Expected: Lỗi PIN quản lý không đúng; món chưa bị hủy
+  [1003] M-0999 | Step 8 | P0/Security
+    Item: Nhập PIN đúng
+    Data: 1234
+    Expected: —
+  [1004] M-1000 | Step 9 | P0/Functional
+    Item: Bấm Xác nhận hủy
+    Data: —
+    Expected: Toast đã hủy và tem hủy đã gửi bếp
+  [1005] M-1001 | Step 10 | P0/Functional
+    Item: Kiểm tra dòng món
+    Data: —
+    Expected: voidedQty tăng 1; line total giảm tương ứng; nếu hết qty thì status voided
+  [1006] M-1002 | Step 11 | P0/Integration
+    Item: Kiểm tra audit/void log/outbox
+    Data: —
+    Expected: Có lý do, requester, approver, amount và print_void job
+  [1007] M-1003 | Step N1 | P0/Negative/Boundary
+    Item: Qty 0/âm/vượt số gọi → bị chặn.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+  [1008] M-1004 | Step N2 | P0/Security
+    Item: Nhập sai PIN đến ngưỡng 3 lần → khóa theo managerPinMaxAttempts.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+  [1009] M-1005 | Step N3 | P0/Functional
+    Item: Món đã served → yêu cầu approverIsSeniorManager; UI phải xác định đúng cấp quản lý, không tin cờ từ client.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+  [1010] M-1006 | Step N4 | P0/Functional
+    Item: Hủy một phần giữ trạng thái chế biến hiện tại cho phần còn lại.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+  [1011] M-1007 | Step N5 | P0/Functional
+    Item: Hủy toàn order: domain có handler nhưng chưa có UI riêng.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+
+================================================================================
+TC: GST-01 (19 rows)
+================================================================================
+  [248] M-0244 | Step 4 | P1/Functional
+    Item: Món trong gói buffet → giá = 0đ ("Trong gói")
+    Data: —
+    Expected: Hiện Trong gói, không hiển thị số tiền
+  [294] M-0290 | Step 1 | P1/Functional
+    Item: Gọi phục vụ (call_waiter)
+    Data: —
+    Expected: Sheet/dialog liệt kê loại yêu cầu
+  [970] M-0966 | Step 1 | P1/Functional
+    Item: Mở URL QR bàn đang có khách
+    Data: /m/CN1-A02
+    Expected: Trang bàn hiện đúng mã, gói, số khách
+  [971] M-0967 | Step 2 | P1/Functional
+    Item: Bấm Xem thực đơn & gọi món
+    Data: —
+    Expected: Điều hướng /menu
+  [972] M-0968 | Step 3 | P1/Functional
+    Item: Chọn tab Thịt bò
+    Data: —
+    Expected: Danh sách món xuất hiện
+  [973] M-0969 | Step 5 | P1/Functional
+    Item: Bấm thêm món ngoài gói
+    Data: Bò Wagyu A5, qty 1
+    Expected: Giỏ khách tăng số lượng
+  [974] M-0970 | Step 6 | P1/Functional
+    Item: Bấm Gửi yêu cầu gọi món
+    Data: —
+    Expected: Toast Đã gửi yêu cầu gọi món, chờ nhân viên xác nhận
+  [975] M-0971 | Step 7 | P1/Functional
+    Item: Mở /orders
+    Data: —
+    Expected: Món hiển thị trạng thái chờ/xử lý tương ứng
+  [976] M-0972 | Step 8 | P1/Integration
+    Item: Nhân viên gửi/xác nhận bếp nếu flow yêu cầu
+    Data: —
+    Expected: Trạng thái khách được đồng bộ
+  [977] M-0973 | Step 9 | P1/Integration
+    Item: Bếp đổi Đang chế biến rồi Sẵn sàng
+    Data: —
+    Expected: Trang khách phản ánh tiến độ sau đồng bộ/refresh
+  [978] M-0974 | Step 2 | P1/Functional
+    Item: Chọn lần lượt
+    Data: Thêm nước / Thêm than / Gọi nhân viên / Xin tính tiền
+    Expected: Mỗi lựa chọn gửi đúng kind
+  [979] M-0975 | Step 3 | P1/Functional
+    Item: Xác nhận gửi
+    Data: —
+    Expected: Toast Đã gửi yêu cầu, nhân viên sẽ tới ngay
+  [980] M-0976 | Step 4 | P1/Functional
+    Item: Mở /tablet/service-queue
+    Data: —
+    Expected: Yêu cầu xuất hiện đúng bàn, loại và thời gian
+  [981] M-0977 | Step 5 | P1/Functional
+    Item: Bấm nút xử lý xong
+    Data: —
+    Expected: Toast xử lý; yêu cầu chuyển resolved và biến khỏi hàng chờ
+  [982] M-0978 | Step 1 | P1/Functional
+    Item: Từ /bill, bấm Gửi đánh giá bữa ăn
+    Data: —
+    Expected: Màn đánh giá xuất hiện
+  [983] M-0979 | Step 2 | P1/Functional
+    Item: Chọn sao cho từng tiêu chí
+    Data: Món ăn 5, Phục vụ 4, Không gian 5, Vệ sinh 4
+    Expected: Mỗi hàng hiển thị số sao chọn
+  [984] M-0980 | Step 3 | P1/Functional
+    Item: Nhập Góp ý thêm
+    Data: Món ngon, phục vụ nhanh
+    Expected: Nội dung hiển thị
+  [985] M-0981 | Step 4 | P1/Functional
+    Item: Bấm gửi
+    Data: —
+    Expected: Toast cảm ơn và điểm trung bình 4,5 sao
+  [986] M-0982 | Step 5 | P1/Functional
+    Item: Mở /crm/feedback
+    Data: —
+    Expected: Bản ghi đánh giá xuất hiện đúng bàn/nội dung/điểm
+
+================================================================================
+TC: PAY-01 (24 rows)
+================================================================================
+  [1012] M-1008 | Step 1 | P0/Functional
+    Item: Từ màn order bấm Tính tiền
+    Data: —
+    Expected: Điều hướng đúng cashier session
+  [1013] M-1009 | Step 2 | P0/Functional
+    Item: Kiểm tra bảng Tạm tính
+    Data: —
+    Expected: Có dòng buffet người lớn, trẻ em, món lẻ; qty và unit price đúng
+  [1014] M-1010 | Step 3 | P0/Negative/Boundary
+    Item: Kiểm tra trẻ em
+    Data: 2 trẻ dưới 120cm
+    Expected: Dòng trẻ em (miễn phí), tổng trẻ em 0đ theo settings hiện tại
+  [1015] M-1011 | Step 4 | P0/Functional
+    Item: Kiểm tra món buffet đã gọi
+    Data: —
+    Expected: Món trong gói không cộng lần nữa vào alacarte total
+  [1016] M-1012 | Step 5 | P0/Functional
+    Item: Kiểm tra món ngoài gói
+    Data: —
+    Expected: Thành tiền = (qty − voidedQty) × unitPrice
+  [1017] M-1013 | Step 6 | P0/Functional
+    Item: Kiểm tra Tạm tính
+    Data: —
+    Expected: Bằng buffet người lớn + trẻ em + món lẻ
+  [1018] M-1014 | Step 7 | P0/Functional
+    Item: Mở combobox Khách hàng
+    Data: —
+    Expected: Có Khách lẻ và danh sách thành viên
+  [1019] M-1015 | Step 8 | P0/Functional
+    Item: Chọn Nguyễn Văn An
+    Data: —
+    Expected: Hiển thị hạng và điểm hiện có; tier discount tự áp
+  [1020] M-1016 | Step 9 | P0/Functional
+    Item: Ô Mã voucher
+    Data: NGUUCAT10
+    Expected: Mã hiển thị uppercase/được chuẩn hóa khi tra
+  [1021] M-1017 | Step 10 | P0/Functional
+    Item: Bấm Áp
+    Data: —
+    Expected: Toast Đã áp voucher; dòng giảm voucher xuất hiện
+  [1022] M-1018 | Step 11 | P0/Functional
+    Item: Ô Dùng điểm tích lũy
+    Data: 200
+    Expected: Dòng giảm điểm = 200 × 1.000đ = 200.000đ
+  [1023] M-1019 | Step 12 | P0/Functional
+    Item: Kiểm tra thứ tự giảm giá
+    Data: —
+    Expected: Tier tính trên subtotal; voucher tính trên phần sau tier; điểm sau voucher
+  [1024] M-1020 | Step 13 | P0/Functional
+    Item: Kiểm tra VAT/service charge
+    Data: —
+    Expected: Net = subtotal − discount; service charge trên net; VAT trên net + service charge
+  [1025] M-1021 | Step 14 | P0/Functional
+    Item: Kiểm tra Tổng thanh toán
+    Data: —
+    Expected: Bằng net + service charge + VAT, làm tròn VND nhất quán
+  [1026] M-1022 | Step N1 | P0/Functional
+    Item: Voucher không tồn tại → Không tìm thấy voucher.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+  [1027] M-1023 | Step N2 | P0/Negative/Boundary
+    Item: Voucher hết hạn/ngừng hoạt động → lỗi rõ.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+  [1028] M-1024 | Step N3 | P0/Functional
+    Item: Chưa đủ subtotal tối thiểu → lỗi và không áp một phần.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+  [1029] M-1025 | Step N4 | P0/Functional
+    Item: Voucher hết lượt → lỗi.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+  [1030] M-1026 | Step N5 | P0/Functional
+    Item: Điểm nhập lớn hơn số dư → lỗi Khách chỉ còn ... điểm.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+  [1031] M-1027 | Step N6 | P0/Negative/Boundary
+    Item: Giá trị quy đổi điểm vượt phần còn lại → lỗi.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+  [1032] M-1028 | Step N7 | P0/Functional
+    Item: Điểm >0 nhưng đang chọn Khách lẻ → bị chặn.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+  [1033] M-1029 | Step N8 | P0/Negative/Boundary
+    Item: Discount không làm net âm.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+  [1034] M-1030 | Step N9 | P0/Functional
+    Item: Đổi khách sau khi nhập điểm phải tính lại và chặn nếu khách mới thiếu điểm.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+  [1035] M-1031 | Step N10 | P0/Negative/Boundary
+    Item: Xóa voucher/đưa điểm về 0 phải đưa tổng tiền về đúng giá trị trước ưu đãi.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+
+================================================================================
+TC: PAY-02 (8 rows)
+================================================================================
+  [1036] M-1032 | Step 1 | P0/Functional
+    Item: Bấm Thanh toán {grandTotal}
+    Data: —
+    Expected: Dialog Thanh toán xuất hiện, hiển thị số phải thu
+  [1037] M-1033 | Step 2 | P0/Functional
+    Item: Combobox Hình thức
+    Data: Tiền mặt
+    Expected: Ô Tiền khách đưa và Tiền thối xuất hiện
+  [1038] M-1034 | Step 3 | P0/Negative/Boundary
+    Item: Nhập Tiền khách đưa
+    Data: Bằng grandTotal
+    Expected: Tiền thối = 0đ
+  [1039] M-1035 | Step 4 | P0/Functional
+    Item: Nhập số lớn hơn
+    Data: grandTotal + 500.000đ
+    Expected: Tiền thối = 500.000đ
+  [1040] M-1036 | Step 5 | P0/Functional
+    Item: Nhập số nhỏ hơn
+    Data: grandTotal − 1đ
+    Expected: Yêu cầu đúng: nút xác nhận bị khóa/lỗi thiếu tiền
+  [1041] M-1037 | Step 6 | P0/Functional
+    Item: Khôi phục số hợp lệ và bấm Xác nhận đã thu
+    Data: —
+    Expected: Toast Đã thanh toán ...; dialog đóng; bill settled được tạo
+  [1042] M-1038 | Step 7 | P0/Negative/Boundary
+    Item: Kiểm tra bill
+    Data: —
+    Expected: paidAmount = grandTotal, debtAmount = 0, method cash
+  [1043] M-1039 | Step 8 | P0/Functional
+    Item: Bấm thanh toán lần nữa cùng session
+    Data: —
+    Expected: Bị chặn Phiên đã có hóa đơn thanh toán
+
+================================================================================
+TC: PAY-03 (13 rows)
+================================================================================
+  [1044] M-1040 | Step 1 | P0/Integration
+    Item: Mở dialog thanh toán, chọn VietQR
+    Expected: Placeholder VietQR xuất hiện, số tiền và session đúng
+  [1045] M-1041 | Step 2 | P0/Integration
+    Item: Kiểm tra QR payload
+    Expected: Payload phải gắn đúng amount, bill/session và tài khoản nhận
+  [1046] M-1042 | Step 3 | P0/Integration
+    Item: Chưa có callback ngân hàng, không bấm xác nhận
+    Expected: Bill chưa settled
+  [1047] M-1043 | Step 4 | P0/Integration
+    Item: Bấm Xác nhận đã thu
+    Expected: Prototype settled ngay; ghi rõ đây là xác nhận thủ công
+  [1048] M-1044 | Step 5 | P0/Integration
+    Item: Kiểm tra payment
+    Expected: method vietqr, amount đúng
+  [1049] M-1045 | Step N1 | P0/Functional
+    Item: Tạo payment intent pending có thời hạn.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+  [1050] M-1046 | Step N2 | P0/Integration
+    Item: Callback/webhook có chữ ký hợp lệ mới chuyển paid.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+  [1051] M-1047 | Step N3 | P0/Integration
+    Item: Callback sai amount/reference không settle bill.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+  [1052] M-1048 | Step N4 | P0/Integration
+    Item: Callback lặp lại không tạo payment/bill trùng.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+  [1053] M-1049 | Step N5 | P0/Negative/Boundary
+    Item: QR hết hạn chuyển expired.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+  [1054] M-1050 | Step N6 | P0/Functional
+    Item: Nhân viên có quyền mới được xác nhận thủ công.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+  [1055] M-1051 | Step N7 | P0/Functional
+    Item: Thẻ/bank transfer cần mã giao dịch, trạng thái thành công/thất bại và đối soát.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+  [1056] M-1052 | Step N8 | P0/Functional
+    Item: Hỗ trợ nhiều phương thức/split tender nếu yêu cầu tài liệu.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+
+================================================================================
+TC: DEBT-01 (12 rows)
+================================================================================
+  [1057] M-1053 | Step 1 | P0/Functional
+    Item: Tại cashier, giữ Khách lẻ
+    Data: —
+    Expected: Chưa có customerId
+  [1058] M-1054 | Step 2 | P0/Functional
+    Item: Mở thanh toán, chọn Ghi nợ, xác nhận
+    Data: —
+    Expected: Bị chặn Ghi nợ phải gắn với khách hàng
+  [1059] M-1055 | Step 3 | P0/Functional
+    Item: Đóng dialog, chọn khách Nguyễn Văn An
+    Data: —
+    Expected: Customer được gắn vào tính tiền
+  [1060] M-1056 | Step 4 | P0/Functional
+    Item: Mở thanh toán, chọn Ghi nợ
+    Data: —
+    Expected: Hình thức debt được chọn
+  [1061] M-1057 | Step 5 | P0/Negative/Boundary
+    Item: Bấm Xác nhận đã thu
+    Data: —
+    Expected: Bill settled với debtAmount = grandTotal, paidAmount = 0
+  [1062] M-1058 | Step 6 | P0/Functional
+    Item: Mở /accounting/receivables
+    Data: —
+    Expected: Khách xuất hiện với số dư tăng đúng grandTotal
+  [1063] M-1059 | Step 7 | P0/Functional
+    Item: Kiểm tra lịch sử công nợ
+    Data: —
+    Expected: Có transaction type charge, billId đúng
+  [1064] M-1060 | Step 1 | P0/Negative/Boundary
+    Item: Tại dòng khách, nhập số tiền thu
+    Data: Nhỏ hơn số dư, ví dụ 100.000đ
+    Expected: Không vượt outstanding
+  [1065] M-1061 | Step 2 | P0/Functional
+    Item: Bấm Thu nợ
+    Data: —
+    Expected: Toast Đã thu ...; số dư giảm đúng
+  [1066] M-1062 | Step 3 | P0/Negative/Boundary
+    Item: Nhập phần còn lại và thu
+    Data: —
+    Expected: debtBalance về 0; dòng có thể biến khỏi danh sách nợ
+  [1067] M-1063 | Step 4 | P0/Functional
+    Item: Kiểm tra transaction
+    Data: —
+    Expected: Có type repayment, amount và balanceAfter đúng
+  [1068] M-1064 | Step 5 | P0/Negative/Boundary
+    Item: Nhập 0/âm/vượt số dư
+    Data: —
+    Expected: Bị chặn, không đổi số dư
+
+================================================================================
+TC: BILL-01 (17 rows)
+================================================================================
+  [1069] M-1065 | Step 1 | P0/Negative/Boundary
+    Item: Nhập ô Tìm theo mã phiếu
+    Expected: Chỉ các bill chứa mã tìm kiếm xuất hiện
+  [1070] M-1066 | Step 2 | P0/Negative/Boundary
+    Item: Bấm Xem và in hóa đơn 80mm
+    Expected: Dialog preview xuất hiện
+  [1071] M-1067 | Step 3 | P0/Negative/Boundary
+    Item: Kiểm tra header
+    Expected: Tên nhà hàng, mã bill, bàn, thời gian, cashier đúng
+  [1072] M-1068 | Step 4 | P0/Negative/Boundary
+    Item: Kiểm tra dòng tiền
+    Expected: Món, buffet, qty, giá, discount, VAT, total và phương thức đúng
+  [1073] M-1069 | Step 5 | P0/Integration
+    Item: Bấm in
+    Expected: Print dialog/browser hoặc outbox print_receipt được tạo đúng
+  [1074] M-1070 | Step 1 | P0/Functional
+    Item: Tại bill Đã thanh toán, chưa HĐĐT, bấm Gọi lại phiếu
+    Expected: Toast mở lại phiên
+  [1075] M-1071 | Step 2 | P0/Functional
+    Item: Kiểm tra bill
+    Expected: status recalled, settledAt null
+  [1076] M-1072 | Step 3 | P0/Functional
+    Item: Kiểm tra session
+    Expected: status open, có thể thêm/sửa món và tính lại
+  [1077] M-1073 | Step 4 | P0/Functional
+    Item: Kiểm tra tồn kho
+    Expected: Lượng đã trừ theo bill được hoàn bằng adjustment
+  [1078] M-1074 | Step 5 | P0/Functional
+    Item: Kiểm tra khách/voucher
+    Expected: Điểm, visitCount, totalSpent, công nợ được đảo; cần kiểm usage voucher có được hoàn hay không
+  [1079] M-1075 | Step 6 | P0/Negative/Boundary
+    Item: Tính tiền lại
+    Expected: Tạo bill mới đúng, không cộng trùng tác động cũ
+  [1080] M-1076 | Step 1 | P0/Functional
+    Item: Bấm Hủy phiếu
+    Data: —
+    Expected: Dialog xác nhận xuất hiện
+  [1081] M-1077 | Step 2 | P0/Security
+    Item: Chọn Người duyệt
+    Data: Quản lý có PIN
+    Expected: Giá trị được chọn
+  [1082] M-1078 | Step 3 | P0/Negative/Boundary
+    Item: Nhập Lý do hủy
+    Data: Sai phương thức thanh toán
+    Expected: Bắt buộc
+  [1083] M-1079 | Step 4 | P0/Security
+    Item: Nhập PIN sai rồi đúng
+    Data: 0000, 1234
+    Expected: Sai: không đổi dữ liệu; đúng: hủy
+  [1084] M-1080 | Step 5 | P0/Functional
+    Item: Xác nhận
+    Data: —
+    Expected: bill voided, lưu voidedAt/reason, audit log
+  [1085] M-1081 | Step 6 | P0/Functional
+    Item: Kiểm tra hoàn tác
+    Data: —
+    Expected: Tồn, điểm, nợ, doanh thu được đảo đúng
+
+================================================================================
+TC: INV-01 (18 rows)
+================================================================================
+  [1086] M-1082 | Step 1 | P0/Functional
+    Item: Tại /cashier/bills, bấm nút phát hành HĐĐT
+    Data: —
+    Expected: Dialog xuất hóa đơn xuất hiện
+  [1087] M-1083 | Step 2 | P0/Negative/Boundary
+    Item: Ô Mã số thuế
+    Data: 0301234567
+    Expected: Hiển thị đúng, không tự mất số 0 đầu
+  [1088] M-1084 | Step 3 | P0/Functional
+    Item: Ô Tên công ty
+    Data: Công ty TNHH QA Việt Nam
+    Expected: Hiển thị đúng Unicode
+  [1089] M-1085 | Step 4 | P0/Negative/Boundary
+    Item: Ô Địa chỉ
+    Data: 01 Đường Kiểm Thử, TP.HCM
+    Expected: Hiển thị đầy đủ
+  [1090] M-1086 | Step 5 | P0/Negative/Boundary
+    Item: Để MST rỗng và bấm phát hành
+    Data: —
+    Expected: Bị chặn Phải nhập mã số thuế
+  [1091] M-1087 | Step 6 | P0/Functional
+    Item: Nhập lại MST và bấm phát hành
+    Data: —
+    Expected: Toast Đã phát hành hóa đơn HDxxxxxx
+  [1092] M-1088 | Step 7 | P0/Functional
+    Item: Kiểm tra bill list
+    Data: Có badge Đã xuất HĐĐT; nút gọi lại/phát hành lại biến mất
+    Expected: 
+  [1093] M-1089 | Step 8 | P0/Functional
+    Item: Thử gọi lại/hủy qua UI hoặc handler
+    Data: Bị chặn INVOICE_LOCKED
+    Expected: 
+  [1094] M-1090 | Step 9 | P0/Integration
+    Item: Kiểm tra outbox
+    Data: Có job issue_invoice liên kết invoiceId/billId
+    Expected: 
+  [1095] M-1091 | Step N1 | P0/Functional
+    Item: Tra cứu/validate MST và định dạng thông tin người mua.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+  [1096] M-1092 | Step N2 | P0/Integration
+    Item: Gửi payload đúng schema Viettel S-Invoice.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+  [1097] M-1093 | Step N3 | P0/Functional
+    Item: Lưu request ID, invoice number, mẫu số, ký hiệu, mã tra cứu.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+  [1098] M-1094 | Step N4 | P0/Reliability
+    Item: Xử lý HTTP timeout, lỗi nghiệp vụ, retry có idempotency.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+  [1099] M-1095 | Step N5 | P0/Functional
+    Item: Không đánh issued trước khi đối tác xác nhận thành công.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+  [1100] M-1096 | Step N6 | P0/Functional
+    Item: Xem/tải PDF/XML bản gốc.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+  [1101] M-1097 | Step N7 | P0/Functional
+    Item: Email cho khách.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+  [1102] M-1098 | Step N8 | P0/Functional
+    Item: Thay thế/điều chỉnh/hủy HĐĐT theo quy định thay vì chỉ khóa vĩnh viễn.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+  [1103] M-1099 | Step N9 | P0/Functional
+    Item: Đối chiếu tổng tiền/VAT giữa PDF/XML đối tác và bill nội bộ.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+
+================================================================================
+TC: WH-01 (9 rows)
+================================================================================
+  [1104] M-1100 | Step 1 | P1/Functional
+    Item: Bấm Thêm nguyên vật liệu
+    Data: —
+    Expected: Dialog xuất hiện
+  [1105] M-1101 | Step 2 | P1/Functional
+    Item: Ô Mã
+    Data: NVL-QA01
+    Expected: Hiển thị đúng
+  [1106] M-1102 | Step 3 | P1/Functional
+    Item: Ô Tên
+    Data: Nguyên liệu kiểm thử
+    Expected: Bắt buộc, trim khoảng trắng
+  [1107] M-1103 | Step 4 | P1/Functional
+    Item: Ô Đơn vị
+    Data: kg
+    Expected: Lưu đúng đơn vị
+  [1108] M-1104 | Step 5 | P1/Negative/Boundary
+    Item: Ô Mức cảnh báo
+    Data: 5
+    Expected: Chấp nhận số không âm
+  [1109] M-1105 | Step 6 | P1/Negative/Boundary
+    Item: Ô Giá vốn / đơn vị
+    Data: 100000
+    Expected: Chấp nhận số không âm
+  [1110] M-1106 | Step 7 | P1/Negative/Boundary
+    Item: Bấm lưu
+    Data: —
+    Expected: Toast thêm thành công; dòng NVL xuất hiện, tồn đầu 0
+  [1111] M-1107 | Step 8 | P1/Functional
+    Item: Bấm vào NVL
+    Data: —
+    Expected: Màn chi tiết/thẻ kho xuất hiện
+  [1112] M-1108 | Step 9 | P1/Functional
+    Item: Kiểm tra Tổng phát sinh và Tồn hiện tại
+    Data: —
+    Expected: Ledger sum khớp stock hiện tại
+
+================================================================================
+TC: WH-02 (11 rows)
+================================================================================
+  [1113] M-1109 | Step 1 | P0/Functional
+    Item: Ghi nhận tồn và average cost trước nhập
+    Data: Ví dụ tồn 10, giá 100.000đ
+    Expected: Lưu làm baseline
+  [1114] M-1110 | Step 2 | P0/Functional
+    Item: Combobox Nhà cung cấp
+    Data: Chọn NCC đang hoạt động
+    Expected: Tên NCC hiển thị
+  [1115] M-1111 | Step 3 | P0/Functional
+    Item: Combobox Nguyên vật liệu
+    Data: Nguyên liệu kiểm thử
+    Expected: Hiển thị tên và đơn vị
+  [1116] M-1112 | Step 4 | P0/Functional
+    Item: Ô Số lượng
+    Data: 10
+    Expected: Chấp nhận decimal dương
+  [1117] M-1113 | Step 5 | P0/Functional
+    Item: Ô Đơn giá
+    Data: 200000
+    Expected: Chấp nhận số tiền dương
+  [1118] M-1114 | Step 6 | P0/Functional
+    Item: Ô Số phiếu giao hàng
+    Data: PGH-QA-001
+    Expected: Lưu được ký tự hợp lệ
+  [1119] M-1115 | Step 7 | P0/Functional
+    Item: Bấm Nhập kho
+    Data: —
+    Expected: Toast Đã nhập kho 2.000.000đ; dòng receipt mới xuất hiện
+  [1120] M-1116 | Step 8 | P0/Functional
+    Item: Kiểm tra tồn
+    Data: —
+    Expected: Tồn tăng từ 10 lên 20
+  [1121] M-1117 | Step 9 | P0/Functional
+    Item: Kiểm tra giá bình quân
+    Data: —
+    Expected: (10×100.000 + 10×200.000)/20 = 150.000đ
+  [1122] M-1118 | Step 10 | P0/Functional
+    Item: Kiểm tra inventory transaction
+    Data: —
+    Expected: type receipt, qty +10, unitCost 200.000, balanceAfter 20
+  [1123] M-1119 | Step 11 | P0/Functional
+    Item: Mở /procurement/payables
+    Data: —
+    Expected: Phát sinh payable 2.000.000đ, due date theo logic hiện tại
+
+================================================================================
+TC: WH-03 (9 rows)
+================================================================================
+  [1124] M-1120 | Step 1 | P0/Functional
+    Item: Ghi nhận tồn NVL trước hủy
+    Data: Ví dụ 20kg
+    Expected: Baseline
+  [1125] M-1121 | Step 2 | P0/Functional
+    Item: Combobox Nguyên vật liệu
+    Data: NVL có tồn
+    Expected: Giá trị được chọn
+  [1126] M-1122 | Step 3 | P0/Functional
+    Item: Ô Số lượng
+    Data: 1.5
+    Expected: Chấp nhận decimal dương
+  [1127] M-1123 | Step 4 | P0/Functional
+    Item: Combobox Lý do
+    Data: Hao hụt sơ chế
+    Expected: Hiển thị lý do
+  [1128] M-1124 | Step 5 | P0/Functional
+    Item: Để trống Ghi chú bắt buộc, bấm Ghi hao hụt
+    Data: —
+    Expected: Toast lỗi Phải ghi rõ lý do hủy
+  [1129] M-1125 | Step 6 | P0/Functional
+    Item: Nhập ghi chú
+    Data: Sơ chế loại bỏ mỡ
+    Expected: Hiển thị đúng
+  [1130] M-1126 | Step 7 | P0/Functional
+    Item: Bấm Ghi hao hụt
+    Data: —
+    Expected: Toast tồn còn 18,5; dòng waste xuất hiện
+  [1131] M-1127 | Step 8 | P0/Negative/Boundary
+    Item: Kiểm tra tồn/thẻ kho
+    Data: —
+    Expected: Tồn giảm 1,5; transaction type waste, qty âm, cost theo averageCost
+  [1132] M-1128 | Step 9 | P0/Functional
+    Item: Kiểm tra P&L
+    Data: —
+    Expected: wasteCost tăng 1,5 × averageCost
+
+================================================================================
+TC: PR-01 (8 rows)
+================================================================================
+  [1133] M-1129 | Step 1 | P1/Functional
+    Item: Mở Yêu cầu vật tư
+    Data: —
+    Expected: Form và bảng yêu cầu xuất hiện
+  [1134] M-1130 | Step 2 | P1/Functional
+    Item: Combobox Nguyên vật liệu
+    Data: Thịt bò Wagyu
+    Expected: Hiển thị NVL đã chọn
+  [1135] M-1131 | Step 3 | P1/Functional
+    Item: Ô Số lượng
+    Data: 5
+    Expected: Chấp nhận số dương
+  [1136] M-1132 | Step 4 | P1/Functional
+    Item: Ô Ghi chú
+    Data: Tồn dưới mức an toàn
+    Expected: Hiển thị đúng
+  [1137] M-1133 | Step 5 | P1/Functional
+    Item: Bấm Gửi yêu cầu
+    Data: —
+    Expected: Toast chờ duyệt; dòng mới status Đã gửi/Submitted
+  [1138] M-1134 | Step 6 | P1/Functional
+    Item: Với vai trò quản lý, bấm Duyệt
+    Data: —
+    Expected: Toast Đã duyệt yêu cầu; status Đã duyệt
+  [1139] M-1135 | Step 7 | P1/Functional
+    Item: Tạo yêu cầu khác rồi bấm Từ chối
+    Data: —
+    Expected: Status Từ chối
+  [1140] M-1136 | Step 8 | P1/Functional
+    Item: Kiểm tra lịch sử
+    Data: —
+    Expected: requestedBy/requestedAt và approvedBy/approvedAt đúng
+
+================================================================================
+TC: PO-01 (17 rows)
+================================================================================
+  [453] M-0449 | Step 1 | P1/Functional
+    Item: Thêm nhà cung cấp (name, contact, products)
+    Data: —
+    Expected: Dialog xuất hiện
+  [501] M-0497 | Step 3 | P1/Functional
+    Item: Xem getInventoryTransactions()
+    Expected: SupplierPayment method bank_transfer, người trả và thời gian đúng
+  [532] M-0528 | Step 4 | P1/Negative/Boundary
+    Item: Tìm kiếm hóa đơn theo mã số thuế
+    Data: 0312345678
+    Expected: Giữ số 0 đầu
+  [1141] M-1137 | Step 2 | P1/Functional
+    Item: Mã
+    Data: NCC-QA01
+    Expected: Lưu đúng
+  [1142] M-1138 | Step 3 | P1/Functional
+    Item: Tên
+    Data: Nhà cung cấp QA
+    Expected: Bắt buộc
+  [1143] M-1139 | Step 5 | P1/Negative/Boundary
+    Item: Điện thoại
+    Data: 0909876543
+    Expected: Hiển thị đúng
+  [1144] M-1140 | Step 6 | P1/Negative/Boundary
+    Item: Kỳ hạn thanh toán (ngày)
+    Data: 45
+    Expected: Số không âm
+  [1145] M-1141 | Step 7 | P1/Functional
+    Item: Bấm Lưu
+    Data: —
+    Expected: Toast thành công; dòng NCC xuất hiện
+  [1146] M-1142 | Step 1 | P1/Functional
+    Item: Combobox Từ yêu cầu đã duyệt
+    Data: Chọn PR vừa duyệt hoặc Mua trực tiếp
+    Expected: Nếu chọn PR, dữ liệu line nên được điền theo PR
+  [1147] M-1143 | Step 2 | P1/Functional
+    Item: Combobox Nhà cung cấp
+    Data: Nhà cung cấp QA
+    Expected: NCC hiển thị
+  [1148] M-1144 | Step 3 | P1/Functional
+    Item: Combobox Nguyên vật liệu
+    Data: Thịt bò Wagyu
+    Expected: NVL hiển thị
+  [1149] M-1145 | Step 4 | P1/Functional
+    Item: Ô Số lượng
+    Data: 5
+    Expected: Chấp nhận dương
+  [1150] M-1146 | Step 5 | P1/Functional
+    Item: Ô Đơn giá
+    Data: 2500000
+    Expected: Thành tiền dự kiến 12.500.000đ
+  [1151] M-1147 | Step 6 | P1/Functional
+    Item: Bấm Tạo đơn mua
+    Data: —
+    Expected: Toast giá trị; PO mã mới xuất hiện
+  [1152] M-1148 | Step 7 | P1/Functional
+    Item: Kiểm tra PR nguồn
+    Data: —
+    Expected: Trạng thái chuyển ordered nếu flow yêu cầu
+  [1153] M-1149 | Step 1 | P1/Functional
+    Item: Sau nhập kho, mở /procurement/payables
+    Expected: Payable hiển thị amount/paid/remaining/due/status
+  [1154] M-1150 | Step 2 | P1/Functional
+    Item: Bấm Trả hết
+    Expected: Toast số tiền; paidAmount = amount; status Đã trả
+
+================================================================================
+TC: ACC-01 (11 rows)
+================================================================================
+  [1155] M-1151 | Step 1 | P0/Functional
+    Item: Combobox Loại chi
+    Data: utilities/Tiện ích
+    Expected: Hiển thị label phù hợp
+  [1156] M-1152 | Step 2 | P0/Functional
+    Item: Ô Số tiền
+    Data: 1200000
+    Expected: Chấp nhận >0
+  [1157] M-1153 | Step 3 | P0/Functional
+    Item: Ô Diễn giải
+    Data: Tiền điện tháng 7
+    Expected: Hiển thị đúng
+  [1158] M-1154 | Step 4 | P0/Functional
+    Item: Với số tiền ≤5.000.000đ
+    Data: —
+    Expected: Không bắt buộc combobox người duyệt
+  [1159] M-1155 | Step 5 | P0/Functional
+    Item: Bấm Lập phiếu chi
+    Data: —
+    Expected: Toast Đã lập phiếu chi; dòng phiếu active xuất hiện
+  [1160] M-1156 | Step 6 | P0/Functional
+    Item: Mở P&L
+    Data: —
+    Expected: expenseTotal tăng 1.200.000đ; netProfit giảm tương ứng
+  [1161] M-1157 | Step 7 | P0/Functional
+    Item: Nhập phiếu mới 6.000.000
+    Data: —
+    Expected: Combobox Người duyệt (bắt buộc) xuất hiện
+  [1162] M-1158 | Step 8 | P0/Functional
+    Item: Không chọn người duyệt, bấm lập
+    Data: —
+    Expected: Lỗi Phiếu trên 5000000đ phải có người duyệt
+  [1163] M-1159 | Step 9 | P0/Functional
+    Item: Chọn quản lý và bấm lập
+    Data: —
+    Expected: Tạo thành công, requiresApproval true, approvedBy/At có dữ liệu
+  [1164] M-1160 | Step 10 | P0/Functional
+    Item: Bấm Hủy phiếu chi
+    Data: —
+    Expected: Yêu cầu lý do hủy; prototype hiện có thể dùng lý do mặc định, cần ghi nhận
+  [1165] M-1161 | Step 11 | P0/Functional
+    Item: Xác nhận hủy
+    Data: —
+    Expected: status voided, expense không còn tính P&L, audit log được tạo
+
+================================================================================
+TC: SHIFT-02 (18 rows)
+================================================================================
+  [1166] M-1162 | Step 1 | P0/Functional
+    Item: Đảm bảo còn một bàn/session chưa thanh toán
+    Expected: —
+  [1167] M-1163 | Step 2 | P0/Functional
+    Item: Mở màn đóng ca, nhập số đếm và bấm Đóng ca
+    Expected: Bị chặn Còn ... phiên chưa thanh toán
+  [1168] M-1164 | Step 1 | P0/Negative/Boundary
+    Item: Thanh toán/đóng hết bàn
+    Data: —
+    Expected: openSessionCount = 0
+  [1169] M-1165 | Step 2 | P0/Functional
+    Item: Ghi nhận Dự kiến tiền mặt và Dự kiến chuyển khoản
+    Data: Theo summary
+    Expected: Dữ liệu đúng bill/payment/thu chi
+  [1170] M-1166 | Step 3 | P0/Negative/Boundary
+    Item: Ô Đếm thực tế
+    Data: Bằng expected cash
+    Expected: Lệch quỹ 0đ, không hiện vượt ngưỡng
+  [1171] M-1167 | Step 4 | P0/Negative/Boundary
+    Item: Ô Đếm chuyển khoản
+    Data: Bằng expected bank
+    Expected: Lệch bank 0đ
+  [1172] M-1168 | Step 5 | P0/Functional
+    Item: Bấm Đóng ca
+    Data: —
+    Expected: Toast tạo đối soát; shift closed; dialog Z-report xuất hiện
+  [1173] M-1169 | Step 6 | P0/Functional
+    Item: Bấm In Z-report/print
+    Data: —
+    Expected: Preview có opening cash, sales, expense, variance, bill count
+  [1174] M-1170 | Step 1 | P0/Negative/Boundary
+    Item: Ô Đếm thực tế
+    Data: Làm lệch ≥500.000đ
+    Expected: Hiện Vượt ngưỡng; khu duyệt xuất hiện
+  [1175] M-1171 | Step 2 | P0/Security
+    Item: Không chọn quản lý/PIN/lý do, bấm đóng
+    Data: —
+    Expected: Lỗi cần PIN quản lý
+  [1176] M-1172 | Step 3 | P0/Negative/Boundary
+    Item: Combobox Quản lý duyệt
+    Data: Đỗ Quốc Hưng
+    Expected: Chọn thành công
+  [1177] M-1173 | Step 4 | P0/Security
+    Item: PIN sai
+    Data: 0000
+    Expected: Lỗi PIN, ca chưa đóng
+  [1178] M-1174 | Step 5 | P0/Security
+    Item: PIN đúng
+    Data: 1234
+    Expected: —
+  [1179] M-1175 | Step 6 | P0/Negative/Boundary
+    Item: Để trống Lý do lệch quỹ
+    Data: —
+    Expected: Lỗi bắt buộc lý do
+  [1180] M-1176 | Step 7 | P0/Negative/Boundary
+    Item: Nhập lý do
+    Data: Thối nhầm tiền khách
+    Expected: Hiển thị đúng
+  [1181] M-1177 | Step 8 | P0/Negative/Boundary
+    Item: Bấm Đóng ca
+    Data: —
+    Expected: Đóng thành công; reconciliation status flagged
+  [1182] M-1178 | Step 9 | P0/Negative/Boundary
+    Item: Mở /accounting/reconciliation
+    Data: —
+    Expected: Dòng vừa tạo có badge Cần soi lại và số variance đúng
+  [1183] M-1179 | Step 10 | P0/Negative/Boundary
+    Item: Bấm Chấp nhận hoặc Cần soi lại
+    Data: —
+    Expected: Toast và trạng thái review phù hợp
+
+================================================================================
+TC: RPT-01 (11 rows)
+================================================================================
+  [355] M-0351 | Step 4 | P1/Functional
+    Item: Phân tích theo phương thức: cash / card / transfer / other
+    Expected: Tổng cash/QR/card khớp payments, debt theo quy ước báo cáo
+  [1184] M-1180 | Step 1 | P1/Functional
+    Item: Mở báo cáo doanh thu
+    Expected: Có bộ lọc Từ ngày/Đến ngày
+  [1185] M-1181 | Step 2 | P1/Negative/Boundary
+    Item: Chọn khoảng có bill
+    Expected: billCount, guestCount, gross/net/VAT khác 0 và khớp bill
+  [1186] M-1182 | Step 3 | P1/Negative/Boundary
+    Item: Chọn khoảng không dữ liệu
+    Expected: Tất cả KPI 0, chart không lỗi NaN/Infinity
+  [1187] M-1183 | Step 5 | P1/Functional
+    Item: Mở hiệu suất menu
+    Expected: Qty món, revenue món lẻ, includedInPackageCount đúng
+  [1188] M-1184 | Step 6 | P1/Functional
+    Item: Mở hiệu suất gói
+    Expected: Session, guestCount, revenue theo gói đúng
+  [1189] M-1185 | Step 7 | P1/Functional
+    Item: Mở COGS
+    Expected: Tổng consumption × averageCost đúng; bill recalled/voided không bị tính hai lần
+  [1190] M-1186 | Step 8 | P1/Functional
+    Item: Mở P&L
+    Expected: grossRevenue, discount, netRevenue, VAT, COGS, otherIncome, expense, waste, netProfit đúng công thức
+  [1191] M-1187 | Step 9 | P1/Functional
+    Item: Mở báo cáo booking
+    Expected: Tổng/confirmed/checked-in/cancelled/no-show đúng khoảng thời gian
+  [1192] M-1188 | Step 10 | P1/Functional
+    Item: Mở BOD và đổi chi nhánh
+    Expected: Mỗi chi nhánh độc lập; tổng không lẫn dữ liệu
+  [1193] M-1189 | Step 11 | P1/Functional
+    Item: Kiểm tra bill recalled/voided
+    Expected: Không còn tính doanh thu/lợi nhuận theo quy ước
+
+================================================================================
+TC: SYNC-01 (7 rows)
+================================================================================
+  [1194] M-1190 | Step 1 | P1/Functional
+    Item: Mở Hall ở tab A và KDS ở tab B
+    Expected: Cùng chi nhánh/snapshot
+  [1195] M-1191 | Step 2 | P1/Integration
+    Item: Tab A mở bàn và gửi món
+    Expected: Tab B nhận card KDS không cần reload hoặc sau khoảng đồng bộ hợp lệ
+  [1196] M-1192 | Step 3 | P1/Functional
+    Item: Tab B chuyển món Đang chế biến
+    Expected: Tab A và màn khách thấy trạng thái mới
+  [1197] M-1193 | Step 4 | P1/Functional
+    Item: Mở tab C sau thay đổi
+    Expected: Tab C đọc snapshot mới nhất từ localStorage
+  [1198] M-1194 | Step 5 | P1/Functional
+    Item: Hai tab thao tác gần đồng thời
+    Expected: Không mất update hoặc ghi đè dữ liệu mới bằng snapshot cũ
+  [1199] M-1195 | Step 6 | P1/Functional
+    Item: Refresh tất cả tab
+    Expected: Dữ liệu vẫn nhất quán
+  [1200] M-1196 | Step 7 | P1/Functional
+    Item: Nạp scenario khác ở tab A
+    Expected: Các tab còn lại nhận thay đổi và không giữ dữ liệu scenario cũ
+
+================================================================================
+TC: SYS-01 (15 rows)
+================================================================================
+  [782] M-0778 | Step 1 | P1/Functional
+    Item: Mở /hall
+    Data: —
+    Expected: Layout POS xuất hiện, có combobox chi nhánh và vai trò
+  [783] M-0779 | Step 2 | P1/Functional
+    Item: Bấm combobox chi nhánh
+    Data: —
+    Expected: Danh sách ít nhất hai chi nhánh xuất hiện
+  [784] M-0780 | Step 3 | P1/Functional
+    Item: Chọn chi nhánh có mã bàn CN1-*
+    Data: Chi nhánh 1
+    Expected: Sơ đồ chỉ hiển thị bàn thuộc chi nhánh đã chọn
+  [785] M-0781 | Step 4 | P1/Functional
+    Item: Bấm combobox vai trò
+    Data: —
+    Expected: Hiển thị: Quản lý, Lễ tân, Phục vụ, Thu ngân, Bếp, Kế toán, Kho
+  [786] M-0782 | Step 5 | P1/Functional
+    Item: Chọn Bếp
+    Data: Bếp
+    Expected: Menu có KDS bếp, Expo, Khóa món hết; các menu kế toán/nhân viên không hiện
+  [787] M-0783 | Step 6 | P1/Functional
+    Item: Chọn Kế toán
+    Data: Kế toán
+    Expected: Hiện nhóm kế toán/báo cáo phù hợp; không hiện quản trị món/bếp nếu không được khai báo
+  [788] M-0784 | Step 7 | P1/Functional
+    Item: Chọn Quản lý
+    Data: Quản lý
+    Expected: Toàn bộ menu quản trị hợp lệ xuất hiện
+  [789] M-0785 | Step 8 | P1/Security
+    Item: Nhập trực tiếp URL bị ẩn, ví dụ /admin/staff, khi vai trò là Bếp
+    Data: —
+    Expected: Yêu cầu nghiệp vụ production: bị từ chối/redirect; hiện prototype cần ghi nhận có truy cập được hay không
+  [790] M-0786 | Step M1 | P1/Functional
+    Item: Đối chiếu Sơ đồ bàn
+    Expected: Quản lý=✓; Lễ tân=✓; Phục vụ=✓; Thu ngân=✓; Bếp=Theo cấu hình hiện tại ✓; Kế toán=Theo cấu hình hiện tại ✓; Kho=Theo cấu
+  [791] M-0787 | Step M2 | P1/Functional
+    Item: Đối chiếu Booking
+    Expected: Quản lý=✓; Lễ tân=✓; Phục vụ=✓; Thu ngân=✓; Bếp=✗; Kế toán=✗; Kho=✗
+  [792] M-0788 | Step M3 | P1/Functional
+    Item: Đối chiếu KDS
+    Expected: Quản lý=✓; Lễ tân=✗; Phục vụ=✗; Thu ngân=✗; Bếp=✓; Kế toán=✗; Kho=✗
+  [793] M-0789 | Step M4 | P1/Functional
+    Item: Đối chiếu Thanh toán/bill
+    Expected: Quản lý=✓; Lễ tân=✗; Phục vụ=✗; Thu ngân=✓; Bếp=✗; Kế toán=✗; Kho=✗
+  [794] M-0790 | Step M5 | P1/Functional
+    Item: Đối chiếu Kho/mua hàng
+    Expected: Quản lý=✓; Lễ tân=✗; Phục vụ=hạn chế; Thu ngân=✗; Bếp=hạn chế; Kế toán=hạn chế; Kho=✓
+  [795] M-0791 | Step M6 | P1/Functional
+    Item: Đối chiếu Kế toán
+    Expected: Quản lý=✓; Lễ tân=✗; Phục vụ=✗; Thu ngân=✗; Bếp=✗; Kế toán=✓; Kho=✗
+  [796] M-0792 | Step M7 | P1/Functional
+    Item: Đối chiếu Nhân viên/quyền
+    Expected: Quản lý=✓; Lễ tân=✗; Phục vụ=✗; Thu ngân=✗; Bếp=✗; Kế toán=✗; Kho=✗
+
+================================================================================
+TC: ADM-01 (16 rows)
+================================================================================
+  [797] M-0793 | Step 1 | P1/Security
+    Item: Mở Nhân viên
+    Data: —
+    Expected: Màn Nhân viên & phân quyền và bảng nhân viên xuất hiện
+  [798] M-0794 | Step 2 | P1/Functional
+    Item: Ô Họ tên
+    Data: Nguyễn QA POS
+    Expected: Hiển thị đúng chuỗi vừa nhập
+  [799] M-0795 | Step 3 | P1/Negative/Boundary
+    Item: Ô Điện thoại
+    Data: 0901234567
+    Expected: Chỉ giữ dữ liệu hợp lệ theo yêu cầu; prototype hiện chưa có validation định dạng
+  [800] M-0796 | Step 4 | P1/Functional
+    Item: Combobox Vai trò
+    Data: Phục vụ
+    Expected: Giá trị Phục vụ được chọn
+  [801] M-0797 | Step 5 | P1/Functional
+    Item: Bấm Thêm nhân viên
+    Data: —
+    Expected: Toast Đã thêm Nguyễn QA POS; dòng mới xuất hiện, trạng thái Đang hoạt động
+  [802] M-0798 | Step 6 | P1/Security
+    Item: Tại dòng mới, ô PIN quản lý
+    Data: 1234
+    Expected: Input che ký tự
+  [803] M-0799 | Step 7 | P1/Security
+    Item: Bấm Đặt PIN
+    Data: —
+    Expected: Toast Đã cập nhật PIN quản lý; PIN được lưu
+  [804] M-0800 | Step 8 | P1/Security
+    Item: Nhập PIN sai định dạng và bấm Đặt PIN
+    Data: 12ab, sau đó 123
+    Expected: Hiện lỗi PIN phải gồm 4 đến 6 chữ số; PIN cũ không đổi
+  [805] M-0801 | Step 9 | P1/Functional
+    Item: Bấm Khóa tại dòng mới
+    Data: —
+    Expected: Badge đổi Đã khóa; nút đổi thành Mở khóa
+  [806] M-0802 | Step 10 | P1/Functional
+    Item: Refresh trang
+    Data: —
+    Expected: Dòng nhân viên và trạng thái khóa vẫn còn
+  [807] M-0803 | Step 11 | P1/Functional
+    Item: Bấm Mở khóa
+    Data: —
+    Expected: Badge trở lại Đang hoạt động
+  [808] M-0804 | Step N1 | P1/Functional
+    Item: Bỏ trống họ tên → không tạo, hiện Phải nhập họ tên nhân viên.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+  [809] M-0805 | Step N2 | P1/Functional
+    Item: Không chọn vai trò → nút bị disable hoặc hiện lỗi rõ ràng.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+  [810] M-0806 | Step N3 | P1/Negative/Boundary
+    Item: SĐT trùng → cần quyết định rule; prototype chưa chặn.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+  [811] M-0807 | Step N4 | P1/Functional
+    Item: Nhân viên bị khóa không được đăng nhập/thao tác → hiện chưa kiểm được do chưa có login thật.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+  [812] M-0808 | Step N5 | P1/Functional
+    Item: Người không phải quản lý mở URL trực tiếp → phải bị chặn ở production.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+
+================================================================================
+TC: ADM-02 (17 rows)
+================================================================================
+  [813] M-0809 | Step 1 | P1/Functional
+    Item: Bấm Thêm món
+    Data: —
+    Expected: Dialog thêm món xuất hiện
+  [814] M-0810 | Step 2 | P1/Functional
+    Item: Nhập Mã món
+    Data: QA01
+    Expected: Hiển thị QA01
+  [815] M-0811 | Step 3 | P1/Functional
+    Item: Nhập Tên món
+    Data: Bò thử nghiệm QA
+    Expected: Tên không bị mất khoảng trắng hợp lệ
+  [816] M-0812 | Step 4 | P1/Functional
+    Item: Chọn Danh mục
+    Data: Thịt bò
+    Expected: Combobox hiển thị danh mục đã chọn
+  [817] M-0813 | Step 5 | P1/Functional
+    Item: Chọn Loại món
+    Data: dish
+    Expected: Giá trị loại món được lưu
+  [818] M-0814 | Step 6 | P1/Negative/Boundary
+    Item: Nhập Giá
+    Data: 150000
+    Expected: Chấp nhận số không âm
+  [819] M-0815 | Step 7 | P1/Functional
+    Item: Chọn Station bếp
+    Data: Nướng/Grill meat
+    Expected: Station được chọn
+  [820] M-0816 | Step 8 | P1/Functional
+    Item: Bấm nút lưu/thêm
+    Data: —
+    Expected: Toast Đã thêm món Bò thử nghiệm QA; món xuất hiện trong bảng
+  [821] M-0817 | Step 9 | P1/Functional
+    Item: Bấm Ngừng bán tại món
+    Data: —
+    Expected: Toast Đã ngừng bán; trạng thái chi nhánh chuyển không khả dụng
+  [822] M-0818 | Step 10 | P1/Functional
+    Item: Mở bàn và vào menu gọi món
+    Data: —
+    Expected: Món bị khóa không xuất hiện hoặc không thể thêm
+  [823] M-0819 | Step 11 | P1/Functional
+    Item: Trở lại admin, bấm Mở bán lại
+    Data: —
+    Expected: Toast thành công; món gọi được trở lại
+  [824] M-0820 | Step N1 | P1/Negative/Boundary
+    Item: Tên rỗng bị chặn.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+  [825] M-0821 | Step N2 | P1/Negative/Boundary
+    Item: Giá âm bị chặn.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+  [826] M-0822 | Step N3 | P1/Functional
+    Item: Station không tồn tại bị chặn.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+  [827] M-0823 | Step N4 | P1/Negative/Boundary
+    Item: Mã món trùng cần có rule rõ; hiện domain chưa thấy chặn trùng code.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+  [828] M-0824 | Step N5 | P1/Functional
+    Item: Giá theo chi nhánh phải độc lập khi đổi chi nhánh.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+  [829] M-0825 | Step N6 | P1/Functional
+    Item: Khóa món ở chi nhánh 1 không làm khóa chi nhánh 2.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+
+================================================================================
+TC: ADM-03 (8 rows)
+================================================================================
+  [830] M-0826 | Step 1 | P1/Functional
+    Item: Mở màn Cấu hình gói buffet
+    Data: —
+    Expected: Có combobox chọn gói và danh sách món
+  [831] M-0827 | Step 2 | P1/Functional
+    Item: Bấm combobox Chọn gói buffet
+    Data: —
+    Expected: Chỉ hiển thị menu item loại buffet_package
+  [832] M-0828 | Step 3 | P1/Functional
+    Item: Chọn Standard 50 món
+    Data: —
+    Expected: Các món đang thuộc gói được tick sẵn
+  [833] M-0829 | Step 4 | P1/Functional
+    Item: Tick checkbox một món chưa thuộc gói
+    Data: Bò Wagyu A5 hoặc món test
+    Expected: Checkbox chuyển checked
+  [834] M-0830 | Step 5 | P1/Functional
+    Item: Bỏ tick một món đang thuộc gói
+    Data: Ba chỉ bò
+    Expected: Checkbox chuyển unchecked
+  [835] M-0831 | Step 6 | P1/Functional
+    Item: Bấm Lưu gói
+    Data: —
+    Expected: Toast nêu đúng số món; danh sách package được cập nhật
+  [836] M-0832 | Step 7 | P1/Negative/Boundary
+    Item: Mở bàn mới với gói vừa sửa và vào gọi món
+    Data: —
+    Expected: Món vừa tick hiển thị Trong gói, giá 0đ; món vừa bỏ tick có giá bán lẻ
+  [837] M-0833 | Step 8 | P1/Functional
+    Item: Refresh admin
+    Data: —
+    Expected: Checkbox vẫn phản ánh cấu hình mới
+
+================================================================================
+TC: ADM-04 (13 rows)
+================================================================================
+  [838] M-0834 | Step 1 | P0/Functional
+    Item: Từ /admin/menu, bấm Định lượng tại một món
+    Data: Bò Wagyu A5
+    Expected: Điều hướng sang màn định lượng đúng món
+  [839] M-0835 | Step 2 | P0/Functional
+    Item: Tại dòng 1, mở combobox NVL
+    Data: —
+    Expected: Danh sách nguyên vật liệu xuất hiện
+  [840] M-0836 | Step 3 | P0/Functional
+    Item: Chọn NVL
+    Data: Thịt bò Wagyu
+    Expected: Dòng hiển thị đúng NVL
+  [841] M-0837 | Step 4 | P0/Negative/Boundary
+    Item: Nhập ô Định lượng dòng 1
+    Data: 0.12
+    Expected: Chấp nhận số thập phân dương
+  [842] M-0838 | Step 5 | P0/Functional
+    Item: Bấm thêm dòng
+    Data: —
+    Expected: Xuất hiện dòng BOM mới
+  [843] M-0839 | Step 6 | P0/Negative/Boundary
+    Item: Chọn NVL dòng 2 và nhập định lượng
+    Data: Sốt, 0.03
+    Expected: Hai dòng độc lập
+  [844] M-0840 | Step 7 | P0/Functional
+    Item: Bấm Lưu
+    Data: —
+    Expected: Toast Đã lưu định lượng 2 nguyên vật liệu
+  [845] M-0841 | Step 8 | P0/Negative/Boundary
+    Item: Thanh toán bill có 2 phần món
+    Data: Qty món 2
+    Expected: Tồn Wagyu giảm 0.24, sốt giảm 0.06
+  [846] M-0842 | Step 9 | P0/Functional
+    Item: Mở thẻ kho NVL
+    Data: —
+    Expected: Có transaction consumption, reference bill đúng
+  [847] M-0843 | Step N1 | P0/Negative/Boundary
+    Item: Định lượng 0 hoặc âm → bị chặn.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+  [848] M-0844 | Step N2 | P0/Functional
+    Item: Chưa chọn NVL → không lưu hoặc thông báo rõ.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+  [849] M-0845 | Step N3 | P0/Negative/Boundary
+    Item: Một NVL xuất hiện hai dòng → cần quyết định cộng hay chặn trùng.
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+  [850] M-0846 | Step N4 | P0/Functional
+    Item: Món chưa có BOM vẫn thanh toán → hệ thống hiện ghi nhận danh sách thiếu recipe nhưng không chặn checkout; cần nghiệp vụ 
+    Data: Theo mô tả
+    Expected: Hệ thống xử lý đúng rule, không làm sai hoặc mất dữ liệu.
+
+================================================================================
+TC: ADM-05 (9 rows)
+================================================================================
+  [851] M-0847 | Step 1 | P1/Functional
+    Item: Mở Sơ đồ mặt bằng
+    Data: —
+    Expected: Có combobox khu vực, ô mã bàn, sức chứa và danh sách bàn
+  [852] M-0848 | Step 2 | P1/Functional
+    Item: Chọn Khu vực
+    Data: Khu A
+    Expected: Combobox hiển thị khu A
+  [853] M-0849 | Step 3 | P1/Functional
+    Item: Nhập Mã bàn
+    Data: CN1-Z99
+    Expected: Mã được chuẩn hóa uppercase khi lưu
+  [854] M-0850 | Step 4 | P1/Functional
+    Item: Nhập Sức chứa
+    Data: 6
+    Expected: Chấp nhận số nguyên dương
+  [855] M-0851 | Step 5 | P1/Functional
+    Item: Bấm thêm/lưu bàn
+    Data: —
+    Expected: Toast thêm bàn; CN1-Z99 xuất hiện
+  [856] M-0852 | Step 6 | P1/Negative/Boundary
+    Item: Nhập lại mã trùng và lưu
+    Data: CN1-Z99
+    Expected: Hiện lỗi Mã bàn ... đã tồn tại; không sinh dòng trùng
+  [857] M-0853 | Step 7 | P1/Functional
+    Item: Tại bàn mới, sửa sức chứa
+    Data: 8
+    Expected: Bấm cập nhật và toast thành công
+  [858] M-0854 | Step 8 | P1/Functional
+    Item: Mở sơ đồ Hall
+    Data: —
+    Expected: Bàn mới xuất hiện đúng khu, capacity 8
+  [859] M-0855 | Step 9 | P1/Functional
+    Item: Kéo bàn sang vị trí khác nếu UI hỗ trợ
+    Data: —
+    Expected: Tọa độ được lưu; refresh vẫn ở vị trí mới
+
+================================================================================
+TC: ADM-06 (12 rows)
+================================================================================
+  [860] M-0856 | Step 1 | P1/Functional
+    Item: Mở Voucher
+    Data: —
+    Expected: Form tạo voucher xuất hiện
+  [861] M-0857 | Step 2 | P1/Functional
+    Item: Nhập Mã
+    Data: QA10
+    Expected: Khi lưu được chuẩn hóa QA10
+  [862] M-0858 | Step 3 | P1/Functional
+    Item: Nhập Tên
+    Data: Giảm 10% QA
+    Expected: Tên hiển thị đúng
+  [863] M-0859 | Step 4 | P1/Functional
+    Item: Chọn Loại
+    Data: Giảm phần trăm
+    Expected: Label giá trị phù hợp loại phần trăm
+  [864] M-0860 | Step 5 | P1/Negative/Boundary
+    Item: Nhập Giá trị
+    Data: Theo UI: 10 hoặc domain 0.1
+    Expected: Phải xác định rõ đơn vị; kết quả thực tế phải đúng 10%, không phải 1.000%
+  [865] M-0861 | Step 6 | P1/Negative/Boundary
+    Item: Nhập Bill tối thiểu
+    Data: 500000
+    Expected: Chấp nhận số không âm
+  [866] M-0862 | Step 7 | P1/Functional
+    Item: Nhập Giới hạn lượt
+    Data: 2
+    Expected: Lưu usage limit = 2
+  [867] M-0863 | Step 8 | P1/Functional
+    Item: Chọn/nhập Hạn dùng
+    Data: Ngày tương lai
+    Expected: Hạn dùng sau ngày bắt đầu
+  [868] M-0864 | Step 9 | P1/Functional
+    Item: Bấm tạo
+    Data: —
+    Expected: Toast Đã tạo voucher QA10; dòng mới xuất hiện
+  [869] M-0865 | Step 10 | P1/Functional
+    Item: Tại checkout bill dưới 500.000đ, áp QA10
+    Data: —
+    Expected: Lỗi hóa đơn chưa đạt tối thiểu
+  [870] M-0866 | Step 11 | P1/Functional
+    Item: Tại bill hợp lệ, áp QA10
+    Data: —
+    Expected: Giảm đúng 10% phần còn lại sau tier discount
+  [871] M-0867 | Step 12 | P1/Functional
+    Item: Dùng đủ 2 lần rồi áp lần 3
+    Data: —
+    Expected: Lỗi voucher hết lượt

@@ -23,7 +23,7 @@
             :class="['category-btn', { active: selectedCategory?.id === cat.id }]"
             @click="selectCategory(cat)"
           >
-            {{ cat.name }}
+            {{ $te(`customer.menuCategories.${cat.id}`) ? $t(`customer.menuCategories.${cat.id}`) : ($te(`customer.menuSubcategories.${cat.id}`) ? $t(`customer.menuSubcategories.${cat.id}`) : cat.name) }}
           </button>
         </div>
       </div>
@@ -51,13 +51,13 @@
               👑
             </div>
             <div>
-              <h3 class="text-base font-black text-white tracking-wide">{{ $t('customer.menu.packageBannerTitle', { name: selectedCategory.name }) }}</h3>
-              <p class="text-xs text-amber-200/80 mt-1 font-medium">{{ $t('customer.menu.packageBannerText') }}</p>
+              <h3 class="text-base font-bold text-white">{{ $t('customer.menu.packageBannerTitle', { name: $te(`customer.menuCategories.${selectedCategory.id}`) ? $t(`customer.menuCategories.${selectedCategory.id}`) : ($te(`customer.menuSubcategories.${selectedCategory.id}`) ? $t(`customer.menuSubcategories.${selectedCategory.id}`) : selectedCategory.name) }) }}</h3>
+              <p class="text-xs text-amber-200/70 mt-1">{{ $t('customer.menu.packageBannerText') }}</p>
             </div>
           </div>
-          <div class="flex items-center gap-4 shrink-0">
-            <span class="text-xl font-black text-amber-400 tracking-tight">{{ getSetPriceDisplay(selectedCategory) }}</span>
-            <button @click="addSetToCart(selectedCategory)"
+          <div class="flex items-center gap-3 shrink-0">
+            <span class="text-lg font-black text-amber-400">{{ getSetPriceDisplay(selectedCategory) }}</span>
+            <button @click="addSetToCart(selectedCategory.id)"
                     :class="[
                       'px-5 py-2.5 rounded-xl font-extrabold text-xs transition-all duration-200 active:scale-95 flex items-center gap-1.5 shadow-lg shadow-amber-500/20',
                       isSetInCart(selectedCategory.id)
@@ -72,7 +72,7 @@
         <div v-if="selectedCategory" class="category-content">
           <!-- Header -->
           <div class="category-header">
-            <h1>{{ selectedCategory.name }}</h1>
+            <h1>{{ $te(`customer.menuCategories.${selectedCategory.id}`) ? $t(`customer.menuCategories.${selectedCategory.id}`) : ($te(`customer.menuSubcategories.${selectedCategory.id}`) ? $t(`customer.menuSubcategories.${selectedCategory.id}`) : selectedCategory.name) }}</h1>
             <span class="item-count">{{ $t('customer.menu.itemCount', { count: displayedItems.length }) }}</span>
           </div>
 
@@ -318,13 +318,13 @@ watch(() => selectedSubId.value, (newSubId) => {
   const cat = selectedCategory.value
   if (!cat || !newSubId || newSubId === 'all') return
   const isBuffetLike =
-    cat.id === 'buffet' ||
-    cat.id.startsWith('buffet-') ||
-    !!cat.subcategories?.some((s) => s.id === 'set-' + cat.id || s.id.startsWith('set-'))
+    newSubId === 'buffet' ||
+    newSubId.startsWith('buffet-') ||
+    newSubId.startsWith('set-')
   if (!isBuffetLike) return
   selectedYellowCategoryId.value = newSubId
-  if (!isSetInCart(cat.id)) {
-    addSetToCart(cat)
+  if (!isSetInCart(newSubId)) {
+    addSetToCart(newSubId)
   }
 });
 
@@ -499,14 +499,21 @@ const isSetInCart = (catId: string): boolean => {
   return cart.value.some((c) => c.menuItemId === ticket.id)
 };
 
-function addSetToCart(cat: MenuCategory) {
-  const subs = cat.subcategories || []
-  const setItem = subs[0]?.items?.[0] ?? null
+function addSetToCart(subCatId: string) {
+  const sub = store.menuData
+    .flatMap((c) => c.subcategories ?? [])
+    .find((s) => s.id === subCatId)
+  const setItem = sub?.items?.[0] ?? null
 
   if (setItem) {
-    store.addToCart(setItem, 1)
+    if (store.session) {
+      store.session.packageId = subCatId
+      store.session.serviceMode = 'buffet'
+      localStorage.setItem('nguucat_customer_session', JSON.stringify(store.session))
+    }
+    store.addToCart(setItem, store.session?.guestCount || 1)
     syncCart()
-    store.addNotification(i18nStore.t('customer.menu.packageSelectedNotif', { name: cat.name }), 'success')
+    store.addNotification(i18nStore.t('customer.menu.packageSelectedNotif', { name: sub?.name || '' }), 'success')
   }
 }
 </script>

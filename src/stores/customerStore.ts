@@ -13,17 +13,29 @@ import type {
   Feedback,
   SubCategory
 } from '@/types/customer';
+import { useI18nStore } from '@/stores/i18n';
 import { customerApiImpl } from '@/services/customerApi';
 import { computeTotals } from '@/utils/packageRules';
 import { isValidUUID } from '@/utils/validators';
 import { isSupabaseConfigured } from '@/lib/supabase';
 
 const ORDERS_KEY = 'nguucat_customer_orders';
+const PROFILE_KEY = 'nguucat_customer_profile';
 
 export interface Notification {
   id: string;
   message: string;
   type: 'info' | 'success' | 'warning' | 'error';
+}
+
+export interface CustomerProfileData {
+  fullName: string;
+  phone: string;
+  email: string;
+  dateOfBirth: string;
+  taxCode: string;
+  companyName: string;
+  invoiceAddress: string;
 }
 
 export const useCustomerStore = defineStore('customer', {
@@ -60,6 +72,17 @@ export const useCustomerStore = defineStore('customer', {
     
     // Feedback
     feedback: null as Feedback | null,
+    
+    // Customer Profile (UI-5.1)
+    customerProfile: {
+      fullName: '',
+      phone: '',
+      email: '',
+      dateOfBirth: '',
+      taxCode: '',
+      companyName: '',
+      invoiceAddress: '',
+    } as CustomerProfileData,
     
     // UI State
     loading: false,
@@ -470,8 +493,7 @@ export const useCustomerStore = defineStore('customer', {
     persistOrders(): void {
       try {
         // Serialize dates as ISO strings for round-trip safety
-        const serializable = this.orders.map(o => ({
-          ...o,
+        const serializable = this.orders.map(o => ({          ...o,
           createdAt: o.createdAt instanceof Date ? o.createdAt.toISOString() : o.createdAt,
         }));
         localStorage.setItem(ORDERS_KEY, JSON.stringify(serializable));
@@ -495,6 +517,32 @@ export const useCustomerStore = defineStore('customer', {
       }
     },
 
+    // ── Customer Profile (UI-5.1) ──────────────────────────────────
+    saveProfile(data: CustomerProfileData): void {
+      this.customerProfile = { ...data };
+      try {
+        localStorage.setItem(PROFILE_KEY, JSON.stringify(data));
+      } catch (e) {
+        console.error('[customerStore] saveProfile persist failed:', e);
+      }
+      // Sync CRM info (name + phone) to backend if session is active
+      if (this.session && data.phone && data.fullName) {
+        this.updateCrmInfo(data.phone, data.fullName);
+      }
+      this.addNotification('Đã lưu thông tin cá nhân thành công!', 'success');
+    },
+
+    loadProfile(): void {
+      try {
+        const raw = localStorage.getItem(PROFILE_KEY);
+        if (raw) {
+          this.customerProfile = JSON.parse(raw);
+        }
+      } catch (e) {
+        console.error('[customerStore] loadProfile failed:', e);
+      }
+    },
+
     // UI Helpers
     addNotification(message: string, type: 'info' | 'success' | 'warning' | 'error' = 'info'): void {
       const id = `notif-${Date.now()}`;
@@ -505,16 +553,21 @@ export const useCustomerStore = defineStore('customer', {
     },
 
     translateRequestType(type: string): string {
+      const i18n = useI18nStore();
       const types: Record<string, string> = {
-        tissue: 'Lấy khăn giấy',
-        bowl: 'Lấy chén bát sạch',
-        sauce: 'Lấy nước chấm',
-        ice: 'Lấy đá thêm',
-        grill_change: 'Thay vỉ nướng',
-        charcoal_change: 'Thêm than',
-        request_bill: 'Thanh toán hóa đơn',
-        call_waiter: 'Gọi nhân viên',
-        other: 'Yêu cầu khác'
+        tissue: i18n.t('customer.serviceRequest.tissue'),
+        bowl: i18n.t('customer.serviceRequest.bowl'),
+        sauce: i18n.t('customer.serviceRequest.sauce'),
+        ice: i18n.t('customer.serviceRequest.ice'),
+        grill_change: i18n.t('customer.serviceRequest.grillChange'),
+        add_charcoal: i18n.t('customer.serviceRequest.charcoalChange'),
+        charcoal_change: i18n.t('customer.serviceRequest.charcoalChange'),
+        checkout: i18n.t('customer.serviceRequest.requestBill'),
+        request_bill: i18n.t('customer.serviceRequest.requestBill'),
+        call_staff: i18n.t('customer.serviceRequest.callWaiter'),
+        call_waiter: i18n.t('customer.serviceRequest.callWaiter'),
+        water: i18n.t('customer.serviceRequest.water'),
+        other: i18n.t('customer.serviceRequest.other')
       };
       return types[type] || type;
     }

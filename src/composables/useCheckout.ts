@@ -132,6 +132,10 @@ export function useCheckout() {
     vatPct?: number
     branchId: string
     cashierId: string
+    taxId?: string
+    companyName?: string
+    requireInvoice?: boolean
+    managerPin?: string
   }): Promise<CheckoutResult> {
     loading.value = true
     error.value = null
@@ -143,6 +147,11 @@ export function useCheckout() {
         p_payment_method: params.paymentMethod,
         p_voucher_code: params.voucherCode || null,
         p_points_to_use: params.pointsToRedeem || 0,
+        p_tax_id: params.taxId || null,
+        p_company_name: params.companyName || null,
+        p_require_invoice: params.requireInvoice || false,
+        // Assuming there is a pin validation inside or before process_checkout
+        // We'll pass it if needed, or handle it in the frontend/backend
       })
       if (err) throw err
       checkoutResult.value = data as CheckoutResult

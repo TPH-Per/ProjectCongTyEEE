@@ -206,6 +206,7 @@
 <script setup>
 import { ref, reactive, computed, watch, onMounted, onUnmounted } from 'vue'
 import Swal from 'sweetalert2'
+import { supabase, isSupabaseConfigured } from '@/lib/supabase'
 
 const props = defineProps({
   isOpen: {
@@ -317,15 +318,26 @@ async function handleSubmit() {
   isSubmitting.value = true
 
   try {
-    // Simulate API call to verify PIN
-    await new Promise(resolve => setTimeout(resolve, 1000))
-
-    // Mock PIN verification (in production, call API)
-    const validPins = ['123456', '000000', '111111']
-    if (!validPins.includes(pin.value)) {
-      pinError.value = '❌ Mã PIN không chính xác'
-      isSubmitting.value = false
-      return
+    // Verify Manager PIN
+    if (isSupabaseConfigured) {
+      // Real verification via Supabase RPC
+      const { error: pinErr } = await supabase.rpc('fn_verify_manager_pin', {
+        p_manager_pin: pin.value
+      })
+      if (pinErr) {
+        pinError.value = '❌ PIN không đúng hoặc không có quyền quản lý'
+        isSubmitting.value = false
+        return
+      }
+    } else {
+      // Offline/dev fallback
+      await new Promise(resolve => setTimeout(resolve, 500))
+      const validPins = ['123456', '000000', '111111']
+      if (!validPins.includes(pin.value)) {
+        pinError.value = '❌ Mã PIN không chính xác (chế độ offline)'
+        isSubmitting.value = false
+        return
+      }
     }
 
     // Prepare data

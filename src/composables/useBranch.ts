@@ -87,7 +87,7 @@ export function useBranch() {
     if (error) throw error
   }
 
-  // LIST (with manager profile joined, one query)
+  // LIST
   async function listBranches(): Promise<Branch[]> {
     // Return mock data when Supabase is not configured
     if (!isSupabaseConfigured) {

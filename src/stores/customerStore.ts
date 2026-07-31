@@ -13,6 +13,7 @@ import type {
   Feedback,
   SubCategory
 } from '@/types/customer';
+import { useI18nStore } from '@/stores/i18n';
 import { customerApiImpl } from '@/services/customerApi';
 import { computeTotals } from '@/utils/packageRules';
 import { isValidUUID } from '@/utils/validators';
@@ -552,16 +553,21 @@ export const useCustomerStore = defineStore('customer', {
     },
 
     translateRequestType(type: string): string {
+      const i18n = useI18nStore();
       const types: Record<string, string> = {
-        tissue: 'Lấy khăn giấy',
-        bowl: 'Lấy chén bát sạch',
-        sauce: 'Lấy nước chấm',
-        ice: 'Lấy đá thêm',
-        grill_change: 'Thay vỉ nướng',
-        charcoal_change: 'Thêm than',
-        request_bill: 'Thanh toán hóa đơn',
-        call_waiter: 'Gọi nhân viên',
-        other: 'Yêu cầu khác'
+        tissue: i18n.t('customer.serviceRequest.tissue'),
+        bowl: i18n.t('customer.serviceRequest.bowl'),
+        sauce: i18n.t('customer.serviceRequest.sauce'),
+        ice: i18n.t('customer.serviceRequest.ice'),
+        grill_change: i18n.t('customer.serviceRequest.grillChange'),
+        add_charcoal: i18n.t('customer.serviceRequest.charcoalChange'),
+        charcoal_change: i18n.t('customer.serviceRequest.charcoalChange'),
+        checkout: i18n.t('customer.serviceRequest.requestBill'),
+        request_bill: i18n.t('customer.serviceRequest.requestBill'),
+        call_staff: i18n.t('customer.serviceRequest.callWaiter'),
+        call_waiter: i18n.t('customer.serviceRequest.callWaiter'),
+        water: i18n.t('customer.serviceRequest.water'),
+        other: i18n.t('customer.serviceRequest.other')
       };
       return types[type] || type;
     }

@@ -755,9 +755,22 @@
               />
             </div>
             <div class="space-y-1">
-              <label class="text-[9px] font-black text-gray-400 uppercase">{{ t('admin_floors.booking.initial_bill') }}</label>
-              <div class="w-full bg-rose-50 border border-rose-200 rounded-lg px-2.5 py-2 font-extrabold text-rose-700 text-sm">{{ liveBillTotal }}</div>
+              <label class="text-[9px] font-black text-gray-400 uppercase">Gói Menu / Dịch vụ</label>
+              <select
+                v-model="quickOpenForm.packageId"
+                class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 font-bold text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#FF7B89]"
+              >
+                <option value="">A La Carte (Gọi món)</option>
+                <optgroup v-if="buffetPackages.length > 0" label="Buffet Packages">
+                  <option v-for="pkg in buffetPackages" :key="pkg.id" :value="pkg.id">{{ pkg.name }}</option>
+                </optgroup>
+              </select>
             </div>
+          </div>
+          <div class="space-y-1 mt-4">
+            <label class="text-[9px] font-black text-gray-400 uppercase">{{ t('admin_floors.booking.initial_bill') }}</label>
+            <div class="w-full bg-rose-50 border border-rose-200 rounded-lg px-2.5 py-2 font-extrabold text-rose-700 text-sm">{{ liveBillTotal }}</div>
+          </div>
           </div>
         </div>
 
@@ -816,7 +829,7 @@ import { ref, reactive, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useRestaurantStore } from '@/stores/restaurantStore'
 import { storeToRefs } from 'pinia'
-import { supabase } from '@/lib/supabase'
+import { supabase, isSupabaseConfigured } from '@/lib/supabase'
 import { useAuth } from '@/composables/useAuth'
 import { useBranch } from '@/composables/useBranch';
 import { useUnsavedGuard } from '@/composables/useUnsavedGuard'
@@ -829,6 +842,28 @@ const router = useRouter()
 const restaurantStore = useRestaurantStore()
 const { bookings } = storeToRefs(restaurantStore)
 const { activeBranchId } = useBranch();
+
+// ─── Buffet Packages ─────────────────────────────────────────────────────────
+const buffetPackages = ref<any[]>([])
+
+async function loadBuffetPackages() {
+  if (!isSupabaseConfigured || !activeBranchId.value) return
+  const { data, error } = await supabase
+    .from('menu_items')
+    .select('menu_item_id, item_name, price, price_display')
+    .eq('item_type', 'buffet_package')
+    .eq('is_active', true)
+    .or(`owner_branch_id.eq.${activeBranchId.value},owner_branch_id.is.null`)
+  
+  if (!error && data) {
+    buffetPackages.value = data.map(p => ({
+      id: p.menu_item_id,
+      name: p.item_name,
+      price: p.price,
+      price_display: p.price_display
+    }))
+  }
+}
 
 // ─── Reception Store (shared with ReservationDetailView) ────────────────────
 const {
@@ -1758,12 +1793,12 @@ function saveNewBooking() {
 
 // ─── Modal 3: Quick Open (Walk-in) ────────────────────────────────────────────
 const isQuickOpenModalOpen = ref(false)
-const quickOpenForm = ref({ tableCode: '', customerName: '', guestCount: 2 })
-const quickOpenBaseline = ref({ tableCode: '', customerName: '', guestCount: 2 })
+const quickOpenForm = ref({ tableCode: '', customerName: '', guestCount: 2, packageId: '' })
+const quickOpenBaseline = ref({ tableCode: '', customerName: '', guestCount: 2, packageId: '' })
 const { confirmIfDirty: confirmQuickOpenDirty } = useUnsavedGuard(quickOpenForm, quickOpenBaseline)
 
 function openQuickOpenModal() {
-  quickOpenForm.value = { tableCode: '', customerName: t('admin_floors.table.walk_in'), guestCount: 2 }
+  quickOpenForm.value = { tableCode: '', customerName: t('admin_floors.table.walk_in'), guestCount: 2, packageId: '' }
   quickOpenBaseline.value = { ...quickOpenForm.value }
   isQuickOpenModalOpen.value = true
 }
@@ -1788,7 +1823,7 @@ function goToOrderScreen(tableCode: string) {
   }
 }
 
-function saveQuickOpen() {
+async function saveQuickOpen() {
   if (!quickOpenForm.value.tableCode) {
     Swal.fire('Thông báo', 'Vui lòng chọn bàn cần mở.', 'info')
     return
@@ -1799,6 +1834,21 @@ function saveQuickOpen() {
     tbl.customerName = quickOpenForm.value.customerName || t('admin_floors.table.walk_in')
     const now = new Date()
     tbl.checkInTime = now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
+    
+    if (isSupabaseConfigured && activeBranchId.value && tbl.id) {
+      const mode = quickOpenForm.value.packageId ? 'buffet' : 'a_la_carte';
+      const { error } = await supabase.rpc('hall_open_table', {
+        p_table_id: tbl.id,
+        p_branch_id: activeBranchId.value,
+        p_guest_count: quickOpenForm.value.guestCount || 2,
+        p_service_mode: mode,
+        p_package_id: quickOpenForm.value.packageId || null
+      });
+      if (error) {
+        console.warn('Failed to call hall_open_table:', error.message);
+      }
+    }
+
     goToOrderScreen(tbl.code)
   }
   quickOpenBaseline.value = { ...quickOpenForm.value }
@@ -1907,6 +1957,7 @@ const { activeBranchId } = useBranch();
       // Load reservations from receptionStore (shared with ReservationDetailView)
       // This picks up Supabase data, localStorage cache, or mock data automatically
       await loadReceptionReservations()
+      await loadBuffetPackages()
       const { data: resData } = await supabase.from('reservations').select('*, customers(name, phone)').eq('branch_id', bid)
       if (resData) {
         bookings.value = resData.map((r: any) => ({

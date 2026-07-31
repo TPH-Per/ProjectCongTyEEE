@@ -42,14 +42,6 @@
         <button @click="backToMenu" class="btn-add-food" type="button">
           {{ $t('customer.cart.addFood') }}
         </button>
-
-        <!-- Dev: Nạp dữ liệu test tĩnh để test UI cart -->
-        <button @click="seedTestData" class="btn-seed-test" type="button">
-          {{ $t('customer.cart.seedTest') }}
-        </button>
-        <p v-if="!hasSession" class="mock-mode-hint">
-          {{ $t('customer.cart.mockHint') }}
-        </p>
       </div>
 
       <!-- Non-empty Cart State -->
@@ -89,16 +81,52 @@
 
           <!-- Render list -->
           <div class="cart-items-list">
-            <CartItem
-              v-for="item in cart"
-              :key="(item.menuItemId || '')"
-              :item="item"
-              :is-selected="selectedIds.has((item.menuItemId || ''))"
-              @toggle-select="toggleItemSelection((item.menuItemId || ''))"
-              @update-quantity="onUpdateQuantity((item.menuItemId || ''), $event)"
-              @update-note="onUpdateNote((item.menuItemId || ''), $event)"
-              @remove="onRemoveItem((item.menuItemId || ''))"
-            />
+            <!-- Group 1: Buffet Package & Included Items -->
+            <div v-if="packageTicketItem || includedItems.length > 0" class="package-section">
+              <h3 class="section-title">📦 {{ $t('customer.cart.packageGroupTitle') }}</h3>
+              
+              <CartItem
+                v-if="packageTicketItem"
+                :item="packageTicketItem"
+                :is-selected="selectedIds.has((packageTicketItem.menuItemId || ''))"
+                :is-locked="true"
+                @toggle-select="toggleItemSelection((packageTicketItem.menuItemId || ''))"
+                @update-quantity="onUpdateQuantity((packageTicketItem.menuItemId || ''), $event)"
+                @update-note="onUpdateNote((packageTicketItem.menuItemId || ''), $event)"
+                @remove="onRemoveItem((packageTicketItem.menuItemId || ''))"
+              />
+              
+              <div v-if="includedItems.length > 0" class="included-items">
+                <CartItem
+                  v-for="item in includedItems"
+                  :key="(item.menuItemId || '')"
+                  :item="item"
+                  class="sub-item"
+                  :is-selected="selectedIds.has((item.menuItemId || ''))"
+                  :is-locked="false"
+                  @toggle-select="toggleItemSelection((item.menuItemId || ''))"
+                  @update-quantity="onUpdateQuantity((item.menuItemId || ''), $event)"
+                  @update-note="onUpdateNote((item.menuItemId || ''), $event)"
+                  @remove="onRemoveItem((item.menuItemId || ''))"
+                />
+              </div>
+            </div>
+
+            <!-- Group 2: A La Carte Items -->
+            <div v-if="alacarteItems.length > 0" class="alacarte-section">
+              <h3 class="section-title">🍽️ {{ $t('customer.cart.alacarteGroupTitle') }}</h3>
+              <CartItem
+                v-for="item in alacarteItems"
+                :key="(item.menuItemId || '')"
+                :item="item"
+                :is-selected="selectedIds.has((item.menuItemId || ''))"
+                :is-locked="false"
+                @toggle-select="toggleItemSelection((item.menuItemId || ''))"
+                @update-quantity="onUpdateQuantity((item.menuItemId || ''), $event)"
+                @update-note="onUpdateNote((item.menuItemId || ''), $event)"
+                @remove="onRemoveItem((item.menuItemId || ''))"
+              />
+            </div>
           </div>
         </div>
 
@@ -172,7 +200,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, reactive } from "vue";
+import { ref, computed, reactive, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useCustomerStore } from "@/stores/customerStore";
 import { useCustomerSession } from "@/composables/useCustomerSession";
@@ -193,12 +221,32 @@ const { BR23, BR27, BR28 } = useBusinessRules();
 const submitting = ref(false);
 const selectedIds = reactive(new Set<string>());
 
+onMounted(() => {
+  // Tạo mock session nếu chưa có (để giữ flow hoạt động)
+  if (!isSupabaseConfigured && !store.session) {
+    store.session = mockSession;
+    store.isAuthenticated = true;
+    store.currentView = "cart";
+    saveSessionToLocalStorage();
+  }
+});
+
 const cart = computed(() => store.cart);
 const cartTotal = computed(() => store.cartTotal);
 const serviceCharge = computed(() => store.serviceCharge);
 const vat = computed(() => store.vat);
 const grandTotal = computed(() => store.grandTotal);
 const hasSession = computed(() => !!store.session);
+
+const packageTicketId = computed(() => {
+  if (!store.session?.packageId) return null;
+  const sub = store.menuData.flatMap(c => c.subcategories ?? []).find(s => s.id === store.session?.packageId);
+  return sub?.items?.[0]?.id || null;
+});
+
+const packageTicketItem = computed(() => cart.value.find(c => c.menuItemId === packageTicketId.value));
+const includedItems = computed(() => cart.value.filter(c => c.menuItemId !== packageTicketId.value && c.price === 0));
+const alacarteItems = computed(() => cart.value.filter(c => c.menuItemId !== packageTicketId.value && (c.price ?? 0) > 0));
 
 // Total quantity count (total parts/items sum)
 const totalQtyCount = computed(() => {
@@ -207,7 +255,8 @@ const totalQtyCount = computed(() => {
 
 // Selection management
 const isAllSelected = computed(() => {
-  return cart.value.length > 0 && selectedIds.size === cart.value.length;
+  const selectableItems = cart.value.filter(item => item.menuItemId !== packageTicketId.value);
+  return selectableItems.length > 0 && selectedIds.size === selectableItems.length;
 });
 
 function toggleItemSelection(itemId: string) {
@@ -222,7 +271,11 @@ function toggleSelectAll() {
   if (isAllSelected.value) {
     selectedIds.clear();
   } else {
-    cart.value.forEach((item) => selectedIds.add((item.menuItemId || "")));
+    cart.value.forEach((item) => {
+      if (item.menuItemId !== packageTicketId.value) {
+        selectedIds.add((item.menuItemId || ""));
+      }
+    });
   }
 }
 
@@ -240,7 +293,9 @@ function deleteSelectedItems() {
   }).then((result) => {
     if (result.isConfirmed) {
       selectedIds.forEach((id) => {
-        store.removeFromCart(id);
+        if (id !== packageTicketId.value) {
+          store.removeFromCart(id);
+        }
       });
       selectedIds.clear();
       syncCart();
@@ -260,6 +315,7 @@ function onUpdateNote(itemId: string, note: string) {
 }
 
 function onRemoveItem(itemId: string) {
+  if (itemId === packageTicketId.value) return;
   store.removeFromCart(itemId);
   selectedIds.delete(itemId);
   syncCart();
@@ -279,7 +335,11 @@ function clearAllCart() {
     color: "#fff",
   }).then((result) => {
     if (result.isConfirmed) {
+      const lockedItem = store.cart.find(c => c.menuItemId === packageTicketId.value);
       store.clearCart();
+      if (lockedItem) {
+        store.cart.push(lockedItem);
+      }
       selectedIds.clear();
       syncCart();
     }
@@ -290,32 +350,6 @@ function backToMenu() {
   router.push({ name: "CustomerMenu" });
 }
 
-/**
- * Nạp dữ liệu test tĩnh vào store để test UI cart mà không cần backend.
- * Tạo mock session + thêm cart items với UUID hợp lệ.
- */
-function seedTestData() {
-  // Tạo mock session nếu chưa có (để CustomerLayout không redirect)
-  if (!store.session) {
-    store.session = mockSession;
-    store.isAuthenticated = true;
-    store.currentView = "cart";
-    saveSessionToLocalStorage();
-  }
-  // Thêm mock items vào cart (deep clone để tránh tham chiếu)
-  store.cart = JSON.parse(JSON.stringify(mockCartItems));
-  syncCart();
-
-  Swal.fire({
-    title: i18nStore.t('customer.cart.seedSuccessTitle'),
-    text: i18nStore.t('customer.cart.seedSuccessText', { count: mockCartItems.length }),
-    icon: "success",
-    timer: 2500,
-    showConfirmButton: false,
-    background: "#1e1e1e",
-    color: "#fff",
-  });
-}
 
 async function submitOrder() {
   if (cart.value.length === 0) return;
@@ -705,10 +739,37 @@ function formatPrice(val: number): string {
 .cart-items-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 24px;
   max-width: 800px;
   width: 100%;
   margin: 0 auto;
+}
+
+.package-section, .alacarte-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: #ff9800;
+  margin: 0;
+  border-bottom: 1px solid rgba(255, 152, 0, 0.3);
+  padding-bottom: 8px;
+}
+
+.included-items {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.sub-item {
+  border-left: 3px solid #ff9800;
+  background: #1a1a1a;
 }
 
 /* Billing Summary Card */

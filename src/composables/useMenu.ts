@@ -62,5 +62,20 @@ export function useMenu() {
     return data!
   }
 
-  return { loading, error, getCategories, getItems, getPackages, upsertItem }
+  async function toggleItemAvailability(itemId: string, branchOverride?: string): Promise<{ success: boolean; new_status?: string; message?: string }> {
+    loading.value = true
+    error.value = null
+    const { data, error: err } = await supabase.rpc('hall_toggle_item_availability', {
+      p_branch_id: branchOverride ?? activeBranchId.value ?? throwBranchGuard(),
+      p_item_id: itemId,
+    })
+    loading.value = false
+    if (err) {
+      error.value = err.message
+      throw err
+    }
+    return data as { success: boolean; new_status?: string; message?: string }
+  }
+
+  return { loading, error, getCategories, getItems, getPackages, upsertItem, toggleItemAvailability }
 }

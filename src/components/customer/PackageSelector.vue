@@ -66,9 +66,8 @@
               -
             </button>
             <span class="text-3xl font-bold text-white w-12 text-center">{{ adultCount }}</span>
-            <button type="button" @click="(adultCount + childCount < tableCapacity) && adultCount++"
-                    class="w-12 h-12 rounded-full bg-gray-800 text-white flex items-center justify-center hover:bg-gray-700 active:scale-95 transition-transform text-2xl font-bold disabled:opacity-50"
-                    :disabled="adultCount + childCount >= tableCapacity">
+            <button type="button" @click="adultCount++"
+                    class="w-12 h-12 rounded-full bg-gray-800 text-white flex items-center justify-center hover:bg-gray-700 active:scale-95 transition-transform text-2xl font-bold disabled:opacity-50">
               +
             </button>
           </div>
@@ -84,9 +83,8 @@
               -
             </button>
             <span class="text-3xl font-bold text-white w-12 text-center">{{ childCount }}</span>
-            <button type="button" @click="(adultCount + childCount < tableCapacity) && childCount++"
-                    class="w-12 h-12 rounded-full bg-gray-800 text-white flex items-center justify-center hover:bg-gray-700 active:scale-95 transition-transform text-2xl font-bold disabled:opacity-50"
-                    :disabled="adultCount + childCount >= tableCapacity">
+            <button type="button" @click="childCount++"
+                    class="w-12 h-12 rounded-full bg-gray-800 text-white flex items-center justify-center hover:bg-gray-700 active:scale-95 transition-transform text-2xl font-bold disabled:opacity-50">
               +
             </button>
           </div>

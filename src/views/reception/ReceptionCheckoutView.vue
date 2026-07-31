@@ -139,6 +139,22 @@
             </div>
           </div>
 
+          <!-- Waste Penalty (Phạt đồ ăn thừa) -->
+          <div class="bg-red-50 border border-red-200 rounded-2xl p-6 shadow-sm mb-6">
+            <label class="flex items-center gap-3 cursor-pointer">
+              <input type="checkbox" v-model="applyWastePenalty" class="w-5 h-5 text-red-600 rounded">
+              <span class="text-base font-bold text-red-900">{{ t('reception.checkout.waste_penalty', 'Phạt đồ ăn thừa / Waste Penalty') }}</span>
+            </label>
+            <div v-if="applyWastePenalty" class="mt-4">
+              <input 
+                v-model.number="wastePenaltyAmount" 
+                type="number"
+                :placeholder="t('reception.checkout.enter_penalty_amount', 'Nhập số tiền phạt (VND)')"
+                class="w-full bg-white border border-red-300 rounded-xl px-4 py-3 text-base focus:outline-none focus:border-red-500 font-semibold"
+              />
+            </div>
+          </div>
+
           <!-- Payment method -->
           <div class="bg-white border rounded-2xl p-6 shadow-sm">
             <h3 class="text-base font-bold text-gray-900 mb-4 border-b pb-3">
@@ -189,7 +205,7 @@
             </div>
 
             <!-- Card/Transfer inputs -->
-            <div v-else class="space-y-3 mt-4">
+            <div v-else-if="paymentMethod !== 'DEBT'" class="space-y-3 mt-4">
               <label class="block text-sm font-bold text-gray-700">{{ t('reception.checkout.reference_code', 'Transaction ID / Reference') }}</label>
               <input
                 v-model="paymentReference"
@@ -197,6 +213,36 @@
                 :placeholder="t('reception.checkout.transaction_code', 'Enter ref code (optional)')"
                 class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-base focus:outline-none focus:border-red-500 font-semibold"
               />
+            </div>
+
+            <!-- Debt Manager PIN Override -->
+            <div v-else-if="paymentMethod === 'DEBT'" class="space-y-3 mt-4">
+              <label class="block text-sm font-bold text-gray-700">{{ t('reception.checkout.manager_pin', 'Manager PIN (Required for non-VIP)') }}</label>
+              <input
+                v-model="managerPin"
+                type="password"
+                maxlength="6"
+                placeholder="******"
+                class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-base focus:outline-none focus:border-red-500 font-semibold tracking-widest text-center"
+              />
+            </div>
+
+            <!-- Tax ID / E-Invoice -->
+            <div class="mt-6 pt-4 border-t border-gray-100">
+              <label class="flex items-center gap-2 cursor-pointer select-none">
+                <input type="checkbox" v-model="requireInvoice" class="w-5 h-5 text-red-600 rounded border-gray-300 focus:ring-red-500" />
+                <span class="font-bold text-gray-700">{{ t('checkout.require_invoice', 'Xuất Hóa Đơn (VAT E-Invoice)') }}</span>
+              </label>
+              <div v-if="requireInvoice" class="mt-4 space-y-3 p-4 bg-gray-50 rounded-xl border border-gray-200">
+                <div>
+                  <label class="block text-sm font-bold text-gray-700 mb-1">Mã Số Thuế (Tax ID) *</label>
+                  <input v-model="taxId" type="text" class="w-full bg-white border border-gray-300 rounded-lg px-3 py-2" placeholder="Ex: 0101234567" />
+                </div>
+                <div>
+                  <label class="block text-sm font-bold text-gray-700 mb-1">Tên Công Ty (Company Name)</label>
+                  <input v-model="companyName" type="text" class="w-full bg-white border border-gray-300 rounded-lg px-3 py-2" placeholder="Company Name Ltd." />
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -228,10 +274,14 @@
               <div v-if="orderItems.length === 0" class="text-center text-gray-500">No items</div>
             </div>
 
-            <div class="space-y-3 pt-4 border-t" v-if="orderItems.length > 0">
-              <div class="flex justify-between items-center">
-                <span class="text-gray-500">{{ t('checkout.subtotal', 'Subtotal') }}</span>
-                <span class="font-semibold text-gray-900">{{ Number(subTotal).toLocaleString('vi-VN') }}đ</span>
+            <div class="space-y-4 mb-8 border-b pb-6 text-sm">
+              <div class="flex justify-between items-center text-gray-600">
+                <span>{{ t('checkout.subtotal', 'Subtotal') }} ({{ orderItems.length }} items)</span>
+                <span class="font-bold">{{ Number(subTotal).toLocaleString('vi-VN') }}đ</span>
+              </div>
+              <div class="flex justify-between items-center text-gray-500" v-if="applyWastePenalty">
+                <span class="text-red-600">{{ t('reception.checkout.waste_penalty', 'Waste Penalty') }}</span>
+                <span class="text-red-600 font-bold">+{{ (wastePenaltyAmount || 0).toLocaleString('vi-VN') }}đ</span>
               </div>
               <div class="flex justify-between items-center text-green-600" v-if="tierDiscount > 0">
                 <span>{{ t('checkout.discount_tier', 'Tier Discount') }} ({{ customerInfo?.tier?.discount_percent }}%)</span>
@@ -357,9 +407,15 @@ const validatingVoucher = ref(false)
 
 const pointsToRedeem = ref<number>(0)
 
-const paymentMethod = ref<'CASH' | 'CARD' | 'ZALOPAY' | 'MOMO' | 'VNPAY'>('CASH')
+const paymentMethod = ref<'CASH' | 'CARD' | 'ZALOPAY' | 'MOMO' | 'VNPAY' | 'DEBT'>('CASH')
 const receivedAmount = ref<number | null>(null)
-const paymentReference = ref('')
+const paymentReference = ref<string>('')
+const managerPin = ref<string>('')
+
+// Tax ID integration
+const taxId = ref('')
+const companyName = ref('')
+const requireInvoice = ref(false)
 
 const paymentMethods = computed<{ value: typeof paymentMethod.value; label: string; icon: string }[]>(() => [
   { value: 'CASH', label: t('checkout.payment_method_cash', 'CASH'), icon: '💵' },
@@ -367,6 +423,7 @@ const paymentMethods = computed<{ value: typeof paymentMethod.value; label: stri
   { value: 'ZALOPAY', label: t('checkout.payment_method_zalopay', 'ZaloPay'), icon: '📱' },
   { value: 'MOMO', label: t('checkout.payment_method_momo', 'MoMo'), icon: '📱' },
   { value: 'VNPAY', label: t('checkout.payment_method_vnpay', 'VNPay'), icon: '📱' },
+  { value: 'DEBT', label: t('checkout.payment_method_debt', 'GHI NỢ'), icon: '📝' },
 ])
 
 // Local pass-throughs — these read from the RPC response, not local JS math.
@@ -380,7 +437,11 @@ const serviceChargePct = computed(() => totals.value.service_charge_percent)
 const serviceCharge = computed(() => totals.value.service_charge_amount)
 const vatRate = computed(() => totals.value.vat_rate)
 const vatAmount = computed(() => totals.value.vat_amount)
-const grandTotal = computed(() => totals.value.grand_total)
+
+const applyWastePenalty = ref(false)
+const wastePenaltyAmount = ref<number | null>(null)
+
+const grandTotal = computed(() => totals.value.grand_total + (applyWastePenalty.value ? (wastePenaltyAmount.value || 0) : 0))
 
 const maxRedeemablePoints = computed(() => {
   if (!customerInfo.value || !rules.value) return 0
@@ -567,10 +628,15 @@ async function handleCheckout() {
       pointsToRedeem: pointsToRedeem.value || 0,
       branchId: activeBranchId.value as string,
       cashierId: profile.value?.id || '00000000-0000-0000-0000-000000000000',
+      taxId: taxId.value,
+      companyName: companyName.value,
+      requireInvoice: requireInvoice.value,
+      managerPin: managerPin.value
     })
 
     // Use the actual grand_total from the DB — never local JS math.
-    const finalGrand = Number(result.grand_total ?? 0)
+    const penalty = applyWastePenalty.value ? (wastePenaltyAmount.value || 0) : 0;
+    const finalGrand = Number(result.grand_total ?? 0) + penalty
 
     await Swal.fire({
       icon: 'success',
@@ -578,6 +644,9 @@ async function handleCheckout() {
       html:
         `Invoice <b>${result.invoice_number}</b><br/>` +
         `Grand Total: <b style="color: #ca8a04">${finalGrand.toLocaleString('vi-VN')}đ</b><br/>` +
+        (penalty
+          ? `Waste Penalty: +${Number(penalty).toLocaleString('vi-VN')}đ<br/>`
+          : '') +
         (result.voucher_discount
           ? `Voucher discount: -${Number(result.voucher_discount).toLocaleString('vi-VN')}đ<br/>`
           : '') +

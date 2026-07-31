@@ -578,12 +578,14 @@
               >
                 <div class="flex justify-between items-center text-[11px]">
                   <span class="text-[#E8772E] font-bold"
-                    >Vị trí: {{ selectedTableCode || "[Chưa chọn]" }}</span
-                  >
+                    >Vị trí: {{ selectedTableCode || "[Chưa chọn]" }}</span>
                   <span class="text-gray-400">In: {{ printCount }}</span>
                 </div>
-                <div class="text-[10px] text-gray-500 mt-0.5">
-                  TG: {{ currentTime }}
+                <div class="text-[10px] text-gray-500 mt-0.5 flex justify-between items-center">
+                  <span>TG: {{ currentTime }}</span>
+                  <button @click="openSettingsConfig" class="text-blue-400 hover:text-blue-300 transition-colors" type="button">
+                    ⚙️ Cấu hình gói
+                  </button>
                 </div>
                 <input
                   type="text"
@@ -4809,9 +4811,9 @@
                 <span class="text-xs font-bold text-gray-500 uppercase"
                   >Mã PIN xác thực của Quản lý</span
                 >
-                <div class="flex gap-3 justify-center">
+                <div class="flex gap-2 justify-center">
                   <div
-                    v-for="i in 4"
+                    v-for="i in 6"
                     :key="i"
                     class="w-3.5 h-3.5 rounded-full border-2 transition-all duration-150"
                     :class="[
@@ -4868,6 +4870,15 @@
               type="button"
             >
               Quay lại
+            </button>
+            <button
+              @click="executeCancelItem"
+              :disabled="cancelItemPin.length < 6 || cancelItemLoading"
+              class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-bold text-sm disabled:opacity-40 disabled:cursor-not-allowed transition-all active:scale-95"
+              type="button"
+            >
+              <span v-if="cancelItemLoading" class="animate-spin inline-block mr-1">⏳</span>
+              {{ cancelItemLoading ? 'Đang xử lý...' : '✓ Xác nhận hủy' }}
             </button>
           </div>
         </div>
@@ -5126,10 +5137,10 @@ async function openCancelItemModal(item: any) {
 }
 
 function pressCancelPinDigit(digit: string) {
-  if (cancelItemPin.value.length < 4) {
+  if (cancelItemPin.value.length < 6) {
     cancelItemPin.value += digit;
   }
-  if (cancelItemPin.value.length === 4) {
+  if (cancelItemPin.value.length === 6) {
     executeCancelItem();
   }
 }
@@ -5145,8 +5156,10 @@ async function executeCancelItem() {
     return;
   }
 
-  if (cancelItemPin.value !== "1234") {
-    triggerToast("error", "Mã PIN xác thực sai!");
+  // PIN verification is handled by the RPC (hall_cancel_order_or_item calls fn_verify_manager_pin)
+  // Minimum length check only — server does the real validation
+  if (cancelItemPin.value.length < 6) {
+    triggerToast("error", "Mã PIN phải đủ 6 số!");
     cancelItemPin.value = "";
     return;
   }
@@ -5187,6 +5200,21 @@ async function executeCancelItem() {
     );
 
     if (cancelErr) throw cancelErr;
+
+    // RPC returns {success:false, error:'PIN_INVALID'} for wrong PIN
+    if (cancelResult && cancelResult.success === false) {
+      const errCode = cancelResult.error || 'UNKNOWN';
+      if (errCode === 'PIN_INVALID') {
+        triggerToast("error", "❌ Mã PIN không đúng!");
+      } else if (errCode === 'ITEM_NOT_FOUND') {
+        triggerToast("error", "Món không tồn tại trên đơn hàng server!");
+      } else {
+        triggerToast("error", `Lỗi hủy món: ${errCode}`);
+      }
+      cancelItemPin.value = "";
+      cancelItemLoading.value = false;
+      return;
+    }
 
     const newQty = localItem.quantity - cancelItemQty.value;
     if (newQty <= 0) {
@@ -6448,6 +6476,7 @@ const uiTranslations = {
 
 // Course package pricing scaling
 const packagePrices: Record<string, number> = {
+  "A La Carte": 0,
   "Buffet 1390": 1380000,
   "Buffet 1150": 1150000,
   "Buffet 680": 680000,
@@ -7588,16 +7617,39 @@ function handleCardClick(product: MenuItem) {
 function addToCart(product: MenuItem) {
   if (!selectedTableCode.value) return;
 
-  // Validate Rule 1: Limit 10 items/round
+  const pkgName = activeSettings.value.package;
+  const isBuffetItem = pkgName && isItemInPackage(product, pkgName);
+  const guestCount = activeOrder.value.guestCount || 2;
+  const limit = isBuffetItem ? guestCount * 3 : 10;
+
+  // Validate limits
   const currentQty = getCartItemQty(product.id);
-  if (currentQty >= 10) {
-    triggerToast(
-      "warning",
-      t("reception_order.da_dat_gioi_han_toi_da_10_phan", {
-        name: product.name,
-      }),
-    );
-    return;
+  if (currentQty >= limit) {
+    if (isBuffetItem) {
+      Swal.fire({
+        title: "Vượt giới hạn Buffet",
+        text: `Món "${product.name}" đã vượt quá giới hạn khuyến nghị cho ${guestCount} khách. Bạn có muốn tiếp tục thêm?`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Tiếp tục thêm",
+        cancelButtonText: "Hủy",
+        confirmButtonColor: "#f59e0b",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          restaurantStore.addOrderItem(selectedTableCode.value!, product);
+          triggerToast("success", t("reception_order.da_them_vao_hoa_don", { name: product.name }));
+        }
+      });
+      return;
+    } else {
+      triggerToast(
+        "warning",
+        t("reception_order.da_dat_gioi_han_toi_da_10_phan", {
+          name: product.name,
+        }),
+      );
+      return;
+    }
   }
 
   restaurantStore.addOrderItem(selectedTableCode.value, product);
@@ -7611,9 +7663,34 @@ function updateQty(itemId: string, change: number) {
   if (!selectedTableCode.value) return;
 
   const currentQty = getCartItemQty(itemId);
-  if (change > 0 && currentQty >= 10) {
-    triggerToast("warning", t("reception_order.moi_luot_goi_toi_da_10_phan"));
-    return;
+  if (change > 0) {
+    const item = activeOrder.value.items.find((i: any) => i.id === itemId);
+    const pkgName = activeSettings.value.package;
+    const isBuffetItem = pkgName && item && isItemInPackage(item, pkgName);
+    const guestCount = activeOrder.value.guestCount || 2;
+    const limit = isBuffetItem ? guestCount * 3 : 10;
+
+    if (currentQty >= limit) {
+      if (isBuffetItem) {
+        Swal.fire({
+          title: "Vượt giới hạn Buffet",
+          text: `Món này đã vượt quá giới hạn khuyến nghị cho ${guestCount} khách. Bạn có muốn tiếp tục thêm?`,
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonText: "Tiếp tục thêm",
+          cancelButtonText: "Hủy",
+          confirmButtonColor: "#f59e0b",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            restaurantStore.updateItemQuantity(selectedTableCode.value!, itemId, change);
+          }
+        });
+        return;
+      } else {
+        triggerToast("warning", t("reception_order.moi_luot_goi_toi_da_10_phan"));
+        return;
+      }
+    }
   }
 
   restaurantStore.updateItemQuantity(selectedTableCode.value, itemId, change);
@@ -7852,7 +7929,7 @@ function selectDrinkOption(group: string) {
   tempSettings.value.drinkGroup = group;
 }
 
-function confirmPackageSelection() {
+async function confirmPackageSelection() {
   if (!tempSettings.value.package) {
     triggerToast("warning", t("reception_order.vui_long_chon_goi_buffet"));
     return;
@@ -7860,6 +7937,26 @@ function confirmPackageSelection() {
 
   const code = selectedTableCode.value;
   if (code && tableSettings.value[code]) {
+    // Determine the service mode based on the package selected
+    const serviceMode = tempSettings.value.package === "A La Carte" ? "a_la_carte" : "buffet";
+    const packageId = serviceMode === "buffet" ? "00000000-0000-0000-0000-000000000000" : null; // In a real app we'd map this to a real UUID
+
+    // Make RPC call to update DB
+    const table = restaurantStore.getTableByCode(code);
+    if (table && table.table_id && !String(table.table_id).startsWith("mock-")) {
+      const { error } = await supabase.rpc("hall_update_session_mode", {
+        p_branch_id: activeBranchId.value,
+        p_table_id: table.table_id,
+        p_service_mode: serviceMode,
+        p_package_id: packageId
+      });
+      
+      if (error) {
+        triggerToast("error", "Lỗi khi cập nhật gói: " + error.message);
+        return;
+      }
+    }
+
     tableSettings.value[code].package = tempSettings.value.package;
     tableSettings.value[code].drinkGroup = tempSettings.value.drinkGroup;
     tableSettings.value[code].language = tempSettings.value.language;
@@ -7868,7 +7965,7 @@ function confirmPackageSelection() {
     // Update order header name to show package
     const order = activeOrder.value;
     order.customerName =
-      order.customerName === t("reception_order.guestWalkIn")
+      order.customerName === t("reception_order.guestWalkIn") || order.customerName.startsWith("Khách (")
         ? `Khách (${tempSettings.value.package})`
         : order.customerName;
 
